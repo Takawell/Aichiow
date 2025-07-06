@@ -1,15 +1,39 @@
 // pages/index.tsx
 import Head from 'next/head'
-import TrendingSection from '@/components/home/TrendingSection'
+import HeroSection from '@/components/home/HeroSection'
+import AnimeSection from '@/components/home/AnimeSection'
+import { useHeroAnime } from '@/hooks/useHeroAnime'
+import { useTrendingAnime } from '@/hooks/useTrendingAnime'
+import { useOngoingAnime } from '@/hooks/useOngoingAnime'
+import { useSeasonalAnime } from '@/hooks/useSeasonalAnime'
+import { useTopRatedAnime } from '@/hooks/useTopRatedAnime'
 
 export default function HomePage() {
+  const { data: heroAnime, isLoading: loadingHero } = useHeroAnime()
+  const { data: trendingAnime } = useTrendingAnime()
+  const { data: ongoingAnime } = useOngoingAnime()
+  const { data: seasonalAnime } = useSeasonalAnime()
+  const { data: topRatedAnime } = useTopRatedAnime()
+
   return (
     <>
       <Head>
         <title>Aichiow — Anime Showcase</title>
       </Head>
-      <main className="bg-dark min-h-screen">
-        <TrendingSection />
+      <main className="bg-dark text-white min-h-screen">
+        {!loadingHero && heroAnime && <HeroSection anime={heroAnime} />}
+        {trendingAnime && (
+          <AnimeSection title="🔥 Trending Now" animeList={trendingAnime} />
+        )}
+        {ongoingAnime && (
+          <AnimeSection title="📺 Ongoing Anime" animeList={ongoingAnime} />
+        )}
+        {seasonalAnime && (
+          <AnimeSection title="🌸 Seasonal Anime" animeList={seasonalAnime} />
+        )}
+        {topRatedAnime && (
+          <AnimeSection title="⭐ Top Rated" animeList={topRatedAnime} />
+        )}
       </main>
     </>
   )
