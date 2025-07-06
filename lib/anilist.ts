@@ -1,5 +1,6 @@
 // lib/anilist.ts
 import axios from 'axios'
+import { Anime } from '@/types/anime'
 
 const ANILIST_API = 'https://graphql.anilist.co'
 
@@ -15,4 +16,116 @@ export async function fetchFromAnilist(query: string, variables?: Record<string,
     console.error('Anilist Error:', error.message)
     throw new Error('Failed to fetch from Anilist')
   }
+}
+
+export async function fetchTrendingAnime(): Promise<Anime[]> {
+  const query = `
+    query {
+      Page(perPage: 10) {
+        media(type: ANIME, sort: TRENDING_DESC) {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+          }
+          bannerImage
+          genres
+          averageScore
+          trailer {
+            id
+            site
+          }
+        }
+      }
+    }
+  `
+  const data = await fetchFromAnilist(query)
+  return data.Page.media
+}
+
+export async function fetchOngoingAnime(): Promise<Anime[]> {
+  const query = `
+    query {
+      Page(perPage: 10) {
+        media(type: ANIME, status: RELEASING, sort: POPULARITY_DESC) {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+          }
+          bannerImage
+          genres
+          averageScore
+          trailer {
+            id
+            site
+          }
+        }
+      }
+    }
+  `
+  const data = await fetchFromAnilist(query)
+  return data.Page.media
+}
+
+export async function fetchSeasonalAnime(): Promise<Anime[]> {
+  const query = `
+    query {
+      Page(perPage: 10) {
+        media(type: ANIME, season: SUMMER, seasonYear: 2025, sort: POPULARITY_DESC) {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+          }
+          bannerImage
+          genres
+          averageScore
+          trailer {
+            id
+            site
+          }
+        }
+      }
+    }
+  `
+  const data = await fetchFromAnilist(query)
+  return data.Page.media
+}
+
+export async function fetchTopRatedAnime(): Promise<Anime[]> {
+  const query = `
+    query {
+      Page(perPage: 10) {
+        media(type: ANIME, sort: SCORE_DESC) {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+          }
+          bannerImage
+          genres
+          averageScore
+          trailer {
+            id
+            site
+          }
+        }
+      }
+    }
+  `
+  const data = await fetchFromAnilist(query)
+  return data.Page.media
 }
