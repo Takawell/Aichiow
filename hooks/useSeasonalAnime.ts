@@ -1,7 +1,7 @@
 // hooks/useSeasonalAnime.ts
 import { useQuery } from '@tanstack/react-query'
 import { Anime } from '@/types/anime'
-import { fetchAnimeList } from '@/lib/anilist'
+import { fetchFromAnilist } from '@/lib/anilist'
 
 export function useSeasonalAnime() {
   return useQuery<Anime[]>({
@@ -10,7 +10,7 @@ export function useSeasonalAnime() {
       const query = `
         query {
           Page(perPage: 12) {
-            media(type: ANIME, season: SUMMER, seasonYear: 2025, sort: POPULARITY_DESC) {
+            media(season: SUMMER, seasonYear: 2024, type: ANIME, sort: POPULARITY_DESC) {
               id
               title {
                 romaji
@@ -31,8 +31,8 @@ export function useSeasonalAnime() {
           }
         }
       `
-      const data = await fetchAnimeList(query)
+      const data = await fetchFromAnilist(query)
       return data?.Page?.media ?? []
-    },
+    }
   })
 }
