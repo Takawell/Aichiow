@@ -1,15 +1,16 @@
-// components/home/AnimeSection.tsx
 import Link from 'next/link'
 import { Anime } from '@/types/anime'
 import AnimeCard from '../anime/AnimeCard'
 
 interface AnimeSectionProps {
   title: string
-  animeList: Anime[]
+  animeList?: Anime[] // dijadikan optional supaya tidak error
   href?: string
 }
 
 export default function AnimeSection({ title, animeList, href }: AnimeSectionProps) {
+  const isLoading = !animeList || animeList.length === 0
+
   return (
     <section className="px-4 py-6">
       <div className="flex items-center justify-between mb-4">
@@ -21,9 +22,13 @@ export default function AnimeSection({ title, animeList, href }: AnimeSectionPro
         )}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {animeList.map((anime) => (
-          <AnimeCard key={anime.id} anime={anime} />
-        ))}
+        {isLoading
+          ? [...Array(10)].map((_, i) => (
+              <div key={i} className="h-64 bg-neutral-700 animate-pulse rounded-xl" />
+            ))
+          : animeList.map((anime) => (
+              <AnimeCard key={anime.id} anime={anime} />
+            ))}
       </div>
     </section>
   )
