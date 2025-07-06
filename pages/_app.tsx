@@ -1,15 +1,16 @@
 // pages/_app.tsx
+
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
 
 export default function App({ Component, pageProps }: AppProps) {
+  const [queryClient] = useState(() => new QueryClient())
+
   return (
-    <>
-      <Navbar />
+    <QueryClientProvider client={queryClient}>
       <Component {...pageProps} />
-      <Footer />
-    </>
+    </QueryClientProvider>
   )
 }
