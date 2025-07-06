@@ -1,25 +1,18 @@
 // lib/anilist.ts
+import axios from 'axios'
+
 const ANILIST_API = 'https://graphql.anilist.co'
 
 export async function fetchFromAnilist(query: string, variables?: Record<string, any>) {
-  const response = await fetch(ANILIST_API, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
-  })
-
-  const json = await response.json()
-  if (json.errors) {
-    console.error('Anilist Error:', json.errors)
+  try {
+    const res = await axios.post(
+      ANILIST_API,
+      { query, variables },
+      { headers: { 'Content-Type': 'application/json' } }
+    )
+    return res.data.data
+  } catch (error: any) {
+    console.error('Anilist Error:', error.message)
     throw new Error('Failed to fetch from Anilist')
   }
-
-  return json.data
 }
-
