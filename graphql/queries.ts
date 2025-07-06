@@ -11,13 +11,12 @@ export const TRENDING_ANIME_QUERY = `
         coverImage {
           large
         }
-        bannerImage
         genres
         averageScore
-        episodes
-        season
-        seasonYear
-        format
+        trailer {
+          id
+          site
+        }
       }
     }
   }
@@ -31,18 +30,18 @@ export const ANIME_DETAIL_QUERY = `
         romaji
         english
       }
+      description(asHtml: false)
       coverImage {
         large
       }
       bannerImage
-      description(asHtml: false)
-      episodes
+      format
       season
       seasonYear
-      format
       averageScore
       popularity
-      studios {
+      genres
+      studios(isMain: true) {
         nodes {
           name
         }
@@ -50,14 +49,11 @@ export const ANIME_DETAIL_QUERY = `
       trailer {
         id
         site
-        thumbnail
       }
-      genres
-      characters(sort: [ROLE, RELEVANCE], perPage: 8) {
+      characters(role: MAIN, page: 1, perPage: 10) {
         edges {
           role
           node {
-            id
             name {
               full
             }
@@ -65,15 +61,13 @@ export const ANIME_DETAIL_QUERY = `
               large
             }
           }
-          voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
-            id
+          voiceActors(language: JAPANESE) {
             name {
               full
             }
             image {
               large
             }
-            language
           }
         }
       }
@@ -95,6 +89,10 @@ export const SEARCH_ANIME_QUERY = `
         }
         genres
         averageScore
+        trailer {
+          id
+          site
+        }
       }
     }
   }
