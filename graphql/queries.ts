@@ -80,3 +80,22 @@ export const ANIME_DETAIL_QUERY = `
     }
   }
 `
+
+export const SEARCH_ANIME_QUERY = `
+  query ($search: String) {
+    Page(perPage: 20) {
+      media(search: $search, type: ANIME) {
+        id
+        title {
+          romaji
+          english
+        }
+        coverImage {
+          large
+        }
+        genres
+        averageScore
+      }
+    }
+  }
+`
