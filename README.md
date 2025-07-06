@@ -33,7 +33,6 @@
 
 ## 📁 Project Structure
 
-```bash
 components/
   ├── layout/
   ├── home/
@@ -65,14 +64,17 @@ utils/
 constants/
 styles/
 public/
+
 🔧 Setup & Run Locally
-bash
-Salin kode
+
 git clone https://github.com/kamu/aichiow.git
 cd aichiow
 npm install
 npm run dev
-📡 Data Source
+
+---
+
+### 📡 Data Source
 Data anime diambil dari Anilist.co melalui Anilist GraphQL API.
 
 📜 License
