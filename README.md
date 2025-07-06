@@ -1,85 +1,59 @@
-# 🌌 Aichiow — Anime Showcase Platform
+<h1 align="center">🌌 Aichiow</h1>
+<p align="center">
+  <b>Anime Showcase Platform</b> — Modern UI for anime trailers, characters, and voice actors powered by Anilist API.
+</p>
 
-**Aichiow** adalah platform modern berbasis web untuk menampilkan informasi lengkap anime, trailer, karakter, dan voice actor (seiyuu), menggunakan data real-time dari **Anilist GraphQL API**. Proyek ini bersifat UI-first dan berfokus pada pengalaman pengguna yang cinematic, elegan, dan cepat.
-
----
-
-## 🚀 Features
-
-- 🎬 Hero trailer section dengan embed video
-- ⭐ Trending anime dari Anilist
-- 🏷️ Genre filter interaktif
-- 🔍 Real-time anime search
-- 📖 Halaman detail anime lengkap:
-  - Trailer
-  - Poster & deskripsi
-  - Statistik (episode, score, rank)
-  - Karakter & voice actor
-- 🎞️ Halaman khusus trailer gallery
-- 🌑 Dark mode toggle
-- 💨 UI halus dengan Framer Motion
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-13+-000?style=flat&logo=next.js" />
+  <img src="https://img.shields.io/badge/TailwindCSS-3-38bdf8?style=flat&logo=tailwindcss" />
+  <img src="https://img.shields.io/badge/GraphQL-Anilist-e535ab?style=flat&logo=graphql" />
+  <img src="https://img.shields.io/badge/TypeScript-Ready-3178c6?style=flat&logo=typescript" />
+</p>
 
 ---
 
-## 🛠️ Tech Stack
+## 🎬 Overview
 
-- **Next.js** (Pages Router)
+**Aichiow** is a cinematic anime showcase platform built with **Next.js**, featuring:
+- Anime trailers
+- Detailed character info
+- Voice actor data
+- Genre filtering
+- Responsive UI with dark mode
+
+> Powered by real-time data from **Anilist GraphQL API**.
+
+---
+
+## 📸 Preview
+
+> [Preview coming soon]
+
+---
+
+## ✨ Features
+
+- 🎥 **Trailer Spotlight** — Stunning hero section with YouTube trailers
+- 🔥 **Trending Anime** — Popular titles updated live
+- 🧩 **Genre Filtering** — Smooth, responsive genre tags
+- 🧠 **Anime Details** — Stats, synopsis, studio, season, format, and more
+- 🎭 **Characters & Voice Actors** — Beautiful cast section with images & VA names
+- 🌌 **Trailer Gallery** — Dedicated page for all trailers
+- 🌓 **Dark Mode** — Toggle-friendly and elegant
+
+---
+
+## 🧱 Tech Stack
+
+- **Next.js** 13+
 - **TypeScript**
 - **TailwindCSS**
 - **Framer Motion**
-- **Anilist GraphQL API**
+- **GraphQL (Anilist API)**
 
 ---
 
-## 📁 Project Structure
-```bash
-components/
-  ├── layout/
-  ├── home/
-  ├── anime/
-  ├── character/
-  ├── trailer/
-  └── shared/
+### 📜 License
+Licensed under the MIT License — free for personal and educational use.
 
-pages/
-  ├── index.tsx
-  ├── trailer.tsx
-  └── anime/[slug].tsx
-
-lib/
-  └── anilist.ts
-
-graphql/
-  ├── queries.ts
-  └── fragments.ts
-
-hooks/
-  └── useAnime.ts
-
-types/
-  ├── anime.ts
-  └── character.ts
-
-utils/
-constants/
-styles/
-public/
-
-🔧 Setup & Run Locally
-
-git clone https://github.com/kamu/aichiow.git
-cd aichiow
-npm install
-npm run dev
-
----
-
-### 📡 Data Source
-Data anime diambil dari Anilist.co melalui Anilist GraphQL API.
-
-📜 License
-MIT — free to use for personal & educational projects.
-
-Dibuat dengan ✨ oleh tim Aichiow.
-
----
+<p align="center"> Built with ❤️ by Aichiow Team </p>
