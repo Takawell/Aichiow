@@ -32,7 +32,7 @@
 ---
 
 ## 📁 Project Structure
-
+```bash
 components/
   ├── layout/
   ├── home/
