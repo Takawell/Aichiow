@@ -1,7 +1,7 @@
 // hooks/useTopRatedAnime.ts
 import { useQuery } from '@tanstack/react-query'
 import { Anime } from '@/types/anime'
-import { fetchAnimeList } from '@/lib/anilist'
+import { fetchFromAnilist } from '@/lib/anilist'
 
 export function useTopRatedAnime() {
   return useQuery<Anime[]>({
@@ -22,7 +22,6 @@ export function useTopRatedAnime() {
               bannerImage
               genres
               averageScore
-              description
               trailer {
                 id
                 site
@@ -31,8 +30,8 @@ export function useTopRatedAnime() {
           }
         }
       `
-      const data = await fetchAnimeList(query)
+      const data = await fetchFromAnilist(query)
       return data?.Page?.media ?? []
-    },
+    }
   })
 }
