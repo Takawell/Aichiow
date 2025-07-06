@@ -8,7 +8,8 @@ import GenreFilter from '@/components/shared/GenreFilter'
 
 export default function ExplorePage() {
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null)
-  const { anime, isLoading } = useTrendingAnime(1, 30)
+
+  const { data: anime = [], isLoading } = useTrendingAnime(1, 30)
 
   const filtered = selectedGenre
     ? anime.filter((a) => a.genres.includes(selectedGenre))
