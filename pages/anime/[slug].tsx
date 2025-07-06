@@ -23,8 +23,10 @@ export default function AnimeDetailPage() {
       </Head>
       <main className="bg-dark text-white pb-20">
         <AnimeDetailHeader anime={anime} />
-        {anime.trailer?.site === 'youtube' && <AnimeTrailer trailer={anime.trailer} />}
-        {anime.characters?.edges?.length > 0 && (
+        {anime.trailer?.site === 'youtube' && (
+          <AnimeTrailer trailer={anime.trailer} />
+        )}
+        {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
           <CharacterList characters={anime.characters.edges} />
         )}
       </main>
