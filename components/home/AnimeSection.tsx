@@ -1,15 +1,16 @@
+// components/home/AnimeSection.tsx
 import Link from 'next/link'
 import { Anime } from '@/types/anime'
 import AnimeCard from '../anime/AnimeCard'
 
 interface AnimeSectionProps {
   title: string
-  animeList?: Anime[] // dijadikan optional supaya tidak error
+  anime?: Anime[] // ganti dari animeList jadi anime agar sesuai
   href?: string
 }
 
-export default function AnimeSection({ title, animeList, href }: AnimeSectionProps) {
-  const isLoading = !animeList || animeList.length === 0
+export default function AnimeSection({ title, anime, href }: AnimeSectionProps) {
+  const isLoading = !anime || anime.length === 0
 
   return (
     <section className="px-4 py-6">
@@ -26,8 +27,8 @@ export default function AnimeSection({ title, animeList, href }: AnimeSectionPro
           ? [...Array(10)].map((_, i) => (
               <div key={i} className="h-64 bg-neutral-700 animate-pulse rounded-xl" />
             ))
-          : animeList.map((anime) => (
-              <AnimeCard key={anime.id} anime={anime} />
+          : anime.map((a) => (
+              <AnimeCard key={a.id} anime={a} />
             ))}
       </div>
     </section>
