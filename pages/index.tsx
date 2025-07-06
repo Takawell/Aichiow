@@ -1,13 +1,14 @@
+// pages/index.tsx
 import Head from 'next/head'
-import HeroSection from '@/components/home/HeroSection'
-import AnimeSection from '@/components/home/AnimeSection'
 import {
   useHeroAnime,
   useTrendingAnime,
   useOngoingAnime,
   useSeasonalAnime,
-  useTopRatedAnime,
+  useTopRatedAnime
 } from '@/hooks'
+import HeroSection from '@/components/home/HeroSection'
+import AnimeSection from '@/components/home/AnimeSection'
 
 export default function HomePage() {
   const { data: heroAnime, isLoading: loadingHero } = useHeroAnime()
@@ -22,11 +23,11 @@ export default function HomePage() {
         <title>Aichiow — Anime Showcase</title>
       </Head>
       <main className="bg-dark min-h-screen">
-        <HeroSection anime={heroAnime} loading={loadingHero} />
+        <HeroSection anime={heroAnime?.[0]} loading={loadingHero} />
         <AnimeSection title="🔥 Trending Now" anime={trendingAnime} />
         <AnimeSection title="📺 Ongoing Anime" anime={ongoingAnime} />
         <AnimeSection title="⛅ Seasonal Anime" anime={seasonalAnime} />
-        <AnimeSection title="🏆 Top Rated" anime={topRatedAnime} />
+        <AnimeSection title="🏆 Top Rated Anime" anime={topRatedAnime} />
       </main>
     </>
   )
