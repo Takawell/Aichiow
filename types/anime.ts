@@ -15,6 +15,7 @@ export interface Anime {
   bannerImage?: string
   genres: string[]
   averageScore?: number
+  description?: string // ✅ tambahkan ini
   trailer?: {
     id: string
     site: string
@@ -22,7 +23,6 @@ export interface Anime {
 }
 
 export interface AnimeDetail extends Anime {
-  description?: string
   format?: string
   season?: string
   seasonYear?: number
