@@ -1,4 +1,3 @@
-// pages/index.tsx
 import Head from 'next/head'
 import HeroSection from '@/components/home/HeroSection'
 import AnimeSection from '@/components/home/AnimeSection'
@@ -9,11 +8,11 @@ import { useSeasonalAnime } from '@/hooks/useSeasonalAnime'
 import { useTopRatedAnime } from '@/hooks/useTopRatedAnime'
 
 export default function HomePage() {
-  const { anime: heroAnime, isLoading: loadingHero } = useHeroAnime()
-  const { anime: trendingAnime } = useTrendingAnime()
-  const { anime: ongoingAnime } = useOngoingAnime()
-  const { anime: seasonalAnime } = useSeasonalAnime()
-  const { anime: topRatedAnime } = useTopRatedAnime()
+  const { data: heroAnime, isLoading: loadingHero } = useHeroAnime()
+  const { data: trendingAnime } = useTrendingAnime()
+  const { data: ongoingAnime } = useOngoingAnime()
+  const { data: seasonalAnime } = useSeasonalAnime()
+  const { data: topRatedAnime } = useTopRatedAnime()
 
   return (
     <>
