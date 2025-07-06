@@ -1,11 +1,25 @@
+/* styles/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Optional: custom style */
-html {
-  scroll-behavior: smooth;
-}
 body {
-  @apply bg-dark text-white;
+  @apply bg-dark text-white font-sans antialiased;
+}
+
+a {
+  @apply text-white no-underline;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #38bdf8 #1f2937;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #38bdf8;
+  border-radius: 4px;
 }
