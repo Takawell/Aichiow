@@ -57,3 +57,5 @@
 Licensed under the MIT License — free for personal and educational use.
 
 <p align="center"> Built with ❤️ by Aichiow Team </p>
+
+---
