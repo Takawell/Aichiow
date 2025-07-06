@@ -1,7 +1,7 @@
 // hooks/useOngoingAnime.ts
 import { useQuery } from '@tanstack/react-query'
 import { Anime } from '@/types/anime'
-import { fetchAnimeList } from '@/lib/anilist'
+import { fetchFromAnilist } from '@/lib/anilist'
 
 export function useOngoingAnime() {
   return useQuery<Anime[]>({
@@ -31,7 +31,7 @@ export function useOngoingAnime() {
           }
         }
       `
-      const data = await fetchAnimeList(query)
+      const data = await fetchFromAnilist(query)
       return data?.Page?.media ?? []
     },
   })
