@@ -9,11 +9,11 @@ import { useSeasonalAnime } from '@/hooks/useSeasonalAnime'
 import { useTopRatedAnime } from '@/hooks/useTopRatedAnime'
 
 export default function HomePage() {
-  const { data: heroAnime, isLoading: loadingHero } = useHeroAnime()
-  const { data: trendingAnime } = useTrendingAnime()
-  const { data: ongoingAnime } = useOngoingAnime()
-  const { data: seasonalAnime } = useSeasonalAnime()
-  const { data: topRatedAnime } = useTopRatedAnime()
+  const { anime: heroAnime, isLoading: loadingHero } = useHeroAnime()
+  const { anime: trendingAnime } = useTrendingAnime()
+  const { anime: ongoingAnime } = useOngoingAnime()
+  const { anime: seasonalAnime } = useSeasonalAnime()
+  const { anime: topRatedAnime } = useTopRatedAnime()
 
   return (
     <>
@@ -22,18 +22,10 @@ export default function HomePage() {
       </Head>
       <main className="bg-dark text-white min-h-screen">
         {!loadingHero && heroAnime && <HeroSection anime={heroAnime} />}
-        {trendingAnime && (
-          <AnimeSection title="🔥 Trending Now" animeList={trendingAnime} />
-        )}
-        {ongoingAnime && (
-          <AnimeSection title="📺 Ongoing Anime" animeList={ongoingAnime} />
-        )}
-        {seasonalAnime && (
-          <AnimeSection title="🌸 Seasonal Anime" animeList={seasonalAnime} />
-        )}
-        {topRatedAnime && (
-          <AnimeSection title="⭐ Top Rated" animeList={topRatedAnime} />
-        )}
+        {trendingAnime && <AnimeSection title="🔥 Trending Now" animeList={trendingAnime} />}
+        {ongoingAnime && <AnimeSection title="📺 Ongoing Anime" animeList={ongoingAnime} />}
+        {seasonalAnime && <AnimeSection title="🌸 Seasonal Anime" animeList={seasonalAnime} />}
+        {topRatedAnime && <AnimeSection title="⭐ Top Rated" animeList={topRatedAnime} />}
       </main>
     </>
   )
