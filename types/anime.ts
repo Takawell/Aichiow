@@ -1,13 +1,18 @@
 // types/anime.ts
+
 export interface Anime {
   id: number
   title: {
     romaji: string
     english?: string
+    native?: string
   }
   coverImage: {
     large: string
+    medium?: string
+    color?: string
   }
+  bannerImage?: string
   genres: string[]
   averageScore?: number
   trailer?: {
@@ -18,7 +23,6 @@ export interface Anime {
 
 export interface AnimeDetail extends Anime {
   description?: string
-  bannerImage?: string
   format?: string
   season?: string
   seasonYear?: number
