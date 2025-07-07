@@ -1,4 +1,3 @@
-// lib/anilist.ts
 import axios from 'axios'
 import { Anime } from '@/types/anime'
 
@@ -128,4 +127,41 @@ export async function fetchTopRatedAnime(): Promise<Anime[]> {
   `
   const data = await fetchFromAnilist(query)
   return data.Page.media
+}
+
+export async function fetchMangaCharacters(title: string) {
+  const query = `
+    query ($search: String) {
+      Media(search: $search, type: MANGA) {
+        characters(sort: [ROLE, RELEVANCE], perPage: 10) {
+          edges {
+            role
+            node {
+              id
+              name {
+                full
+              }
+              image {
+                large
+              }
+            }
+            voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
+              id
+              name {
+                full
+              }
+              image {
+                large
+              }
+            }
+          }
+        }
+      }
+    }
+  `
+
+  const variables = { search: title }
+  const data = await fetchFromAnilist(query, variables)
+
+  return data?.Media?.characters?.edges || []
 }
