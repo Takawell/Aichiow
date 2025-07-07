@@ -3,11 +3,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      's4.anilist.co', // anime image
-      'uploads.mangadex.org', // ✅ manga cover
-      'mangadex.org', // optional
-    ],
+    domains: ['s4.anilist.co', 'uploads.mangadex.org', 'api.mangadex.network'],
   },
 }
 
