@@ -7,11 +7,25 @@ import Link from 'next/link'
 
 export default function MangaLandingPage() {
   const [mangaList, setMangaList] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
-      const data = await fetchPopularManga()
-      setMangaList(data)
+      try {
+        const data = await fetchPopularManga()
+
+        // Filter hanya manga yang punya cover_art
+        const filtered = data.filter((manga: any) =>
+          manga.relationships?.some((rel: any) => rel.type === 'cover_art')
+        )
+
+        setMangaList(filtered)
+        console.log('[Manga Landing] Loaded manga:', filtered)
+      } catch (err) {
+        console.error('[Manga Landing] Error fetching manga:', err)
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [])
@@ -37,10 +51,12 @@ export default function MangaLandingPage() {
       {/* Most Followed Manga Section */}
       <section>
         <h2 className="text-2xl font-bold mb-4">🔥 Most Followed</h2>
-        {mangaList.length > 0 ? (
+        {loading ? (
+          <p className="text-zinc-400">Loading manga...</p>
+        ) : mangaList.length > 0 ? (
           <MangaGrid mangaList={mangaList.slice(0, 12)} />
         ) : (
-          <p className="text-zinc-400">Loading manga...</p>
+          <p className="text-zinc-500">No manga found.</p>
         )}
       </section>
     </main>
