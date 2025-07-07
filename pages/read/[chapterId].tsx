@@ -12,6 +12,7 @@ export default function ReadPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // ✅ Validasi: pastikan chapterId adalah string
     if (!chapterId || typeof chapterId !== 'string') return
 
     async function load() {
@@ -19,6 +20,7 @@ export default function ReadPage() {
         setLoading(true)
         const chapter = await fetchChapterImages(chapterId)
 
+        // ✅ Fallback jika `data` kosong, gunakan `dataSaver`
         const fullImages = (chapter.data?.length ? chapter.data : chapter.dataSaver).map(
           (file: string) => `${chapter.baseUrl}/data/${chapter.hash}/${file}`
         )
