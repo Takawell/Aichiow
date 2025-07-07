@@ -1,19 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchGenres, fetchPopularManga, searchManga, getMangaByFilter } from '@/lib/mangadex'
+import { useRouter } from 'next/router'
+import {
+  fetchGenres,
+  fetchPopularManga,
+  searchManga,
+  getMangaByFilter,
+} from '@/lib/mangadex'
 import MangaGrid from '@/components/manga/MangaGrid'
-import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function ExploreMangaPage() {
+  const router = useRouter()
+  const { genre } = router.query
+
   const [genres, setGenres] = useState<any[]>([])
   const [mangaList, setMangaList] = useState<any[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
-  const searchParams = useSearchParams()
-  const router = useRouter()
-
-  const selectedGenre = searchParams.get('genre') || ''
 
   useEffect(() => {
     async function loadGenres() {
@@ -27,8 +31,8 @@ export default function ExploreMangaPage() {
     async function loadManga() {
       setLoading(true)
       try {
-        if (selectedGenre) {
-          const filtered = await getMangaByFilter({ includedTags: [selectedGenre] })
+        if (genre && typeof genre === 'string') {
+          const filtered = await getMangaByFilter({ includedTags: [genre] })
           setMangaList(filtered)
         } else {
           const popular = await fetchPopularManga()
@@ -42,7 +46,7 @@ export default function ExploreMangaPage() {
       }
     }
     loadManga()
-  }, [selectedGenre])
+  }, [genre])
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -89,7 +93,7 @@ export default function ExploreMangaPage() {
         <button
           onClick={() => router.push('/manga/explore')}
           className={`px-3 py-1 rounded-md text-sm ${
-            selectedGenre === ''
+            !genre
               ? 'bg-sky-600 font-semibold'
               : 'bg-zinc-700 hover:bg-zinc-600'
           }`}
@@ -101,7 +105,7 @@ export default function ExploreMangaPage() {
             key={tag.id}
             onClick={() => handleGenreChange(tag.id)}
             className={`px-3 py-1 rounded-md text-sm ${
-              selectedGenre === tag.id
+              genre === tag.id
                 ? 'bg-sky-600 font-semibold'
                 : 'bg-zinc-700 hover:bg-zinc-600'
             }`}
