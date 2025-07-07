@@ -10,7 +10,7 @@ export async function fetchPopularManga() {
       includedTagsMode: 'AND',
       contentRating: ['safe', 'suggestive'],
       hasAvailableChapters: true,
-      includes: ['cover_art'],
+      includes: ['cover_art'], // ✅ WAJIB untuk dapet fileName cover
     },
   })
   return res.data.data
@@ -18,7 +18,9 @@ export async function fetchPopularManga() {
 
 export async function fetchMangaDetail(id: string) {
   const res = await axios.get(`${BASE_URL}/manga/${id}`, {
-    params: { includes: ['author', 'artist', 'cover_art'] },
+    params: {
+      includes: ['author', 'artist', 'cover_art'], // ✅ lengkap
+    },
   })
   return res.data.data
 }
@@ -50,7 +52,7 @@ export async function searchManga(query: string) {
     params: {
       title: query,
       limit: 20,
-      includes: ['cover_art'],
+      includes: ['cover_art'], // ✅ supaya bisa render hasil search
       contentRating: ['safe', 'suggestive'],
     },
   })
@@ -62,7 +64,7 @@ export async function fetchGenres() {
   return res.data.data
 }
 
-// Digunakan untuk /manga/genre/[name].tsx
+// ✅ Gunakan untuk /manga/genre/[name].tsx
 export async function getMangaByFilter(params: {
   includedTags: string[]
 }): Promise<any[]> {
@@ -71,6 +73,7 @@ export async function getMangaByFilter(params: {
       params: {
         limit: 20,
         includedTags: params.includedTags,
+        includedTagsMode: 'AND',
         contentRating: ['safe', 'suggestive'],
         includes: ['cover_art'],
         order: { popularity: 'desc' },
@@ -83,7 +86,7 @@ export async function getMangaByFilter(params: {
   }
 }
 
-// Optional: Bisa dihapus kalau pakai getMangaByFilter aja
+// Optional: masih bisa dipakai
 export async function fetchMangaByGenre(tagId: string) {
   const res = await axios.get(`${BASE_URL}/manga`, {
     params: {
@@ -97,6 +100,7 @@ export async function fetchMangaByGenre(tagId: string) {
   return res.data.data
 }
 
+// ✅ Util bikin URL cover
 export function getCoverImage(mangaId: string, fileName: string) {
   return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`
-}
+        }
