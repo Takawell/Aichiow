@@ -12,7 +12,7 @@ export default function ReadPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (typeof chapterId !== 'string') return
+    if (!chapterId || Array.isArray(chapterId)) return
 
     async function load() {
       try {
