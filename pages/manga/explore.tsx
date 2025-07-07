@@ -1,72 +1,105 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchPopularManga, fetchGenres, searchManga } from '@/lib/mangadex'
+import {
+  fetchPopularManga,
+  fetchGenres,
+  searchManga,
+  getMangaByFilter,
+} from '@/lib/mangadex'
 import MangaGrid from '@/components/manga/MangaGrid'
-import Link from 'next/link'
 
-export default function MangaExplorePage() {
-  const [mangaList, setMangaList] = useState<any[]>([])
+export default function ExploreMangaPage() {
+  const [searchTerm, setSearchTerm] = useState('')
   const [genres, setGenres] = useState<any[]>([])
-  const [query, setQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [selectedGenreId, setSelectedGenreId] = useState('')
+  const [mangaList, setMangaList] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
 
+  // Load genre dan default manga saat mount
   useEffect(() => {
-    async function load() {
-      const data = await fetchPopularManga()
-      const genreData = await fetchGenres()
-      setMangaList(data)
-      setGenres(genreData)
+    async function loadInitial() {
+      setLoading(true)
+      const [popular, tags] = await Promise.all([
+        fetchPopularManga(),
+        fetchGenres(),
+      ])
+      setMangaList(popular)
+      setGenres(tags)
+      setLoading(false)
     }
-    load()
+    loadInitial()
   }, [])
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
-    if (!query) return
-    const result = await searchManga(query)
-    setSearchResults(result)
-  }
+  // Handle Search
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      if (searchTerm.length > 1) {
+        setLoading(true)
+        const result = await searchManga(searchTerm)
+        setMangaList(result)
+        setLoading(false)
+      }
+    }, 500)
 
-  const displayedManga = searchResults.length > 0 ? searchResults : mangaList
+    return () => clearTimeout(timeout)
+  }, [searchTerm])
+
+  // Handle Genre Filter
+  useEffect(() => {
+    async function loadGenre() {
+      if (selectedGenreId) {
+        setLoading(true)
+        const result = await getMangaByFilter({ includedTags: [selectedGenreId] })
+        setMangaList(result)
+        setLoading(false)
+      }
+    }
+    loadGenre()
+  }, [selectedGenreId])
 
   return (
-    <main className="px-4 md:px-8 py-10">
-      {/* Title */}
-      <h1 className="text-3xl md:text-4xl font-bold mb-6 text-white">🔍 Explore Manga</h1>
+    <main className="px-4 md:px-8 py-10 text-white">
+      <h1 className="text-3xl font-bold mb-6 text-center">📚 Explore Manga</h1>
 
-      {/* Search Bar */}
-      <form onSubmit={handleSearch} className="mb-6 flex gap-2">
+      {/* Search Input */}
+      <div className="mb-6">
         <input
           type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
           placeholder="Search manga..."
-          className="w-full p-2 rounded-md bg-zinc-800 text-white border border-zinc-600"
+          className="w-full bg-zinc-800 text-white rounded-md px-4 py-2 outline-none"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-        >
-          Search
-        </button>
-      </form>
+      </div>
 
       {/* Genre Filter */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        {genres.map((genre) => (
-          <Link
-            href={`/manga/genre/${genre.id}`}
-            key={genre.id}
-            className="px-3 py-1 bg-zinc-700 text-sm rounded-full hover:bg-zinc-600 transition"
+      <div className="flex flex-wrap gap-2 mb-6">
+        {genres.map((tag: any) => (
+          <button
+            key={tag.id}
+            onClick={() =>
+              setSelectedGenreId(tag.id === selectedGenreId ? '' : tag.id)
+            }
+            className={`px-3 py-1 rounded-full text-sm border ${
+              tag.id === selectedGenreId
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-zinc-800 border-zinc-600 text-zinc-300'
+            }`}
           >
-            {genre.attributes.name.en}
-          </Link>
+            {tag.attributes.name.en}
+          </button>
         ))}
       </div>
 
-      {/* Manga Grid */}
-      <MangaGrid mangaList={displayedManga} />
+      {/* Manga Result */}
+      {loading ? (
+        <p className="text-zinc-400 text-center">Loading...</p>
+      ) : mangaList.length > 0 ? (
+        <MangaGrid mangaList={mangaList} />
+      ) : (
+        <p className="text-zinc-500 text-center">No manga found.</p>
+      )}
     </main>
   )
 }
