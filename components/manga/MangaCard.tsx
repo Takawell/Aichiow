@@ -1,5 +1,3 @@
-'use client'
-
 import Image from 'next/image'
 import Link from 'next/link'
 import { getCoverImage } from '@/lib/mangadex'
@@ -11,11 +9,17 @@ interface MangaCardProps {
 }
 
 export default function MangaCard({ id, title, coverFileName }: MangaCardProps) {
+  const fallbackCover = '/default-cover.jpg' // kamu bisa tambahkan gambar ini di /public
+
+  const imageUrl = coverFileName
+    ? getCoverImage(id, coverFileName)
+    : fallbackCover
+
   return (
     <Link href={`/manga/${id}`} className="group block hover:scale-105 transition-transform duration-300">
       <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xl shadow-lg bg-zinc-900">
         <Image
-          src={getCoverImage(id, coverFileName)}
+          src={imageUrl}
           alt={title}
           fill
           className="object-cover group-hover:opacity-90"
