@@ -7,10 +7,11 @@ function hasCoverArt(manga: any) {
   return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
 }
 
+// ✅ Fetch populer manga (untuk homepage dan explore)
 export async function fetchPopularManga() {
   const res = await axios.get(`${BASE_URL}/manga`, {
     params: {
-      limit: 40, // lebih banyak agar tetap tampil
+      limit: 40,
       order: { followedCount: 'desc' },
       includedTagsMode: 'AND',
       contentRating: ['safe', 'suggestive'],
@@ -23,6 +24,7 @@ export async function fetchPopularManga() {
   return filtered
 }
 
+// ✅ Fetch detail manga
 export async function fetchMangaDetail(id: string) {
   const res = await axios.get(`${BASE_URL}/manga/${id}`, {
     params: {
@@ -32,6 +34,7 @@ export async function fetchMangaDetail(id: string) {
   return res.data.data
 }
 
+// ✅ Fetch list chapter dari manga
 export async function fetchChapters(mangaId: string) {
   const res = await axios.get(`${BASE_URL}/chapter`, {
     params: {
@@ -44,6 +47,7 @@ export async function fetchChapters(mangaId: string) {
   return res.data.data
 }
 
+// ✅ Fetch gambar dari 1 chapter
 export async function fetchChapterImages(chapterId: string) {
   const res = await axios.get(`${BASE_URL}/at-home/server/${chapterId}`)
   return {
@@ -54,6 +58,7 @@ export async function fetchChapterImages(chapterId: string) {
   }
 }
 
+// ✅ Search manga by title
 export async function searchManga(query: string) {
   const res = await axios.get(`${BASE_URL}/manga`, {
     params: {
@@ -68,11 +73,13 @@ export async function searchManga(query: string) {
   return filtered
 }
 
+// ✅ Fetch all genre tags
 export async function fetchGenres() {
   const res = await axios.get(`${BASE_URL}/manga/tag`)
   return res.data.data
 }
 
+// ✅ Filter manga by included tags (genre)
 export async function getMangaByFilter(params: {
   includedTags: string[]
 }): Promise<any[]> {
@@ -96,6 +103,7 @@ export async function getMangaByFilter(params: {
   }
 }
 
+// ✅ Optional filter by genre id (single)
 export async function fetchMangaByGenre(tagId: string) {
   const res = await axios.get(`${BASE_URL}/manga`, {
     params: {
@@ -111,6 +119,7 @@ export async function fetchMangaByGenre(tagId: string) {
   return filtered
 }
 
+// ✅ Buat cover image URL
 export function getCoverImage(mangaId: string, fileName: string) {
   return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`
 }
