@@ -10,6 +10,7 @@ export async function fetchPopularManga() {
       includedTagsMode: 'AND',
       contentRating: ['safe', 'suggestive'],
       hasAvailableChapters: true,
+      includes: ['cover_art'],
     },
   })
   return res.data.data
@@ -39,8 +40,8 @@ export async function fetchChapterImages(chapterId: string) {
   return {
     baseUrl: res.data.baseUrl,
     hash: res.data.chapter.hash,
-    data: res.data.chapter.data, // original quality
-    dataSaver: res.data.chapter.dataSaver, // low quality
+    data: res.data.chapter.data,
+    dataSaver: res.data.chapter.dataSaver,
   }
 }
 
@@ -61,6 +62,28 @@ export async function fetchGenres() {
   return res.data.data
 }
 
+// Digunakan untuk /manga/genre/[name].tsx
+export async function getMangaByFilter(params: {
+  includedTags: string[]
+}): Promise<any[]> {
+  try {
+    const res = await axios.get(`${BASE_URL}/manga`, {
+      params: {
+        limit: 20,
+        includedTags: params.includedTags,
+        contentRating: ['safe', 'suggestive'],
+        includes: ['cover_art'],
+        order: { popularity: 'desc' },
+      },
+    })
+    return res.data.data
+  } catch (error) {
+    console.error('getMangaByFilter error:', error)
+    return []
+  }
+}
+
+// Optional: Bisa dihapus kalau pakai getMangaByFilter aja
 export async function fetchMangaByGenre(tagId: string) {
   const res = await axios.get(`${BASE_URL}/manga`, {
     params: {
