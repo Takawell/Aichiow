@@ -12,19 +12,14 @@ export default function ReadPage() {
   useEffect(() => {
     const raw = router.query.chapterId
 
-    // ✅ Validasi aman dan eksplisit
-    const chapterId = typeof raw === 'string'
-      ? raw
-      : Array.isArray(raw)
-      ? raw[0]
-      : undefined
+    const chapterId = Array.isArray(raw) ? raw[0] : raw
 
-    if (!chapterId) return // ✅ skip kalau undefined
+    if (!chapterId) return
 
     async function load() {
       try {
         setLoading(true)
-        const chapter = await fetchChapterImages(chapterId)
+        const chapter = await fetchChapterImages(chapterId as string)
         const fullImages = (chapter.data?.length ? chapter.data : chapter.dataSaver).map(
           (file: string) => `${chapter.baseUrl}/data/${chapter.hash}/${file}`
         )
