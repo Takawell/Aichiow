@@ -14,21 +14,16 @@ export default function MangaLandingPage() {
     async function load() {
       try {
         const data = await fetchPopularManga()
-        const filtered = data.filter((manga: any) =>
-          manga.relationships?.some((rel: any) => rel.type === 'cover_art')
-        )
-
-        setLog(
-          `Fetched: ${data.length} | With cover: ${filtered.length}`
-        )
-
-        setMangaList(filtered)
-      } catch (err) {
-        setLog(`[Error] ${err}`)
+        setLog(`✅ Fetched: ${data.length} manga`)
+        setMangaList(data)
+      } catch (err: any) {
+        console.error('[Manga Landing] Fetch error:', err)
+        setLog(`❌ Error: ${err.message}`)
       } finally {
         setLoading(false)
       }
     }
+
     load()
   }, [])
 
@@ -50,10 +45,10 @@ export default function MangaLandingPage() {
         </Link>
       </section>
 
-      {/* Log Output */}
-      <p className="text-sm text-pink-500 mb-2 text-center">{log}</p>
+      {/* Debug Log */}
+      {log && <p className="text-sm text-center text-pink-400 mb-4">{log}</p>}
 
-      {/* Most Followed Manga Section */}
+      {/* Manga Section */}
       <section>
         <h2 className="text-2xl font-bold mb-4">🔥 Most Followed</h2>
         {loading ? (
