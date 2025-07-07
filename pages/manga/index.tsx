@@ -8,21 +8,23 @@ import Link from 'next/link'
 export default function MangaLandingPage() {
   const [mangaList, setMangaList] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [log, setLog] = useState<string>('')
 
   useEffect(() => {
     async function load() {
       try {
         const data = await fetchPopularManga()
-
-        // Filter hanya manga yang punya cover_art
         const filtered = data.filter((manga: any) =>
           manga.relationships?.some((rel: any) => rel.type === 'cover_art')
         )
 
+        setLog(
+          `Fetched: ${data.length} | With cover: ${filtered.length}`
+        )
+
         setMangaList(filtered)
-        console.log('[Manga Landing] Loaded manga:', filtered)
       } catch (err) {
-        console.error('[Manga Landing] Error fetching manga:', err)
+        setLog(`[Error] ${err}`)
       } finally {
         setLoading(false)
       }
@@ -47,6 +49,9 @@ export default function MangaLandingPage() {
           🔍 Explore Manga
         </Link>
       </section>
+
+      {/* Log Output */}
+      <p className="text-sm text-pink-500 mb-2 text-center">{log}</p>
 
       {/* Most Followed Manga Section */}
       <section>
