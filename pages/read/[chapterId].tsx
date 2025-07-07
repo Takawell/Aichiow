@@ -9,23 +9,25 @@ export default function ReadPage() {
   const [images, setImages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
-  // ✅ Ambil dan validasi `chapterId` sebagai string
-  const chapterId = Array.isArray(router.query.chapterId)
-    ? router.query.chapterId[0]
-    : router.query.chapterId
-
   useEffect(() => {
-    if (!chapterId || typeof chapterId !== 'string') return
+    const raw = router.query.chapterId
+
+    // ✅ Validasi aman dan eksplisit
+    const chapterId = typeof raw === 'string'
+      ? raw
+      : Array.isArray(raw)
+      ? raw[0]
+      : undefined
+
+    if (!chapterId) return // ✅ skip kalau undefined
 
     async function load() {
       try {
         setLoading(true)
         const chapter = await fetchChapterImages(chapterId)
-
         const fullImages = (chapter.data?.length ? chapter.data : chapter.dataSaver).map(
           (file: string) => `${chapter.baseUrl}/data/${chapter.hash}/${file}`
         )
-
         setImages(fullImages)
       } catch (err) {
         console.error('[Read Error]', err)
@@ -35,15 +37,13 @@ export default function ReadPage() {
     }
 
     load()
-  }, [chapterId])
+  }, [router.query.chapterId])
 
   return (
     <main className="p-4 text-white">
       <h1 className="text-xl font-bold mb-4">📖 Reading Chapter</h1>
       {loading ? (
         <p>Loading...</p>
-      ) : images.length === 0 ? (
-        <p className="text-zinc-400">❌ No images found for this chapter.</p>
       ) : (
         <div className="space-y-4">
           {images.map((src, idx) => (
