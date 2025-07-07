@@ -31,7 +31,7 @@ export default function MangaDetailPage() {
 
   const title = manga.attributes.title?.en || manga.attributes.title?.ja || 'Untitled'
   const description = manga.attributes.description?.en?.replace(/\[.*?\]/g, '') || 'No description.'
-  const genres = manga.attributes.tags?.map((tag: any) => tag.attributes.name.en) || []
+  const genres: string[] = manga.attributes.tags?.map((tag: any) => tag.attributes.name.en) || []
   const coverRel = manga.relationships.find((rel: any) => rel.type === 'cover_art')
   const coverFileName = coverRel?.attributes?.fileName || ''
 
@@ -77,5 +77,4 @@ export default function MangaDetailPage() {
       </div>
     </main>
   )
-    }
-                                                                
+}
