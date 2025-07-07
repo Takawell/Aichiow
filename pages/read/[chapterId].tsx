@@ -1,30 +1,33 @@
 'use client'
 
-import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import { fetchChapterImages } from '@/lib/mangadex'
+import Image from 'next/image'
 
 export default function MangaReaderPage() {
   const router = useRouter()
   const { chapterId } = router.query
 
   const [images, setImages] = useState<string[]>([])
-  const [baseUrl, setBaseUrl] = useState('')
-  const [hash, setHash] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string>('')
 
   useEffect(() => {
-    if (!chapterId) return
+    if (!chapterId || typeof chapterId !== 'string') return
 
     async function load() {
       try {
-        const res = await fetchChapterImages(chapterId as string)
-        setImages(res.data)
-        setHash(res.hash)
-        setBaseUrl(res.baseUrl)
-        setLoading(false)
+        setLoading(true)
+        const chapter = await fetchChapterImages(chapterId)
+        const fullImages = chapter.data.map(
+          (file: string) => `${chapter.baseUrl}/data/${chapter.hash}/${file}`
+        )
+        setImages(fullImages)
       } catch (err) {
-        console.error('Failed to load chapter images:', err)
+        setError('Failed to load chapter images.')
+        console.error('Reader error:', err)
+      } finally {
         setLoading(false)
       }
     }
@@ -32,24 +35,25 @@ export default function MangaReaderPage() {
     load()
   }, [chapterId])
 
-  if (loading) {
-    return <div className="text-white p-4">Loading chapter...</div>
-  }
-
-  if (!images.length) {
-    return <div className="text-white p-4">No images found for this chapter.</div>
-  }
-
   return (
-    <main className="px-2 sm:px-4 md:px-8 py-6 bg-black min-h-screen">
+    <main className="min-h-screen bg-black text-white py-8 px-4 md:px-12">
+      <h1 className="text-xl font-bold mb-6 text-center">
+        📖 Chapter Viewer
+      </h1>
+
+      {loading && <p className="text-zinc-400 text-center">Loading chapter...</p>}
+      {error && <p className="text-red-500 text-center">{error}</p>}
+
       <div className="flex flex-col items-center gap-4">
-        {images.map((img, i) => (
-          <img
-            key={i}
-            src={`${baseUrl}/data/${hash}/${img}`}
-            alt={`Page ${i + 1}`}
-            className="w-full max-w-3xl rounded shadow-lg"
-            loading="lazy"
+        {images.map((src, index) => (
+          <Image
+            key={index}
+            src={src}
+            alt={`Page ${index + 1}`}
+            width={800}
+            height={1200}
+            className="rounded-lg w-full max-w-4xl shadow-md"
+            unoptimized
           />
         ))}
       </div>
