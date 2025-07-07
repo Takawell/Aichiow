@@ -2,24 +2,31 @@ import axios from 'axios'
 
 const BASE_URL = 'https://api.mangadex.org'
 
+// ✅ Utility: filter manga yang punya cover_art
+function hasCoverArt(manga: any) {
+  return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
+}
+
 export async function fetchPopularManga() {
   const res = await axios.get(`${BASE_URL}/manga`, {
     params: {
-      limit: 20,
+      limit: 40, // lebih banyak agar tetap tampil
       order: { followedCount: 'desc' },
       includedTagsMode: 'AND',
       contentRating: ['safe', 'suggestive'],
       hasAvailableChapters: true,
-      includes: ['cover_art'], // ✅ WAJIB untuk dapet fileName cover
+      includes: ['cover_art'],
     },
   })
-  return res.data.data
+
+  const filtered = res.data.data.filter(hasCoverArt)
+  return filtered
 }
 
 export async function fetchMangaDetail(id: string) {
   const res = await axios.get(`${BASE_URL}/manga/${id}`, {
     params: {
-      includes: ['author', 'artist', 'cover_art'], // ✅ lengkap
+      includes: ['author', 'artist', 'cover_art'],
     },
   })
   return res.data.data
@@ -51,12 +58,14 @@ export async function searchManga(query: string) {
   const res = await axios.get(`${BASE_URL}/manga`, {
     params: {
       title: query,
-      limit: 20,
-      includes: ['cover_art'], // ✅ supaya bisa render hasil search
+      limit: 30,
+      includes: ['cover_art'],
       contentRating: ['safe', 'suggestive'],
     },
   })
-  return res.data.data
+
+  const filtered = res.data.data.filter(hasCoverArt)
+  return filtered
 }
 
 export async function fetchGenres() {
@@ -64,14 +73,13 @@ export async function fetchGenres() {
   return res.data.data
 }
 
-// ✅ Gunakan untuk /manga/genre/[name].tsx
 export async function getMangaByFilter(params: {
   includedTags: string[]
 }): Promise<any[]> {
   try {
     const res = await axios.get(`${BASE_URL}/manga`, {
       params: {
-        limit: 20,
+        limit: 30,
         includedTags: params.includedTags,
         includedTagsMode: 'AND',
         contentRating: ['safe', 'suggestive'],
@@ -79,28 +87,30 @@ export async function getMangaByFilter(params: {
         order: { popularity: 'desc' },
       },
     })
-    return res.data.data
+
+    const filtered = res.data.data.filter(hasCoverArt)
+    return filtered
   } catch (error) {
     console.error('getMangaByFilter error:', error)
     return []
   }
 }
 
-// Optional: masih bisa dipakai
 export async function fetchMangaByGenre(tagId: string) {
   const res = await axios.get(`${BASE_URL}/manga`, {
     params: {
       includedTags: [tagId],
       includedTagsMode: 'AND',
-      limit: 20,
+      limit: 30,
       contentRating: ['safe', 'suggestive'],
       includes: ['cover_art'],
     },
   })
-  return res.data.data
+
+  const filtered = res.data.data.filter(hasCoverArt)
+  return filtered
 }
 
-// ✅ Util bikin URL cover
 export function getCoverImage(mangaId: string, fileName: string) {
   return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`
-        }
+}
