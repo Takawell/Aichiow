@@ -6,13 +6,16 @@ import { fetchChapterImages } from '@/lib/mangadex'
 
 export default function ReadPage() {
   const router = useRouter()
-  const { chapterId } = router.query
+  const chapterIdRaw = router.query.chapterId
 
   const [images, setImages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!chapterId || Array.isArray(chapterId)) return
+    // Validasi: harus string
+    if (typeof chapterIdRaw !== 'string') return
+
+    const chapterId = chapterIdRaw
 
     async function load() {
       try {
@@ -30,7 +33,7 @@ export default function ReadPage() {
     }
 
     load()
-  }, [chapterId])
+  }, [chapterIdRaw])
 
   return (
     <main className="p-4 text-white">
