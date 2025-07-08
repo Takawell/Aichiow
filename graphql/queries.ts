@@ -1,4 +1,3 @@
-// graphql/queries.ts
 export const TRENDING_ANIME_QUERY = `
   query ($page: Int, $perPage: Int) {
     Page(page: $page, perPage: $perPage) {
@@ -92,6 +91,46 @@ export const SEARCH_ANIME_QUERY = `
         trailer {
           id
           site
+        }
+      }
+    }
+  }
+`
+
+// ✅ Tambahan: Upcoming Anime
+export const UPCOMING_ANIME_QUERY = `
+  query {
+    Page(perPage: 20) {
+      media(type: ANIME, status: NOT_YET_RELEASED, sort: POPULARITY_DESC) {
+        id
+        title {
+          romaji
+          english
+        }
+        coverImage {
+          large
+        }
+      }
+    }
+  }
+`
+
+// ✅ Tambahan: Weekly Schedule (RELEASING + airing time)
+export const SCHEDULE_ANIME_QUERY = `
+  query {
+    Page(perPage: 50) {
+      media(type: ANIME, status: RELEASING, sort: POPULARITY_DESC) {
+        id
+        title {
+          romaji
+          english
+        }
+        coverImage {
+          large
+        }
+        nextAiringEpisode {
+          airingAt
+          episode
         }
       }
     }
