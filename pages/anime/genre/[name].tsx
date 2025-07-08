@@ -3,12 +3,15 @@ import Head from 'next/head'
 import { useAnimeByGenre } from '@/hooks/useAnimeByGenre'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 
 export default function GenreAnimePage() {
   const { anime, loading } = useAnimeByGenre()
+  const router = useRouter()
+  const { name } = router.query
 
-  const genreName = typeof window !== 'undefined'
-    ? decodeURIComponent(window.location.pathname.split('/').pop() || '')
+  const genreName = typeof name === 'string'
+    ? decodeURIComponent(name)
         .replace(/-/g, ' ')
         .replace(/\b\w/g, (l) => l.toUpperCase())
     : ''
