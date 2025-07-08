@@ -1,44 +1,50 @@
-// lib/api.ts
-import { Anime } from '@/types/anime'
-
-const BASE_URL = 'https://api.consumet.org/anime/gogoanime'
-
-// Tambahkan mapping genre agar API mengenali genre-genre yang kita pakai
-const genreMap: Record<string, string> = {
-  'slice-of-life': 'slice of life',
-  'avant-garde': 'avant garde',
-  'girls-love': 'shoujo ai',
-  'boys-love': 'shounen ai',
-  'mahou-shoujo': 'magic',
-  'sci-fi': 'sci-fi',
-  'supernatural': 'supernatural',
-  'sports': 'sports',
-  'romance': 'romance',
-  'action': 'action',
-  'adventure': 'adventure',
-  'drama': 'drama',
-  'fantasy': 'fantasy',
-  'comedy': 'comedy',
-  'ecchi': 'ecchi',
-  'horror': 'horror',
-  'mystery': 'mystery',
-  'mecha': 'mecha',
-  'music': 'music',
-  'psychological': 'psychological',
-  'thriller': 'thriller',
-  'school': 'school',
-  // Tambah genre yang kamu dukung di UI
-}
-
 export async function fetchAnimeByGenre(genre: string, page = 1): Promise<Anime[]> {
-  try {
-    const mappedGenre = genreMap[genre.toLowerCase()] || genre
-    const res = await fetch(`${BASE_URL}/genre/${mappedGenre}?page=${page}`)
-    if (!res.ok) throw new Error('Failed to fetch genre anime')
-    const data = await res.json()
-    return data.results || []
-  } catch (err) {
-    console.error('[fetchAnimeByGenre] Error:', err)
-    return []
+  const query = `
+    query ($genre: String, $page: Int) {
+      Page(page: $page, perPage: 20) {
+        media(genre_in: [$genre], type: ANIME, isAdult: false) {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          coverImage {
+            large
+            medium
+            color
+          }
+          bannerImage
+          genres
+          averageScore
+          description
+          trailer {
+            id
+            site
+          }
+          nextAiringEpisode {
+            airingAt
+            episode
+          }
+        }
+      }
+    }
+  `
+
+  const variables = {
+    genre: genre.replace(/-/g, ' '), // slug ke normal genre
+    page
   }
+
+  const res = await fetch('https://graphql.anilist.co', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({ query, variables })
+  })
+
+  const json = await res.json()
+  return json.data?.Page?.media || []
 }
