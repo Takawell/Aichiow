@@ -14,14 +14,10 @@ export function useAnimeByGenre() {
   useEffect(() => {
     if (!name || typeof name !== 'string') return
 
-    const fetchData = async () => {
-      setLoading(true)
-      const data = await fetchAnimeByGenre(name.toLowerCase())
-      setAnime(data)
-      setLoading(false)
-    }
-
-    fetchData()
+    setLoading(true)
+    fetchAnimeByGenre(name)
+      .then(setAnime)
+      .finally(() => setLoading(false))
   }, [name])
 
   return { anime, loading }
