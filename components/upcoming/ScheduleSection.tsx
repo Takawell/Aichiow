@@ -1,6 +1,7 @@
+// components/upcoming/ScheduleSection.tsx
 import { Anime } from '@/types/anime'
 import { groupByDayName } from '@/utils/time'
-import Image from 'next/image'
+import ScheduleAnimeCard from './ScheduleAnimeCard' // ✅ Tambahkan ini
 
 export default function ScheduleSection({ animeList }: { animeList: Anime[] }) {
   const grouped = groupByDayName(animeList)
@@ -15,36 +16,9 @@ export default function ScheduleSection({ animeList }: { animeList: Anime[] }) {
             {day === today ? '📅 Today' : day}
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {list.map((anime) => {
-              const title = anime.title.english || anime.title.romaji || 'Untitled'
-              const cover = anime.coverImage?.large
-              const airingAt = anime.nextAiringEpisode?.airingAt
-              const episode = anime.nextAiringEpisode?.episode
-              const date = airingAt ? new Date(airingAt * 1000).toLocaleString() : 'Unknown'
-
-              return (
-                <div
-                  key={anime.id}
-                  className="bg-zinc-900 rounded-xl overflow-hidden shadow hover:shadow-xl hover:scale-[1.02] transition duration-300"
-                  title={`Episode ${episode} airs at ${date}`}
-                >
-                  <div className="relative w-full aspect-[3/4]">
-                    {cover && (
-                      <Image
-                        src={cover}
-                        alt={title}
-                        fill
-                        className="object-cover"
-                      />
-                    )}
-                  </div>
-                  <div className="p-2">
-                    <h4 className="text-sm text-white font-medium line-clamp-2">{title}</h4>
-                    <p className="text-xs text-zinc-400 mt-1">Ep {episode} · {new Date(airingAt * 1000).toLocaleTimeString()}</p>
-                  </div>
-                </div>
-              )
-            })}
+            {list.map((anime) => (
+              <ScheduleAnimeCard key={anime.id} anime={anime} />
+            ))}
           </div>
         </div>
       ))}
