@@ -14,17 +14,19 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     const manga = await fetchMangaDetail(slug)
 
-    if (!manga?.id) {
-      throw new Error('Invalid manga data')
+    // pastikan manga ada dan valid
+    if (!manga || !manga.id || !manga.attributes) {
+      return { notFound: true }
     }
 
     const chapters = await fetchChapters(slug)
 
+    // ambil judul untuk fetch karakter
     const title =
-      manga.attributes?.title?.en ||
-      manga.attributes?.title?.['en-us'] ||
-      manga.attributes?.title?.ja ||
-      manga.attributes?.title?.['ja-ro'] ||
+      manga.attributes.title?.en ||
+      manga.attributes.title?.['en-us'] ||
+      manga.attributes.title?.ja ||
+      manga.attributes.title?.['ja-ro'] ||
       ''
 
     const characters = await fetchMangaCharacters(title)
@@ -39,12 +41,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   } catch (error) {
     console.error('[Manga Detail Error]', error)
     return {
-      props: {
-        error: 'Failed to load manga.',
-        manga: null,
-        chapters: [],
-        characters: [],
-      },
+      notFound: true,
     }
   }
 }
@@ -53,26 +50,15 @@ export default function MangaDetailPage({
   manga,
   chapters,
   characters,
-  error,
 }: {
   manga: any
   chapters: any[]
   characters: any[]
-  error?: string
 }) {
-  if (error || !manga) {
-    return (
-      <main className="text-center py-20 text-red-500">
-        <h1 className="text-2xl font-bold mb-2">❌ Error</h1>
-        <p>{error || 'Manga not found.'}</p>
-      </main>
-    )
-  }
-
   const title = manga.attributes?.title?.en || manga.attributes?.title?.ja || 'Untitled'
   const description = manga.attributes?.description?.en || 'No description available.'
-  const coverRel = manga.relationships?.find((rel: any) => rel.type === 'cover_art')
-  const coverUrl = getCoverImage(manga.id, coverRel?.attributes?.fileName || '')
+  const cover = manga.relationships.find((rel: any) => rel.type === 'cover_art')
+  const coverUrl = getCoverImage(manga.id, cover?.attributes?.fileName || '')
 
   return (
     <main className="px-4 md:px-8 py-10 text-white max-w-5xl mx-auto">
@@ -86,7 +72,7 @@ export default function MangaDetailPage({
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-zinc-700 flex items-center justify-center text-zinc-400 text-sm">
+            <div className="w-full h-full bg-zinc-700 flex items-center justify-center text-sm text-zinc-300">
               No Cover
             </div>
           )}
