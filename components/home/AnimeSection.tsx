@@ -5,7 +5,7 @@ import AnimeCard from '../anime/AnimeCard'
 
 interface AnimeSectionProps {
   title: string
-  anime?: Anime[] // ganti dari animeList jadi anime agar sesuai
+  anime?: Anime[]
   href?: string
 }
 
@@ -15,20 +15,23 @@ export default function AnimeSection({ title, anime, href }: AnimeSectionProps) 
   return (
     <section className="px-4 py-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">{title}</h2>
+        <h2 className="text-2xl font-semibold text-white">{title}</h2>
         {href && (
           <Link href={href} className="text-blue-400 hover:underline text-sm">
             See All
           </Link>
         )}
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+
+      <div className="flex overflow-x-auto gap-4 scroll-smooth pb-1">
         {isLoading
           ? [...Array(10)].map((_, i) => (
-              <div key={i} className="h-64 bg-neutral-700 animate-pulse rounded-xl" />
+              <div key={i} className="min-w-[140px] h-64 bg-neutral-700 animate-pulse rounded-xl" />
             ))
           : anime.map((a) => (
-              <AnimeCard key={a.id} anime={a} />
+              <div key={a.id} className="min-w-[140px]">
+                <AnimeCard anime={a} />
+              </div>
             ))}
       </div>
     </section>
