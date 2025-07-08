@@ -1,55 +1,49 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import { fetchChapters, fetchMangaDetail } from '@/lib/mangadex'
-import { getCoverImage } from '@/lib/mangadex'
+import { GetServerSideProps } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import { fetchChapters, fetchMangaDetail, getCoverImage } from '@/lib/mangadex'
+import { fetchMangaCharacters } from '@/lib/anilist'
 
-export default function MangaDetailPage() {
-  const router = useRouter()
-  const { slug } = router.query
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { slug } = context.params as { slug: string }
 
-  const [manga, setManga] = useState<any>(null)
-  const [chapters, setChapters] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string>('')
+  try {
+    const manga = await fetchMangaDetail(slug)
+    const chapters = await fetchChapters(slug)
 
-  useEffect(() => {
-    if (!slug) return
+    const title =
+      manga.attributes?.title?.en ||
+      manga.attributes?.title?.['en-us'] ||
+      manga.attributes?.title?.ja ||
+      manga.attributes?.title?.['ja-ro'] ||
+      ''
 
-    async function load() {
-      try {
-        setLoading(true)
+    const characters = await fetchMangaCharacters(title)
 
-        // ✅ FIX: safely handle slug type
-        const id = Array.isArray(slug) ? slug[0] : slug || ''
-
-        const detail = await fetchMangaDetail(id)
-        const chapterList = await fetchChapters(id)
-
-        setManga(detail)
-        setChapters(chapterList)
-      } catch (err: any) {
-        console.error('[Detail Manga Error]', err)
-        setError('Failed to load manga detail.')
-      } finally {
-        setLoading(false)
-      }
+    return {
+      props: {
+        manga,
+        chapters,
+        characters,
+      },
     }
-
-    load()
-  }, [slug])
-
-  if (loading) {
-    return <p className="text-center text-zinc-400 mt-20">Loading manga...</p>
+  } catch (error) {
+    console.error('[Manga Detail Error]', error)
+    return {
+      notFound: true,
+    }
   }
+}
 
-  if (error || !manga) {
-    return <p className="text-center text-red-500 mt-20">{error || 'Manga not found.'}</p>
-  }
-
+export default function MangaDetailPage({
+  manga,
+  chapters,
+  characters,
+}: {
+  manga: any
+  chapters: any[]
+  characters: any[]
+}) {
   const title = manga.attributes?.title?.en || manga.attributes?.title?.ja || 'Untitled'
   const description = manga.attributes?.description?.en || 'No description available.'
   const cover = manga.relationships.find((rel: any) => rel.type === 'cover_art')
@@ -91,6 +85,37 @@ export default function MangaDetailPage() {
           <p className="text-zinc-500">No chapters available.</p>
         )}
       </section>
+
+      {characters && characters.length > 0 && (
+        <section className="mt-14">
+          <h2 className="text-2xl font-bold mb-4">🧑‍🎤 Characters & Voice Actors</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {characters.map((char: any, index: number) => (
+              <div
+                key={index}
+                className="bg-gray-900 p-4 rounded-xl flex flex-col items-center text-center shadow"
+              >
+                <img
+                  src={char.node.image?.large}
+                  alt={char.node.name.full}
+                  className="w-24 h-24 rounded-full object-cover mb-2"
+                />
+                <p className="font-medium">{char.node.name.full}</p>
+                {char.voiceActors?.[0] && (
+                  <div className="mt-2 text-sm text-gray-400">
+                    <p>VA: {char.voiceActors[0].name.full}</p>
+                    <img
+                      src={char.voiceActors[0].image?.large}
+                      alt={char.voiceActors[0].name.full}
+                      className="w-10 h-10 rounded-full mx-auto mt-1"
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   )
 }
