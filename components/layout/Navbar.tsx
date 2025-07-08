@@ -5,7 +5,7 @@ import { classNames } from '@/utils/classNames'
 
 const navItems = [
   { href: '/', label: 'Home' },
-  { href: '/upcoming', label: 'Upcoming' }, // 🔄 Ganti Trailers jadi Upcoming
+  { href: '/upcoming', label: 'Timetable' }, // 🔄 Ganti Trailers jadi Upcoming
   { href: '/explore', label: 'Explore' },
   { href: '/search', label: 'Search' },
   { href: '/manga', label: 'Manga' },
