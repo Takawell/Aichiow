@@ -7,8 +7,17 @@ import { fetchMangaCharacters } from '@/lib/anilist'
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { slug } = context.params as { slug: string }
 
+  if (!slug || typeof slug !== 'string') {
+    return { notFound: true }
+  }
+
   try {
     const manga = await fetchMangaDetail(slug)
+
+    if (!manga?.id) {
+      throw new Error('Invalid manga data')
+    }
+
     const chapters = await fetchChapters(slug)
 
     const title =
@@ -30,7 +39,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   } catch (error) {
     console.error('[Manga Detail Error]', error)
     return {
-      notFound: true,
+      props: {
+        error: 'Failed to load manga.',
+        manga: null,
+        chapters: [],
+        characters: [],
+      },
     }
   }
 }
@@ -39,26 +53,43 @@ export default function MangaDetailPage({
   manga,
   chapters,
   characters,
+  error,
 }: {
   manga: any
   chapters: any[]
   characters: any[]
+  error?: string
 }) {
+  if (error || !manga) {
+    return (
+      <main className="text-center py-20 text-red-500">
+        <h1 className="text-2xl font-bold mb-2">❌ Error</h1>
+        <p>{error || 'Manga not found.'}</p>
+      </main>
+    )
+  }
+
   const title = manga.attributes?.title?.en || manga.attributes?.title?.ja || 'Untitled'
   const description = manga.attributes?.description?.en || 'No description available.'
-  const cover = manga.relationships.find((rel: any) => rel.type === 'cover_art')
-  const coverUrl = getCoverImage(manga.id, cover?.attributes?.fileName || '')
+  const coverRel = manga.relationships?.find((rel: any) => rel.type === 'cover_art')
+  const coverUrl = getCoverImage(manga.id, coverRel?.attributes?.fileName || '')
 
   return (
     <main className="px-4 md:px-8 py-10 text-white max-w-5xl mx-auto">
       <section className="flex flex-col md:flex-row gap-6">
         <div className="relative w-full md:w-64 aspect-[3/4] rounded-xl overflow-hidden shadow-lg bg-zinc-800">
-          <Image
-            src={coverUrl}
-            alt={title}
-            fill
-            className="object-cover"
-          />
+          {coverUrl ? (
+            <Image
+              src={coverUrl}
+              alt={title}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-zinc-700 flex items-center justify-center text-zinc-400 text-sm">
+              No Cover
+            </div>
+          )}
         </div>
         <div>
           <h1 className="text-3xl font-bold mb-2">{title}</h1>
