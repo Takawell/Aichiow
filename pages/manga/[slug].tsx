@@ -7,26 +7,15 @@ import { fetchMangaCharacters } from '@/lib/anilist'
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { slug } = context.params as { slug: string }
 
-  if (!slug || typeof slug !== 'string') {
-    return { notFound: true }
-  }
-
   try {
     const manga = await fetchMangaDetail(slug)
-
-    // pastikan manga ada dan valid
-    if (!manga || !manga.id || !manga.attributes) {
-      return { notFound: true }
-    }
-
     const chapters = await fetchChapters(slug)
 
-    // ambil judul untuk fetch karakter
     const title =
-      manga.attributes.title?.en ||
-      manga.attributes.title?.['en-us'] ||
-      manga.attributes.title?.ja ||
-      manga.attributes.title?.['ja-ro'] ||
+      manga.attributes?.title?.en ||
+      manga.attributes?.title?.['en-us'] ||
+      manga.attributes?.title?.ja ||
+      manga.attributes?.title?.['ja-ro'] ||
       ''
 
     const characters = await fetchMangaCharacters(title)
@@ -64,18 +53,12 @@ export default function MangaDetailPage({
     <main className="px-4 md:px-8 py-10 text-white max-w-5xl mx-auto">
       <section className="flex flex-col md:flex-row gap-6">
         <div className="relative w-full md:w-64 aspect-[3/4] rounded-xl overflow-hidden shadow-lg bg-zinc-800">
-          {coverUrl ? (
-            <Image
-              src={coverUrl}
-              alt={title}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-zinc-700 flex items-center justify-center text-sm text-zinc-300">
-              No Cover
-            </div>
-          )}
+          <Image
+            src={coverUrl}
+            alt={title}
+            fill
+            className="object-cover"
+          />
         </div>
         <div>
           <h1 className="text-3xl font-bold mb-2">{title}</h1>
