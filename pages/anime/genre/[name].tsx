@@ -37,7 +37,7 @@ export default function GenreAnimePage() {
               >
                 <div className="w-[140px] h-[200px] relative rounded-lg overflow-hidden border border-neutral-700">
                   <Image
-                    src={item.image}
+                    src={item.coverImage.large}
                     alt={item.title.english || item.title.romaji}
                     fill
                     className="object-cover"
@@ -53,4 +53,4 @@ export default function GenreAnimePage() {
       </main>
     </>
   )
-        }
+}
