@@ -1,61 +1,69 @@
-<h1 align="center">🌌 Aichiow</h1>
-<p align="center">
-  <b>Anime Showcase Platform</b> — Modern UI for anime trailers, characters, and voice actors powered by Anilist API.
-</p>
+# 🌌 Aichiow
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Next.js-13+-000?style=flat&logo=next.js" />
-  <img src="https://img.shields.io/badge/TailwindCSS-3-38bdf8?style=flat&logo=tailwindcss" />
-  <img src="https://img.shields.io/badge/GraphQL-Anilist-e535ab?style=flat&logo=graphql" />
-  <img src="https://img.shields.io/badge/TypeScript-Ready-3178c6?style=flat&logo=typescript" />
-</p>
+**Aichiow** adalah platform web streaming anime modern yang menampilkan info anime terkini, manga terbaru, trailer, jadwal rilis, dan pencarian lanjutan. Terinspirasi dari Crunchyroll dan LiveChart, Aichiow dibangun menggunakan Next.js 13, TailwindCSS, dan GraphQL API dari Anilist & MangaDex.
 
----
+![Aichiow Banner](https://aichiow.vercel.app/banner-preview.jpg)
 
-## 🎬 Overview
+## 🚀 Fitur Utama
 
-**Aichiow** is a cinematic anime showcase platform built with **Next.js**, featuring:
-- Anime trailers
-- Detailed character info
-- Voice actor data
-- Genre filtering
-- Responsive UI with dark mode
+### 🎬 Anime
+- Halaman detail anime dengan cover, trailer, studio, genre, skor, dan deskripsi
+- Informasi karakter utama dan seiyuu (voice actor)
+- Support trailer YouTube
 
-> Powered by real-time data from **Anilist GraphQL API**.
+### 🔥 Trending & Popular
+- Anime trending harian dari Anilist (TRENDING_DESC)
+- Anime ongoing & seasonal
 
----
+### ⏳ Upcoming & Schedule
+- Upcoming anime belum tayang (`NOT_YET_RELEASED`)
+- Jadwal tayang mingguan dengan waktu airing
+- Terintegrasi dalam 1 halaman: `/upcoming`
 
-## 📸 Preview
+### 📚 Manga
+- Data dari MangaDex API
+- Halaman detail manga dengan deskripsi, cover, dan chapter
+- Support karakter dan seiyuu jika tersedia
+- Reader bawaan untuk membaca chapter
 
-> [Preview coming soon]
+### 🧭 Explore & Search
+- Fitur eksplorasi berbagai kategori anime
+- Halaman pencarian global (`/search`) dengan tampilan menarik
+- Autocomplete support (coming soon)
 
----
+### 🎨 UI/UX
+- UI bergaya anime-modern, elegan, dan mobile-friendly
+- Dark mode support
+- Routing cepat dengan Next.js App Router
 
-## ✨ Features
+## 🧩 Teknologi yang Digunakan
 
-- 🎥 **Trailer Spotlight** — Stunning hero section with YouTube trailers
-- 🔥 **Trending Anime** — Popular titles updated live
-- 🧩 **Genre Filtering** — Smooth, responsive genre tags
-- 🧠 **Anime Details** — Stats, synopsis, studio, season, format, and more
-- 🎭 **Characters & Voice Actors** — Beautiful cast section with images & VA names
-- 🌌 **Trailer Gallery** — Dedicated page for all trailers
-- 🌓 **Dark Mode** — Toggle-friendly and elegant
+- **Next.js 13** – App Router, Client Components
+- **TailwindCSS** – styling modern
+- **Anilist GraphQL API** – anime data
+- **MangaDex REST API** – manga data
+- **SWR** – data fetching & caching
+- **Vercel** – hosting dan deployment
 
----
 
-## 🧱 Tech Stack
+## 🧪 Rencana Fitur Lanjutan
+- [ ] Bookmark system (anime/manga)
+- [ ] Continue Watching
+- [ ] Anime episode tracker
+- [ ] Genre page khusus
+- [ ] Admin dashboard (untuk statistik)
 
-- **Next.js** 13+
-- **TypeScript**
-- **TailwindCSS**
-- **Framer Motion**
-- **GraphQL (Anilist API)**
+## 🔗 Live Demo
+🌐 https://aichiow.vercel.app
 
----
+Dibuat dengan oleh !Taka
+Powered by Anilist & MangaDex APIs.
 
-### 📜 License
-Licensed under the MIT License — free for personal and educational use.
 
-<p align="center"> Built with ❤️ by Aichiow Team </p>
+## 📦 Instalasi Lokal
 
----
+```bash
+git clone https://github.com/username/Aichiow.git
+cd Aichiow
+npm install
+npm run dev
