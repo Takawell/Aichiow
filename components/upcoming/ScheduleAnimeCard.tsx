@@ -1,5 +1,7 @@
-import Image from 'next/image'
+// components/upcoming/ScheduleAnimeCard.tsx
 import { Anime } from '@/types/anime'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export default function ScheduleAnimeCard({ anime }: { anime: Anime }) {
   const title = anime.title.english || anime.title.romaji || 'Untitled'
@@ -13,26 +15,26 @@ export default function ScheduleAnimeCard({ anime }: { anime: Anime }) {
   })
 
   return (
-    <div
-      className="bg-zinc-900 rounded-xl overflow-hidden shadow hover:shadow-xl hover:scale-[1.02] transition duration-300"
-      title={`Episode ${episode || '?'} airs at ${airingDate?.toLocaleString() || 'TBA'}`}
-    >
-      <div className="relative w-full aspect-[3/4]">
-        {cover && (
-          <Image
-            src={cover}
-            alt={title}
-            fill
-            className="object-cover"
-          />
-        )}
+    <Link href={`/anime/${anime.id}`}>
+      <div
+        className="bg-zinc-900 rounded-xl overflow-hidden shadow hover:shadow-lg hover:scale-[1.02] transition duration-300"
+        title={`Episode ${episode} airs at ${airingDate?.toLocaleString()}`}
+      >
+        <div className="relative w-full aspect-[3/4]">
+          {cover && (
+            <Image
+              src={cover}
+              alt={title}
+              fill
+              className="object-cover"
+            />
+          )}
+        </div>
+        <div className="p-2">
+          <h4 className="text-sm text-white font-medium line-clamp-2">{title}</h4>
+          <p className="text-xs text-zinc-400 mt-1">Ep {episode} · {localTime}</p>
+        </div>
       </div>
-      <div className="p-3">
-        <h4 className="text-sm text-white font-semibold line-clamp-2">{title}</h4>
-        <p className="text-xs text-zinc-400 mt-1">
-          Ep {episode || '?'} · {localTime || 'TBA'}
-        </p>
-      </div>
-    </div>
+    </Link>
   )
 }
