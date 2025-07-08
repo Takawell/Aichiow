@@ -1,3 +1,6 @@
+// lib/api.ts
+import { Anime } from '@/types/anime'
+
 export async function fetchAnimeByGenre(genre: string, page = 1): Promise<Anime[]> {
   const query = `
     query ($genre: String, $page: Int) {
@@ -32,7 +35,7 @@ export async function fetchAnimeByGenre(genre: string, page = 1): Promise<Anime[
   `
 
   const variables = {
-    genre: genre.replace(/-/g, ' '), // slug ke normal genre
+    genre: genre.replace(/-/g, ' '),
     page
   }
 
@@ -40,7 +43,7 @@ export async function fetchAnimeByGenre(genre: string, page = 1): Promise<Anime[
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      Accept: 'application/json'
     },
     body: JSON.stringify({ query, variables })
   })
