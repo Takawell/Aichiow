@@ -1,4 +1,3 @@
-// hooks/useAnimeDetail.ts
 import useSWR from 'swr'
 import { fetchFromAnilist } from '@/lib/anilist'
 import { ANIME_DETAIL_QUERY } from '@/graphql/queries'
