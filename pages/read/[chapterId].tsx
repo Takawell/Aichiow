@@ -8,45 +8,63 @@ export default function ReadPage() {
   const router = useRouter()
   const [images, setImages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string>('')
+
+  const raw = router.query.chapterId
+  const chapterId = Array.isArray(raw) ? raw[0] : raw
 
   useEffect(() => {
-    const raw = router.query.chapterId
-
-    const chapterId = Array.isArray(raw) ? raw[0] : raw
-
     if (!chapterId) return
 
     async function load() {
       try {
         setLoading(true)
         const chapter = await fetchChapterImages(chapterId as string)
-        const fullImages = (chapter.data?.length ? chapter.data : chapter.dataSaver).map(
+
+        if (!chapter || !chapter.hash || !chapter.baseUrl) {
+          throw new Error('Invalid chapter data')
+        }
+
+        const fileList = chapter.data?.length ? chapter.data : chapter.dataSaver
+
+        if (!fileList || fileList.length === 0) {
+          throw new Error('No images found for this chapter.')
+        }
+
+        const fullImages = fileList.map(
           (file: string) => `${chapter.baseUrl}/data/${chapter.hash}/${file}`
         )
+
         setImages(fullImages)
-      } catch (err) {
+      } catch (err: any) {
         console.error('[Read Error]', err)
+        setError('Failed to load chapter images.')
       } finally {
         setLoading(false)
       }
     }
 
     load()
-  }, [router.query.chapterId])
+  }, [chapterId])
 
   return (
-    <main className="p-4 text-white">
-      <h1 className="text-xl font-bold mb-4">📖 Reading Chapter</h1>
+    <main className="p-4 md:px-10 text-white max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">
+        📖 Reading Chapter {chapterId || ''}
+      </h1>
+
       {loading ? (
-        <p>Loading...</p>
+        <p className="text-zinc-400">Loading pages...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {images.map((src, idx) => (
             <img
               key={idx}
               src={src}
-              alt={`Page ${idx + 1}`}
-              className="w-full rounded-md"
+              alt={`Chapter page ${idx + 1}`}
+              className="w-full rounded-md shadow"
               loading="lazy"
             />
           ))}
