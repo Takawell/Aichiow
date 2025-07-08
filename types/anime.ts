@@ -20,6 +20,10 @@ export interface Anime {
     id: string
     site: string
   }
+  nextAiringEpisode?: {
+    airingAt: number
+    episode: number
+  } // ✅ ditambahkan tanpa mengubah struktur lain
 }
 
 export interface AnimeDetail extends Anime {
