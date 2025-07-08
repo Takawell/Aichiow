@@ -1,49 +1,64 @@
-import { GetServerSideProps } from 'next'
-import Image from 'next/image'
-import Link from 'next/link'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import { fetchChapters, fetchMangaDetail, getCoverImage } from '@/lib/mangadex'
 import { fetchMangaCharacters } from '@/lib/anilist'
+import Image from 'next/image'
+import Link from 'next/link'
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { slug } = context.params as { slug: string }
+export default function MangaDetailPage() {
+  const router = useRouter()
+  const { slug } = router.query
 
-  try {
-    const manga = await fetchMangaDetail(slug)
-    const chapters = await fetchChapters(slug)
+  const [manga, setManga] = useState<any>(null)
+  const [chapters, setChapters] = useState<any[]>([])
+  const [characters, setCharacters] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string>('')
 
-    const title =
-      manga.attributes?.title?.en ||
-      manga.attributes?.title?.['en-us'] ||
-      manga.attributes?.title?.ja ||
-      manga.attributes?.title?.['ja-ro'] ||
-      ''
+  useEffect(() => {
+    if (!slug) return
 
-    const characters = await fetchMangaCharacters(title)
+    async function load() {
+      try {
+        setLoading(true)
 
-    return {
-      props: {
-        manga,
-        chapters,
-        characters,
-      },
+        const id = Array.isArray(slug) ? slug[0] : slug || ''
+        const detail = await fetchMangaDetail(id)
+        const chapterList = await fetchChapters(id)
+
+        setManga(detail)
+        setChapters(chapterList)
+
+        // Fetch karakter & VA dari Anilist
+        const title =
+          detail.attributes?.title?.en ||
+          detail.attributes?.title?.['en-us'] ||
+          detail.attributes?.title?.ja ||
+          detail.attributes?.title?.['ja-ro'] ||
+          ''
+        const chars = await fetchMangaCharacters(title)
+        setCharacters(chars || [])
+      } catch (err: any) {
+        console.error('[Detail Manga Error]', err)
+        setError('Failed to load manga detail.')
+      } finally {
+        setLoading(false)
+      }
     }
-  } catch (error) {
-    console.error('[Manga Detail Error]', error)
-    return {
-      notFound: true,
-    }
+
+    load()
+  }, [slug])
+
+  if (loading) {
+    return <p className="text-center text-zinc-400 mt-20">Loading manga...</p>
   }
-}
 
-export default function MangaDetailPage({
-  manga,
-  chapters,
-  characters,
-}: {
-  manga: any
-  chapters: any[]
-  characters: any[]
-}) {
+  if (error || !manga) {
+    return <p className="text-center text-red-500 mt-20">{error || 'Manga not found.'}</p>
+  }
+
   const title = manga.attributes?.title?.en || manga.attributes?.title?.ja || 'Untitled'
   const description = manga.attributes?.description?.en || 'No description available.'
   const cover = manga.relationships.find((rel: any) => rel.type === 'cover_art')
@@ -86,7 +101,7 @@ export default function MangaDetailPage({
         )}
       </section>
 
-      {characters && characters.length > 0 && (
+      {characters.length > 0 && (
         <section className="mt-14">
           <h2 className="text-2xl font-bold mb-4">🧑‍🎤 Characters & Voice Actors</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
