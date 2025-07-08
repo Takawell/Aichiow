@@ -213,3 +213,70 @@ export async function fetchScheduleAnime(): Promise<Anime[]> {
   const data = await fetchFromAnilist(query)
   return data.Page.media.filter((m: any) => m.nextAiringEpisode)
 }
+
+// ✅ Tambahan: Detail Anime
+export async function fetchAnimeDetail(id: number): Promise<any> {
+  const query = `
+    query ($id: Int) {
+      Media(id: $id, type: ANIME) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        coverImage {
+          large
+          medium
+          color
+        }
+        bannerImage
+        genres
+        averageScore
+        description
+        format
+        status
+        episodes
+        duration
+        season
+        seasonYear
+        popularity
+        trailer {
+          id
+          site
+        }
+        studios {
+          nodes {
+            name
+          }
+        }
+        characters(sort: [ROLE, RELEVANCE], perPage: 10) {
+          edges {
+            role
+            node {
+              name {
+                full
+              }
+              image {
+                large
+              }
+            }
+            voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
+              name {
+                full
+              }
+              image {
+                large
+              }
+            }
+          }
+        }
+      }
+    }
+  `
+
+  const variables = { id }
+  const data = await fetchFromAnilist(query, variables)
+
+  return data?.Media
+}
