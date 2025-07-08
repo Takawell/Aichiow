@@ -165,3 +165,51 @@ export async function fetchMangaCharacters(title: string) {
 
   return data?.Media?.characters?.edges || []
 }
+
+// ✅ Tambahan: Upcoming Anime
+export async function fetchUpcomingAnime(): Promise<Anime[]> {
+  const query = `
+    query {
+      Page(perPage: 20) {
+        media(type: ANIME, status: NOT_YET_RELEASED, sort: POPULARITY_DESC) {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+          }
+        }
+      }
+    }
+  `
+  const data = await fetchFromAnilist(query)
+  return data.Page.media
+}
+
+// ✅ Tambahan: Schedule Anime Mingguan
+export async function fetchScheduleAnime(): Promise<Anime[]> {
+  const query = `
+    query {
+      Page(perPage: 50) {
+        media(type: ANIME, status: RELEASING, sort: POPULARITY_DESC) {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+          }
+          nextAiringEpisode {
+            airingAt
+            episode
+          }
+        }
+      }
+    }
+  `
+  const data = await fetchFromAnilist(query)
+  return data.Page.media.filter((m: any) => m.nextAiringEpisode)
+}
