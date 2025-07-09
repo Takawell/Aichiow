@@ -44,9 +44,8 @@ export default function UpdateModal() {
             <h2 className="text-xl font-bold mb-2">🚀 Aichiow beta Telah Hadir!</h2>
             <p className="text-sm text-neutral-300 mb-4">
               Selamat datang di Aichiow Beta yang menyediakan semua kebutuhan animelovers
-            <p>
-             
-                Oke, sip!
+              
+               Oke, sip!
               </button>
             </div>
           </motion.div>
