@@ -1,5 +1,3 @@
-// pages/anime/[slug].tsx
-
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -16,15 +14,8 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
 
-  const {
-    gogoSlug,
-    isLoading: loadingSlug
-  } = useResolvedGogoSlug(anime?.title?.romaji)
-
-  const {
-    episodes,
-    isLoading: loadingEpisodes
-  } = useGogoAnimeEpisodes(gogoSlug || "", !!gogoSlug)
+  const { gogoSlug, isLoading: loadingSlug } = useResolvedGogoSlug(anime?.title?.romaji)
+  const { episodes, isLoading: loadingEpisodes } = useGogoAnimeEpisodes(gogoSlug || "")
 
   const isEpisodesReady = !loadingEpisodes && episodes.length > 0
 
@@ -61,9 +52,7 @@ export default function AnimeDetailPage() {
 
         {/* Loader episode */}
         {(loadingSlug || loadingEpisodes) && (
-          <p className="text-center mt-6 text-sm text-white">
-            Memuat episode dari Gogoanime...
-          </p>
+          <p className="text-center mt-6 text-sm text-white">Memuat episode dari Gogoanime...</p>
         )}
 
         {/* Daftar Episode */}
