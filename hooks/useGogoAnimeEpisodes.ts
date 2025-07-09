@@ -1,12 +1,12 @@
-import useSWR from "swr"
+import useSWR from 'swr'
 
-const fetcher = (url: string) => fetch(url).then(res => res.json())
+const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 export function useGogoAnimeEpisodes(slug: string | undefined) {
   const shouldFetch = !!slug && slug.trim().length > 0
 
   const { data, error, isLoading } = useSWR(
-    shouldFetch ? `https://api.consumet.org/anime/gogoanime/info/${slug}` : null,
+    shouldFetch ? `/api/gogo/info/${slug}` : null,
     fetcher
   )
 
