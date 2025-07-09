@@ -1,3 +1,5 @@
+// pages/anime/[slug].tsx
+
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -14,8 +16,17 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
 
-  const { gogoSlug, isLoading: loadingSlug } = useResolvedGogoSlug(anime?.title?.romaji)
-  const { episodes, isLoading: loadingEpisodes } = useGogoAnimeEpisodes(gogoSlug || "")
+  const {
+    gogoSlug,
+    isLoading: loadingSlug
+  } = useResolvedGogoSlug(anime?.title?.romaji)
+
+  const {
+    episodes,
+    isLoading: loadingEpisodes
+  } = useGogoAnimeEpisodes(gogoSlug || "", !!gogoSlug)
+
+  const isEpisodesReady = !loadingEpisodes && episodes.length > 0
 
   if (isLoading) return <p className="text-center text-white mt-10">Loading...</p>
   if (isError || !anime) return <p className="text-center text-red-500 mt-10">Anime not found.</p>
@@ -37,7 +48,7 @@ export default function AnimeDetailPage() {
         )}
 
         {/* Tombol tonton episode 1 */}
-        {!loadingEpisodes && episodes.length > 0 && (
+        {isEpisodesReady && (
           <div className="mt-8 text-center">
             <a
               href={`/watch/${episodes[0].id}`}
@@ -50,11 +61,13 @@ export default function AnimeDetailPage() {
 
         {/* Loader episode */}
         {(loadingSlug || loadingEpisodes) && (
-          <p className="text-center mt-6 text-sm text-white">Memuat episode dari Gogoanime...</p>
+          <p className="text-center mt-6 text-sm text-white">
+            Memuat episode dari Gogoanime...
+          </p>
         )}
 
         {/* Daftar Episode */}
-        {!loadingEpisodes && episodes.length > 0 && (
+        {isEpisodesReady && (
           <div className="mt-10 px-4">
             <h2 className="text-xl font-semibold mb-4">Daftar Episode</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
