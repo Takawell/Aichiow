@@ -2,7 +2,7 @@
 
 **Aichiow** adalah platform web streaming anime modern yang menampilkan info anime terkini, manga terbaru, trailer, jadwal rilis, dan pencarian lanjutan. Terinspirasi dari Crunchyroll dan LiveChart, Aichiow dibangun menggunakan Next.js 13, TailwindCSS, dan GraphQL API dari Anilist & MangaDex.
 
-![Aichiow Banner](https://aichiow.vercel.app/banner-preview.jpg)
+![Aichiow Preview](.public/preview.png)
 
 ## 🚀 Fitur Utama
 
