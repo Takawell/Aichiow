@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
 import { useGogoAnimeEpisodes } from '@/hooks/useGogoAnimeEpisodes'
+import { useResolvedGogoSlug } from '@/hooks/useResolvedGogoSlug'
 import AnimeDetailHeader from '@/components/anime/AnimeDetailHeader'
 import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
@@ -13,8 +14,8 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
 
-  const gogoSlug = anime?.title?.romaji?.toLowerCase().replace(/\s+/g, "-") || ""
-  const { episodes, isLoading: loadingEpisodes } = useGogoAnimeEpisodes(gogoSlug)
+  const { gogoSlug, isLoading: loadingSlug } = useResolvedGogoSlug(anime?.title?.romaji)
+  const { episodes, isLoading: loadingEpisodes } = useGogoAnimeEpisodes(gogoSlug || "")
 
   if (isLoading) return <p className="text-center text-white mt-10">Loading...</p>
   if (isError || !anime) return <p className="text-center text-red-500 mt-10">Anime not found.</p>
@@ -47,7 +48,12 @@ export default function AnimeDetailPage() {
           </div>
         )}
 
-        {/* Daftar Episode Streaming */}
+        {/* Loader episode */}
+        {(loadingSlug || loadingEpisodes) && (
+          <p className="text-center mt-6 text-sm text-white">Memuat episode dari Gogoanime...</p>
+        )}
+
+        {/* Daftar Episode */}
         {!loadingEpisodes && episodes.length > 0 && (
           <div className="mt-10 px-4">
             <h2 className="text-xl font-semibold mb-4">Daftar Episode</h2>
