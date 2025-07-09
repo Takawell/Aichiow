@@ -1,5 +1,3 @@
-// pages/watch/[episodeId].tsx
-
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import { fetchEpisodeSources } from "@/lib/consumet"
@@ -22,8 +20,12 @@ export default function WatchPage() {
       if (!data || !data.sources || data.sources.length === 0) {
         setError(true)
       } else {
-        const bestSource = data.sources.find((s: any) => s.quality === "1080p") || data.sources[0]
-        setVideoUrl(bestSource.url)
+        const bestSource =
+          data.sources.find((s: any) => s.quality === "1080p") ||
+          data.sources.find((s: any) => s.quality === "720p") ||
+          data.sources[0]
+
+        setVideoUrl(bestSource?.url)
       }
       setLoading(false)
     }
@@ -34,13 +36,13 @@ export default function WatchPage() {
   return (
     <>
       <Head>
-        <title>Nonton Episode {episodeId} - Aichiow</title>
+        <title>Streaming {episodeId} - Aichiow</title>
       </Head>
       <div className="min-h-screen bg-background text-foreground p-4">
-        <h1 className="text-2xl font-semibold mb-4">Streaming Episode: {episodeId}</h1>
+        <h1 className="text-2xl font-semibold mb-4 text-center">Streaming Episode</h1>
 
-        {loading && <p>Loading video...</p>}
-        {error && <p className="text-red-500">Gagal memuat video. Silakan coba lagi.</p>}
+        {loading && <p className="text-center">Loading video...</p>}
+        {error && <p className="text-center text-red-500">Gagal memuat video. Silakan coba lagi.</p>}
 
         {!loading && !error && videoUrl && (
           <div className="aspect-video max-w-5xl mx-auto rounded overflow-hidden">
