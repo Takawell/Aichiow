@@ -10,16 +10,14 @@ export function useResolvedGogoSlug(title?: string) {
     const fetchSlug = async () => {
       setIsLoading(true)
       try {
-        const res = await fetch(
-          `https://api.consumet.org/anime/gogoanime/${encodeURIComponent(title)}`
-        )
+        const res = await fetch(`https://api.consumet.org/anime/gogoanime/${encodeURIComponent(title)}`)
         const data = await res.json()
         const firstResult = data.results?.[0]
         if (firstResult?.id) {
           setSlug(firstResult.id)
         }
-      } catch (error) {
-        console.error('❌ Failed to resolve Gogo slug:', error)
+      } catch (err) {
+        console.error('Gagal ambil slug:', err)
       } finally {
         setIsLoading(false)
       }
@@ -28,8 +26,5 @@ export function useResolvedGogoSlug(title?: string) {
     fetchSlug()
   }, [title])
 
-  return {
-    gogoSlug: slug,
-    isLoading
-  }
+  return { gogoSlug: slug, isLoading }
 }
