@@ -1,32 +1,31 @@
-import { useEffect, useState } from "react"
-import { getGogoSlugFromTitle } from "@/lib/getGogoSlugFromTitle"
+import { useEffect, useState } from 'react'
 
 export function useResolvedGogoSlug(title?: string) {
   const [slug, setSlug] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (!title) return
 
-    const fallback = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-
-    const fetch = async () => {
+    const fetchSlug = async () => {
       setIsLoading(true)
-      const result = await getGogoSlugFromTitle(title)
-
-      if (result) {
-        setSlug(result)
-      } else {
-        setSlug(fallback)
+      try {
+        const res = await fetch(
+          `https://api.consumet.org/anime/gogoanime/${encodeURIComponent(title)}`
+        )
+        const data = await res.json()
+        const firstResult = data.results?.[0]
+        if (firstResult?.id) {
+          setSlug(firstResult.id)
+        }
+      } catch (error) {
+        console.error('❌ Failed to resolve Gogo slug:', error)
+      } finally {
+        setIsLoading(false)
       }
-
-      setIsLoading(false)
     }
 
-    fetch()
+    fetchSlug()
   }, [title])
 
   return {
