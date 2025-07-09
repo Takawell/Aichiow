@@ -2,7 +2,6 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
 import { useGogoAnimeEpisodes } from '@/hooks/useGogoAnimeEpisodes'
-import { useResolvedGogoSlug } from '@/hooks/useResolvedGogoSlug'
 import AnimeDetailHeader from '@/components/anime/AnimeDetailHeader'
 import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
@@ -14,8 +13,9 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
 
-  const { gogoSlug, isLoading: loadingSlug } = useResolvedGogoSlug(anime?.title?.romaji)
-  const { episodes, isLoading: loadingEpisodes } = useGogoAnimeEpisodes(gogoSlug || "")
+  // Langsung pakai romaji title sebagai slug
+  const title = anime?.title?.romaji || ""
+  const { episodes, isLoading: loadingEpisodes } = useGogoAnimeEpisodes(title)
 
   const isEpisodesReady = !loadingEpisodes && episodes.length > 0
 
@@ -51,7 +51,7 @@ export default function AnimeDetailPage() {
         )}
 
         {/* Loader episode */}
-        {(loadingSlug || loadingEpisodes) && (
+        {loadingEpisodes && (
           <p className="text-center mt-6 text-sm text-white">Memuat episode dari Gogoanime...</p>
         )}
 
