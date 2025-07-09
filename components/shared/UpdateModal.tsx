@@ -44,8 +44,14 @@ export default function UpdateModal() {
             <h2 className="text-xl font-bold mb-2">🚀 Aichiow beta Telah Hadir!</h2>
             <p className="text-sm text-neutral-300 mb-4">
               Selamat datang di Aichiow Beta yang menyediakan semua kebutuhan animelovers
-              
-               Oke, sip!
+              <p>
+
+                <div className="flex justify-end">
+              <button
+                onClick={handleClose}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-semibold transition"
+              >
+                Oke, sip!
               </button>
             </div>
           </motion.div>
@@ -53,4 +59,4 @@ export default function UpdateModal() {
       )}
     </AnimatePresence>
   )
-}
+          }
