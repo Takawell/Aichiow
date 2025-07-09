@@ -1,5 +1,3 @@
-// pages/anime/[slug].tsx
-
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -15,7 +13,6 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
 
-  // Estimasi slug Gogoanime dari romaji title
   const gogoSlug = anime?.title?.romaji?.toLowerCase().replace(/\s+/g, "-") || ""
   const { episodes, isLoading: loadingEpisodes } = useGogoAnimeEpisodes(gogoSlug)
 
@@ -39,10 +36,10 @@ export default function AnimeDetailPage() {
         )}
 
         {/* Tombol tonton episode 1 */}
-        {anime.title.romaji && (
+        {!loadingEpisodes && episodes.length > 0 && (
           <div className="mt-8 text-center">
             <a
-              href={`/watch/${encodeURIComponent(anime.title.romaji.toLowerCase().replace(/\s+/g, "-"))}-episode-1`}
+              href={`/watch/${episodes[0].id}`}
               className="inline-block px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg transition"
             >
               🎬 Tonton Episode 1
