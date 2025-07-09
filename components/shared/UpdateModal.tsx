@@ -46,7 +46,6 @@ export default function UpdateModal() {
               Selamat datang di Aichiow Beta yang menyediakan semua kebutuhan animelovers
             <p>
              
-              >
                 Oke, sip!
               </button>
             </div>
