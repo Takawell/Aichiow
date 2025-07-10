@@ -1,4 +1,3 @@
-// components/anime/AnimeTrailer.tsx
 interface Props {
   trailer: {
     id: string
@@ -7,13 +6,14 @@ interface Props {
 }
 
 export default function AnimeTrailer({ trailer }: Props) {
-  const trailerUrl =
-    trailer.site === 'youtube' ? `https://www.youtube.com/embed/${trailer.id}` : ''
+  if (trailer.site !== 'youtube') return null
+
+  const trailerUrl = `https://www.youtube.com/embed/${trailer.id}`
 
   return (
-    <section className="px-4 md:px-10 py-10">
+    <section className="py-10 px-4 md:px-10">
       <h2 className="text-2xl font-bold mb-4 text-white">🎬 Trailer</h2>
-      <div className="aspect-video w-full max-w-4xl mx-auto shadow-xl rounded-xl overflow-hidden">
+      <div className="aspect-video w-full max-w-5xl mx-auto rounded-lg overflow-hidden shadow-lg">
         <iframe
           src={trailerUrl}
           title="Anime Trailer"
