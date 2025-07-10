@@ -2,9 +2,9 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
+import { useEffect } from 'react'
 import { Anime } from '@/types/anime'
 
 interface HeroSectionProps {
@@ -13,33 +13,27 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ animeList = [], loading }: HeroSectionProps) {
-  const [isClient, setIsClient] = useState(false)
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-  const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
+  const [sliderRef, instanceRef] = useKeenSlider({
     loop: true,
     renderMode: 'performance',
     slides: {
       perView: 1,
-      spacing: 16
+      spacing: 0,
     },
     breakpoints: {
-      '(min-width: 640px)': {
-        slides: { perView: 2, spacing: 20 }
+      '(min-width: 768px)': {
+        slides: {
+          perView: 2,
+          spacing: 10,
+        },
       },
       '(min-width: 1024px)': {
-        slides: { perView: 3, spacing: 24 }
+        slides: {
+          perView: 3,
+          spacing: 16,
+        },
       },
-      '(min-width: 1280px)': {
-        slides: { perView: 4, spacing: 28 }
-      },
-      '(min-width: 1536px)': {
-        slides: { perView: 5, spacing: 32 }
-      }
-    }
+    },
   })
 
   useEffect(() => {
@@ -49,20 +43,20 @@ export default function HeroSection({ animeList = [], loading }: HeroSectionProp
     return () => clearInterval(interval)
   }, [instanceRef])
 
-  if (!isClient || loading || animeList.length === 0) {
+  if (loading || animeList.length === 0) {
     return (
-      <section className="w-full aspect-[21/7] bg-neutral-800 animate-pulse flex items-center justify-center rounded-lg">
+      <section className="w-full aspect-[21/7] bg-neutral-800 animate-pulse flex items-center justify-center">
         <p className="text-gray-400">Loading hero anime...</p>
       </section>
     )
   }
 
   return (
-    <section ref={sliderRef} className="keen-slider px-4 md:px-8 py-4">
+    <section ref={sliderRef} className="keen-slider w-full px-4 mt-4">
       {animeList.map((anime, idx) => (
         <div
           key={anime.id}
-          className="keen-slider__slide relative aspect-[16/6] rounded-lg overflow-hidden shadow-lg"
+          className="keen-slider__slide relative aspect-[21/7] rounded-lg overflow-hidden shadow-md"
         >
           <Image
             src={anime.bannerImage || anime.coverImage.large}
@@ -71,16 +65,16 @@ export default function HeroSection({ animeList = [], loading }: HeroSectionProp
             className="object-cover brightness-[.4]"
             priority={idx === 0}
           />
-          <div className="absolute inset-0 z-10 flex flex-col justify-end p-4 md:p-6">
-            <h1 className="text-lg md:text-2xl font-bold text-white mb-2 line-clamp-1">
+          <div className="absolute inset-0 z-10 flex flex-col justify-end px-6 py-6">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1">
               {anime.title.english || anime.title.romaji}
             </h1>
-            <p className="text-sm text-gray-300 line-clamp-2 mb-3">
+            <p className="text-xs sm:text-sm text-gray-200 line-clamp-2 mb-2">
               {anime.description?.replace(/<[^>]+>/g, '')}
             </p>
             <Link
               href={`/anime/${anime.id}`}
-              className="bg-blue-500 hover:bg-blue-600 transition px-3 py-1.5 rounded text-white text-sm w-fit"
+              className="bg-blue-500 hover:bg-blue-600 transition px-3 py-1 rounded text-white text-xs w-fit"
             >
               Watch Now
             </Link>
