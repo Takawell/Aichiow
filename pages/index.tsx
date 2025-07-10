@@ -1,7 +1,7 @@
 'use client'
 
 import Head from 'next/head'
-import Navbar from '@/components/Navbar' // ✅ ini penting!
+import Navbar from '@/components/layout/Navbar' // ✅ ini penting!
 import {
   useHeroAnime,
   useTrendingAnime,
