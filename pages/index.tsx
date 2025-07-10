@@ -1,3 +1,4 @@
+// pages/index.tsx
 import Head from 'next/head'
 import {
   useHeroAnime,
@@ -19,6 +20,11 @@ export default function HomePage() {
   const { data: seasonalAnime } = useSeasonalAnime()
   const { data: topRatedAnime } = useTopRatedAnime()
 
+  // Fix tambahan: pastikan list selalu berisi minimal 5
+  const heroAnimeList = (heroAnime && heroAnime.length >= 5)
+    ? heroAnime.slice(0, 5)
+    : (heroAnime ?? [])
+
   return (
     <>
       <Head>
@@ -29,7 +35,7 @@ export default function HomePage() {
         <NewsBanner />
 
         {/* 🎥 Hero Main Highlight */}
-        <HeroSection animeList={heroAnime?.slice(0, 5)} loading={loadingHero} />
+        <HeroSection animeList={heroAnimeList} loading={loadingHero} />
 
         {/* 📡 Now Airing Section */}
         <NowAiringSection anime={ongoingAnime} />
