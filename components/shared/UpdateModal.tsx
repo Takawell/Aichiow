@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 
-const STORAGE_KEY = 'aichiow-test'
+const STORAGE_KEY = 'aichiow-uji'
 
 export default function UpdateModal() {
   const [visible, setVisible] = useState(false)
