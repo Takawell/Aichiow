@@ -2,8 +2,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { useKeenSlider } from 'keen-slider/react'
-import { useEffect } from 'react'
 import 'keen-slider/keen-slider.min.css'
 import { Anime } from '@/types/anime'
 
@@ -13,22 +13,28 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ animeList = [], loading }: HeroSectionProps) {
-  const [sliderRef, instanceRef] = useKeenSlider({
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
     loop: true,
     renderMode: 'performance',
     slides: {
       perView: 1,
-      spacing: 15
+      spacing: 16
     },
     breakpoints: {
       '(min-width: 640px)': {
         slides: { perView: 2, spacing: 20 }
       },
       '(min-width: 1024px)': {
-        slides: { perView: 3, spacing: 25 }
+        slides: { perView: 3, spacing: 24 }
       },
       '(min-width: 1280px)': {
-        slides: { perView: 4, spacing: 30 }
+        slides: { perView: 4, spacing: 28 }
       },
       '(min-width: 1536px)': {
         slides: { perView: 5, spacing: 32 }
@@ -43,7 +49,7 @@ export default function HeroSection({ animeList = [], loading }: HeroSectionProp
     return () => clearInterval(interval)
   }, [instanceRef])
 
-  if (loading || animeList.length === 0) {
+  if (!isClient || loading || animeList.length === 0) {
     return (
       <section className="w-full aspect-[21/7] bg-neutral-800 animate-pulse flex items-center justify-center rounded-lg">
         <p className="text-gray-400">Loading hero anime...</p>
