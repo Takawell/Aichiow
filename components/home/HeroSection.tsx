@@ -15,25 +15,8 @@ interface HeroSectionProps {
 export default function HeroSection({ animeList = [], loading }: HeroSectionProps) {
   const [sliderRef, instanceRef] = useKeenSlider({
     loop: true,
-    renderMode: 'performance',
-    slides: {
-      perView: 1,
-      spacing: 0,
-    },
-    breakpoints: {
-      '(min-width: 768px)': {
-        slides: {
-          perView: 2,
-          spacing: 10,
-        },
-      },
-      '(min-width: 1024px)': {
-        slides: {
-          perView: 3,
-          spacing: 16,
-        },
-      },
-    },
+    slides: { perView: 1, spacing: 0 },
+    mode: 'snap',
   })
 
   useEffect(() => {
@@ -52,29 +35,32 @@ export default function HeroSection({ animeList = [], loading }: HeroSectionProp
   }
 
   return (
-    <section ref={sliderRef} className="keen-slider w-full px-4 mt-4">
-      {animeList.map((anime, idx) => (
+    <section
+      ref={sliderRef}
+      className="keen-slider relative w-full aspect-[21/7] md:rounded-xl overflow-hidden shadow-lg"
+    >
+      {animeList.slice(0, 5).map((anime, idx) => (
         <div
           key={anime.id}
-          className="keen-slider__slide relative aspect-[21/7] rounded-lg overflow-hidden shadow-md"
+          className="keen-slider__slide relative w-full h-full"
         >
           <Image
             src={anime.bannerImage || anime.coverImage.large}
             alt={anime.title.romaji}
             fill
-            className="object-cover brightness-[.4]"
             priority={idx === 0}
+            className="object-cover brightness-[.4]"
           />
-          <div className="absolute inset-0 z-10 flex flex-col justify-end px-6 py-6">
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1">
+          <div className="absolute inset-0 z-10 flex flex-col justify-end px-4 py-6 md:px-10 md:py-12">
+            <h1 className="text-xl sm:text-3xl md:text-5xl font-bold text-white mb-2 md:mb-4 drop-shadow-lg">
               {anime.title.english || anime.title.romaji}
             </h1>
-            <p className="text-xs sm:text-sm text-gray-200 line-clamp-2 mb-2">
+            <p className="text-xs sm:text-sm md:text-base text-gray-200 line-clamp-3 max-w-3xl mb-3 md:mb-5 drop-shadow">
               {anime.description?.replace(/<[^>]+>/g, '')}
             </p>
             <Link
               href={`/anime/${anime.id}`}
-              className="bg-blue-500 hover:bg-blue-600 transition px-3 py-1 rounded text-white text-xs w-fit"
+              className="bg-blue-500 hover:bg-blue-600 transition px-4 py-2 rounded text-white text-sm w-fit"
             >
               Watch Now
             </Link>
