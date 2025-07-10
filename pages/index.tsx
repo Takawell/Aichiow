@@ -29,7 +29,7 @@ export default function HomePage() {
         <NewsBanner />
 
         {/* 🎥 Hero Main Highlight */}
-        <HeroSection anime={heroAnime?.[0]} loading={loadingHero} />
+        <HeroSection animeList={heroAnime?.slice(0, 5)} loading={loadingHero} />
 
         {/* 📡 Now Airing Section */}
         <NowAiringSection anime={ongoingAnime} />
