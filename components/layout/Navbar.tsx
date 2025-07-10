@@ -7,7 +7,7 @@ import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
-import { getUserData } from '@/lib/userStorage' // ⬅️ tambahan
+import { getUserData } from '@/lib/userStorage'
 
 const navItems = [
   { href: '/', label: 'Home' },
