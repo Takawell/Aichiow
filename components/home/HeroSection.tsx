@@ -34,7 +34,10 @@ export default function HeroSection({ animeList = [], loading }: HeroSectionProp
   }
 
   return (
-    <section ref={sliderRef} className="keen-slider aspect-[21/7] relative overflow-hidden md:rounded-lg shadow-lg">
+    <section
+      ref={sliderRef}
+      className="keen-slider aspect-[21/7] relative overflow-hidden md:rounded-lg shadow-lg"
+    >
       {animeList.slice(0, 5).map((anime, idx) => (
         <div
           key={anime.id}
