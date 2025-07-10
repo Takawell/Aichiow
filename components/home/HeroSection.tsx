@@ -16,7 +16,6 @@ export default function HeroSection({ animeList = [], loading }: HeroSectionProp
     loop: true,
     renderMode: 'performance',
     slides: { perView: 1 },
-    autoplay: true,
   })
 
   // Auto slide every 5 seconds
