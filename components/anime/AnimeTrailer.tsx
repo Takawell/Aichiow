@@ -11,14 +11,36 @@ export default function AnimeTrailer({ trailer }: Props) {
   const trailerUrl = `https://www.youtube.com/embed/${trailer.id}`
 
   return (
-    <section className="py-10 px-4 md:px-10">
-      <h2 className="text-2xl font-bold mb-4 text-white">🎬 Trailer</h2>
-      <div className="aspect-video w-full max-w-5xl mx-auto rounded-lg overflow-hidden shadow-lg">
+    <section style={{ padding: '2.5rem 1rem' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white', marginBottom: '1rem', textAlign: 'center' }}>
+        🎬 Trailer
+      </h2>
+
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          maxWidth: '900px',
+          paddingBottom: '56.25%', // 16:9 aspect ratio
+          height: 0,
+          margin: '0 auto',
+          borderRadius: '0.75rem',
+          overflow: 'hidden',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+        }}
+      >
         <iframe
           src={trailerUrl}
           title="Anime Trailer"
-          className="w-full h-full"
           allowFullScreen
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            border: 'none'
+          }}
         />
       </div>
     </section>
