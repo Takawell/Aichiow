@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import { Anime } from '@/types/anime'
@@ -13,29 +13,30 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ animeList = [], loading }: HeroSectionProps) {
+  const [mounted, setMounted] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
     loop: true,
-    slides: {
-      perView: 1,
-    },
+    slides: { perView: 1 },
     renderMode: 'performance',
   })
 
   useEffect(() => {
-    if (!instanceRef.current) return
+    setMounted(true)
+  }, [])
 
+  useEffect(() => {
+    if (!instanceRef.current) return
     timerRef.current = setInterval(() => {
       instanceRef.current?.next()
     }, 5000)
-
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
   }, [instanceRef])
 
-  if (loading || animeList.length === 0) {
+  if (loading || !mounted || animeList.length === 0) {
     return (
       <section className="w-full aspect-[21/7] bg-neutral-800 animate-pulse flex items-center justify-center">
         <p className="text-gray-400">Loading hero anime...</p>
