@@ -12,14 +12,14 @@ interface HeroSectionProps {
 export default function HeroSection({ anime, loading }: HeroSectionProps) {
   if (loading || !anime) {
     return (
-      <section className="w-full h-[42vh] md:h-[60vh] bg-neutral-800 animate-pulse flex items-center justify-center rounded-lg">
+      <section className="w-full h-[320px] md:h-[460px] bg-neutral-800 animate-pulse flex items-center justify-center rounded-lg">
         <p className="text-gray-400">Loading hero anime...</p>
       </section>
     )
   }
 
   return (
-    <div className="relative w-full h-[42vh] md:h-[60vh] overflow-hidden rounded-lg shadow-xl">
+    <div className="relative w-full h-[320px] md:h-[460px] min-h-[280px] overflow-hidden rounded-lg shadow-xl">
       <Image
         src={anime.bannerImage || anime.coverImage.large}
         alt={anime.title.romaji}
