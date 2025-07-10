@@ -1,3 +1,4 @@
+// components/anime/AnimeTrailer.tsx
 interface Props {
   trailer: {
     id: string
@@ -12,15 +13,13 @@ export default function AnimeTrailer({ trailer }: Props) {
   return (
     <section className="px-4 md:px-10 py-10">
       <h2 className="text-2xl font-bold mb-4 text-white">🎬 Trailer</h2>
-      <div className="bg-neutral-800 rounded-xl overflow-hidden shadow-lg max-w-5xl mx-auto">
-        <div className="aspect-video">
-          <iframe
-            src={trailerUrl}
-            title="Anime Trailer"
-            className="w-full h-full"
-            allowFullScreen
-          />
-        </div>
+      <div className="aspect-video w-full max-w-4xl mx-auto shadow-xl rounded-xl overflow-hidden">
+        <iframe
+          src={trailerUrl}
+          title="Anime Trailer"
+          className="w-full h-full"
+          allowFullScreen
+        />
       </div>
     </section>
   )
