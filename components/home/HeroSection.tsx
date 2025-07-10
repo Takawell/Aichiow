@@ -3,9 +3,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useKeenSlider } from 'keen-slider/react'
-import 'keen-slider/keen-slider.min.css'
 import { useEffect } from 'react'
 import { Anime } from '@/types/anime'
+import 'keen-slider/keen-slider.min.css'
 
 interface HeroSectionProps {
   animeList?: Anime[]
@@ -15,11 +15,11 @@ interface HeroSectionProps {
 export default function HeroSection({ animeList = [], loading }: HeroSectionProps) {
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
     loop: true,
+    renderMode: 'performance',
     slides: {
       perView: 1,
       spacing: 0,
     },
-    renderMode: 'performance',
   })
 
   useEffect(() => {
@@ -49,16 +49,16 @@ export default function HeroSection({ animeList = [], loading }: HeroSectionProp
               className="object-cover brightness-[.4]"
               priority={idx === 0}
             />
-            <div className="absolute inset-0 z-10 flex flex-col justify-end px-5 py-6 md:px-12 md:py-10">
-              <h1 className="text-white text-2xl md:text-5xl font-bold mb-4 drop-shadow">
+            <div className="absolute inset-0 z-10 flex flex-col justify-end px-4 py-6 md:px-10 md:py-12">
+              <h1 className="text-xl md:text-4xl font-bold text-white mb-3 drop-shadow">
                 {anime.title.english || anime.title.romaji}
               </h1>
-              <p className="text-gray-200 text-sm md:text-base max-w-2xl line-clamp-3 mb-4 drop-shadow">
+              <p className="text-sm md:text-base text-gray-200 max-w-2xl line-clamp-3 mb-3 drop-shadow">
                 {anime.description?.replace(/<[^>]+>/g, '')}
               </p>
               <Link
                 href={`/anime/${anime.id}`}
-                className="bg-primary hover:bg-blue-600 transition px-4 py-2 rounded text-white text-sm w-fit"
+                className="bg-blue-500 hover:bg-blue-600 transition px-4 py-2 rounded text-white text-sm w-fit"
               >
                 Watch Now
               </Link>
