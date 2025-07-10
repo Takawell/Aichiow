@@ -1,6 +1,5 @@
-// components/trailer/TrailerGrid.tsx
 import { useTrendingAnime } from '@/hooks/useTrendingAnime'
-import AnimeCard from '@/components/anime/AnimeCard'
+import TrailerCard from '@/components/trailer/TrailerCard'
 
 export default function TrailerGrid() {
   const { data, isLoading } = useTrendingAnime()
@@ -12,9 +11,11 @@ export default function TrailerGrid() {
         <p className="text-white">Loading...</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {data?.filter(anime => anime.trailer?.site === 'youtube').map(anime => (
-            <AnimeCard key={anime.id} anime={anime} />
-          ))}
+          {data
+            ?.filter((anime) => anime.trailer?.site === 'youtube')
+            .map((anime) => (
+              <TrailerCard key={anime.id} anime={anime} />
+            ))}
         </div>
       )}
     </section>
