@@ -1,7 +1,4 @@
-'use client'
-
 import Head from 'next/head'
-import Navbar from '@/components/layout/Navbar' // ✅ ini penting!
 import {
   useHeroAnime,
   useTrendingAnime,
@@ -27,18 +24,29 @@ export default function HomePage() {
       <Head>
         <title>Aichiow — Anime Showcase</title>
       </Head>
-
-      {/* ✅ Navbar wajib disini */}
-      <Navbar />
-
       <main className="bg-dark min-h-screen">
+        {/* 🔊 Headline News */}
         <NewsBanner />
+
+        {/* 🎥 Hero Main Highlight */}
         <HeroSection anime={heroAnime?.[0]} loading={loadingHero} />
+
+        {/* 📡 Now Airing Section */}
         <NowAiringSection anime={ongoingAnime} />
+
+        {/* 🔥 Trending */}
         <AnimeSection title="🔥 Trending Now" anime={trendingAnime} />
+
+        {/* 📺 Ongoing Anime */}
         <AnimeSection title="📺 Ongoing Anime" anime={ongoingAnime} />
+
+        {/* ⛅ Seasonal Anime */}
         <AnimeSection title="⛅ Seasonal Anime" anime={seasonalAnime} />
+
+        {/* 🏆 Top Rated Anime */}
         <AnimeSection title="🏆 Top Rated Anime" anime={topRatedAnime} />
+
+        {/* 🏷️ Genre Section */}
         <TopGenres />
       </main>
     </>
