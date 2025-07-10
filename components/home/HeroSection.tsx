@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useKeenSlider } from 'keen-slider/react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Anime } from '@/types/anime'
 
 interface HeroSectionProps {
@@ -15,10 +15,9 @@ export default function HeroSection({ animeList = [], loading }: HeroSectionProp
   const [sliderRef, instanceRef] = useKeenSlider({
     loop: true,
     renderMode: 'performance',
-    slides: { perView: 1 },
+    slides: { perView: 1, spacing: 0 }
   })
 
-  // Auto slide every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       instanceRef.current?.next()
@@ -28,15 +27,15 @@ export default function HeroSection({ animeList = [], loading }: HeroSectionProp
 
   if (loading || animeList.length === 0) {
     return (
-      <section className="w-full aspect-[19/6] bg-neutral-800 animate-pulse flex items-center justify-center">
+      <section className="w-full aspect-[21/7] bg-neutral-800 animate-pulse flex items-center justify-center">
         <p className="text-gray-400">Loading hero anime...</p>
       </section>
     )
   }
 
   return (
-    <section ref={sliderRef} className="keen-slider aspect-[19/6] relative overflow-hidden md:rounded-lg shadow-lg">
-      {animeList.map((anime, idx) => (
+    <section ref={sliderRef} className="keen-slider aspect-[21/7] relative overflow-hidden md:rounded-lg shadow-lg">
+      {animeList.slice(0, 5).map((anime, idx) => (
         <div
           key={anime.id}
           className="keen-slider__slide relative w-full h-full"
