@@ -6,7 +6,8 @@ import { Menu } from 'lucide-react'
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 import { classNames } from '@/utils/classNames'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getUserData } from '@/lib/userStorage' // ⬅️ tambahan
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -19,6 +20,16 @@ const navItems = [
 export default function Navbar() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [avatar, setAvatar] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const user = getUserData()
+      if (user?.isLoggedIn && user.avatar) {
+        setAvatar(user.avatar)
+      }
+    }
+  }, [])
 
   return (
     <header className="bg-neutral-900 text-white shadow-md sticky top-0 z-50 backdrop-blur-md bg-opacity-80">
@@ -54,6 +65,17 @@ export default function Navbar() {
           </nav>
 
           <ThemeToggle />
+
+          {/* ✅ Avatar user di desktop */}
+          {avatar && (
+            <Link href="/profile">
+              <img
+                src={avatar}
+                alt="Profile"
+                className="w-9 h-9 rounded-full border-2 border-blue-500 shadow-md hover:scale-105 transition"
+              />
+            </Link>
+          )}
         </div>
 
         {/* Mobile Nav */}
@@ -124,6 +146,19 @@ export default function Navbar() {
                   </div>
                 </div>
               </div>
+
+              {/* ✅ Avatar user di mobile */}
+              {avatar && (
+                <div className="absolute bottom-20 left-4">
+                  <Link href="/profile" onClick={() => setOpen(false)}>
+                    <img
+                      src={avatar}
+                      alt="Profile"
+                      className="w-10 h-10 rounded-full border-2 border-blue-500 shadow-md hover:scale-105 transition"
+                    />
+                  </Link>
+                </div>
+              )}
 
               <div className="absolute bottom-6 left-4">
                 <ThemeToggle />
