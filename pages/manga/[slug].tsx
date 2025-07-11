@@ -26,9 +26,13 @@ export default function MangaDetailPage() {
 
         const id = Array.isArray(slug) ? slug[0] : slug || ''
         const detail = await fetchMangaDetail(id)
+
+        if (!detail || !detail.id) {
+          throw new Error('Invalid manga detail')
+        }
+
         const chapterList = await fetchChapters(id)
 
-        // Sort chapter secara numerik menurun
         const sortedChapters = [...chapterList].sort((a, b) => {
           const numA = parseFloat(a.attributes.chapter || '0')
           const numB = parseFloat(b.attributes.chapter || '0')
@@ -38,7 +42,6 @@ export default function MangaDetailPage() {
         setManga(detail)
         setChapters(sortedChapters)
 
-        // Fetch karakter & VA dari Anilist
         const title = getLocalizedTitle(detail.attributes?.title || {})
         const chars = await fetchMangaCharacters(title)
         setCharacters(chars || [])
