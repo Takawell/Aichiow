@@ -19,20 +19,24 @@ export default function ReadPage() {
     async function load() {
       try {
         setLoading(true)
+
         const chapter = await fetchChapterImages(chapterId as string)
 
         if (!chapter || !chapter.hash || !chapter.baseUrl) {
-          throw new Error('Invalid chapter data')
+          throw new Error('Invalid chapter data.')
         }
 
+        // Gunakan data biasa, fallback ke dataSaver kalau kosong
         const fileList = chapter.data?.length ? chapter.data : chapter.dataSaver
 
         if (!fileList || fileList.length === 0) {
           throw new Error('No images found for this chapter.')
         }
 
+        // Gunakan mode yang sesuai: /data atau /data-saver
+        const mode = chapter.data?.length ? 'data' : 'data-saver'
         const fullImages = fileList.map(
-          (file: string) => `${chapter.baseUrl}/data/${chapter.hash}/${file}`
+          (file: string) => `${chapter.baseUrl}/${mode}/${chapter.hash}/${file}`
         )
 
         setImages(fullImages)
@@ -63,7 +67,7 @@ export default function ReadPage() {
             <img
               key={idx}
               src={src}
-              alt={`Chapter page ${idx + 1}`}
+              alt={`Page ${idx + 1}`}
               className="w-full rounded-md shadow"
               loading="lazy"
             />
