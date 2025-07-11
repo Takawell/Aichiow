@@ -5,7 +5,7 @@ export function hasCoverArt(manga: any) {
   return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
 }
 
-// ✅ Fetch populer manga (pakai /api/manga/popular)
+// ✅ Fetch populer manga
 export async function fetchPopularManga() {
   const res = await axios.get('/api/manga/popular')
   return res.data
@@ -23,14 +23,27 @@ export async function fetchChapters(mangaId: string) {
   return res.data
 }
 
-// ✅ Fetch gambar dari 1 chapter
+// ✅ FIXED: Fetch gambar dari 1 chapter
 export async function fetchChapterImages(chapterId: string) {
   try {
     const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
-    return res.data
+    const { baseUrl, chapter } = res.data
+
+    if (!baseUrl || !chapter?.hash) {
+      throw new Error('Invalid chapter response')
+    }
+
+    const cleanBaseUrl = baseUrl.replace(/\\/g, '') // ✅ Fix escaped slashes
+
+    return {
+      baseUrl: cleanBaseUrl,
+      hash: chapter.hash,
+      data: chapter.data || [],
+      dataSaver: chapter.dataSaver || [],
+    }
   } catch (error) {
     console.error('fetchChapterImages error:', error)
-    return []
+    return null
   }
 }
 
