@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // ✅ Utility: filter manga yang punya cover_art
-function hasCoverArt(manga: any) {
+export function hasCoverArt(manga: any) {
   return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
 }
 
@@ -25,8 +25,13 @@ export async function fetchChapters(mangaId: string) {
 
 // ✅ Fetch gambar dari 1 chapter
 export async function fetchChapterImages(chapterId: string) {
-  const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
-  return res.data
+  try {
+    const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
+    return res.data
+  } catch (error) {
+    console.error('fetchChapterImages error:', error)
+    return []
+  }
 }
 
 // ✅ Search manga by title
@@ -42,9 +47,7 @@ export async function fetchGenres() {
 }
 
 // ✅ Filter manga by included tags (genre)
-export async function getMangaByFilter(params: {
-  includedTags: string[]
-}): Promise<any[]> {
+export async function getMangaByFilter(params: { includedTags: string[] }): Promise<any[]> {
   try {
     const res = await axios.post('/api/manga/filter', params)
     return res.data
@@ -63,4 +66,18 @@ export async function fetchMangaByGenre(tagId: string) {
 // ✅ Buat cover image URL
 export function getCoverImage(mangaId: string, fileName: string) {
   return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`
+}
+
+// ✅ Ambil judul lokal manga dengan fallback
+export function getLocalizedTitle(titleObj: { [key: string]: string }) {
+  return titleObj.en || titleObj.ja || titleObj['en-us'] || Object.values(titleObj)[0] || 'Untitled'
+}
+
+// ✅ Optional: sort chapter (gunakan jika belum disortir di API)
+export function sortChapters(chapters: any[]) {
+  return chapters.sort((a, b) => {
+    const numA = parseFloat(a.attributes.chapter || '0')
+    const numB = parseFloat(b.attributes.chapter || '0')
+    return numB - numA
+  })
 }
