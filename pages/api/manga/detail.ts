@@ -20,7 +20,13 @@ export default async function handler(
       },
     })
 
-    res.status(200).json(response.data.data)
+    const manga = response.data?.data
+
+    if (!manga || Object.keys(manga).length === 0) {
+      return res.status(404).json({ message: 'Manga not found or removed' })
+    }
+
+    res.status(200).json(manga)
   } catch (error: any) {
     console.error('[API] /api/manga/detail error:', error.message)
     res.status(500).json({ message: 'Failed to fetch manga detail' })
