@@ -20,29 +20,30 @@ export default function ReadPage() {
       try {
         setLoading(true)
 
-        const chapter = await fetchChapterImages(chapterId as string)
+        const chapter = await fetchChapterImages(chapterId)
 
-        if (!chapter || !chapter.hash || !chapter.baseUrl) {
-          throw new Error('Invalid chapter data.')
+        if (!chapter || !chapter.baseUrl || !chapter.hash) {
+          throw new Error('Invalid chapter data from API')
         }
 
-        // Gunakan data biasa, fallback ke dataSaver kalau kosong
-        const fileList = chapter.data?.length ? chapter.data : chapter.dataSaver
+        const { baseUrl, hash, data, dataSaver } = chapter
 
-        if (!fileList || fileList.length === 0) {
-          throw new Error('No images found for this chapter.')
+        // Pakai data normal, fallback ke dataSaver jika kosong
+        const files = Array.isArray(data) && data.length > 0 ? data : dataSaver
+        const mode = data?.length > 0 ? 'data' : 'data-saver'
+
+        if (!files || files.length === 0) {
+          throw new Error('No images found in this chapter.')
         }
 
-        // Gunakan mode yang sesuai: /data atau /data-saver
-        const mode = chapter.data?.length ? 'data' : 'data-saver'
-        const fullImages = fileList.map(
-          (file: string) => `${chapter.baseUrl}/${mode}/${chapter.hash}/${file}`
+        const fullImages = files.map(
+          (file: string) => `${baseUrl}/${mode}/${hash}/${file}`
         )
 
         setImages(fullImages)
       } catch (err: any) {
-        console.error('[Read Error]', err)
-        setError('Failed to load chapter images.')
+        console.error('[ReadPage Error]', err.message || err)
+        setError('❌ Failed to load chapter images.')
       } finally {
         setLoading(false)
       }
@@ -54,7 +55,7 @@ export default function ReadPage() {
   return (
     <main className="p-4 md:px-10 text-white max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">
-        📖 Reading Chapter {chapterId || ''}
+        📖 Reading Chapter {chapterId || 'Unknown'}
       </h1>
 
       {loading ? (
