@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchPopularManga } from '@/lib/mangadex'
+import { fetchPopularManga, getLocalizedTitle } from '@/lib/mangadex'
 import MangaGrid from '@/components/manga/MangaGrid'
 import Link from 'next/link'
 
