@@ -11,7 +11,7 @@ export default function ReadPage() {
   const [error, setError] = useState<string>('')
 
   const raw = router.query.chapterId
-  const chapterId = Array.isArray(raw) ? raw[0] : raw
+  const chapterId = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] : ''
 
   useEffect(() => {
     if (!chapterId) return
@@ -22,27 +22,24 @@ export default function ReadPage() {
 
         const chapter = await fetchChapterImages(chapterId)
 
-        if (!chapter || !chapter.baseUrl || !chapter.hash) {
+        if (!chapter || !chapter.hash || !chapter.baseUrl) {
           throw new Error('Invalid chapter data from API')
         }
 
-        const { baseUrl, hash, data, dataSaver } = chapter
-
-        // Pakai data normal, fallback ke dataSaver jika kosong
-        const files = Array.isArray(data) && data.length > 0 ? data : dataSaver
-        const mode = data?.length > 0 ? 'data' : 'data-saver'
+        const files = chapter.data?.length ? chapter.data : chapter.dataSaver
+        const mode = chapter.data?.length ? 'data' : 'data-saver'
 
         if (!files || files.length === 0) {
           throw new Error('No images found in this chapter.')
         }
 
         const fullImages = files.map(
-          (file: string) => `${baseUrl}/${mode}/${hash}/${file}`
+          (file: string) => `${chapter.baseUrl}/${mode}/${chapter.hash}/${file}`
         )
 
         setImages(fullImages)
       } catch (err: any) {
-        console.error('[ReadPage Error]', err.message || err)
+        console.error('[Read Error]', err)
         setError('❌ Failed to load chapter images.')
       } finally {
         setLoading(false)
