@@ -10,11 +10,17 @@ export default function ReadPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
 
-  const raw = router.query.chapterId
-  const chapterId = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] : ''
-
   useEffect(() => {
-    if (!chapterId) return
+    if (!router.isReady) return
+
+    const raw = router.query.chapterId
+    const chapterId = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] : ''
+
+    if (!chapterId) {
+      setError('❌ No chapter ID provided.')
+      setLoading(false)
+      return
+    }
 
     async function load() {
       try {
@@ -23,20 +29,22 @@ export default function ReadPage() {
         const chapter = await fetchChapterImages(chapterId)
 
         if (!chapter || !chapter.hash || !chapter.baseUrl) {
+          console.error('[Invalid Chapter]', chapter)
           throw new Error('Invalid chapter data from API')
         }
 
-        const files = chapter.data?.length ? chapter.data : chapter.dataSaver
+        const fileList = chapter.data?.length ? chapter.data : chapter.dataSaver
         const mode = chapter.data?.length ? 'data' : 'data-saver'
 
-        if (!files || files.length === 0) {
-          throw new Error('No images found in this chapter.')
+        if (!fileList || fileList.length === 0) {
+          throw new Error('No images found in chapter.')
         }
 
-        const fullImages = files.map(
+        const fullImages = fileList.map(
           (file: string) => `${chapter.baseUrl}/${mode}/${chapter.hash}/${file}`
         )
 
+        console.log('[Images]', fullImages)
         setImages(fullImages)
       } catch (err: any) {
         console.error('[Read Error]', err)
@@ -47,13 +55,11 @@ export default function ReadPage() {
     }
 
     load()
-  }, [chapterId])
+  }, [router.isReady, router.query.chapterId])
 
   return (
     <main className="p-4 md:px-10 text-white max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">
-        📖 Reading Chapter {chapterId || 'Unknown'}
-      </h1>
+      <h1 className="text-2xl font-bold mb-6">📖 Reading Chapter</h1>
 
       {loading ? (
         <p className="text-zinc-400">Loading pages...</p>
