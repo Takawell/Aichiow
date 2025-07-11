@@ -47,10 +47,23 @@ export async function fetchChapterImages(chapterId: string) {
   }
 }
 
-// ✅ Search manga by title
+// ✅ FIXED: Search manga by title (akurasi lebih tinggi)
 export async function searchManga(query: string) {
   const res = await axios.get(`/api/manga/search?query=${query}`)
-  return res.data
+  const results = res.data
+
+  const lowered = query.toLowerCase().trim()
+
+  return results.filter((manga: any) => {
+    const titles = [
+      ...Object.values(manga.attributes.title || {}),
+      ...manga.attributes.altTitles.flatMap((alt: any) => Object.values(alt)),
+    ]
+
+    return titles.some(
+      (title) => typeof title === 'string' && title.toLowerCase().includes(lowered)
+    )
+  })
 }
 
 // ✅ Fetch all genre tags
@@ -83,7 +96,13 @@ export function getCoverImage(mangaId: string, fileName: string) {
 
 // ✅ Ambil judul lokal manga dengan fallback
 export function getLocalizedTitle(titleObj: { [key: string]: string }) {
-  return titleObj.en || titleObj.ja || titleObj['en-us'] || Object.values(titleObj)[0] || 'Untitled'
+  return (
+    titleObj.en ||
+    titleObj.ja ||
+    titleObj['en-us'] ||
+    Object.values(titleObj)[0] ||
+    'Untitled'
+  )
 }
 
 // ✅ Optional: sort chapter (gunakan jika belum disortir di API)
