@@ -1,30 +1,39 @@
+// pages/api/manga/chapter-images.ts
+
 import type { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
+
+const BASE_URL = 'https://api.mangadex.org'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { chapterId } = req.query
 
   if (!chapterId || typeof chapterId !== 'string') {
-    return res.status(400).json({ message: 'Chapter ID is required' })
+    return res.status(400).json({ message: '❌ Chapter ID is required' })
   }
 
   try {
-    // Step 1: Fetch server info (baseUrl)
-    const serverRes = await axios.get(`https://api.mangadex.org/at-home/server/${chapterId}`)
+    // Fetch server for chapter images
+    const server = await axios.get(`${BASE_URL}/at-home/server/${chapterId}`)
 
-    // Step 2: Fetch chapter metadata (hash, data, dataSaver)
-    const chapterRes = await axios.get(`https://api.mangadex.org/chapter/${chapterId}`)
+    // Fetch chapter metadata
+    const chapter = await axios.get(`${BASE_URL}/chapter/${chapterId}`)
 
-    const chapter = chapterRes.data.data.attributes
+    const { hash, data, dataSaver } = chapter.data.data.attributes
 
-    res.status(200).json({
-      baseUrl: serverRes.data.baseUrl,
-      hash: chapter.hash,
-      data: chapter.data,
-      dataSaver: chapter.dataSaver,
+    // Cek valid
+    if (!server.data?.baseUrl || !hash || (!data?.length && !dataSaver?.length)) {
+      return res.status(404).json({ message: '❌ Chapter images not found or incomplete' })
+    }
+
+    return res.status(200).json({
+      baseUrl: server.data.baseUrl,
+      hash,
+      data,
+      dataSaver
     })
-  } catch (error: any) {
-    console.error('[API] /chapter-images error:', error.message)
-    res.status(500).json({ message: 'Failed to fetch chapter images' })
+  } catch (err: any) {
+    console.error('[chapter-images] Error:', err.message)
+    return res.status(500).json({ message: '❌ Failed to fetch chapter images' })
   }
 }
