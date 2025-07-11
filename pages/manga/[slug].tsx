@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { fetchChapters, fetchMangaDetail, getCoverImage } from '@/lib/mangadex'
+import { fetchChapters, fetchMangaDetail, getCoverImage, getLocalizedTitle } from '@/lib/mangadex'
 import { fetchMangaCharacters } from '@/lib/anilist'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -28,16 +28,18 @@ export default function MangaDetailPage() {
         const detail = await fetchMangaDetail(id)
         const chapterList = await fetchChapters(id)
 
+        // Sort chapter secara numerik menurun
+        const sortedChapters = [...chapterList].sort((a, b) => {
+          const numA = parseFloat(a.attributes.chapter || '0')
+          const numB = parseFloat(b.attributes.chapter || '0')
+          return numB - numA
+        })
+
         setManga(detail)
-        setChapters(chapterList)
+        setChapters(sortedChapters)
 
         // Fetch karakter & VA dari Anilist
-        const title =
-          detail.attributes?.title?.en ||
-          detail.attributes?.title?.['en-us'] ||
-          detail.attributes?.title?.ja ||
-          detail.attributes?.title?.['ja-ro'] ||
-          ''
+        const title = getLocalizedTitle(detail.attributes?.title || {})
         const chars = await fetchMangaCharacters(title)
         setCharacters(chars || [])
       } catch (err: any) {
@@ -59,7 +61,7 @@ export default function MangaDetailPage() {
     return <p className="text-center text-red-500 mt-20">{error || 'Manga not found.'}</p>
   }
 
-  const title = manga.attributes?.title?.en || manga.attributes?.title?.ja || 'Untitled'
+  const title = getLocalizedTitle(manga.attributes?.title || {})
   const description = manga.attributes?.description?.en || 'No description available.'
   const cover = manga.relationships.find((rel: any) => rel.type === 'cover_art')
   const coverUrl = getCoverImage(manga.id, cover?.attributes?.fileName || '')
@@ -85,16 +87,20 @@ export default function MangaDetailPage() {
         <h2 className="text-2xl font-bold mb-4">📚 Chapters</h2>
         {chapters.length > 0 ? (
           <ul className="space-y-2">
-            {chapters.map((chapter) => (
-              <li key={chapter.id}>
-                <Link
-                  href={`/read/${chapter.id}`}
-                  className="text-blue-400 hover:underline"
-                >
-                  Chapter {chapter.attributes.chapter || '?'}: {chapter.attributes.title || 'No title'}
-                </Link>
-              </li>
-            ))}
+            {chapters.map((chapter) => {
+              const chapterNumber = chapter.attributes.chapter || '?'
+              const chapterTitle = chapter.attributes.title || `Chapter ${chapterNumber}`
+              return (
+                <li key={chapter.id}>
+                  <Link
+                    href={`/read/${chapter.id}`}
+                    className="text-blue-400 hover:underline"
+                  >
+                    Chapter {chapterNumber}: {chapterTitle}
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         ) : (
           <p className="text-zinc-500">No chapters available.</p>
