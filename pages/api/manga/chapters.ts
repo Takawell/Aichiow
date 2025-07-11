@@ -18,8 +18,7 @@ export default async function handler(
       params: {
         manga: mangaId,
         limit: 100,
-        translatedLanguage: ['en'],
-        order: { chapter: 'desc' },
+        order: { chapter: 'desc' }, // ✅ Urutkan dari chapter terbaru
       },
     })
 
