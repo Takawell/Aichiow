@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-// ✅ Utility: filter manga yang punya cover_art
+// ✅ Filter manga yang punya cover_art
 export function hasCoverArt(manga: any) {
   return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
 }
@@ -33,7 +33,7 @@ export async function fetchChapterImages(chapterId: string) {
       throw new Error('Invalid chapter response')
     }
 
-    const cleanBaseUrl = baseUrl.replace(/\\/g, '') // ✅ Fix escaped slashes
+    const cleanBaseUrl = baseUrl.replace(/\\/g, '') // Fix escaped slashes
 
     return {
       baseUrl: cleanBaseUrl,
@@ -72,18 +72,21 @@ export async function fetchGenres() {
   return res.data
 }
 
-// ✅ Filter manga by included tags (genre)
-export async function getMangaByFilter(params: { includedTags: string[] }): Promise<any[]> {
+// ✅ FIXED: Filter manga by included tags (genre)
+export async function getMangaByFilter(params: { includedTags: string[] }) {
   try {
     const res = await axios.post('/api/manga/filter', params)
-    return res.data
+    const results = res.data
+
+    // Tambahkan validasi cover_art
+    return results.filter((manga: any) => hasCoverArt(manga))
   } catch (error) {
     console.error('getMangaByFilter error:', error)
     return []
   }
 }
 
-// ✅ Optional: get manga by single genre (alias)
+// ✅ Optional: Get manga by single genre (jika dipisah)
 export async function fetchMangaByGenre(tagId: string) {
   const res = await axios.get(`/api/manga/genre?id=${tagId}`)
   return res.data
@@ -105,7 +108,7 @@ export function getLocalizedTitle(titleObj: { [key: string]: string }) {
   )
 }
 
-// ✅ Optional: sort chapter (gunakan jika belum disortir di API)
+// ✅ Optional: Sort chapter
 export function sortChapters(chapters: any[]) {
   return chapters.sort((a, b) => {
     const numA = parseFloat(a.attributes.chapter || '0')
