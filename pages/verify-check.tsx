@@ -15,27 +15,30 @@ export default function VerifyCheck() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f0f0f] to-[#1c1c1c] px-4">
-      <div className="max-w-md w-full bg-[#1a1a1a] text-white rounded-2xl shadow-xl p-8 border border-gray-700 text-center space-y-6 animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0d0d0d] to-[#1a1a1a] px-4">
+      <div className="max-w-md w-full bg-[#1a1a1a] text-white rounded-2xl shadow-xl border border-neutral-800 p-8 text-center space-y-6 animate-fade-in">
         <div className="flex justify-center">
           <div className="w-12 h-12 border-[6px] border-blue-500 border-t-transparent rounded-full animate-spin" />
         </div>
 
-        <h1 className="text-2xl font-bold">Aichiow Shield Verification</h1>
-        <p className="text-gray-400 text-sm">
-          We’re checking your browser before allowing access.<br />
-          This helps us prevent automated bots and protect the site.
+        <h1 className="text-2xl font-bold tracking-tight">Aichiow Shield</h1>
+        <p className="text-sm text-gray-400 leading-relaxed">
+          Verifying your browser before allowing access.  
+          This helps us prevent bots and malicious activity.
         </p>
 
-        <button
+        <div
           onClick={handleVerify}
-          disabled={verifying}
-          className="w-full bg-blue-600 hover:bg-blue-700 transition-colors px-6 py-3 rounded-lg font-medium text-white disabled:opacity-60"
+          className={`group relative cursor-pointer inline-block px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300
+            shadow-md hover:shadow-blue-700/50 font-medium text-white text-base ${
+              verifying && 'pointer-events-none opacity-60'
+            }`}
         >
           {verifying ? 'Verifying...' : '✔️ Verify I’m Human'}
-        </button>
+          <span className="absolute inset-0 rounded-lg ring-1 ring-white/10 group-hover:ring-blue-400 transition" />
+        </div>
 
-        <p className="text-xs text-gray-600 pt-2">Powered by Aichiow Firewall</p>
+        <p className="text-xs text-gray-500">Powered by Aichiow Firewall</p>
       </div>
     </div>
   )
