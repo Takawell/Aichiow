@@ -1,29 +1,34 @@
-import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Cookies from 'js-cookie'
+import { useState } from 'react'
 
 export default function VerifyCheck() {
   const router = useRouter()
+  const [verifying, setVerifying] = useState(false)
 
-  useEffect(() => {
-    Cookies.set('verified', 'true', { expires: 1 })
-    const timeout = setTimeout(() => {
+  const handleVerify = () => {
+    setVerifying(true)
+    Cookies.set('verified', 'true', { expires: 1 }) // expires in 1 day
+    setTimeout(() => {
       router.replace('/')
-    }, 2500)
-    return () => clearTimeout(timeout)
-  }, [router])
+    }, 1000)
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f0f0f] to-[#1a1a1a] text-white px-4">
-      <div className="max-w-md w-full text-center space-y-5 animate-fade-in">
-        <div className="text-4xl font-extrabold tracking-tight">
-          Checking your browser...
-        </div>
-        <p className="text-sm text-gray-400">
-          Just a moment while we verify you're a real human.
-        </p>
-        <div className="w-16 h-16 mx-auto border-4 border-t-transparent border-blue-500 rounded-full animate-spin" />
-        <p className="text-xs text-gray-600">Powered by Aichiow Shield</p>
+      <div className="text-center space-y-6 max-w-md w-full animate-fade-in">
+        <h1 className="text-3xl font-bold">Checking your browser...</h1>
+        <p className="text-sm text-gray-400">Please verify that you're human to continue to Aichiow.</p>
+
+        <button
+          onClick={handleVerify}
+          disabled={verifying}
+          className="bg-blue-600 hover:bg-blue-700 transition-colors px-6 py-2 rounded-lg text-white font-semibold disabled:opacity-60"
+        >
+          {verifying ? 'Verifying...' : '✔️ Verify Access'}
+        </button>
+
+        <p className="text-xs text-gray-600 pt-4">Protected by Aichiow Firewall</p>
       </div>
     </main>
   )
