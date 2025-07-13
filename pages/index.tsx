@@ -1,65 +1,74 @@
 import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { fetchNewsAnime } from '@/lib/anilist'
+import { Anime } from '@/types/anime'
 
 export default function LandingPage() {
-  const router = useRouter()
+  const [news, setNews] = useState<Anime[]>([])
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      router.push('/home')
-    }, 8000)
-    return () => clearTimeout(timeout)
-  }, [router])
+    async function loadNews() {
+      const latestNews = await fetchNewsAnime()
+      setNews(latestNews)
+    }
+    loadNews()
+  }, [])
 
   return (
     <>
       <Head>
-        <title>Aichiow — Welcome</title>
-        <meta name="description" content="A modern anime & manga platform with trending shows, trailers, weekly schedule, and manga reader." />
-        <meta name="viewport" content="width=1920" />
+        <title>Welcome to Aichiow</title>
+        <meta
+          name="description"
+          content="A modern anime & manga platform with trending shows, trailers, weekly schedule, and manga reader."
+        />
         <link rel="icon" href="/logo.png" />
       </Head>
 
-      <main className="w-screen h-screen relative overflow-hidden bg-black">
-        {/* 🎞 Background Video */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover z-0"
-        >
-          <source src="/landing-bg.mp4" type="video/mp4" />
-        </video>
-
-        {/* 🔲 Overlay */}
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-md z-10" />
-
-        {/* 🎨 Content */}
-        <div className="relative z-20 flex flex-col items-center justify-center h-full text-white text-center">
-          {/* Logo */}
+      <main className="min-h-screen bg-gradient-to-br from-blue-950 to-black text-white flex flex-col items-center justify-center px-4 py-16 space-y-10">
+        <div className="flex flex-col items-center text-center">
           <Image
             src="/logo.png"
             alt="Aichiow Logo"
-            width={160}
-            height={160}
-            className="animate-bounce-slow drop-shadow-lg mb-6"
+            width={100}
+            height={100}
+            className="rounded-full border border-white shadow-lg mb-4"
           />
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-wide drop-shadow-xl mb-4">
-            Welcome to <span className="text-purple-500">Aichiow</span>
-          </h1>
-          <p className="text-xl md:text-2xl font-medium max-w-3xl text-slate-200 drop-shadow-md px-4 mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Welcome to Aichiow</h1>
+          <p className="text-lg md:text-xl max-w-2xl text-gray-300">
             A modern anime & manga platform with trending shows, trailers, weekly schedule, and manga reader.
           </p>
-          <button
-            onClick={() => router.push('/home')}
-            className="px-10 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-lg rounded-xl shadow-xl hover:scale-105 transition-transform duration-300"
-          >
-            Let&apos;s Go →
-          </button>
         </div>
+
+        <Link
+          href="/home"
+          className="px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold transition"
+        >
+          Let&apos;s Go
+        </Link>
+
+        <section className="w-full max-w-4xl mt-10">
+          <h2 className="text-2xl font-bold mb-4 text-center">📰 Latest Anime News</h2>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {news.map((anime) => (
+              <div
+                key={anime.id}
+                className="bg-gray-800 rounded-lg overflow-hidden shadow-md hover:scale-105 transition transform duration-300"
+              >
+                <Image
+                  src={anime.coverImage?.large || '/placeholder.jpg'}
+                  alt={anime.title?.romaji || 'Anime'}
+                  width={200}
+                  height={300}
+                  className="w-full h-auto object-cover"
+                />
+                <div className="p-2 text-sm text-center">{anime.title?.romaji}</div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </>
   )
