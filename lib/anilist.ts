@@ -280,3 +280,24 @@ export async function fetchAnimeDetail(id: number): Promise<any> {
 
   return data?.Media
 }
+
+// ✅ Tambahan: Anime News (untuk landing)
+export async function fetchNewsAnime(): Promise<Anime[]> {
+  const query = `
+    query {
+      Page(perPage: 10) {
+        media(type: ANIME, sort: UPDATED_AT_DESC) {
+          id
+          title {
+            romaji
+          }
+          coverImage {
+            large
+          }
+        }
+      }
+    }
+  `
+  const data = await fetchFromAnilist(query)
+  return data.Page.media
+}
