@@ -1,48 +1,48 @@
 // pages/index.tsx
 import Head from 'next/head'
 import Image from 'next/image'
-import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 export default function LandingPage() {
+  const router = useRouter()
+
+  const handleEnter = () => {
+    router.push('/home')
+  }
+
   return (
     <>
       <Head>
-        <title>Aichiow — Watch Anime Free</title>
-        <meta
-          name="description"
-          content="A modern anime & manga platform with trending shows, trailers, weekly schedule, and manga reader."
-        />
+        <title>Aichiow — Anime & Manga Platform</title>
+        <meta name="description" content="A modern anime & manga platform with trending shows, trailers, weekly schedule, and manga reader." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/logo.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700;900&display=swap"
           rel="stylesheet"
         />
       </Head>
-
-      <main className="min-h-screen bg-[#0f0f0f] text-white font-['Montserrat'] flex flex-col items-center justify-center px-4">
+      <main className="min-h-screen flex flex-col items-center justify-center text-center bg-gradient-to-b from-black to-zinc-900 text-white font-montserrat">
         <Image
           src="/logo.png"
           alt="Aichiow Logo"
           width={100}
           height={100}
-          className="mb-6"
+          className="mb-4"
         />
-
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-center mb-4">
-          Welcome to Aichiow
-        </h1>
-        <p className="text-center text-white/70 max-w-xl text-base sm:text-lg mb-8">
+        <h1 className="text-4xl md:text-5xl font-bold mb-2">Welcome to Aichiow</h1>
+        <p className="text-sm md:text-lg text-zinc-300 max-w-xl mb-6">
           A modern anime & manga platform with trending shows, trailers, weekly schedule, and manga reader.
         </p>
 
-        <Link
-          href="/home"
-          className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-3 rounded-full transition-all"
+        <button
+          onClick={handleEnter}
+          className="bg-orange-500 hover:bg-orange-600 transition-colors duration-300 text-white font-semibold px-6 py-3 rounded-full text-lg shadow-md"
         >
-          Let's Go
-        </Link>
+          Let&apos;s Go
+        </button>
       </main>
     </>
   )
