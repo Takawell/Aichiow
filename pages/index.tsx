@@ -1,9 +1,8 @@
-// pages/index.tsx
 import Head from 'next/head'
-import Link from 'next/link'
 import Image from 'next/image'
 import { useTrendingAnime } from '@/hooks'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/classnames'
+import Link from 'next/link'
 
 export default function LandingPage() {
   const { data: trending, isLoading } = useTrendingAnime()
@@ -11,70 +10,66 @@ export default function LandingPage() {
   return (
     <>
       <Head>
-        <title>Aichiow — Anime & Manga Platform</title>
+        <title>Aichiow — Welcome</title>
         <meta
           name="description"
           content="A modern anime & manga platform with trending shows, trailers, weekly schedule, and manga reader."
         />
+        <link rel="icon" href="/logo.png" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-b from-[#0d1a2d] via-[#0a0f1c] to-black text-white font-montserrat">
-        {/* HERO Section */}
-        <div className="flex flex-col items-center justify-center text-center px-4 pt-24">
-          {/* Logo dengan border */}
-          <div className="border-2 border-white/20 shadow-xl bg-white/5 backdrop-blur-md p-6 rounded-2xl">
+      <main className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-black text-white">
+        <section className="flex flex-col items-center justify-center py-24 px-4 text-center">
+          <div className="mb-6">
             <Image
               src="/logo.png"
               alt="Aichiow Logo"
               width={120}
               height={120}
-              className="rounded-lg"
+              className="rounded-xl border border-white/30 shadow-lg"
             />
           </div>
-
-          {/* Title & Deskripsi */}
-          <h1 className="text-4xl md:text-5xl font-bold mt-6">
-            Welcome to <span className="text-blue-400">Aichiow</span>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
+            Welcome to Aichiow
           </h1>
-          <p className="mt-4 max-w-xl text-gray-300 text-sm md:text-base">
+          <p className="mt-4 text-lg md:text-xl text-gray-300 max-w-2xl">
             A modern anime & manga platform with trending shows, trailers, weekly schedule, and manga reader.
           </p>
-
-          {/* Tombol Let's Go */}
-          <Link href="/home">
-            <a className="mt-6 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full font-semibold transition duration-300 shadow-lg">
-              Let's Go →
-            </a>
+          <Link
+            href="/home"
+            className="mt-8 px-6 py-3 bg-blue-600 hover:bg-blue-700 transition-all rounded-lg text-lg font-semibold shadow-md"
+          >
+            Let's Go
           </Link>
-        </div>
+        </section>
 
-        {/* News Section (dari trending) */}
-        <section className="mt-16 px-6 md:px-16">
-          <h2 className="text-2xl font-semibold text-white mb-6">📰 Anime News</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {isLoading ? (
-              <p>Loading anime news...</p>
-            ) : (
-              trending?.map((anime) => (
+        <section className="px-6 py-12">
+          <h2 className="text-2xl font-bold mb-6">📢 Trending News from Anime</h2>
+          {isLoading ? (
+            <p className="text-gray-400">Loading news...</p>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {trending?.slice(0, 6).map((anime) => (
                 <Link key={anime.id} href={`/anime/${anime.id}`}>
-                  <a className="group bg-white/5 hover:bg-white/10 p-2 rounded-lg shadow transition-all">
+                  <div className="bg-white/5 hover:bg-white/10 p-4 rounded-lg cursor-pointer transition-all duration-200">
                     <Image
                       src={anime.coverImage.large}
                       alt={anime.title.romaji}
                       width={300}
-                      height={400}
-                      className="rounded-md object-cover"
+                      height={450}
+                      className="w-full h-64 object-cover rounded-md mb-3"
                     />
-                    <p className="mt-2 text-sm text-white group-hover:text-blue-400 transition line-clamp-2">
-                      {anime.title.english || anime.title.romaji}
+                    <h3 className="font-semibold text-lg">{anime.title.english || anime.title.romaji}</h3>
+                    <p className="text-sm text-gray-400">
+                      {anime.genres.slice(0, 2).join(', ')} · ⭐ {anime.averageScore}
                     </p>
-                  </a>
+                  </div>
                 </Link>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
-      </div>
+      </main>
     </>
   )
 }
