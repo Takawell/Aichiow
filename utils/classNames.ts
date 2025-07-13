@@ -1,4 +1,5 @@
-// utils/classnames.ts
-export function cn(...classes: (string | boolean | undefined | null)[]) {
+// utils/classNames.ts
+
+export function classNames(...classes: (string | undefined | null | false)[]): string {
   return classes.filter(Boolean).join(' ')
 }
