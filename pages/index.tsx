@@ -37,7 +37,7 @@ export default function LandingPage() {
           href="/home"
           className="inline-block mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-white font-semibold transition-all duration-300"
         >
-          MAIN PAGE →
+          PORTAL ISEKAI →
         </Link>
       </div>
 
