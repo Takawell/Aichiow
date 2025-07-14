@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.4",
+    "@supabase/supabase-js": "^2.43.3",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tanstack/react-query": "^4.29.12",
     "autoprefixer": "^10.4.17",
     "axios": "^1.6.8",
@@ -25,7 +27,6 @@
     "react-player": "^2.12.0",
     "swr": "^2.2.0",
     "tailwindcss": "^3.3.3",
-    "@tailwindcss/aspect-ratio": "^0.4.2",
     "typescript": "^5.4.0"
   },
   "devDependencies": {
