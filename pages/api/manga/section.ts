@@ -1,5 +1,18 @@
+// pages/api/manga/section.ts
 import { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
+
+// Ambil file cover
+function getCoverFileName(manga: any): string | null {
+  const cover = manga.relationships?.find((rel: any) => rel.type === 'cover_art')
+  return cover?.attributes?.fileName || null
+}
+
+// Ambil judul lokal
+function getTitle(manga: any): string {
+  const titles = manga.attributes?.title || {}
+  return titles.en || Object.values(titles)[0] || 'Untitled'
+}
 
 // Validasi cover_art
 function hasCoverArt(manga: any) {
@@ -23,9 +36,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const response = await axios.get(url)
     const mangas = response.data.data
 
-    const filtered = mangas.filter(hasCoverArt)
+    const formatted = mangas
+      .filter(hasCoverArt)
+      .map((manga: any) => ({
+        id: manga.id,
+        title: getTitle(manga),
+        coverFileName: getCoverFileName(manga),
+        status: manga.attributes.status, // <== ini dipakai untuk badge
+      }))
 
-    res.status(200).json(filtered)
+    res.status(200).json(formatted)
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to fetch manga section' })
