@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import {
-  fetchPopularManga,
+  fetchPopularManga,        // ✅ FIX: previously `fetchPopularManhwa`
   getMangaByFilter,
-  getMangaByGenre
+  fetchMangaByGenre          // ✅ FIX: previously `getMangaByGenre` (penamaan sesuai lib/mangadex)
 } from '@/lib/mangadex'
 import { Manga } from '@/types/manga'
 import { SearchBar } from '@/components/manga/SearchBar'
@@ -34,14 +34,14 @@ export default function MangaPage() {
           romanceRes,
           fantasyRes
         ] = await Promise.all([
-          fetchPopularManhwa(),
-          getMangaByFilter('ongoing'),
-          getMangaByFilter('completed'),
-          getMangaByFilter('top_rated'),
-          getMangaByFilter('latest'),
-          getMangaByGenre('action'),
-          getMangaByGenre('romance'),
-          getMangaByGenre('fantasy')
+          fetchPopularManga(),                         // ✅ ganti ke fungsi yang benar
+          getMangaByFilter({ includedTags: ['ongoing'] }),
+          getMangaByFilter({ includedTags: ['completed'] }),
+          getMangaByFilter({ includedTags: ['top_rated'] }),
+          getMangaByFilter({ includedTags: ['latest'] }),
+          fetchMangaByGenre('action'),                 // ✅ ganti ke fetchMangaByGenre
+          fetchMangaByGenre('romance'),
+          fetchMangaByGenre('fantasy')
         ])
 
         setPopular(popularRes)
