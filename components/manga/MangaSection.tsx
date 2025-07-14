@@ -1,7 +1,7 @@
 'use client'
 
 import { Manga } from "@/types/manga"
-import { MangaCard } from "./MangaCard"
+import MangaCard from "./MangaCard"
 
 interface Props {
   title: string
