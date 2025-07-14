@@ -116,3 +116,27 @@ export function sortChapters(chapters: any[]) {
     return numB - numA
   })
 }
+
+// ✅ Tambahan: Section Ongoing, Completed, Top Rated, Latest
+export async function getMangaSection(type: 'ongoing' | 'completed' | 'top_rated' | 'latest') {
+  try {
+    const res = await axios.get(`/api/manga/section?type=${type}`)
+    const results = res.data
+    return results.filter((manga: any) => hasCoverArt(manga))
+  } catch (err) {
+    console.error('getMangaSection error:', err)
+    return []
+  }
+}
+
+// ✅ Genre Populer (action, romance, fantasy)
+const genreMap: Record<string, string> = {
+  action: '391b0423-d847-456f-aff0-8b0cfc03066b',
+  romance: '423e2eae-a7a2-c800-2d73-c3bffcd2f0c3',
+  fantasy: 'cdc58593-87dd-415e-bbc0-2ec27bf404cc',
+}
+
+export async function getMangaByGenre(name: keyof typeof genreMap) {
+  const tagId = genreMap[name]
+  return fetchMangaByGenre(tagId)
+}
