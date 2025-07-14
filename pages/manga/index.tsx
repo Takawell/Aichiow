@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import {
-  fetchPopularManhwa,
+  fetchPopularManga,
   getMangaByFilter,
   getMangaByGenre
 } from '@/lib/mangadex'
