@@ -1,14 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 
-function getCoverFileName(manga: any): string | null {
-  const cover = manga.relationships?.find((rel: any) => rel.type === 'cover_art')
-  return cover?.attributes?.fileName || null
-}
-
-function getTitle(manga: any): string {
-  const titles = manga.attributes?.title || {}
-  return titles.en || Object.values(titles)[0] || 'Untitled'
+// Validasi cover_art
+function hasCoverArt(manga: any) {
+  return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -28,18 +23,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const response = await axios.get(url)
     const mangas = response.data.data
 
-    const formatted = mangas
-      .filter((manga: any) =>
-        manga.relationships?.some((rel: any) => rel.type === 'cover_art')
-      )
-      .map((manga: any) => ({
-        id: manga.id,
-        title: getTitle(manga),
-        coverFileName: getCoverFileName(manga),
-        status: manga.attributes.status,
-      }))
+    const filtered = mangas.filter(hasCoverArt)
 
-    res.status(200).json(formatted)
+    res.status(200).json(filtered)
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to fetch manga section' })
