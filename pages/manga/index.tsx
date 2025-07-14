@@ -1,64 +1,87 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchPopularManga, getLocalizedTitle } from '@/lib/mangadex'
-import MangaGrid from '@/components/manga/MangaGrid'
-import Link from 'next/link'
+import {
+  fetchPopularManhwa,
+  getMangaByFilter,
+  getMangaByGenre
+} from '@/lib/mangadex'
+import { Manga } from '@/types/manga'
+import { SearchBar } from '@/components/manga/SearchBar'
+import { MangaSection } from '@/components/manga/MangaSection'
 
-export default function MangaLandingPage() {
-  const [mangaList, setMangaList] = useState<any[]>([])
+export default function MangaPage() {
+  const [popular, setPopular] = useState<Manga[]>([])
+  const [ongoing, setOngoing] = useState<Manga[]>([])
+  const [completed, setCompleted] = useState<Manga[]>([])
+  const [topRated, setTopRated] = useState<Manga[]>([])
+  const [newest, setNewest] = useState<Manga[]>([])
+  const [action, setAction] = useState<Manga[]>([])
+  const [romance, setRomance] = useState<Manga[]>([])
+  const [fantasy, setFantasy] = useState<Manga[]>([])
   const [loading, setLoading] = useState(true)
-  const [log, setLog] = useState<string>('')
 
   useEffect(() => {
-    async function load() {
+    const loadAll = async () => {
       try {
-        const data = await fetchPopularManga()
-        setLog(`✅ Fetched: ${data.length} manga`)
-        setMangaList(data)
-      } catch (err: any) {
-        console.error('[Manga Landing] Fetch error:', err)
-        setLog(`❌ Error: ${err.message}`)
+        const [
+          popularRes,
+          ongoingRes,
+          completedRes,
+          topRatedRes,
+          newestRes,
+          actionRes,
+          romanceRes,
+          fantasyRes
+        ] = await Promise.all([
+          fetchPopularManhwa(),
+          getMangaByFilter('ongoing'),
+          getMangaByFilter('completed'),
+          getMangaByFilter('top_rated'),
+          getMangaByFilter('latest'),
+          getMangaByGenre('action'),
+          getMangaByGenre('romance'),
+          getMangaByGenre('fantasy')
+        ])
+
+        setPopular(popularRes)
+        setOngoing(ongoingRes)
+        setCompleted(completedRes)
+        setTopRated(topRatedRes)
+        setNewest(newestRes)
+        setAction(actionRes)
+        setRomance(romanceRes)
+        setFantasy(fantasyRes)
+      } catch (err) {
+        console.error('Error loading manga:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    load()
+    loadAll()
   }, [])
 
   return (
-    <main className="px-4 md:px-8 py-10 text-white">
-      {/* Hero Section */}
-      <section className="mb-12 text-center">
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-sky-400 to-blue-600 text-transparent bg-clip-text">
-          Welcome to Aichiow Manga
-        </h1>
-        <p className="text-zinc-400 mb-6 max-w-xl mx-auto">
-          Discover the hottest manga. High-quality, full-featured reader — right at your fingertips.
-        </p>
-        <Link
-          href="/manga/explore"
-          className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-semibold transition"
-        >
-          🔍 Explore Manga
-        </Link>
-      </section>
+    <main className="max-w-screen-xl mx-auto px-4 py-8">
+      <h1 className="text-3xl md:text-4xl font-bold mb-4">Explore Manga</h1>
 
-      {/* Debug Log */}
-      {log && <p className="text-sm text-center text-pink-400 mb-4">{log}</p>}
+      <SearchBar />
 
-      {/* Manga Section */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4">🔥 Most Followed</h2>
-        {loading ? (
-          <p className="text-zinc-400">Loading manga...</p>
-        ) : mangaList.length > 0 ? (
-          <MangaGrid mangaList={mangaList.slice(0, 12)} />
-        ) : (
-          <p className="text-zinc-500">No manga found.</p>
-        )}
-      </section>
+      {loading ? (
+        <p className="text-center text-muted-foreground">Loading...</p>
+      ) : (
+        <>
+          <MangaSection title="🔥 Popular Manhwa" mangas={popular} />
+          <MangaSection title="🌀 Ongoing Series" mangas={ongoing} />
+          <MangaSection title="✅ Completed Series" mangas={completed} />
+          <MangaSection title="✨ Top Rated" mangas={topRated} />
+          <MangaSection title="🆕 Newest Released" mangas={newest} />
+          <MangaSection title="⚔️ Action" mangas={action} />
+          <MangaSection title="💖 Romance" mangas={romance} />
+          <MangaSection title="🧙 Fantasy" mangas={fantasy} />
+        </>
+      )}
     </main>
   )
 }
