@@ -1,6 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 
+// Ambil nama file cover dari relationships
+function getCoverFileName(manga: any): string | null {
+  const cover = manga.relationships?.find((rel: any) => rel.type === 'cover_art')
+  return cover?.attributes?.fileName || null
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { type } = req.query
 
@@ -16,8 +22,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const response = await axios.get(url)
-    res.status(200).json(response.data.data)
+    const mangas = response.data.data
+
+    const withCovers = mangas.map((manga: any) => ({
+      id: manga.id,
+      title: manga.attributes.title,
+      coverFileName: getCoverFileName(manga),
+    }))
+
+    res.status(200).json(withCovers)
   } catch (err) {
+    console.error(err)
     res.status(500).json({ error: 'Failed to fetch manga section' })
   }
 }
