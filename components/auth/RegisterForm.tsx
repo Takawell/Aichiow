@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/router";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail, Lock, User } from "lucide-react";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -25,7 +25,7 @@ export function RegisterForm() {
     setLoading(true);
     setError("");
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const { error: signUpError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
       options: {
@@ -45,41 +45,48 @@ export function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-[#1a1a1a] p-6 rounded-xl shadow-lg border border-[#2d2d2d]">
-      <div className="flex flex-col space-y-2">
-        <label htmlFor="username" className="text-sm text-gray-300">Username</label>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 bg-[#121212] border border-[#1f1f1f] p-6 rounded-2xl shadow-[0_0_24px_rgba(0,0,0,0.7)] backdrop-blur-sm transition duration-300 hover:shadow-[0_0_32px_rgba(0,153,255,0.3)]"
+    >
+      <h2 className="text-center text-2xl font-semibold text-blue-500 tracking-wide">Create Aichiow Account</h2>
+
+      <div className="relative">
+        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
         <input
           type="text"
           name="username"
-          id="username"
+          placeholder="Username"
           value={form.username}
           onChange={handleChange}
           required
-          className="px-4 py-2 rounded-md bg-[#111] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="w-full pl-10 pr-4 py-2 bg-[#1a1a1a] border border-[#333] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
         />
       </div>
-      <div className="flex flex-col space-y-2">
-        <label htmlFor="email" className="text-sm text-gray-300">Email</label>
+
+      <div className="relative">
+        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
         <input
           type="email"
           name="email"
-          id="email"
+          placeholder="Email address"
           value={form.email}
           onChange={handleChange}
           required
-          className="px-4 py-2 rounded-md bg-[#111] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="w-full pl-10 pr-4 py-2 bg-[#1a1a1a] border border-[#333] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
         />
       </div>
-      <div className="flex flex-col space-y-2">
-        <label htmlFor="password" className="text-sm text-gray-300">Password</label>
+
+      <div className="relative">
+        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
         <input
           type="password"
           name="password"
-          id="password"
+          placeholder="Password"
           value={form.password}
           onChange={handleChange}
           required
-          className="px-4 py-2 rounded-md bg-[#111] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="w-full pl-10 pr-4 py-2 bg-[#1a1a1a] border border-[#333] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
         />
       </div>
 
@@ -87,11 +94,18 @@ export function RegisterForm() {
 
       <button
         type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition flex items-center justify-center"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-all duration-200 flex items-center justify-center"
         disabled={loading}
       >
-        {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Create Account"}
+        {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Sign Up"}
       </button>
+
+      <p className="text-center text-sm text-gray-400">
+        Already have an account?{" "}
+        <a href="/auth/login" className="text-blue-500 hover:underline">
+          Login
+        </a>
+      </p>
     </form>
   );
 }
