@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getCoverImage } from '@/lib/mangadex'
-import { cn } from '@/lib/utils' // optional helper
+import { cn } from '@/utils/cn' // optional helper
 
 interface MangaCardProps {
   id: string
