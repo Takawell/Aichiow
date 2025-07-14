@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getCoverImage } from '@/lib/mangadex'
-import { cn } from '@/utils/cn' // optional helper
+import { cn } from '@/utils/cn'
 
 interface MangaCardProps {
   id: string
@@ -24,8 +24,7 @@ export default function MangaCard({
     ? getCoverImage(id, coverFileName)
     : fallbackCover
 
-  const statusColor =
-    status === 'completed' ? 'bg-green-600' : 'bg-yellow-500'
+  const statusColor = status === 'completed' ? 'bg-green-600' : 'bg-yellow-500'
 
   return (
     <Link
@@ -33,11 +32,12 @@ export default function MangaCard({
       className="group block hover:scale-[1.03] transition-transform duration-300"
     >
       <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xl shadow-md bg-zinc-900">
-        {/* IMAGE */}
+        {/* COVER IMAGE */}
         <Image
           src={imageUrl}
-          alt={title}
+          alt={title || 'Untitled Manga'}
           fill
+          loading="lazy"
           className="object-cover group-hover:opacity-90 transition duration-300"
           sizes="(max-width: 768px) 50vw, 20vw"
         />
@@ -46,7 +46,12 @@ export default function MangaCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-300" />
 
         {/* STATUS BADGE */}
-        <div className={`absolute top-2 left-2 px-2 py-0.5 text-xs text-white rounded-full ${statusColor}`}>
+        <div
+          className={cn(
+            'absolute top-2 left-2 px-2 py-0.5 text-xs text-white rounded-full',
+            statusColor
+          )}
+        >
           {status === 'completed' ? '✅ Completed' : '🌀 Ongoing'}
         </div>
 
@@ -60,7 +65,7 @@ export default function MangaCard({
 
       {/* TITLE */}
       <h3 className="mt-2 text-sm font-semibold text-center text-zinc-100 truncate">
-        {title}
+        {title || 'Untitled'}
       </h3>
     </Link>
   )
