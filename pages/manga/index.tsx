@@ -1,35 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import {
-  fetchPopularManga,
-  getMangaSection
-} from '@/lib/mangadex'
+import { fetchPopularManga } from '@/lib/mangadex'
 import MangaGrid from '@/components/manga/MangaGrid'
 import Link from 'next/link'
 
 export default function MangaLandingPage() {
   const [popular, setPopular] = useState<any[]>([])
-  const [ongoing, setOngoing] = useState<any[]>([])
-  const [completed, setCompleted] = useState<any[]>([])
-  const [topRated, setTopRated] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [log, setLog] = useState<string>('')
 
   useEffect(() => {
     async function load() {
       try {
-        const [popularRes, ongoingRes, completedRes, topRatedRes] = await Promise.all([
-          fetchPopularManga(),
-          getMangaSection('ongoing'),
-          getMangaSection('completed'),
-          getMangaSection('top_rated')
-        ])
+        const popularRes = await fetchPopularManga()
         setPopular(popularRes)
-        setOngoing(ongoingRes)
-        setCompleted(completedRes)
-        setTopRated(topRatedRes)
-        setLog(`✅ Loaded all sections`)
+        setLog(`✅ Loaded popular manga`)
       } catch (err: any) {
         console.error('[Manga Landing] Error:', err)
         setLog(`❌ Error: ${err.message}`)
@@ -62,31 +48,14 @@ export default function MangaLandingPage() {
       {/* Debug Log */}
       {log && <p className="text-sm text-center text-pink-400 mb-4">{log}</p>}
 
-      {/* Sections */}
+      {/* Manga Section */}
       {loading ? (
         <p className="text-zinc-400 text-center">Loading manga...</p>
       ) : (
-        <>
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">🔥 Most Followed</h2>
-            <MangaGrid mangaList={popular} />
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">🌀 Ongoing Series</h2>
-            <MangaGrid mangaList={ongoing} />
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">✅ Completed Series</h2>
-            <MangaGrid mangaList={completed} />
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">✨ Top Rated</h2>
-            <MangaGrid mangaList={topRated} />
-          </section>
-        </>
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold mb-4">🔥 Most Followed</h2>
+          <MangaGrid mangaList={popular} />
+        </section>
       )}
     </main>
   )
