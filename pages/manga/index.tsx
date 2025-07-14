@@ -68,7 +68,7 @@ export default function MangaPage() {
       <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white">Explore Manga</h1>
 
       <div className="mb-6">
-        <SearchBar size="lg" />
+        <SearchBar />
       </div>
 
       <div className="mb-6">
