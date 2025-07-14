@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react'
 import {
   fetchPopularManga,
-  getMangaSection,
-  getMangaByGenre
+  getMangaByFilter,
+  fetchMangaByGenre
 } from '@/lib/mangadex'
 import { Manga } from '@/types/manga'
 import { SearchBar } from '@/components/manga/SearchBar'
 import { MangaSection } from '@/components/manga/MangaSection'
+import { GenreFilter } from '@/components/manga/GenreFilter'
 
 export default function MangaPage() {
   const [popular, setPopular] = useState<Manga[]>([])
@@ -35,13 +36,13 @@ export default function MangaPage() {
           fantasyRes
         ] = await Promise.all([
           fetchPopularManga(),
-          getMangaSection('ongoing'),
-          getMangaSection('completed'),
-          getMangaSection('top_rated'),
-          getMangaSection('latest'),
-          getMangaByGenre('action'),
-          getMangaByGenre('romance'),
-          getMangaByGenre('fantasy')
+          getMangaByFilter({ includedTags: ['ongoing'] }),
+          getMangaByFilter({ includedTags: ['completed'] }),
+          getMangaByFilter({ includedTags: ['top_rated'] }),
+          getMangaByFilter({ includedTags: ['latest'] }),
+          fetchMangaByGenre('action'),
+          fetchMangaByGenre('romance'),
+          fetchMangaByGenre('fantasy')
         ])
 
         setPopular(popularRes)
@@ -64,15 +65,21 @@ export default function MangaPage() {
 
   return (
     <main className="max-w-screen-xl mx-auto px-4 py-8">
-      <h1 className="text-3xl md:text-4xl font-bold mb-4">Explore Manga</h1>
+      <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white">Explore Manga</h1>
 
-      <SearchBar />
+      <div className="mb-6">
+        <SearchBar size="lg" />
+      </div>
+
+      <div className="mb-6">
+        <GenreFilter />
+      </div>
 
       {loading ? (
         <p className="text-center text-muted-foreground">Loading...</p>
       ) : (
         <>
-          <MangaSection title="🔥 Popular Manhwa" mangas={popular} />
+          <MangaSection title="🔥 Popular Manhwa" layout="horizontal" mangas={popular} />
           <MangaSection title="🌀 Ongoing Series" mangas={ongoing} />
           <MangaSection title="✅ Completed Series" mangas={completed} />
           <MangaSection title="✨ Top Rated" mangas={topRated} />
