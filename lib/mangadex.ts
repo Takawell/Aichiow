@@ -1,39 +1,37 @@
 import axios from 'axios'
 
-// ✅ Filter manga yang punya cover_art
+// ✅ Cek apakah manga punya cover_art
 export function hasCoverArt(manga: any) {
   return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
 }
 
-// ✅ Fetch populer manga
+// ✅ Ambil manga populer
 export async function fetchPopularManga() {
   const res = await axios.get('/api/manga/popular')
   return res.data
 }
 
-// ✅ Fetch detail manga
+// ✅ Ambil detail manga
 export async function fetchMangaDetail(id: string) {
   const res = await axios.get(`/api/manga/detail?id=${id}`)
   return res.data
 }
 
-// ✅ Fetch list chapter dari manga
+// ✅ Ambil semua chapter dari manga tertentu
 export async function fetchChapters(mangaId: string) {
   const res = await axios.get(`/api/manga/chapters?mangaId=${mangaId}`)
   return res.data
 }
 
-// ✅ FIXED: Fetch gambar dari 1 chapter
+// ✅ Ambil gambar dari chapter (image URLs)
 export async function fetchChapterImages(chapterId: string) {
   try {
     const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
     const { baseUrl, chapter } = res.data
 
-    if (!baseUrl || !chapter?.hash) {
-      throw new Error('Invalid chapter response')
-    }
+    if (!baseUrl || !chapter?.hash) throw new Error('Invalid chapter response')
 
-    const cleanBaseUrl = baseUrl.replace(/\\/g, '') // Fix escaped slashes
+    const cleanBaseUrl = baseUrl.replace(/\\/g, '') // Bersihkan slash
 
     return {
       baseUrl: cleanBaseUrl,
@@ -47,11 +45,10 @@ export async function fetchChapterImages(chapterId: string) {
   }
 }
 
-// ✅ FIXED: Search manga by title (akurasi lebih tinggi)
+// ✅ Cari manga dari judul
 export async function searchManga(query: string) {
   const res = await axios.get(`/api/manga/search?query=${query}`)
   const results = res.data
-
   const lowered = query.toLowerCase().trim()
 
   return results.filter((manga: any) => {
@@ -59,26 +56,23 @@ export async function searchManga(query: string) {
       ...Object.values(manga.attributes.title || {}),
       ...manga.attributes.altTitles.flatMap((alt: any) => Object.values(alt)),
     ]
-
     return titles.some(
       (title) => typeof title === 'string' && title.toLowerCase().includes(lowered)
     )
   })
 }
 
-// ✅ Fetch all genre tags
+// ✅ Ambil semua genre manga
 export async function fetchGenres() {
   const res = await axios.get('/api/manga/genres')
   return res.data
 }
 
-// ✅ FIXED: Filter manga by included tags (genre)
+// ✅ Ambil manga berdasarkan filter tag
 export async function getMangaByFilter(params: { includedTags: string[] }) {
   try {
     const res = await axios.post('/api/manga/filter', params)
     const results = res.data
-
-    // Tambahkan validasi cover_art
     return results.filter((manga: any) => hasCoverArt(manga))
   } catch (error) {
     console.error('getMangaByFilter error:', error)
@@ -86,18 +80,18 @@ export async function getMangaByFilter(params: { includedTags: string[] }) {
   }
 }
 
-// ✅ Optional: Get manga by single genre (jika dipisah)
+// ✅ Ambil manga berdasarkan genre ID
 export async function fetchMangaByGenre(tagId: string) {
   const res = await axios.get(`/api/manga/genre?id=${tagId}`)
   return res.data
 }
 
-// ✅ Buat cover image URL
+// ✅ Buat URL gambar cover dari MangaDex
 export function getCoverImage(mangaId: string, fileName: string) {
   return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`
 }
 
-// ✅ Ambil judul lokal manga dengan fallback
+// ✅ Ambil judul lokal dengan fallback
 export function getLocalizedTitle(titleObj: { [key: string]: string }) {
   return (
     titleObj.en ||
@@ -108,7 +102,7 @@ export function getLocalizedTitle(titleObj: { [key: string]: string }) {
   )
 }
 
-// ✅ Optional: Sort chapter
+// ✅ Urutkan chapter secara descending (chapter terbaru duluan)
 export function sortChapters(chapters: any[]) {
   return chapters.sort((a, b) => {
     const numA = parseFloat(a.attributes.chapter || '0')
@@ -117,7 +111,7 @@ export function sortChapters(chapters: any[]) {
   })
 }
 
-// ✅ Tambahan: Section Ongoing, Completed, Top Rated, Latest
+// ✅ Section tambahan: ongoing, completed, top rated, latest
 export async function getMangaSection(type: 'ongoing' | 'completed' | 'top_rated' | 'latest') {
   try {
     const res = await axios.get(`/api/manga/section?type=${type}`)
@@ -129,7 +123,7 @@ export async function getMangaSection(type: 'ongoing' | 'completed' | 'top_rated
   }
 }
 
-// ✅ Genre Populer (action, romance, fantasy)
+// ✅ Genre populer bawaan (pakai id tag MangaDex)
 const genreMap: Record<string, string> = {
   action: '391b0423-d847-456f-aff0-8b0cfc03066b',
   romance: '423e2eae-a7a2-c800-2d73-c3bffcd2f0c3',
