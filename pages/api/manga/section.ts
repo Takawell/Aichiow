@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         id: manga.id,
         title: getTitle(manga),
         coverFileName: getCoverFileName(manga),
-        status: manga.attributes.status, // <== ini dipakai untuk badge
+        status: manga.attributes.status,
       }))
 
     res.status(200).json(formatted)
