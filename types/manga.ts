@@ -1,7 +1,7 @@
 export interface Manga {
   id: string
   title: string
-  coverImage: string
+  coverFileName: string
   description?: string
   status?: string
   lastChapter?: string
