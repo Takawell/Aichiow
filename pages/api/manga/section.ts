@@ -1,28 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 
-function hasCoverArt(manga: any) {
-  return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
-}
-
-function getCoverFileName(manga: any) {
+function getCoverFileName(manga: any): string | null {
   const cover = manga.relationships?.find((rel: any) => rel.type === 'cover_art')
   return cover?.attributes?.fileName || null
 }
 
-function getStatus(manga: any) {
-  return manga.attributes?.status || 'unknown'
-}
-
-function getTitle(manga: any) {
-  const title = manga.attributes?.title || {}
-  return (
-    title.en ||
-    title.ja ||
-    title['en-us'] ||
-    Object.values(title)[0] ||
-    'Untitled'
-  )
+function getTitle(manga: any): string {
+  const titles = manga.attributes?.title || {}
+  return titles.en || Object.values(titles)[0] || 'Untitled'
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -42,14 +28,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const response = await axios.get(url)
     const mangas = response.data.data
 
-    const filtered = mangas.filter(hasCoverArt).map((manga: any) => ({
-      id: manga.id,
-      title: getTitle(manga),
-      coverFileName: getCoverFileName(manga),
-      status: getStatus(manga), 
-    }))
+    const formatted = mangas
+      .filter((manga: any) =>
+        manga.relationships?.some((rel: any) => rel.type === 'cover_art')
+      )
+      .map((manga: any) => ({
+        id: manga.id,
+        title: getTitle(manga),
+        coverFileName: getCoverFileName(manga),
+        status: manga.attributes.status,
+      }))
 
-    res.status(200).json(filtered)
+    res.status(200).json(formatted)
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to fetch manga section' })
