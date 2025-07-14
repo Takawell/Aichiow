@@ -1,9 +1,28 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 
-// Validasi cover_art
 function hasCoverArt(manga: any) {
   return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
+}
+
+function getCoverFileName(manga: any) {
+  const cover = manga.relationships?.find((rel: any) => rel.type === 'cover_art')
+  return cover?.attributes?.fileName || null
+}
+
+function getStatus(manga: any) {
+  return manga.attributes?.status || 'unknown'
+}
+
+function getTitle(manga: any) {
+  const title = manga.attributes?.title || {}
+  return (
+    title.en ||
+    title.ja ||
+    title['en-us'] ||
+    Object.values(title)[0] ||
+    'Untitled'
+  )
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -23,7 +42,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const response = await axios.get(url)
     const mangas = response.data.data
 
-    const filtered = mangas.filter(hasCoverArt)
+    const filtered = mangas.filter(hasCoverArt).map((manga: any) => ({
+      id: manga.id,
+      title: getTitle(manga),
+      coverFileName: getCoverFileName(manga),
+      status: getStatus(manga), 
+    }))
 
     res.status(200).json(filtered)
   } catch (err) {
