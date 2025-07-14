@@ -3,40 +3,35 @@
 import { useEffect, useState } from 'react'
 import {
   fetchPopularManga,
-  fetchMangaByGenre,
-  getMangaSection,
-  getLocalizedTitle,
+  getMangaSection
 } from '@/lib/mangadex'
 import MangaGrid from '@/components/manga/MangaGrid'
 import Link from 'next/link'
 
 export default function MangaLandingPage() {
-  const [mangaList, setMangaList] = useState<any[]>([])
-  const [actionList, setActionList] = useState<any[]>([])
-  const [romanceList, setRomanceList] = useState<any[]>([])
-  const [fantasyList, setFantasyList] = useState<any[]>([])
-  const [latestList, setLatestList] = useState<any[]>([])
+  const [popular, setPopular] = useState<any[]>([])
+  const [ongoing, setOngoing] = useState<any[]>([])
+  const [completed, setCompleted] = useState<any[]>([])
+  const [topRated, setTopRated] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [log, setLog] = useState<string>('')
 
   useEffect(() => {
     async function load() {
       try {
-        const [popular, action, romance, fantasy, latest] = await Promise.all([
+        const [popularRes, ongoingRes, completedRes, topRatedRes] = await Promise.all([
           fetchPopularManga(),
-          fetchMangaByGenre('action'),
-          fetchMangaByGenre('romance'),
-          fetchMangaByGenre('fantasy'),
-          getMangaSection('latest'),
+          getMangaSection('ongoing'),
+          getMangaSection('completed'),
+          getMangaSection('top_rated')
         ])
-        setLog(`✅ Loaded: ${popular.length} + genres`)
-        setMangaList(popular)
-        setActionList(action)
-        setRomanceList(romance)
-        setFantasyList(fantasy)
-        setLatestList(latest)
+        setPopular(popularRes)
+        setOngoing(ongoingRes)
+        setCompleted(completedRes)
+        setTopRated(topRatedRes)
+        setLog(`✅ Loaded all sections`)
       } catch (err: any) {
-        console.error('[Manga Landing] Fetch error:', err)
+        console.error('[Manga Landing] Error:', err)
         setLog(`❌ Error: ${err.message}`)
       } finally {
         setLoading(false)
@@ -65,41 +60,34 @@ export default function MangaLandingPage() {
       </section>
 
       {/* Debug Log */}
-      {log && <p className="text-sm text-center text-pink-400 mb-6">{log}</p>}
+      {log && <p className="text-sm text-center text-pink-400 mb-4">{log}</p>}
 
-      {/* Popular */}
-      <section className="mb-10">
-        <h2 className="text-2xl font-bold mb-4">🔥 Most Followed</h2>
-        {loading ? (
-          <p className="text-zinc-400">Loading manga...</p>
-        ) : mangaList.length > 0 ? (
-          <MangaGrid mangaList={mangaList.slice(0, 12)} />
-        ) : (
-          <p className="text-zinc-500">No manga found.</p>
-        )}
-      </section>
+      {/* Sections */}
+      {loading ? (
+        <p className="text-zinc-400 text-center">Loading manga...</p>
+      ) : (
+        <>
+          <section className="mb-10">
+            <h2 className="text-2xl font-bold mb-4">🔥 Most Followed</h2>
+            <MangaGrid mangaList={popular} />
+          </section>
 
-      {/* Latest */}
-      <section className="mb-10">
-        <h2 className="text-2xl font-bold mb-4">🆕 Latest Updated</h2>
-        <MangaGrid mangaList={latestList.slice(0, 12)} />
-      </section>
+          <section className="mb-10">
+            <h2 className="text-2xl font-bold mb-4">🌀 Ongoing Series</h2>
+            <MangaGrid mangaList={ongoing} />
+          </section>
 
-      {/* Genre Highlights */}
-      <section className="mb-10">
-        <h2 className="text-2xl font-bold mb-4">⚔️ Action</h2>
-        <MangaGrid mangaList={actionList.slice(0, 12)} />
-      </section>
+          <section className="mb-10">
+            <h2 className="text-2xl font-bold mb-4">✅ Completed Series</h2>
+            <MangaGrid mangaList={completed} />
+          </section>
 
-      <section className="mb-10">
-        <h2 className="text-2xl font-bold mb-4">💖 Romance</h2>
-        <MangaGrid mangaList={romanceList.slice(0, 12)} />
-      </section>
-
-      <section className="mb-10">
-        <h2 className="text-2xl font-bold mb-4">🧙 Fantasy</h2>
-        <MangaGrid mangaList={fantasyList.slice(0, 12)} />
-      </section>
+          <section className="mb-10">
+            <h2 className="text-2xl font-bold mb-4">✨ Top Rated</h2>
+            <MangaGrid mangaList={topRated} />
+          </section>
+        </>
+      )}
     </main>
   )
 }
