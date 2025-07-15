@@ -14,6 +14,7 @@
     "autoprefixer": "^10.4.17",
     "axios": "^1.6.8",
     "clsx": "^2.1.0",
+    "date-fns": "^3.6.0",
     "framer-motion": "^11.0.10",
     "graphql": "^16.8.1",
     "lucide-react": "^0.279.0",
