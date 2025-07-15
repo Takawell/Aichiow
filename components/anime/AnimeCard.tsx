@@ -28,16 +28,16 @@ export default function AnimeCard({ anime }: Props) {
 
         {/* TEXT */}
         <div className="relative z-20 px-3 pt-2 pb-3">
-          <h3 className="text-sm font-semibold text-white truncate w-[140px] group-hover:text-indigo-400 transition-colors duration-300">
+          <h3 className="text-sm font-semibold text-white truncate h-[20px] w-[140px] group-hover:text-indigo-400 transition-colors duration-300">
             {anime.title.english || anime.title.romaji}
           </h3>
 
-          {/* Genre baris satu */}
-          <div className="mt-1 flex gap-1">
-            {anime.genres.slice(0, 1).map((genre) => (
+          {/* GENRE */}
+          <div className="mt-1 flex gap-1 h-[16px] overflow-hidden">
+            {anime.genres.slice(0, 2).map((genre) => (
               <span
                 key={genre}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70"
+                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70 whitespace-nowrap"
               >
                 {genre}
               </span>
