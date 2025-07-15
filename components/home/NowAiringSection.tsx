@@ -1,3 +1,4 @@
+// components/home/NowAiringSection.tsx
 import Link from 'next/link'
 import Image from 'next/image'
 import { Anime } from '@/types/anime'
@@ -35,7 +36,7 @@ export default function NowAiringSection({ anime }: Props) {
 
               {/* TEXT */}
               <div className="relative z-20 p-3">
-                <h3 className="text-sm font-semibold text-white truncate group-hover:text-indigo-400 transition-colors duration-300">
+                <h3 className="text-sm font-semibold text-white truncate h-[20px] group-hover:text-indigo-400 transition-colors duration-300">
                   {item.title.english || item.title.romaji}
                 </h3>
 
