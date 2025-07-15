@@ -68,7 +68,7 @@ export default function UpcomingPage() {
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-3">
-                    <h2 className="text-sm font-semibold truncate">
+                    <h2 className="text-sm font-semibold max-w-[200px] truncate">
                       {anime.title.english || anime.title.romaji}
                     </h2>
                   </div>
@@ -124,7 +124,7 @@ export default function UpcomingPage() {
                       className="w-14 h-20 object-cover rounded-md"
                     />
                     <div className="flex flex-col justify-between">
-                      <h3 className="text-sm font-semibold max-w-xs truncate">
+                      <h3 className="text-sm font-semibold max-w-[180px] truncate">
                         {anime.title.english || anime.title.romaji}
                       </h3>
                       <p className="text-zinc-400 text-xs">
