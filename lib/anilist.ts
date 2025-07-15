@@ -301,3 +301,37 @@ export async function fetchNewsAnime(): Promise<Anime[]> {
   const data = await fetchFromAnilist(query)
   return data.Page.media
 }
+
+// ✅ Tambahan: Trending Anime (Paginated)
+export async function fetchTrendingAnimePaginated(page = 1, perPage = 20): Promise<Anime[]> {
+  const query = `
+    query ($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: ANIME, sort: TRENDING_DESC) {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          coverImage {
+            large
+            color
+          }
+          bannerImage
+          genres
+          averageScore
+          description
+          trailer {
+            id
+            site
+          }
+        }
+      }
+    }
+  `
+
+  const variables = { page, perPage }
+  const data = await fetchFromAnilist(query, variables)
+  return data.Page.media
+}
