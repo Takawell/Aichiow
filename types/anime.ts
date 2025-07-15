@@ -2,6 +2,7 @@
 
 export interface Anime {
   id: number
+  slug: string
   title: {
     romaji: string
     english?: string
@@ -15,7 +16,7 @@ export interface Anime {
   bannerImage?: string
   genres: string[]
   averageScore?: number
-  description?: string // ✅ tambahkan ini
+  description?: string
   trailer?: {
     id: string
     site: string
@@ -23,7 +24,7 @@ export interface Anime {
   nextAiringEpisode?: {
     airingAt: number
     episode: number
-  } // ✅ ditambahkan tanpa mengubah struktur lain
+  }
 }
 
 export interface AnimeDetail extends Anime {
