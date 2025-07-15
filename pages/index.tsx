@@ -19,6 +19,14 @@ export default function LandingPage() {
   }, [])
 
   return (
+    
+    <Head>
+  <title>AICHIOW – Watch Anime & Read Manga Free</title>
+  <meta name="description" content="Aichiow adalah platform anime & manga terbaik. Tonton anime trending dan baca manga populer setiap hari!" />
+  <meta name="keywords" content="anime, manga, baca manga, tonton anime, anime terbaru, manga terbaru" />
+  <meta name="author" content="Aichiow Team" />
+  </Head>
+    
     <main className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-[#02010a] text-white flex flex-col items-center justify-center px-4">
       {/* Logo + Deskripsi */}
       <div className="text-center space-y-4 mt-20">
