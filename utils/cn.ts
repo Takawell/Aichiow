@@ -1,6 +1,5 @@
-import { clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+// utils/cn.ts
 
-export function cn(...inputs: any[]) {
-  return twMerge(clsx(inputs))
+export function cn(...classes: (string | undefined | null | false)[]): string {
+  return classes.filter(Boolean).join(' ')
 }
