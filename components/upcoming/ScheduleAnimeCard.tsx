@@ -1,4 +1,3 @@
-// components/upcoming/ScheduleAnimeCard.tsx
 import { Anime } from '@/types/anime'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -20,6 +19,7 @@ export default function ScheduleAnimeCard({ anime }: { anime: Anime }) {
         className="bg-zinc-900 rounded-xl overflow-hidden shadow hover:shadow-lg hover:scale-[1.02] transition duration-300"
         title={`Episode ${episode} airs at ${airingDate?.toLocaleString()}`}
       >
+        {/* Cover */}
         <div className="relative w-full aspect-[3/4]">
           {cover && (
             <Image
@@ -30,9 +30,15 @@ export default function ScheduleAnimeCard({ anime }: { anime: Anime }) {
             />
           )}
         </div>
+
+        {/* Detail */}
         <div className="p-2">
-          <h4 className="text-sm text-white font-medium line-clamp-2">{title}</h4>
-          <p className="text-xs text-zinc-400 mt-1">Ep {episode} · {localTime}</p>
+          <h4 className="text-sm font-semibold text-white leading-snug line-clamp-2">
+            {title}
+          </h4>
+          <p className="text-xs text-zinc-400 mt-1">
+            Ep {episode} · {localTime}
+          </p>
         </div>
       </div>
     </Link>
