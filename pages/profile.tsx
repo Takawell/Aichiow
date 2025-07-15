@@ -1,39 +1,32 @@
-// pages/profile.tsx
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import Head from "next/head";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/utils/cn";
 import Image from "next/image";
-import { Loader2, PencilLine, Star, Trophy } from "lucide-react";
-import { useRouter } from "next/router";
-import clsx from "clsx";
 
-interface ProfileData {
-  id: string;
+type ProfileData = {
   username: string;
   email: string;
-  bio: string;
   avatar_url: string;
-  xp: number;
+  bio: string;
   level: number;
+  xp: number;
   watch_time: number;
   read_time: number;
-}
+};
 
 export default function ProfilePage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState<Partial<ProfileData>>({});
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/auth/login");
-        return;
-      }
+    const getProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
       const { data, error } = await supabase
         .from("profiles")
@@ -41,131 +34,154 @@ export default function ProfilePage() {
         .eq("id", user.id)
         .single();
 
-      if (!error && data) setProfile(data);
-      setLoading(false);
+      if (!error && data) {
+        setProfile(data);
+        setForm(data);
+        setAvatarPreview(data.avatar_url);
+      }
     };
 
-    fetchProfile();
+    getProfile();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center">
-        <Loader2 className="animate-spin w-6 h-6 text-blue-500" />
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center">
-        <p>Profile not found.</p>
-      </div>
-    );
-  }
-
-  // Badge logic
-  const getBadge = (xp: number) => {
-    if (xp >= 2000) return "💎 Diamond";
-    if (xp >= 1000) return "🌟 Platinum";
-    if (xp >= 500) return "🥇 Gold";
-    if (xp >= 250) return "🥈 Silver";
-    return "🥉 Bronze";
+  const handleInputChange = (field: keyof ProfileData, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }));
   };
 
-  const xpToNextLevel = (level: number) => level * 200;
-  const currentLevelXP = xpToNextLevel(profile.level);
-  const progress = Math.min((profile.xp / currentLevelXP) * 100, 100);
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setAvatarPreview(url);
+    uploadAvatar(file);
+  };
+
+  const uploadAvatar = async (file: File) => {
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+
+    const { data, error } = await supabase.storage
+      .from("avatars")
+      .upload(fileName, file);
+
+    if (!error && data) {
+      const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${data.path}`;
+      setForm(prev => ({ ...prev, avatar_url: url }));
+    }
+  };
+
+  const saveChanges = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase
+      .from("profiles")
+      .update(form)
+      .eq("id", user.id);
+
+    setEditing(false);
+    setProfile({ ...(profile as ProfileData), ...form });
+  };
+
+  if (!profile) {
+    return <div className="text-center text-white mt-10">Loading profile...</div>;
+  }
 
   return (
-    <>
-      <Head>
-        <title>{profile.username} | Profile | Aichiow</title>
-      </Head>
-      <div className="min-h-screen bg-[#0f0f0f] text-white px-6 py-12 flex items-center justify-center">
-        <div className="w-full max-w-4xl bg-[#181818] border border-[#2c2c2c] p-8 rounded-2xl shadow-[0_0_40px_rgba(0,153,255,0.15)] relative">
-
-          {/* Edit */}
-          <button className="absolute top-4 right-4 text-blue-500 hover:text-blue-300">
-            <PencilLine size={20} />
-          </button>
-
-          {/* Avatar */}
-          <div className="flex justify-center mb-6">
-            <div className="relative w-32 h-32 rounded-full border-4 border-blue-500 shadow-[0_0_25px_rgba(0,153,255,0.4)] overflow-hidden">
-              <Image
-                src={profile.avatar_url || "/default-avatar.png"}
-                alt="Avatar"
-                fill
-                className="object-cover"
+    <div className="max-w-3xl mx-auto px-4 py-8 text-white">
+      <div className="bg-[#121212] border border-[#2a2a2a] p-6 rounded-xl shadow-lg">
+        <div className="flex items-center gap-6">
+          <div className="relative w-28 h-28">
+            <Image
+              src={avatarPreview || "/default-avatar.png"}
+              alt="Avatar"
+              className="rounded-full border-4 border-blue-600 object-cover"
+              fill
+            />
+            {editing && (
+              <input
+                type="file"
+                accept="image/*"
+                className="absolute bottom-0 left-0 opacity-0 w-full h-full cursor-pointer"
+                onChange={handleAvatarChange}
               />
-            </div>
+            )}
           </div>
-
-          {/* User Info */}
-          <h2 className="text-center text-3xl font-bold text-blue-400">
-            {profile.username}
-          </h2>
-          <p className="text-center text-gray-400 text-sm mb-2">{profile.email}</p>
-          <p className="text-center text-gray-300 italic mb-4">{profile.bio || "No bio yet."}</p>
-
-          {/* Badge */}
-          <div className="text-center mb-4">
-            <span className="text-lg font-semibold bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">
-              Badge: {getBadge(profile.xp)}
-            </span>
-          </div>
-
-          {/* XP Bar */}
-          <div className="bg-[#2d2d2d] w-full h-4 rounded-full mb-6 overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-cyan-400 h-full transition-all"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-          <p className="text-center text-sm text-gray-400 mb-4">
-            XP: {profile.xp} / {currentLevelXP}
-          </p>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-8">
-            <StatCard label="Level" value={profile.level} />
-            <StatCard label="Watch Time" value={`${profile.watch_time} mins`} />
-            <StatCard label="Read Time" value={`${profile.read_time} mins`} />
-            <StatCard label="Total XP" value={profile.xp} />
-          </div>
-
-          {/* Achievements */}
-          <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-blue-400">
-            <Trophy size={20} />
-            Achievements
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm text-center">
-            {profile.level >= 10 && <Badge label="Lv.10 Achiever" />}
-            {profile.watch_time > 100 && <Badge label="Early Watcher" />}
-            {profile.read_time > 100 && <Badge label="Manga Master" />}
-            {profile.xp > 500 && <Badge label="XP Hunter" />}
+          <div>
+            <h2 className="text-2xl font-bold">{profile.username}</h2>
+            <p className="text-sm text-gray-400">{profile.email}</p>
           </div>
         </div>
+
+        <div className="mt-6 space-y-4">
+          {editing ? (
+            <>
+              <Input
+                placeholder="Username"
+                value={form.username}
+                onChange={(e) => handleInputChange("username", e.target.value)}
+              />
+              <Textarea
+                placeholder="Bio"
+                value={form.bio}
+                onChange={(e) => handleInputChange("bio", e.target.value)}
+              />
+            </>
+          ) : (
+            <>
+              <p className="text-gray-300"><span className="font-semibold">Bio:</span> {profile.bio || "No bio yet."}</p>
+            </>
+          )}
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div className="bg-[#1e1e1e] rounded-lg p-4">
+            <p className="text-sm text-gray-400">Level</p>
+            <p className="text-xl font-bold text-blue-400">{profile.level}</p>
+          </div>
+          <div className="bg-[#1e1e1e] rounded-lg p-4">
+            <p className="text-sm text-gray-400">XP</p>
+            <p className="text-xl font-bold text-yellow-400">{profile.xp}</p>
+          </div>
+          <div className="bg-[#1e1e1e] rounded-lg p-4">
+            <p className="text-sm text-gray-400">Watch Time</p>
+            <p className="text-xl font-bold text-green-400">{profile.watch_time} min</p>
+          </div>
+          <div className="bg-[#1e1e1e] rounded-lg p-4">
+            <p className="text-sm text-gray-400">Read Time</p>
+            <p className="text-xl font-bold text-pink-400">{profile.read_time} min</p>
+          </div>
+        </div>
+
+        {/* Badge Section */}
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-2">Badges</h3>
+          <div className="flex flex-wrap gap-2">
+            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+              🚀 Early Adopter
+            </span>
+            <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+              🎖️ Pro Watcher
+            </span>
+            <span className="bg-gradient-to-r from-pink-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+              📚 Manga Reader
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-4">
+          {editing ? (
+            <>
+              <Button onClick={() => setEditing(false)} className="bg-gray-600 hover:bg-gray-700">
+                Cancel
+              </Button>
+              <Button onClick={saveChanges}>Save Changes</Button>
+            </>
+          ) : (
+            <Button onClick={() => setEditing(true)}>Edit Profile</Button>
+          )}
+        </div>
       </div>
-    </>
-  );
-}
-
-function StatCard({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="bg-[#1f1f1f] p-4 rounded-lg border border-[#2d2d2d] shadow-sm">
-      <p className="text-gray-400 text-sm">{label}</p>
-      <p className="text-xl font-semibold text-blue-400">{value}</p>
-    </div>
-  );
-}
-
-function Badge({ label }: { label: string }) {
-  return (
-    <div className="bg-[#1a1a1a] border border-blue-600 px-4 py-2 rounded-lg shadow-md text-blue-300">
-      <Star className="inline-block w-4 h-4 mr-1 text-yellow-400" />
-      {label}
     </div>
   );
 }
