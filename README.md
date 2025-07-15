@@ -1,4 +1,4 @@
-<h1 align="center">AICHIOW</h1>
+<h1 align="center">🌌 Aichiow</h1>
 
 <p align="center">
   <b>Aichiow</b> — modern anime & manga streaming platform inspired by Crunchyroll and LiveChart.  
@@ -8,17 +8,28 @@
 
 <p align="center">
   <a href="https://aichiow.vercel.app" target="_blank">
-    <img src="https://img.shields.io/badge/Live-Demo-blue?style=for-the-badge&logo=vercel" />
+    <img src="https://img.shields.io/badge/Live-Demo-blue?style=for-the-badge&logo=vercel" alt="Live Demo" />
   </a>
-  <img src="https://img.shields.io/github/languages/top/username/Aichiow?style=for-the-badge" />
-  <img src="https://img.shields.io/github/repo-size/username/Aichiow?style=for-the-badge" />
+  <img src="https://img.shields.io/github/languages/top/Rehannnaja/Aichiow?style=for-the-badge" alt="Top Language" />
+  <img src="https://img.shields.io/github/repo-size/Rehannnaja/Aichiow?style=for-the-badge" alt="Repo Size" />
+  <img src="https://img.shields.io/github/license/Rehannnaja/Aichiow?style=for-the-badge" alt="License" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/github/stars/Rehannnaja/Aichiow?style=social" alt="GitHub Stars" />
+  <img src="https://img.shields.io/github/forks/Rehannnaja/Aichiow?style=social" alt="GitHub Forks" />
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=Rehannnaja.Aichiow" alt="Visitors" />
+</p>
+
+<p align="center">
+  <img src="https://github-readme-stats.vercel.app/api/pin/?username=Rehannnaja&repo=Aichiow&theme=radical" alt="Repo Card" />
 </p>
 
 ---
 
 ## 🖼️ Preview
 
-<img src="public/preview.png" alt="Aichiow Preview" style="border-radius: 12px" />
+<img src="public/preview.png" alt="Aichiow Preview" style="border-radius: 12px;" />
 
 ---
 
@@ -58,14 +69,14 @@
 
 ## 🧩 Tech Stack
 
-| Tool | Description |
-|------|-------------|
-| **Next.js 13** | App Router, dynamic pages, fast routing |
-| **TailwindCSS** | Utility-first modern styling |
-| **Anilist API** | Anime data via GraphQL |
-| **MangaDex API** | Manga info & chapter data |
-| **SWR** | Data fetching & caching |
-| **Vercel** | Hosting & CI/CD deployment |
+| Tool             | Description                                  |
+|------------------|----------------------------------------------|
+| **Next.js 13**   | App Router, dynamic pages, fast routing      |
+| **TailwindCSS**  | Utility-first modern styling                 |
+| **Anilist API**  | Anime data via GraphQL                       |
+| **MangaDex API** | Manga info & chapter data                    |
+| **SWR**          | Data fetching & caching                      |
+| **Vercel**       | Hosting & CI/CD deployment                   |
 
 ---
 
@@ -94,18 +105,10 @@ Powered by [AniList.co](https://anilist.co) & [MangaDex.org](https://mangadex.or
 
 ---
 
-<p align="center">
-  <img src="https://img.shields.io/github/stars/Rehannnaja/Aichiow?style=social" alt="GitHub Stars" />
-  <img src="https://img.shields.io/github/forks/Rehannnaja/Aichiow?style=social" alt="GitHub Forks" />
-  <img src="https://img.shields.io/github/license/Rehannnaja/Aichiow?color=blue" alt="License" />
-</p>
-
----
-
 ## 🛠️ Local Development
 
 ```bash
-git clone https://github.com/username/Aichiow.git
+git clone https://github.com/Rehannnaja/Aichiow.git
 cd Aichiow
 npm install
 npm run dev
