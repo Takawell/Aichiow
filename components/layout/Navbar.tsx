@@ -6,7 +6,12 @@ import { Menu } from 'lucide-react'
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 import { classNames } from '@/utils/classNames'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { User } from '@supabase/supabase-js'
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -19,6 +24,23 @@ const navItems = [
 export default function Navbar() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user ?? null)
+    })
+  }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    window.location.href = '/'
+  }
 
   return (
     <header className="bg-neutral-900 text-white shadow-md sticky top-0 z-50 backdrop-blur-md bg-opacity-80">
@@ -53,6 +75,27 @@ export default function Navbar() {
             })}
           </nav>
 
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Avatar className="w-8 h-8 border border-white/20">
+                  <AvatarImage src={user.user_metadata?.avatar_url} />
+                  <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-neutral-800 border-neutral-700 mt-2">
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link href="/login">
+              <Button variant="default" size="sm">Login / Register</Button>
+            </Link>
+          )}
+
           <ThemeToggle />
         </div>
 
@@ -85,42 +128,31 @@ export default function Navbar() {
                   )
                 })}
 
+                {/* Auth Section */}
+                {user ? (
+                  <div className="mt-6 flex items-center gap-3">
+                    <Avatar className="w-9 h-9 border border-white/20">
+                      <AvatarImage src={user.user_metadata?.avatar_url} />
+                      <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <Button variant="outline" size="sm" onClick={handleLogout}>
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <Link href="/login" onClick={() => setOpen(false)}>
+                    <Button className="w-full mt-6" variant="default">Login / Register</Button>
+                  </Link>
+                )}
+
                 {/* Community Section */}
                 <div className="mt-8 border-t border-white/20 pt-4">
                   <p className="text-sm font-semibold uppercase text-white/60 mb-3">Community</p>
                   <div className="flex flex-col gap-2">
-                    <a
-                      href="https://discord.gg/aichinime"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-400 transition text-sm"
-                    >
-                      🗨️ Discord
-                    </a>
-                    <a
-                      href="https://youtube.com/Takadevelopment"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-400 transition text-sm"
-                    >
-                      ▶️ YouTube
-                    </a>
-                    <a
-                      href="https://tiktok.com/@putrawangyyy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-400 transition text-sm"
-                    >
-                      🎵 TikTok
-                    </a>
-                    <a
-                      href="https://instagram.com/putrasenpaiii"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-400 transition text-sm"
-                    >
-                      📷 Instagram
-                    </a>
+                    <a href="https://discord.gg/aichinime" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition text-sm">🗨️ Discord</a>
+                    <a href="https://youtube.com/Takadevelopment" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition text-sm">▶️ YouTube</a>
+                    <a href="https://tiktok.com/@putrawangyyy" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition text-sm">🎵 TikTok</a>
+                    <a href="https://instagram.com/putrasenpaiii" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition text-sm">📷 Instagram</a>
                   </div>
                 </div>
               </div>
