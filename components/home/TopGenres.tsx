@@ -4,7 +4,7 @@ import Link from 'next/link'
 const genres = [
   'Action', 'Adventure', 'Avant Garde', 'Boys Love', 'Comedy',
   'Drama', 'Ecchi', 'Fantasy', 'Girls Love', 'Gourmet',
-  'Horror', 'Hentai', 'Isekai', 'Mahou Shoujo', 'Mecha', 'Music',
+  'Horror', 'Isekai', 'Mahou Shoujo', 'Mecha', 'Music',
   'Mystery', 'Psychological', 'Romance', 'School', 'Sci-Fi',
   'Slice of Life', 'Sports', 'Supernatural', 'Suspense', 'Thriller'
 ]
