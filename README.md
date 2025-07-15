@@ -1,67 +1,108 @@
-# 🌌 Aichiow
+<h1 align="center">AICHIOW</h1>
 
-**Aichiow** is a modern web streaming platform for anime and manga lovers, featuring the latest anime info, new manga releases, trailers, airing schedules, and advanced search. Inspired by Crunchyroll and LiveChart, Aichiow is built with Next.js 13, TailwindCSS, and GraphQL API from Anilist & MangaDex.
+<p align="center">
+  <b>Aichiow</b> — modern anime & manga streaming platform inspired by Crunchyroll and LiveChart.  
+  <br/>
+  Built with Next.js 13, TailwindCSS, Anilist GraphQL & MangaDex REST API.
+</p>
 
-## PREVIEW  
-![Aichiow Preview](public/preview.png)
-
-## 🚀 Key Features
-
-### 🎬 Anime
-- Anime detail pages with cover, trailer, studio, genres, score, and description  
-- Main character and voice actor (seiyuu) info  
-- YouTube trailer support  
-
-### 🔥 Trending & Popular
-- Daily trending anime (TRENDING_DESC) from Anilist  
-- Ongoing & seasonal anime display  
-
-### ⏳ Upcoming & Schedule
-- Upcoming anime that haven’t aired (`NOT_YET_RELEASED`)  
-- Weekly release schedule with airing time  
-- Fully integrated on `/upcoming` page  
-
-### 📚 Manga
-- Data powered by MangaDex API  
-- Manga detail pages with description, cover, and chapters  
-- Character and seiyuu info (if available)  
-- Built-in manga reader to read chapters directly  
-
-### 🧭 Explore & Search
-- Explore page with anime categories and filters  
-- Global search page (`/search`) with modern UI  
-- Autocomplete support (coming soon)  
-
-### 🎨 UI/UX
-- Anime-modern, elegant, and mobile-friendly design  
-- Dark mode support  
-- Blazing-fast routing with Next.js App Router  
-
-## 🧩 Tech Stack
-
-- **Next.js 13** – App Router, Client Components  
-- **TailwindCSS** – modern utility-first styling  
-- **Anilist GraphQL API** – anime data  
-- **MangaDex REST API** – manga data  
-- **SWR** – fetching & caching data  
-- **Vercel** – hosting and deployment  
-
-## 🧪 Upcoming Features
-- [ ] Bookmark system (anime/manga)  
-- [ ] Continue Watching  
-- [ ] Anime episode tracker  
-- [ ] Genre-specific pages  
-- [ ] Admin dashboard (for analytics/statistics)  
-
-## 🔗 Live Demo  
-🌐 https://aichiow.vercel.app  
-
-Built with ❤️ by !Taka  
-Powered by Anilist & MangaDex APIs.
+<p align="center">
+  <a href="https://aichiow.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/Live-Demo-blue?style=for-the-badge&logo=vercel" />
+  </a>
+  <img src="https://img.shields.io/github/languages/top/username/Aichiow?style=for-the-badge" />
+  <img src="https://img.shields.io/github/repo-size/username/Aichiow?style=for-the-badge" />
+</p>
 
 ---
 
-## 📦 Local Installation
+## 🖼️ Preview
+
+<img src="public/preview.png" alt="Aichiow Preview" style="border-radius: 12px" />
+
+---
+
+## 🚀 Features
+
+### 🎬 Anime
+- Detailed pages (poster, trailer, studios, genres, score, description)
+- Characters & voice actors (seiyuu)
+- YouTube trailer integration
+
+### 🔥 Trending & Seasonal
+- Trending today (via `TRENDING_DESC`)
+- Seasonal & popular anime by category
+
+### 📅 Upcoming & Weekly Timetable
+- Upcoming anime (`NOT_YET_RELEASED`)
+- Airing schedule grouped by day
+- Daily highlight with current time zone
+
+### 📚 Manga
+- Powered by MangaDex API
+- Manga detail with chapter list
+- Built-in manga reader
+- Character + seiyuu display (if available)
+
+### 🧭 Explore & Search
+- Explore by category, format, and genre
+- Global smart search with responsive UI
+- Autocomplete search (coming soon)
+
+### 🎨 UI & UX
+- Inspired by Crunchyroll, built with TailwindCSS
+- Responsive mobile-first layout
+- Smooth transitions, dark mode ready 🌙
+
+---
+
+## 🧩 Tech Stack
+
+| Tool | Description |
+|------|-------------|
+| **Next.js 13** | App Router, dynamic pages, fast routing |
+| **TailwindCSS** | Utility-first modern styling |
+| **Anilist API** | Anime data via GraphQL |
+| **MangaDex API** | Manga info & chapter data |
+| **SWR** | Data fetching & caching |
+| **Vercel** | Hosting & CI/CD deployment |
+
+---
+
+## 🧪 Roadmap (Upcoming Features)
+
+- [ ] 🔖 Bookmark system (anime/manga)
+- [ ] ⏱️ Continue Watching
+- [ ] 📺 Anime episode tracker
+- [ ] 🎭 Genre-specific filter pages
+- [ ] 📊 Admin dashboard with analytics
+
+---
+
+## 🌐 Live Demo
+
+> Visit: [**aichiow.vercel.app**](https://aichiow.vercel.app)
+
+---
+
+## 🧠 Credits
+
+> Aichiow is a personal open-source project crafted with care, designed for anime & manga fans who value beauty and function.
+
+Built with ❤️ by **[!Taka](https://github.com/Rehannnaja)**  
+Powered by [AniList.co](https://anilist.co) & [MangaDex.org](https://mangadex.org)
+
+---
+
+<p align="center">
+  <img src="https://img.shields.io/github/stars/Rehannnaja/Aichiow?style=social" alt="GitHub Stars" />
+  <img src="https://img.shields.io/github/forks/Rehannnaja/Aichiow?style=social" alt="GitHub Forks" />
+  <img src="https://img.shields.io/github/license/Rehannnaja/Aichiow?color=blue" alt="License" />
+</p>
+
+---
+
+## 🛠️ Local Development
 
 ```bash
 git clone https://github.com/username/Aichiow.git
