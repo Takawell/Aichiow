@@ -10,14 +10,14 @@ export default function AnimeCard({ anime }: Props) {
   return (
     <Link
       href={`/anime/${anime.id}`}
-      className="block group transition-transform duration-300 hover:scale-[1.03]"
+      className="min-w-[140px] flex-shrink-0 group transition-transform duration-300 hover:scale-[1.03]"
     >
       <div className="overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300">
         {/* IMAGE */}
         <div className="relative w-full h-[200px]">
           <Image
             src={anime.coverImage.large}
-            alt={anime.title.romaji}
+            alt={anime.title.english || anime.title.romaji}
             fill
             loading="lazy"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -27,17 +27,17 @@ export default function AnimeCard({ anime }: Props) {
         </div>
 
         {/* TEXT */}
-        <div className="relative z-20 px-3 pt-2 pb-3">
-          <h3 className="text-sm font-semibold text-white truncate h-[20px] w-[140px] group-hover:text-indigo-400 transition-colors duration-300">
+        <div className="relative z-20 p-3">
+          <h3 className="text-sm font-semibold text-white truncate w-[140px] group-hover:text-indigo-400 transition-colors duration-300">
             {anime.title.english || anime.title.romaji}
           </h3>
 
           {/* GENRE */}
-          <div className="mt-1 flex gap-1 h-[16px] overflow-hidden">
-            {anime.genres.slice(0, 2).map((genre) => (
+          <div className="mt-1 flex flex-wrap gap-1">
+            {anime.genres?.slice(0, 2).map((genre) => (
               <span
                 key={genre}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70 whitespace-nowrap"
+                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70"
               >
                 {genre}
               </span>
