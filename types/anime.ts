@@ -31,6 +31,7 @@ export interface AnimeDetail extends Anime {
   season?: string
   seasonYear?: number
   popularity?: number
+  status?: string
   studios: {
     nodes: {
       name: string
