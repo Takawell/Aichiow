@@ -10,11 +10,11 @@ export default function AnimeCard({ anime }: Props) {
   return (
     <Link
       href={`/anime/${anime.id}`}
-      className="block group transition-transform duration-300 hover:scale-105"
+      className="block group transition-transform duration-300 hover:scale-[1.03]"
     >
       <div className="overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300">
         {/* IMAGE SECTION */}
-        <div className="relative w-full h-64">
+        <div className="relative w-full h-56">
           <Image
             src={anime.coverImage.large}
             alt={anime.title.romaji}
