@@ -57,7 +57,7 @@ export default function UpcomingPage() {
               {upcomingAnime.map((anime) => (
                 <Link
                   key={anime.id}
-                  href={`/anime/${anime.slug}`}
+                  href={`/anime/${anime.id}`} // 🔁 pakai id sebagai slug
                   className="bg-zinc-900 rounded-xl overflow-hidden hover:scale-[1.03] transition-transform duration-300 border border-zinc-800 hover:border-blue-500"
                 >
                   <Image
@@ -111,23 +111,25 @@ export default function UpcomingPage() {
                   : 'Unknown'
 
                 return (
-                  <Link href={`/anime/${anime.slug}`} key={anime.id}>
-                    <div className="flex items-center gap-4 p-4 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-blue-500 transition-all">
-                      <Image
-                        src={anime.coverImage.large}
-                        alt={anime.title.english || anime.title.romaji}
-                        width={60}
-                        height={80}
-                        className="w-14 h-20 object-cover rounded-md"
-                      />
-                      <div className="flex flex-col justify-between">
-                        <h3 className="text-sm font-semibold max-w-[180px] truncate">
-                          {anime.title.english || anime.title.romaji}
-                        </h3>
-                        <p className="text-zinc-400 text-xs">
-                          Episode {episode} • <span className="text-blue-400">{dateText}</span>
-                        </p>
-                      </div>
+                  <Link
+                    key={anime.id}
+                    href={`/anime/${anime.id}`}
+                    className="flex items-center gap-4 p-4 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-blue-500 transition-all"
+                  >
+                    <Image
+                      src={anime.coverImage.large}
+                      alt={anime.title.english || anime.title.romaji}
+                      width={60}
+                      height={80}
+                      className="w-14 h-20 object-cover rounded-md"
+                    />
+                    <div className="flex flex-col justify-between">
+                      <h3 className="text-sm font-semibold max-w-[180px] truncate">
+                        {anime.title.english || anime.title.romaji}
+                      </h3>
+                      <p className="text-zinc-400 text-xs">
+                        Episode {episode} • <span className="text-blue-400">{dateText}</span>
+                      </p>
                     </div>
                   </Link>
                 )
