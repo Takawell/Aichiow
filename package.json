@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.0.7",
     "@radix-ui/react-dialog": "^1.0.4",
     "@supabase/supabase-js": "^2.43.3",
     "@supabase/ssr": "^0.3.0",
