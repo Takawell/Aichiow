@@ -23,7 +23,7 @@ export async function fetchChapters(mangaId: string) {
   return res.data
 }
 
-// ✅ Ambil gambar dari chapter (image URLs) + support next & prev
+// ✅ Ambil gambar dari chapter (image URLs) + support next & prev (tanpa filter EN)
 export async function fetchChapterImages(chapterId: string) {
   try {
     const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
@@ -33,7 +33,6 @@ export async function fetchChapterImages(chapterId: string) {
 
     const cleanBaseUrl = baseUrl.replace(/\\/g, '')
 
-    // Dapatkan mangaId dan currentChapter dari relationships
     const mangaRel = chapter?.relationships?.find((rel: any) => rel.type === 'manga')
     const mangaId = mangaRel?.id
     const currentChapter = chapter?.chapter || null
@@ -43,7 +42,7 @@ export async function fetchChapterImages(chapterId: string) {
 
     if (mangaId && currentChapter) {
       const chapterListRes = await axios.get(
-        `https://api.mangadex.org/chapter?manga=${mangaId}&translatedLanguage[]=en&order[chapter]=asc&limit=500`
+        `https://api.mangadex.org/chapter?manga=${mangaId}&order[chapter]=asc&limit=500`
       )
 
       const allChapters = chapterListRes.data?.data || []
