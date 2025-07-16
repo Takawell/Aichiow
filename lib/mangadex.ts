@@ -1,3 +1,5 @@
+// lib/mangadex.ts
+
 import axios from 'axios'
 
 // ✅ Cek apakah manga punya cover_art
