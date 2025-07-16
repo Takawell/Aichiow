@@ -23,7 +23,7 @@ export async function fetchChapters(mangaId: string) {
   return res.data
 }
 
-// ✅ Ambil gambar dari chapter (image URLs) + support next & prev (tanpa filter EN)
+// ✅ Ambil gambar dari chapter (image URLs) + support next & prev tanpa filter EN
 export async function fetchChapterImages(chapterId: string) {
   try {
     const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
@@ -33,6 +33,7 @@ export async function fetchChapterImages(chapterId: string) {
 
     const cleanBaseUrl = baseUrl.replace(/\\/g, '')
 
+    // Cari ID manga dan nomor chapter saat ini
     const mangaRel = chapter?.relationships?.find((rel: any) => rel.type === 'manga')
     const mangaId = mangaRel?.id
     const currentChapter = chapter?.chapter || null
@@ -41,20 +42,15 @@ export async function fetchChapterImages(chapterId: string) {
     let prev: string | null = null
 
     if (mangaId && currentChapter) {
-      const chapterListRes = await axios.get(
+      const listRes = await axios.get(
         `https://api.mangadex.org/chapter?manga=${mangaId}&order[chapter]=asc&limit=500`
       )
 
-      const allChapters = chapterListRes.data?.data || []
-      const index = allChapters.findIndex((ch: any) => ch.id === chapterId)
+      const all = listRes.data?.data || []
+      const index = all.findIndex((ch: any) => ch.id === chapterId)
 
-      if (index > 0) {
-        prev = allChapters[index - 1]?.id || null
-      }
-
-      if (index < allChapters.length - 1) {
-        next = allChapters[index + 1]?.id || null
-      }
+      if (index > 0) prev = all[index - 1]?.id || null
+      if (index < all.length - 1) next = all[index + 1]?.id || null
     }
 
     return {
