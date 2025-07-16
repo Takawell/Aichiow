@@ -23,7 +23,7 @@ export async function fetchChapters(mangaId: string) {
   return res.data
 }
 
-// ✅ Ambil gambar dari chapter (image URLs)
+// ✅ Ambil gambar dari chapter (image URLs) + support next & prev
 export async function fetchChapterImages(chapterId: string) {
   try {
     const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
@@ -31,13 +31,40 @@ export async function fetchChapterImages(chapterId: string) {
 
     if (!baseUrl || !chapter?.hash) throw new Error('Invalid chapter response')
 
-    const cleanBaseUrl = baseUrl.replace(/\\/g, '') // Bersihkan slash
+    const cleanBaseUrl = baseUrl.replace(/\\/g, '')
+
+    // Dapatkan mangaId dan currentChapter dari relationships
+    const mangaRel = chapter?.relationships?.find((rel: any) => rel.type === 'manga')
+    const mangaId = mangaRel?.id
+    const currentChapter = chapter?.chapter || null
+
+    let next: string | null = null
+    let prev: string | null = null
+
+    if (mangaId && currentChapter) {
+      const chapterListRes = await axios.get(
+        `https://api.mangadex.org/chapter?manga=${mangaId}&translatedLanguage[]=en&order[chapter]=asc&limit=500`
+      )
+
+      const allChapters = chapterListRes.data?.data || []
+      const index = allChapters.findIndex((ch: any) => ch.id === chapterId)
+
+      if (index > 0) {
+        prev = allChapters[index - 1]?.id || null
+      }
+
+      if (index < allChapters.length - 1) {
+        next = allChapters[index + 1]?.id || null
+      }
+    }
 
     return {
       baseUrl: cleanBaseUrl,
       hash: chapter.hash,
       data: chapter.data || [],
       dataSaver: chapter.dataSaver || [],
+      next,
+      prev,
     }
   } catch (error) {
     console.error('fetchChapterImages error:', error)
@@ -121,16 +148,4 @@ export async function getMangaSection(type: 'ongoing' | 'completed' | 'top_rated
     console.error('getMangaSection error:', err)
     return []
   }
-}
-
-// ✅ Genre populer bawaan (pakai id tag MangaDex)
-const genreMap: Record<string, string> = {
-  action: '391b0423-d847-456f-aff0-8b0cfc03066b',
-  romance: '423e2eae-a7a2-c800-2d73-c3bffcd2f0c3',
-  fantasy: 'cdc58593-87dd-415e-bbc0-2ec27bf404cc',
-}
-
-export async function getMangaByGenre(name: keyof typeof genreMap) {
-  const tagId = genreMap[name]
-  return fetchMangaByGenre(tagId)
 }
