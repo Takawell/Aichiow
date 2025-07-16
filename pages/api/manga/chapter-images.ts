@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Fetch image data (hash, files)
+    // Ambil data gambar (hash, data, dataSaver)
     const imgRes = await axios.get(`${BASE_URL}/at-home/server/${chapterId}`)
     const chapterRes = await axios.get(`${BASE_URL}/chapter/${chapterId}`)
 
@@ -26,8 +26,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let prev: string | null = null
 
     if (mangaId && currentChapter) {
+      // kontol amat
       const listRes = await axios.get(
-        `${BASE_URL}/chapter?manga=${mangaId}&translatedLanguage[]=en&order[chapter]=asc&limit=500`
+        `${BASE_URL}/chapter?manga=${mangaId}&order[chapter]=asc&limit=500`
       )
       const chapters = listRes.data.data || []
       const index = chapters.findIndex((ch: any) => ch.id === chapterId)
