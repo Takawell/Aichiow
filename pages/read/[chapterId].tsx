@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { fetchChapterImages, fetchChapters } from '@/lib/mangadex'
+import { fetchChapterImages } from '@/lib/mangadex'
 
 export default function ReadPage() {
   const router = useRouter()
@@ -27,12 +27,9 @@ export default function ReadPage() {
     async function loadImages() {
       try {
         setLoading(true)
-        setError('')
-        setImages([])
-        setNextId(null)
-        setPrevId(null)
 
         const chapter = await fetchChapterImages(chapterId)
+
         if (!chapter || !chapter.hash || !chapter.baseUrl) {
           throw new Error('Invalid chapter data')
         }
@@ -47,18 +44,10 @@ export default function ReadPage() {
         const full = fileList.map(
           (file: string) => `${chapter.baseUrl}/${mode}/${chapter.hash}/${file}`
         )
+
         setImages(full)
-
-        // 🔥 Manual mapping next/prev
-        const mangaRel = chapter.relationships?.find((rel: any) => rel.type === 'manga')
-        const mangaId = mangaRel?.id
-        if (!mangaId) return
-
-        const allChapters = await fetchChapters(mangaId)
-        const index = allChapters.findIndex((ch: any) => ch.id === chapterId)
-
-        if (index > 0) setPrevId(allChapters[index - 1].id)
-        if (index < allChapters.length - 1) setNextId(allChapters[index + 1].id)
+        setNextId(chapter.next ?? null)
+        setPrevId(chapter.prev ?? null)
       } catch (err: any) {
         console.error(err)
         setError('Failed to load chapter.')
@@ -79,6 +68,7 @@ export default function ReadPage() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
+      {/* Header */}
       <header className="sticky top-0 z-40 flex items-center justify-between bg-neutral-900/80 backdrop-blur px-4 py-3 border-b border-neutral-800">
         <button
           onClick={() => router.back()}
@@ -89,6 +79,7 @@ export default function ReadPage() {
         <span className="text-sm text-neutral-400">Reader</span>
       </header>
 
+      {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-6">
         {loading && (
           <div className="text-center py-10 text-zinc-400 animate-pulse">
@@ -114,6 +105,7 @@ export default function ReadPage() {
           </div>
         )}
 
+        {/* Chapter Navigation */}
         <div className="flex justify-between items-center gap-4 mt-10">
           <button
             onClick={() => handleNavigation(prevId)}
@@ -141,6 +133,7 @@ export default function ReadPage() {
         </div>
       </main>
 
+      {/* Footer */}
       <footer className="text-center text-xs text-neutral-600 py-6">End of Chapter</footer>
     </div>
   )
