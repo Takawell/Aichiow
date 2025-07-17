@@ -3,9 +3,10 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import { fetchTrendingAnime } from '@/lib/anilist'
+import { useEffect, useState } from 'react'
 import { Anime } from '@/types/anime'
+import { cn } from '@/utils/cn'
 
 export default function LandingPage() {
   const [news, setNews] = useState<Anime[]>([])
@@ -22,51 +23,48 @@ export default function LandingPage() {
     <>
       <Head>
         <title>AICHIOW – Anime & Manga Portal</title>
-        <meta
-          name="description"
-          content="Aichiow is your Isekai portal to the world of anime and manga – trending anime, trailers, schedules, and manga reader, all in one."
-        />
-        <meta name="keywords" content="anime, manga, streaming, read manga, anime portal, Aichiow" />
-        <meta name="author" content="Aichiow Developer Team" />
-        <meta property="og:title" content="AICHIOW – Anime & Manga Portal" />
-        <meta
-          property="og:description"
-          content="Your ultimate portal to the world of trending anime and manga. Start your Isekai journey now!"
-        />
+        <meta name="description" content="Aichiow is your Isekai portal to the world of anime and manga." />
         <meta property="og:image" content="https://aichiow.vercel.app/logo.png" />
         <meta property="og:url" content="https://aichiow.vercel.app" />
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <main className="relative min-h-screen bg-gradient-to-b from-black via-blue-950 to-[#02010a] text-white flex flex-col items-center justify-center px-4 overflow-hidden">
-        {/* Rainbow fog background */}
-        <div className="rainbow-fog" />
+      <main className="relative min-h-screen bg-black overflow-hidden">
+        {/* Background Portal Swirl */}
+        <div className="absolute inset-0 flex items-center justify-center -z-10 opacity-40">
+          <div className="w-[700px] h-[700px] rounded-full bg-gradient-to-r from-cyan-400 via-blue-600 to-purple-600 blur-3xl animate-spin-slow"></div>
+        </div>
 
-        {/* Logo + Deskripsi */}
-        <div className="text-center space-y-4 mt-20 z-10">
-          <div className="p-1 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 animate-border-spin">
+        {/* Particle Mist Effect */}
+        <div className="absolute inset-0 -z-10 bg-[url('/particle.svg')] bg-cover opacity-10 animate-pulse" />
+
+        {/* Logo & Deskripsi */}
+        <div className="flex flex-col items-center justify-center text-center px-4 mt-24 space-y-6">
+          <div className="relative p-[6px] rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-border-spin">
             <Image
               src="/logo.png"
               alt="Aichiow Logo"
               width={160}
               height={160}
-              className="rounded-full border-4 border-white shadow-md"
+              className="rounded-full border-4 border-black"
             />
           </div>
-          <h1 className="text-4xl font-bold tracking-wide">Welcome to Aichiow</h1>
-          <p className="text-lg text-gray-300 max-w-xl mx-auto">
-            A modern anime platform with trending shows, trailers, weekly schedule, and manga reader.
+          <h1 className="text-4xl font-bold tracking-wide bg-gradient-to-r from-white via-cyan-300 to-blue-500 bg-clip-text text-transparent">
+            Welcome to Aichiow
+          </h1>
+          <p className="text-lg text-gray-300 max-w-xl">
+            Enter the portal to your anime and manga universe – trending shows, trailers, and manga reader await.
           </p>
           <Link
             href="/home"
-            className="inline-block mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-white font-semibold transition-all duration-300"
+            className="inline-block mt-4 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:brightness-110 rounded-xl text-white font-semibold shadow-lg transition-all duration-300"
           >
-            PORTAL ISEKAI →
+            ENTER ISEKAI →
           </Link>
         </div>
 
         {/* Anime News */}
-        <section className="w-full max-w-6xl mt-20 px-4 z-10">
+        <section className="w-full max-w-6xl mx-auto mt-20 px-4">
           <h2 className="text-2xl font-semibold mb-4">Latest Anime News</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {news.map((anime) => (
