@@ -2,16 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base Styling */
+/* === Base Styling === */
 body {
-  @apply bg-dark text-white font-sans antialiased;
+  @apply bg-black text-white font-sans antialiased;
 }
 
 a {
   @apply text-white no-underline;
 }
 
-/* Scrollbar Custom */
+/* === Scrollbar Custom === */
 * {
   scrollbar-width: thin;
   scrollbar-color: #38bdf8 #1f2937;
@@ -25,7 +25,7 @@ a {
   border-radius: 4px;
 }
 
-/* Border Glow Animation for Logo */
+/* === Rainbow Border Glow Animation === */
 @keyframes borderSpin {
   0% {
     background-position: 0% 50%;
@@ -40,7 +40,7 @@ a {
   animation: borderSpin 6s linear infinite;
 }
 
-/* Rainbow Fog Effect */
+/* === Rainbow Fog Effect (Subtle Background) === */
 .rainbow-fog {
   position: absolute;
   top: -20%;
