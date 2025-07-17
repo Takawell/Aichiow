@@ -31,7 +31,7 @@ export default function LandingPage() {
       <main className="relative min-h-screen bg-gradient-to-br from-black via-[#0f172a] to-[#020617] overflow-hidden">
         {/* Logo & Deskripsi */}
         <div className="flex flex-col items-center justify-center text-center px-4 mt-24 space-y-6 relative z-10">
-          {/* Rainbow border only */}
+          {/* Rainbow border container */}
           <div className="relative p-[6px] rounded-full bg-[linear-gradient(90deg,#ff0080,#7928ca,#0070f3,#00ffcc,#ff0080)] bg-[length:300%_300%] animate-border-spin">
             <div className="bg-black rounded-full p-[6px]">
               <Image
@@ -85,7 +85,7 @@ export default function LandingPage() {
 
         {/* Footer */}
         <footer className="w-full text-center mt-16 mb-8 text-sm text-white/70 relative z-10">
-          © !Taka 
+          © !Taka
         </footer>
       </main>
     </>
