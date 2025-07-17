@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base Styling */
 body {
   @apply bg-dark text-white font-sans antialiased;
 }
@@ -10,6 +11,7 @@ a {
   @apply text-white no-underline;
 }
 
+/* Scrollbar Custom */
 * {
   scrollbar-width: thin;
   scrollbar-color: #38bdf8 #1f2937;
@@ -18,7 +20,37 @@ a {
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-thumb {
   background-color: #38bdf8;
   border-radius: 4px;
+}
+
+/* Border Glow Animation for Logo */
+@keyframes borderSpin {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-border-spin {
+  background-size: 200% 200%;
+  animation: borderSpin 4s linear infinite;
+}
+
+/* Background swirl effect (slow spin) */
+@keyframes spinSlow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 20s linear infinite;
 }
