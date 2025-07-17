@@ -28,11 +28,17 @@ export default function LandingPage() {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <main className="relative min-h-screen bg-gradient-to-br from-black via-[#030712] to-[#0f172a] overflow-hidden">
+      <main className="relative min-h-screen bg-gradient-to-b from-black via-[#0f172a] to-black text-white overflow-hidden">
+
+        {/* Rainbow Fog (optional aesthetic blur) */}
+        <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
+          <div className="absolute top-[-20%] left-[-20%] w-[160%] h-[160%] bg-[radial-gradient(circle_at_30%_30%,#ff0080,#7928ca,#0070f3)] opacity-20 blur-[120px] animate-[fogMove_60s_ease-in-out_infinite]"></div>
+        </div>
+
         {/* Logo & Deskripsi */}
-        <div className="flex flex-col items-center justify-center text-center px-4 mt-24 space-y-6 relative z-10">
-          <div className="relative p-[6px] rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-border-spin">
-            <div className="bg-black rounded-full p-1">
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 mt-24 space-y-6">
+          <div className="relative p-[6px] rounded-full bg-[linear-gradient(270deg,#ff0080,#7928ca,#0070f3,#00ffcc)] bg-[length:200%_200%] animate-slowSpin">
+            <div className="rounded-full bg-black p-1">
               <Image
                 src="/logo.png"
                 alt="Aichiow Logo"
@@ -80,11 +86,6 @@ export default function LandingPage() {
             ))}
           </div>
         </section>
-
-        {/* Footer */}
-        <footer className="w-full text-center mt-16 mb-8 text-sm text-white/70 relative z-10">
-          © AICHIOW TEAM
-        </footer>
       </main>
     </>
   )
