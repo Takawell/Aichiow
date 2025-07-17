@@ -28,14 +28,12 @@ export default function LandingPage() {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <main className="relative min-h-screen bg-black overflow-hidden flex flex-col justify-between">
-        {/* Rainbow Portal Swirl */}
-        <div className="absolute inset-0 flex items-center justify-center -z-10 opacity-30">
-          <div className="w-[700px] h-[700px] rounded-full bg-[conic-gradient(at_top,_cyan,_blue,_indigo,_purple,_pink,_red,_orange,_yellow,_lime,_cyan)] blur-3xl animate-spinSlow" />
-        </div>
+      <main className="relative min-h-screen bg-black overflow-hidden">
+        {/* Rainbow Fog Background */}
+        <div className="rainbow-fog"></div>
 
         {/* Logo & Deskripsi */}
-        <div className="flex flex-col items-center justify-center text-center px-4 mt-24 space-y-6">
+        <div className="flex flex-col items-center justify-center text-center px-4 mt-24 space-y-6 relative z-10">
           <div className="relative p-[6px] rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-border-spin">
             <Image
               src="/logo.png"
@@ -60,7 +58,7 @@ export default function LandingPage() {
         </div>
 
         {/* Anime News */}
-        <section className="w-full max-w-6xl mx-auto mt-20 px-4">
+        <section className="w-full max-w-6xl mx-auto mt-20 px-4 relative z-10">
           <h2 className="text-2xl font-semibold mb-4">Latest Anime News</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {news.map((anime) => (
@@ -85,7 +83,7 @@ export default function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="w-full py-6 text-center text-sm text-gray-500 mt-16">
+        <footer className="w-full text-center mt-16 mb-8 text-sm text-white/70 relative z-10">
           © AICHIOW TEAM
         </footer>
       </main>
