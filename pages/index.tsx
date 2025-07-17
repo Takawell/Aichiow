@@ -3,6 +3,7 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
+import { cn } from '@/utils/cn'
 import { fetchTrendingAnime } from '@/lib/anilist'
 import { useEffect, useState } from 'react'
 import { Anime } from '@/types/anime'
@@ -38,25 +39,23 @@ export default function LandingPage() {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <main className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-[#02010a] flex flex-col items-center justify-center px-4">
+      <main className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-[#02010a] text-white flex flex-col items-center justify-center px-4">
         {/* Logo + Deskripsi */}
         <div className="text-center space-y-4 mt-20">
-          <div className="inline-block p-[4px] rounded-full bg-gradient-rainbow-10 animate-slowSpin shadow-lg">
-            <Image
-              src="/logo.png"
-              alt="Aichiow Logo"
-              width={160}
-              height={160}
-              className="rounded-full bg-dark"
-            />
-          </div>
+          <Image
+            src="/logo.png"
+            alt="Aichiow Logo"
+            width={160}
+            height={160}
+            className="mx-auto rounded-full border-4 border-white shadow-md"
+          />
           <h1 className="text-4xl font-bold tracking-wide">Welcome to Aichiow</h1>
           <p className="text-lg text-gray-300 max-w-xl mx-auto">
             A modern anime platform with trending shows, trailers, weekly schedule, and manga reader.
           </p>
           <Link
             href="/home"
-            className="inline-block mt-4 px-6 py-3 bg-sky-600 hover:bg-sky-700 rounded-xl text-white font-semibold transition-all duration-300"
+            className="inline-block mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-white font-semibold transition-all duration-300"
           >
             PORTAL ISEKAI →
           </Link>
@@ -70,29 +69,22 @@ export default function LandingPage() {
               <Link
                 href={`/anime/${anime.id}`}
                 key={anime.id}
-                className="group p-[2px] rounded-xl bg-gradient-rainbow-10 animate-slowSpin transition-all"
+                className="group overflow-hidden rounded-xl border border-white/10 hover:border-blue-500 transition-all"
               >
-                <div className="bg-dark rounded-xl overflow-hidden">
-                  <Image
-                    src={anime.coverImage?.large || ''}
-                    alt={anime.title?.english || anime.title?.romaji}
-                    width={300}
-                    height={400}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="bg-black/60 text-xs p-2 text-center truncate">
-                    {anime.title?.english || anime.title?.romaji}
-                  </div>
+                <Image
+                  src={anime.coverImage?.large || ''}
+                  alt={anime.title?.english || anime.title?.romaji}
+                  width={300}
+                  height={400}
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="bg-black/60 text-xs p-2 text-center truncate">
+                  {anime.title?.english || anime.title?.romaji}
                 </div>
               </Link>
             ))}
           </div>
         </section>
-
-        {/* Footer */}
-        <footer className="w-full text-center py-6 text-sm text-gray-400 mt-20">
-          © !Taka
-        </footer>
       </main>
     </>
   )
