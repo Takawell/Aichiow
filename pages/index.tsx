@@ -28,21 +28,20 @@ export default function LandingPage() {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <main className="relative min-h-screen bg-gradient-to-br from-black via-[#0f172a] to-[#020617] overflow-hidden">
+      <main className="relative min-h-screen bg-gradient-to-br from-black via-[#030712] to-[#0f172a] overflow-hidden">
         {/* Logo & Deskripsi */}
         <div className="flex flex-col items-center justify-center text-center px-4 mt-24 space-y-6 relative z-10">
-          {/* Rainbow Border Logo */}
-          <div className="relative p-[2px] rounded-full bg-[linear-gradient(90deg,#ff0080,#7928ca,#0070f3,#00ffcc,#ff0080)] bg-[length:300%_300%] animate-border-spin">
-           <Image
-             src="/logo.png"
-             alt="Aichiow Logo"
-             width={160}
-             height={160}
-             className="rounded-full block"
+          <div className="relative p-[6px] rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-border-spin">
+            <div className="bg-black rounded-full p-1">
+              <Image
+                src="/logo.png"
+                alt="Aichiow Logo"
+                width={160}
+                height={160}
+                className="rounded-full border-4 border-black"
               />
+            </div>
           </div>
-          </div>
-
           <h1 className="text-4xl font-bold tracking-wide bg-gradient-to-r from-white via-cyan-300 to-blue-500 bg-clip-text text-transparent">
             Welcome to Aichiow
           </h1>
@@ -84,7 +83,7 @@ export default function LandingPage() {
 
         {/* Footer */}
         <footer className="w-full text-center mt-16 mb-8 text-sm text-white/70 relative z-10">
-          © !Taka
+          © AICHIOW TEAM
         </footer>
       </main>
     </>
