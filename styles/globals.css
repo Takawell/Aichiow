@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base styling */
 body {
   @apply bg-dark text-white font-sans antialiased;
 }
@@ -11,7 +10,6 @@ a {
   @apply text-white no-underline;
 }
 
-/* Scrollbar Styling */
 * {
   scrollbar-width: thin;
   scrollbar-color: #38bdf8 #1f2937;
@@ -23,47 +21,4 @@ a {
 ::-webkit-scrollbar-thumb {
   background-color: #38bdf8;
   border-radius: 4px;
-}
-
-/* ===== Animated Rainbow Border ===== */
-@keyframes slowSpin {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 100% 50%;
-  }
-}
-
-.animate-slowSpin {
-  background-size: 300% 300%;
-  animation: slowSpin 120s linear infinite;
-}
-
-/* Use with: bg-gradient-rainbow-10 + animate-slowSpin */
-.bg-gradient-rainbow-10 {
-  background-image: linear-gradient(
-    270deg,
-    #ff0000,
-    #ff7f00,
-    #ffff00,
-    #00ff00,
-    #0000ff,
-    #4b0082,
-    #8f00ff,
-    #ff1493,
-    #00ffff,
-    #ff4500
-  );
-  background-size: 300% 300%;
-}
-
-/* Rainbow Fog Effect (optional) */
-@keyframes fogMove {
-  0% {
-    transform: translate(0px, 0px) scale(1);
-  }
-  100% {
-    transform: translate(-50px, -30px) scale(1.1);
-  }
 }
