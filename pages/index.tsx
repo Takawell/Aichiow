@@ -85,6 +85,11 @@ export default function LandingPage() {
             ))}
           </div>
         </section>
+
+        {/* Footer */}
+        <footer className="w-full text-center py-6 text-sm text-gray-400 mt-20">
+          © AICHIOW TEAM
+        </footer>
       </main>
     </>
   )
