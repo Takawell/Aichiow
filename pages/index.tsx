@@ -38,10 +38,10 @@ export default function LandingPage() {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <main className="min-h-screen flex flex-col items-center justify-center px-4">
+      <main className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-[#02010a] flex flex-col items-center justify-center px-4">
         {/* Logo + Deskripsi */}
         <div className="text-center space-y-4 mt-20">
-          <div className="inline-block p-[4px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 animate-slowSpin shadow-lg">
+          <div className="inline-block p-[4px] rounded-full bg-gradient-rainbow-10 animate-slowSpin shadow-lg">
             <Image
               src="/logo.png"
               alt="Aichiow Logo"
@@ -70,9 +70,9 @@ export default function LandingPage() {
               <Link
                 href={`/anime/${anime.id}`}
                 key={anime.id}
-                className="group rounded-xl p-[2px] bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 animate-slowSpin transition-all"
+                className="group p-[2px] rounded-xl bg-gradient-rainbow-10 animate-slowSpin transition-all"
               >
-                <div className="rounded-xl overflow-hidden bg-dark">
+                <div className="bg-dark rounded-xl overflow-hidden">
                   <Image
                     src={anime.coverImage?.large || ''}
                     alt={anime.title?.english || anime.title?.romaji}
