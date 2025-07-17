@@ -37,7 +37,7 @@ a {
 
 .animate-border-spin {
   background-size: 200% 200%;
-  animation: borderSpin 6s linear infinite;
+  animation: borderSpin 300s linear infinite;
 }
 
 /* === Rainbow Fog Effect (Subtle Background) === */
