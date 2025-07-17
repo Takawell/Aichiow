@@ -3,7 +3,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import { cn } from '@/utils/cn'
 import { fetchTrendingAnime } from '@/lib/anilist'
 import { useEffect, useState } from 'react'
 import { Anime } from '@/types/anime'
@@ -39,16 +38,24 @@ export default function LandingPage() {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <main className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-[#02010a] text-white flex flex-col items-center justify-center px-4">
+      <main className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-[#02010a] text-white flex flex-col items-center justify-center px-4 relative overflow-hidden">
+        {/* Background portal swirl effect */}
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-blue-500 via-purple-600 to-pink-500 opacity-30 rounded-full blur-3xl animate-spin-slow z-0" />
+
         {/* Logo + Deskripsi */}
-        <div className="text-center space-y-4 mt-20">
-          <Image
-            src="/logo.png"
-            alt="Aichiow Logo"
-            width={160}
-            height={160}
-            className="mx-auto rounded-full border-4 border-white shadow-md"
-          />
+        <div className="text-center space-y-4 mt-24 relative z-10">
+          <div className="relative w-40 h-40 mx-auto">
+            {/* Glowing rainbow border */}
+            <div className="absolute inset-0 rounded-full p-[2px] bg-gradient-to-r from-pink-500 via-blue-500 to-purple-500 animate-border-spin blur-md"></div>
+
+            {/* Logo image */}
+            <Image
+              src="/logo.png"
+              alt="Aichiow Logo"
+              fill
+              className="rounded-full border-4 border-white relative z-10"
+            />
+          </div>
           <h1 className="text-4xl font-bold tracking-wide">Welcome to Aichiow</h1>
           <p className="text-lg text-gray-300 max-w-xl mx-auto">
             A modern anime platform with trending shows, trailers, weekly schedule, and manga reader.
@@ -62,7 +69,7 @@ export default function LandingPage() {
         </div>
 
         {/* Anime News */}
-        <section className="w-full max-w-6xl mt-20 px-4">
+        <section className="w-full max-w-6xl mt-20 px-4 relative z-10">
           <h2 className="text-2xl font-semibold mb-4">Latest Anime News</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {news.map((anime) => (
