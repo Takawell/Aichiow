@@ -20,7 +20,6 @@ a {
 ::-webkit-scrollbar {
   width: 8px;
 }
-
 ::-webkit-scrollbar-thumb {
   background-color: #38bdf8;
   border-radius: 4px;
@@ -38,19 +37,28 @@ a {
 
 .animate-border-spin {
   background-size: 200% 200%;
-  animation: borderSpin 4s linear infinite;
+  animation: borderSpin 6s linear infinite;
 }
 
-/* Background swirl effect (slow spin) */
-@keyframes spinSlow {
+/* Rainbow Fog Effect */
+.rainbow-fog {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 160%;
+  height: 160%;
+  background: radial-gradient(circle at 30% 30%, #ff0080, #7928ca, #0070f3);
+  opacity: 0.25;
+  filter: blur(100px);
+  animation: fogMove 20s ease-in-out infinite alternate;
+  z-index: 0;
+}
+
+@keyframes fogMove {
   0% {
-    transform: rotate(0deg);
+    transform: translate(0px, 0px) scale(1);
   }
   100% {
-    transform: rotate(360deg);
+    transform: translate(-50px, -30px) scale(1.1);
   }
-}
-
-.animate-spin-slow {
-  animation: spinSlow 20s linear infinite;
 }
