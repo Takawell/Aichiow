@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { fetchTrendingAnime } from '@/lib/anilist'
 import { useEffect, useState } from 'react'
 import { Anime } from '@/types/anime'
-import { cn } from '@/utils/cn'
 
 export default function LandingPage() {
   const [news, setNews] = useState<Anime[]>([])
@@ -29,14 +28,11 @@ export default function LandingPage() {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <main className="relative min-h-screen bg-black overflow-hidden">
-        {/* Background Portal Swirl */}
-        <div className="absolute inset-0 flex items-center justify-center -z-10 opacity-40">
-          <div className="w-[700px] h-[700px] rounded-full bg-gradient-to-r from-cyan-400 via-blue-600 to-purple-600 blur-3xl animate-spin-slow"></div>
+      <main className="relative min-h-screen bg-black overflow-hidden flex flex-col justify-between">
+        {/* Rainbow Portal Swirl */}
+        <div className="absolute inset-0 flex items-center justify-center -z-10 opacity-30">
+          <div className="w-[700px] h-[700px] rounded-full bg-[conic-gradient(at_top,_cyan,_blue,_indigo,_purple,_pink,_red,_orange,_yellow,_lime,_cyan)] blur-3xl animate-spinSlow" />
         </div>
-
-        {/* Particle Mist Effect */}
-        <div className="absolute inset-0 -z-10 bg-[url('/particle.svg')] bg-cover opacity-10 animate-pulse" />
 
         {/* Logo & Deskripsi */}
         <div className="flex flex-col items-center justify-center text-center px-4 mt-24 space-y-6">
@@ -87,6 +83,11 @@ export default function LandingPage() {
             ))}
           </div>
         </section>
+
+        {/* Footer */}
+        <footer className="w-full py-6 text-center text-sm text-gray-500 mt-16">
+          © AICHIOW TEAM
+        </footer>
       </main>
     </>
   )
