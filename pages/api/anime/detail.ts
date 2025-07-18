@@ -18,25 +18,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     const $ = cheerio.load(data)
-
-    // Ambil semua episode dari list
     const episodes: { title: string; url: string }[] = []
 
-    $('.lstepsiode.listeps li').each((_, el) => {
-      const title = $(el).find('a').text().trim()
-      const link = $(el).find('a').attr('href')
-
+    // Selector Oploverz (coba semua kemungkinan)
+    $('.epsleft .eps a, .lstepsiode.listeps li a').each((_, el) => {
+      const title = $(el).text().trim()
+      const link = $(el).attr('href')
       if (title && link) {
-        episodes.push({
-          title: title.replace(/\s+/g, ' '), // hapus spasi berlebihan
-          url: link,
-        })
+        episodes.push({ title, url: link })
       }
     })
 
-    return res.status(200).json({
-      episodes: episodes.reverse(), // episode lama -> baru
-    })
+    return res.status(200).json({ episodes: episodes.reverse() })
   } catch (error) {
     console.error('Scraper Error:', error)
     return res.status(500).json({ error: 'Failed to fetch anime details' })
