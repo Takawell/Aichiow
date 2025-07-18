@@ -6,22 +6,22 @@ import { useEffect, useState } from 'react'
 
 export default function WatchEpisodePage() {
   const router = useRouter()
-  const { episodeId } = router.query
+  const { episodeId, src } = router.query  // src = URL episode Samehadaku
 
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isError, setIsError] = useState(false)
 
   useEffect(() => {
-    if (!episodeId) return
+    if (!src) return
 
     const fetchStream = async () => {
       try {
-        const res = await fetch(`https://api.consumet.org/anime/gogoanime/watch/${episodeId}`)
+        const res = await fetch(`/api/anime/video?url=${encodeURIComponent(src as string)}`)
         const data = await res.json()
-        if (data?.sources?.length > 0) {
-          const bestSource = data.sources.find((s: any) => s.quality === 'default') || data.sources[0]
-          setVideoUrl(bestSource.url)
+
+        if (data?.videoUrl) {
+          setVideoUrl(data.videoUrl)
         } else {
           setIsError(true)
         }
@@ -34,7 +34,7 @@ export default function WatchEpisodePage() {
     }
 
     fetchStream()
-  }, [episodeId])
+  }, [src])
 
   return (
     <>
