@@ -21,27 +21,43 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
 
   return (
     <div className="relative w-full h-[320px] md:h-[500px] rounded-2xl overflow-hidden group shadow-2xl">
-      {/* Background Image */}
+      {/* Background */}
       <Image
         src={anime.bannerImage || anime.coverImage.large}
         alt={anime.title.romaji}
         fill
         priority
-        className="object-cover transition duration-1000 group-hover:scale-105 brightness-[0.25]"
+        className="object-cover transition duration-1000 group-hover:scale-105"
       />
 
-      {/* Gradient & Blur Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/90 z-10 backdrop-blur-sm" />
+      {/* Light Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
 
       {/* Content */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 }}
-        className="absolute z-20 bottom-0 px-6 py-8 md:px-14 md:py-12 w-full"
+        className="absolute z-20 bottom-6 md:bottom-10 px-6 md:px-14 w-full"
       >
-        {/* Genres */}
-        <div className="flex gap-2 flex-wrap mb-4">
+        {/* Title */}
+        <h1 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-lg mb-2">
+          {anime.title.english || anime.title.romaji}
+        </h1>
+
+        {/* Info + Genres in same row */}
+        <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-5">
+          {anime.averageScore && (
+            <span className="flex items-center gap-1">
+              ⭐ {anime.averageScore / 10}/10
+            </span>
+          )}
+          {anime.nextAiringEpisode?.episode && (
+            <span className="flex items-center gap-1">
+              📺 Ep {anime.nextAiringEpisode.episode}
+            </span>
+          )}
+          {/* Genres beside info */}
           {anime.genres?.slice(0, 3).map((genre) => (
             <span
               key={genre}
@@ -52,36 +68,12 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
           ))}
         </div>
 
-        {/* Title */}
-        <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg mb-3">
-          {anime.title.english || anime.title.romaji}
-        </h1>
-
-        {/* Description */}
-        <p className="text-gray-200 max-w-2xl text-sm md:text-base mb-5 line-clamp-3 drop-shadow">
-          {anime.description?.replace(/<[^>]+>/g, '')}
-        </p>
-
-        {/* Stats */}
-        <div className="flex items-center gap-6 text-sm text-white mb-6">
-          {anime.averageScore && (
-            <span className="flex items-center gap-1">
-              ⭐ {anime.averageScore / 10}/10
-            </span>
-          )}
-          {anime.episodes && (
-            <span className="flex items-center gap-1">
-              📺 {anime.episodes} Episodes
-            </span>
-          )}
-        </div>
-
-        {/* Watch Now Button */}
+        {/* Watch Button */}
         <Link
           href={`/anime/${anime.id}`}
-          className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-6 py-3 rounded-full shadow-lg transition-all duration-300"
+          className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-6 py-2 rounded-full shadow-lg transition-all duration-300"
         >
-          DETAIL
+          🚀 Watch Now
         </Link>
       </motion.div>
     </div>
