@@ -1,4 +1,3 @@
-// pages/anime/[slug].tsx
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -15,23 +14,27 @@ interface Episode {
 export default function AnimeDetailPage() {
   const router = useRouter()
   const { slug } = router.query
-
   const id = parseInt(slug as string)
+
   const { anime, isLoading, isError } = useAnimeDetail(id)
 
   const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loadingEpisodes, setLoadingEpisodes] = useState(true)
 
-  // Fetch episodes dari Oploverz auto mapping
+  // Fetch episode dari API Oploverz
   useEffect(() => {
-    if (!anime?.title?.romaji) return
+    if (!anime?.title) return
 
     const fetchEpisodes = async () => {
       try {
-        const res = await fetch(`/api/anime/episodes?title=${encodeURIComponent(anime.title.romaji)}`)
+        const searchTitle = anime.title.english || anime.title.romaji || anime.title.native
+        const res = await fetch(`/api/anime/episodes?title=${encodeURIComponent(searchTitle)}`)
         const data = await res.json()
+
         if (Array.isArray(data.episodes)) {
           setEpisodes(data.episodes)
+        } else {
+          console.warn('Episode list not found:', data)
         }
       } catch (err) {
         console.error('Gagal memuat episode:', err)
@@ -41,7 +44,7 @@ export default function AnimeDetailPage() {
     }
 
     fetchEpisodes()
-  }, [anime?.title?.romaji])
+  }, [anime])
 
   const isEpisodesReady = !loadingEpisodes && episodes.length > 0
 
@@ -84,7 +87,7 @@ export default function AnimeDetailPage() {
                   <a
                     key={index}
                     href={`/watch/${encodeURIComponent(ep.title)}?src=${encodeURIComponent(ep.url)}`}
-                    className="bg-gray-800 hover:bg-primary/80 text-white px-3 py-2 rounded text-sm text-center"
+                    className="bg-gray-800 hover:bg-primary/80 text-white px-3 py-2 rounded text-sm text-center transition"
                   >
                     {ep.title}
                   </a>
