@@ -20,41 +20,36 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
   }
 
   return (
-    <div className="relative w-full h-[320px] md:h-[460px] min-h-[280px] overflow-hidden rounded-lg shadow-xl group">
-      {/* Background Image */}
+    <div className="relative w-full h-[460px] min-h-[280px] overflow-hidden rounded-lg shadow-xl group">
+      {/* Background */}
       <Image
         src={anime.bannerImage || anime.coverImage.large}
         alt={anime.title.romaji}
         fill
         priority
-        className="object-cover brightness-[.4] group-hover:scale-105 transition duration-1000"
+        className="object-cover transition duration-1000 group-hover:scale-105 brightness-[.45]"
       />
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent z-10" />
 
       {/* Content */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="absolute z-20 bottom-5 md:bottom-10 px-5 md:px-12 w-full"
+        className="absolute z-20 bottom-4 md:bottom-6 px-5 md:px-12 w-full"
       >
         {/* Title */}
-        <h1 className="text-white text-2xl md:text-5xl font-bold mb-2 drop-shadow">
+        <h1 className="text-white text-2xl md:text-4xl font-bold mb-2 drop-shadow-lg">
           {anime.title.english || anime.title.romaji}
         </h1>
 
-        {/* Info: Rating - Episode - Genres */}
+        {/* Info row: rating, episode, genres */}
         <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-3">
           {anime.averageScore && (
             <span className="flex items-center gap-1">
               ⭐ {anime.averageScore / 10}/10
-            </span>
-          )}
-          {anime.nextAiringEpisode?.episode && (
-            <span className="flex items-center gap-1">
-              📺 Ep {anime.nextAiringEpisode.episode}
             </span>
           )}
           {anime.genres?.slice(0, 3).map((genre) => (
@@ -68,14 +63,14 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
         </div>
 
         {/* Description */}
-        <p className="text-gray-200 text-sm md:text-base max-w-2xl line-clamp-3 mb-4 drop-shadow">
+        <p className="text-gray-200 text-sm md:text-base max-w-3xl line-clamp-3 mb-4 drop-shadow">
           {anime.description?.replace(/<[^>]+>/g, '')}
         </p>
 
-        {/* Watch Button */}
+        {/* Button */}
         <Link
           href={`/anime/${anime.id}`}
-          className="bg-primary hover:bg-blue-600 transition px-4 py-2 rounded text-white text-sm w-fit"
+          className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-6 py-2 rounded-full shadow-md transition-all duration-300"
         >
           💘 DETAIL
         </Link>
