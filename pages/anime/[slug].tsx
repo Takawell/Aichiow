@@ -21,13 +21,26 @@ export default function AnimeDetailPage() {
   const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loadingEpisodes, setLoadingEpisodes] = useState(true)
 
-  // Ambil daftar episode dari Oploverz
+  // Step 1: Cari slug anime di Oploverz lewat search API
   useEffect(() => {
-    if (!slug) return
+    if (!anime?.title?.romaji) return
+
     const fetchEpisodes = async () => {
       try {
-        const animeUrl = `https://www.oploverz.now/anime/${slug}/`
-        const res = await fetch(`/api/anime/detail?url=${encodeURIComponent(animeUrl)}`)
+        // Cari anime di Oploverz
+        const searchRes = await fetch(
+          `/api/anime/search-oploverz?query=${encodeURIComponent(anime.title.romaji)}`
+        )
+        const searchData = await searchRes.json()
+
+        if (!searchData.bestMatch?.url) {
+          console.error('Slug Oploverz tidak ditemukan')
+          setLoadingEpisodes(false)
+          return
+        }
+
+        // Ambil daftar episode dari link anime
+        const res = await fetch(`/api/anime/detail?url=${encodeURIComponent(searchData.bestMatch.url)}`)
         const data = await res.json()
 
         if (Array.isArray(data.episodes)) {
@@ -39,8 +52,9 @@ export default function AnimeDetailPage() {
         setLoadingEpisodes(false)
       }
     }
+
     fetchEpisodes()
-  }, [slug])
+  }, [anime])
 
   const isEpisodesReady = !loadingEpisodes && episodes.length > 0
 
@@ -65,7 +79,6 @@ export default function AnimeDetailPage() {
 
         {isEpisodesReady && (
           <>
-            {/* Tombol Episode Pertama */}
             <div className="mt-8 text-center">
               <a
                 href={`/watch/${encodeURIComponent(episodes[0].title)}?src=${encodeURIComponent(episodes[0].url)}`}
@@ -75,7 +88,6 @@ export default function AnimeDetailPage() {
               </a>
             </div>
 
-            {/* Daftar Semua Episode */}
             <div className="mt-10 px-4">
               <h2 className="text-xl font-semibold mb-4">Daftar Episode</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
