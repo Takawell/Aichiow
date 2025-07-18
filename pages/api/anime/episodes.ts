@@ -2,57 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 import * as cheerio from 'cheerio'
 
-const BASE_URL = 'https://www.oploverz.now'
-
-// Cari anime di Oploverz berdasarkan title
-async function searchAnime(title: string) {
-  const searchUrl = `${BASE_URL}/?s=${encodeURIComponent(title)}`
-  const { data } = await axios.get(searchUrl, {
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-    },
-  })
-
-  const $ = cheerio.load(data)
-  const results: { title: string; url: string }[] = []
-
-  $('.result-post .post-title a').each((_, el) => {
-    const link = $(el).attr('href')
-    const text = $(el).text().trim()
-    if (link && text) {
-      results.push({ title: text, url: link })
-    }
-  })
-
-  // Ambil best match pertama
-  return results.length > 0 ? results[0].url : null
-}
-
-// Ambil daftar episode dari page detail anime Oploverz
-async function fetchEpisodes(animeUrl: string) {
-  const { data } = await axios.get(animeUrl, {
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-    },
-  })
-
-  const $ = cheerio.load(data)
-  const episodes: { title: string; url: string }[] = []
-
-  // Cari link di daftar episode
-  $('.epslst li a, .listeps li a, .lstepsiode a').each((_, el) => {
-    const title = $(el).attr('title') || $(el).text().trim()
-    const link = $(el).attr('href')
-    if (title && link) {
-      episodes.push({ title: title.replace(/\s+/g, ' ').trim(), url: link })
-    }
-  })
-
-  return episodes.reverse()
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { title } = req.query
 
@@ -61,15 +10,54 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const animeUrl = await searchAnime(title)
-    if (!animeUrl) {
-      return res.status(404).json({ error: 'Anime not found on Oploverz', episodes: [] })
+    const searchUrl = `https://www.oploverz.now/?s=${encodeURIComponent(title)}`
+    const { data: searchPage } = await axios.get(searchUrl, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+      },
+    })
+
+    const $search = cheerio.load(searchPage)
+
+    // Ambil anime pertama dari hasil pencarian
+    const firstAnimeLink = $search('.result-item h3 a').attr('href')
+    const firstAnimeTitle = $search('.result-item h3 a').text().trim()
+
+    if (!firstAnimeLink) {
+      return res.status(404).json({ error: 'Anime not found on Oploverz' })
     }
 
-    const episodes = await fetchEpisodes(animeUrl)
-    return res.status(200).json({ episodes })
+    // Scraping halaman detail anime untuk daftar episode
+    const { data: animePage } = await axios.get(firstAnimeLink, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+      },
+    })
+
+    const $ = cheerio.load(animePage)
+    const episodes: { title: string; url: string }[] = []
+
+    $('.epslst li a, .listeps li a, .lstepsiode a').each((_, el) => {
+      const epTitle = $(el).attr('title') || $(el).text().trim()
+      const epUrl = $(el).attr('href')
+
+      if (epTitle && epUrl) {
+        episodes.push({
+          title: epTitle.replace(/\s+/g, ' ').trim(),
+          url: epUrl,
+        })
+      }
+    })
+
+    return res.status(200).json({
+      anime: firstAnimeTitle,
+      link: firstAnimeLink,
+      episodes: episodes.reverse(),
+    })
   } catch (error) {
     console.error('Scraper Error:', error)
-    return res.status(500).json({ error: 'Failed to fetch anime episodes', episodes: [] })
+    return res.status(500).json({ error: 'Failed to fetch anime episodes' })
   }
 }
