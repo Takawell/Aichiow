@@ -21,16 +21,16 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
 
   return (
     <div className="relative w-full h-[320px] md:h-[460px] min-h-[280px] overflow-hidden rounded-lg shadow-xl group">
-      {/* Background */}
+      {/* Background Image */}
       <Image
         src={anime.bannerImage || anime.coverImage.large}
         alt={anime.title.romaji}
         fill
         priority
-        className="object-cover transition duration-1000 group-hover:scale-105 brightness-[.45]"
+        className="object-cover brightness-[.4] group-hover:scale-105 transition duration-1000"
       />
 
-      {/* Overlay */}
+      {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
 
       {/* Content */}
@@ -41,12 +41,12 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
         className="absolute z-20 bottom-5 md:bottom-10 px-5 md:px-12 w-full"
       >
         {/* Title */}
-        <h1 className="text-white text-2xl md:text-5xl font-bold mb-1 drop-shadow-lg">
+        <h1 className="text-white text-2xl md:text-5xl font-bold mb-2 drop-shadow">
           {anime.title.english || anime.title.romaji}
         </h1>
 
-        {/* Info row: rating, episode, genres */}
-        <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-2">
+        {/* Info: Rating - Episode - Genres */}
+        <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-3">
           {anime.averageScore && (
             <span className="flex items-center gap-1">
               ⭐ {anime.averageScore / 10}/10
@@ -68,14 +68,14 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
         </div>
 
         {/* Description */}
-        <p className="text-gray-200 text-sm md:text-base max-w-2xl line-clamp-3 mb-3 drop-shadow">
+        <p className="text-gray-200 text-sm md:text-base max-w-2xl line-clamp-3 mb-4 drop-shadow">
           {anime.description?.replace(/<[^>]+>/g, '')}
         </p>
 
-        {/* Button */}
+        {/* Watch Button */}
         <Link
           href={`/anime/${anime.id}`}
-          className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-6 py-2 rounded-full shadow-md transition-all duration-300"
+          className="bg-primary hover:bg-blue-600 transition px-4 py-2 rounded text-white text-sm w-fit"
         >
           💘 DETAIL
         </Link>
