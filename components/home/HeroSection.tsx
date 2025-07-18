@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Anime } from '@/types/anime'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 
 interface HeroSectionProps {
   anime?: Anime
@@ -11,10 +12,24 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ anime, loading }: HeroSectionProps) {
+  const [loadingDetail, setLoadingDetail] = useState(false)
+
   if (loading || !anime) {
     return (
-      <section className="w-full h-[320px] md:h-[460px] bg-neutral-900 animate-pulse flex items-center justify-center rounded-lg shadow-inner">
-        <p className="text-gray-400">Loading hero anime...</p>
+      <section className="w-full h-[320px] md:h-[460px] bg-neutral-900 rounded-lg shadow-inner overflow-hidden relative animate-pulse">
+        <div className="absolute inset-0 bg-gradient-to-r from-neutral-800 via-neutral-700 to-neutral-800 animate-[pulse_2s_infinite]" />
+        <div className="flex items-center justify-center h-full z-10 relative">
+          <svg
+            className="animate-spin h-10 w-10 text-white/70"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24"
+          >
+            <circle className="opacity-25" cx="12" cy="12" r="10"
+              stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+          </svg>
+        </div>
       </section>
     )
   }
@@ -73,12 +88,18 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
         </p>
 
         {/* Button */}
-        <Link
-          href={`/anime/${anime.id}`}
-          className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-6 py-2 rounded-full shadow-md transition-all duration-300"
+        <button
+          onClick={() => {
+            setLoadingDetail(true)
+            window.location.href = `/anime/${anime.id}`
+          }}
+          disabled={loadingDetail}
+          className={`inline-block ${
+            loadingDetail ? 'bg-blue-400 cursor-wait' : 'bg-blue-600 hover:bg-blue-700'
+          } text-white font-medium text-sm px-6 py-2 rounded-full shadow-md transition-all duration-300`}
         >
-          💘 DETAIL
-        </Link>
+          {loadingDetail ? 'Loading...' : '💘 DETAIL'}
+        </button>
       </motion.div>
     </div>
   )
