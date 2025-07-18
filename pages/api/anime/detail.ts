@@ -20,21 +20,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const $ = cheerio.load(data)
     const episodes: { title: string; url: string }[] = []
 
-    // Cari semua link di daftar episode
-    $('.epslst li a, .listeps li a, .lstepsiode a').each((_, el) => {
-      const title = $(el).attr('title') || $(el).text().trim()
-      const link = $(el).attr('href')
+    // Selector ultra-generik
+    $('a').each((_, el) => {
+      const text = $(el).text().trim()
+      const titleAttr = $(el).attr('title') || ''
+      const link = $(el).attr('href') || ''
 
-      if (title && link) {
+      // Hanya ambil link yang ada kata "Episode" atau angka
+      if (
+        link &&
+        (titleAttr.toLowerCase().includes('episode') ||
+         text.toLowerCase().includes('episode') ||
+         /\b\d+\b/.test(text))
+      ) {
         episodes.push({
-          title: title.replace(/\s+/g, ' ').trim(),
+          title: text || titleAttr || 'Episode',
           url: link,
         })
       }
     })
 
+    // Hapus duplikat
+    const uniqueEpisodes = episodes.filter(
+      (ep, index, self) => index === self.findIndex((e) => e.url === ep.url)
+    )
+
     return res.status(200).json({
-      episodes: episodes.reverse(),
+      episodes: uniqueEpisodes.reverse(),
     })
   } catch (error) {
     console.error('Scraper Error:', error)
