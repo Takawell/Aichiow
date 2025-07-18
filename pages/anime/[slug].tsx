@@ -21,12 +21,12 @@ export default function AnimeDetailPage() {
   const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loadingEpisodes, setLoadingEpisodes] = useState(true)
 
-  // Fetch episode dari Samehadaku API
+  // Fetch episode dari Oploverz API
   useEffect(() => {
     if (!slug) return
     const fetchEpisodes = async () => {
       try {
-        const animeUrl = `https://samehadaku.now/anime/${slug}/`
+        const animeUrl = `https://www.oploverz.now/anime/${slug}/`
         const res = await fetch(`/api/anime/detail?url=${encodeURIComponent(animeUrl)}`)
         const data = await res.json()
         if (Array.isArray(data.episodes)) {
@@ -54,9 +54,7 @@ export default function AnimeDetailPage() {
       <main className="bg-dark text-white pb-20">
         <AnimeDetailHeader anime={anime} />
 
-        {anime.trailer?.site === 'youtube' && (
-          <AnimeTrailer trailer={anime.trailer} />
-        )}
+        {anime.trailer?.site === 'youtube' && <AnimeTrailer trailer={anime.trailer} />}
 
         {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
           <CharacterList characters={anime.characters.edges} />
@@ -69,7 +67,7 @@ export default function AnimeDetailPage() {
             <div className="mt-8 text-center">
               <a
                 href={`/watch/${encodeURIComponent(episodes[0].title)}?src=${encodeURIComponent(episodes[0].url)}`}
-                className="inline-block px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg transition"
+                className="inline-block px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg shadow-lg transition-transform transform hover:scale-105"
               >
                 🎬 Tonton Episode 1
               </a>
@@ -77,14 +75,14 @@ export default function AnimeDetailPage() {
 
             <div className="mt-10 px-4">
               <h2 className="text-xl font-semibold mb-4">Daftar Episode</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {episodes.map((ep, index) => (
                   <a
                     key={index}
                     href={`/watch/${encodeURIComponent(ep.title)}?src=${encodeURIComponent(ep.url)}`}
-                    className="bg-gray-800 hover:bg-primary/80 text-white px-3 py-2 rounded text-sm text-center"
+                    className="bg-gray-800 hover:bg-primary/80 text-white px-4 py-3 rounded-lg text-sm text-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-xl"
                   >
-                    {ep.title}
+                    {ep.title.replace('Episode', 'Ep.')}
                   </a>
                 ))}
               </div>
