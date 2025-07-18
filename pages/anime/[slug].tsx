@@ -1,3 +1,4 @@
+// pages/anime/[slug].tsx
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -21,13 +22,13 @@ export default function AnimeDetailPage() {
   const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loadingEpisodes, setLoadingEpisodes] = useState(true)
 
-  // Fetch episode dari API Oploverz
+  // Fetch episodes dari Oploverz auto mapping
   useEffect(() => {
-    if (!slug) return
+    if (!anime?.title?.romaji) return
+
     const fetchEpisodes = async () => {
       try {
-        const animeUrl = `https://www.oploverz.now/anime/${slug}/`
-        const res = await fetch(`/api/anime/detail?url=${encodeURIComponent(animeUrl)}`)
+        const res = await fetch(`/api/anime/episodes?title=${encodeURIComponent(anime.title.romaji)}`)
         const data = await res.json()
         if (Array.isArray(data.episodes)) {
           setEpisodes(data.episodes)
@@ -38,8 +39,9 @@ export default function AnimeDetailPage() {
         setLoadingEpisodes(false)
       }
     }
+
     fetchEpisodes()
-  }, [slug])
+  }, [anime?.title?.romaji])
 
   const isEpisodesReady = !loadingEpisodes && episodes.length > 0
 
@@ -54,7 +56,9 @@ export default function AnimeDetailPage() {
       <main className="bg-dark text-white pb-20">
         <AnimeDetailHeader anime={anime} />
 
-        {anime.trailer?.site === 'youtube' && <AnimeTrailer trailer={anime.trailer} />}
+        {anime.trailer?.site === 'youtube' && (
+          <AnimeTrailer trailer={anime.trailer} />
+        )}
 
         {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
           <CharacterList characters={anime.characters.edges} />
@@ -67,7 +71,7 @@ export default function AnimeDetailPage() {
             <div className="mt-8 text-center">
               <a
                 href={`/watch/${encodeURIComponent(episodes[0].title)}?src=${encodeURIComponent(episodes[0].url)}`}
-                className="inline-block px-6 py-3 bg-gradient-to-r from-primary to-pink-500 hover:opacity-90 text-white font-semibold rounded-lg shadow-md transition-all duration-300 transform hover:scale-105"
+                className="inline-block px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg transition"
               >
                 🎬 Tonton Episode 1
               </a>
@@ -80,9 +84,9 @@ export default function AnimeDetailPage() {
                   <a
                     key={index}
                     href={`/watch/${encodeURIComponent(ep.title)}?src=${encodeURIComponent(ep.url)}`}
-                    className="bg-gray-800 hover:bg-primary/80 text-white px-3 py-2 rounded text-sm text-center shadow-md transition-transform duration-300 hover:scale-105"
+                    className="bg-gray-800 hover:bg-primary/80 text-white px-3 py-2 rounded text-sm text-center"
                   >
-                    {ep.title.replace(/\s+/g, ' ').trim()}
+                    {ep.title}
                   </a>
                 ))}
               </div>
