@@ -25,6 +25,7 @@ export interface Anime {
     airingAt: number
     episode: number
   }
+  episodes?: number
 }
 
 export interface AnimeDetail extends Anime {
