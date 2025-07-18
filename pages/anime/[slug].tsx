@@ -1,4 +1,3 @@
-// pages/anime/[slug].tsx
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -22,7 +21,7 @@ export default function AnimeDetailPage() {
   const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loadingEpisodes, setLoadingEpisodes] = useState(true)
 
-  // Ambil daftar episode dari API Oploverz
+  // Fetch episode dari API Oploverz
   useEffect(() => {
     if (!slug) return
     const fetchEpisodes = async () => {
@@ -55,41 +54,35 @@ export default function AnimeDetailPage() {
       <main className="bg-dark text-white pb-20">
         <AnimeDetailHeader anime={anime} />
 
-        {/* Trailer */}
-        {anime.trailer?.site === 'youtube' && (
-          <AnimeTrailer trailer={anime.trailer} />
-        )}
+        {anime.trailer?.site === 'youtube' && <AnimeTrailer trailer={anime.trailer} />}
 
-        {/* Daftar Karakter */}
         {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
           <CharacterList characters={anime.characters.edges} />
         )}
 
-        {/* Loading Episode */}
         {loadingEpisodes && <p className="text-center text-white mt-6">Mencari episode...</p>}
 
-        {/* Daftar Episode */}
         {isEpisodesReady && (
           <>
             <div className="mt-8 text-center">
               <a
                 href={`/watch/${encodeURIComponent(episodes[0].title)}?src=${encodeURIComponent(episodes[0].url)}`}
-                className="inline-block px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg transition"
+                className="inline-block px-6 py-3 bg-gradient-to-r from-primary to-pink-500 hover:opacity-90 text-white font-semibold rounded-lg shadow-md transition-all duration-300 transform hover:scale-105"
               >
                 🎬 Tonton Episode 1
               </a>
             </div>
 
             <div className="mt-10 px-4">
-              <h2 className="text-2xl font-semibold mb-6 text-center">Daftar Episode</h2>
+              <h2 className="text-xl font-semibold mb-4">Daftar Episode</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {episodes.map((ep, index) => (
                   <a
                     key={index}
                     href={`/watch/${encodeURIComponent(ep.title)}?src=${encodeURIComponent(ep.url)}`}
-                    className="bg-gray-800 hover:bg-primary/80 text-white px-3 py-2 rounded-lg text-sm text-center font-medium shadow-md transition transform hover:-translate-y-1"
+                    className="bg-gray-800 hover:bg-primary/80 text-white px-3 py-2 rounded text-sm text-center shadow-md transition-transform duration-300 hover:scale-105"
                   >
-                    {ep.title}
+                    {ep.title.replace(/\s+/g, ' ').trim()}
                   </a>
                 ))}
               </div>
