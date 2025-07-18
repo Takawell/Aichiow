@@ -4,7 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Anime } from '@/types/anime'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface HeroSectionProps {
   anime?: Anime
@@ -13,6 +14,11 @@ interface HeroSectionProps {
 
 export default function HeroSection({ anime, loading }: HeroSectionProps) {
   const [loadingDetail, setLoadingDetail] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    setLoadingDetail(false)
+  }, [])
 
   if (loading || !anime) {
     return (
@@ -91,7 +97,7 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
         <button
           onClick={() => {
             setLoadingDetail(true)
-            window.location.href = `/anime/${anime.id}`
+            router.push(`/anime/${anime.id}`)
           }}
           disabled={loadingDetail}
           className={`inline-block ${
