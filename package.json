@@ -14,7 +14,7 @@
     "autoprefixer": "^10.4.17",
     "axios": "^1.6.8",
     "chrome-aws-lambda": "^10.1.0",
-    "puppeteer-core": "^22.6.0",
+    "puppeteer-core": "^10.1.0",
     "cheerio": "^1.0.0-rc.12",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
