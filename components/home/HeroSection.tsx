@@ -19,6 +19,9 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
     )
   }
 
+  const episode =
+    anime.nextAiringEpisode?.episode || anime.episodes || undefined
+
   return (
     <div className="relative w-full h-[320px] md:h-[500px] rounded-2xl overflow-hidden group shadow-2xl">
       {/* Background */}
@@ -45,19 +48,18 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
           {anime.title.english || anime.title.romaji}
         </h1>
 
-        {/* Info + Genres in same row */}
+        {/* Info + Genres */}
         <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-5">
           {anime.averageScore && (
             <span className="flex items-center gap-1">
               ⭐ {anime.averageScore / 10}/10
             </span>
           )}
-          {anime.nextAiringEpisode?.episode && (
+          {episode && (
             <span className="flex items-center gap-1">
-              📺 Ep {anime.nextAiringEpisode.episode}
+              📺 Ep {episode}
             </span>
           )}
-          {/* Genres beside info */}
           {anime.genres?.slice(0, 3).map((genre) => (
             <span
               key={genre}
@@ -73,7 +75,7 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
           href={`/anime/${anime.id}`}
           className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-6 py-2 rounded-full shadow-lg transition-all duration-300"
         >
-          🚀 Watch Now
+          DETAIL
         </Link>
       </motion.div>
     </div>
