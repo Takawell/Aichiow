@@ -21,32 +21,37 @@ export default function GenreAnimePage() {
       <Head>
         <title>{genreName} Anime — Aichiow</title>
       </Head>
-      <main className="bg-dark min-h-screen px-4 py-6">
-        <h1 className="text-2xl font-bold text-white mb-4">
-          🎬 {genreName} Anime
-        </h1>
+      <main className="min-h-screen px-4 py-10 bg-gradient-to-br from-[#0f0f0f] via-[#121212] to-[#1a1a1a] text-white">
+        {/* Floating Genre Tag */}
+        <div className="mb-8 relative z-10">
+          <h1 className="text-4xl font-extrabold tracking-wide animate-fade-in drop-shadow-lg">
+            🎬 <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-lg backdrop-blur-md border border-blue-500/30 shadow-inner">
+              {genreName}
+            </span> Anime
+          </h1>
+        </div>
 
         {loading ? (
-          <p className="text-white">Loading...</p>
+          <p className="text-center text-lg animate-pulse">Loading anime...</p>
         ) : anime.length === 0 ? (
-          <p className="text-white">No anime found in this genre.</p>
+          <p className="text-center text-lg">No anime found in this genre.</p>
         ) : (
-          <div className="flex overflow-x-auto gap-4 scroll-smooth">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 animate-fade-in">
             {anime.map((item) => (
               <Link
                 key={item.id}
                 href={`/anime/${item.id}`}
-                className="min-w-[140px] flex-shrink-0 hover:opacity-80 transition"
+                className="group transition-all duration-300 hover:scale-105"
               >
-                <div className="w-[140px] h-[200px] relative rounded-lg overflow-hidden border border-neutral-700">
+                <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 shadow-md hover:shadow-blue-500/40 transition-all duration-300">
                   <Image
                     src={item.coverImage.large}
                     alt={item.title.english || item.title.romaji}
                     fill
-                    className="object-cover"
+                    className="object-cover group-hover:brightness-110 transition"
                   />
                 </div>
-                <p className="text-sm text-white mt-2 line-clamp-2">
+                <p className="mt-2 text-sm font-medium text-center group-hover:text-blue-400 transition">
                   {item.title.english || item.title.romaji}
                 </p>
               </Link>
