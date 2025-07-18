@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import axios from "axios";
-import * as cheerio from "cheerio";
+import puppeteer from "puppeteer";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -9,33 +8,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Parameter 'url' diperlukan." });
     }
 
-    // Ambil HTML dari halaman episode
-    const { data } = await axios.get(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-        "Accept-Language": "id,en;q=0.9",
-      },
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: "domcontentloaded" });
+
+    // Ambil iframe src
+    const iframeSrc = await page.evaluate(() => {
+      const iframe = document.querySelector("iframe");
+      return iframe ? iframe.getAttribute("src") : null;
     });
 
-    const $ = cheerio.load(data);
+    await browser.close();
 
-    // Cari iframe video (Samehadaku biasanya taruh di .entry-content atau player)
-    let iframeSrc =
-      $("iframe").attr("src") ||
-      $("iframe").first().attr("data-src") ||
-      null;
-
-    // Cek apakah iframe ditemukan
     if (!iframeSrc) {
-      return res.status(404).json({
-        error: "Tidak menemukan iframe video di halaman episode.",
-      });
-    }
-
-    // Normalisasi URL (Samehadaku kadang pakai //domain.com)
-    if (iframeSrc.startsWith("//")) {
-      iframeSrc = "https:" + iframeSrc;
+      return res.status(404).json({ error: "Tidak menemukan iframe video." });
     }
 
     return res.status(200).json({ videoUrl: iframeSrc });
