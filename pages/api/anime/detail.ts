@@ -20,20 +20,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const $ = cheerio.load(data)
     const episodes: { title: string; url: string }[] = []
 
-    // Selector terbaru Oploverz
-    $('.episodelist ul li').each((_, el) => {
-      const title = $(el).find('a').text().trim()
-      const link = $(el).find('a').attr('href')
+    // Cari semua link di daftar episode
+    $('.epslst li a, .listeps li a, .lstepsiode a').each((_, el) => {
+      const title = $(el).attr('title') || $(el).text().trim()
+      const link = $(el).attr('href')
+
       if (title && link) {
         episodes.push({
-          title: title.replace(/\s+/g, ' '),
+          title: title.replace(/\s+/g, ' ').trim(),
           url: link,
         })
       }
     })
 
     return res.status(200).json({
-      episodes: episodes.reverse(), // urutkan dari lama ke baru
+      episodes: episodes.reverse(),
     })
   } catch (error) {
     console.error('Scraper Error:', error)
