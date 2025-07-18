@@ -20,16 +20,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const $ = cheerio.load(data)
     const episodes: { title: string; url: string }[] = []
 
-    // Selector Oploverz (coba semua kemungkinan)
-    $('.epsleft .eps a, .lstepsiode.listeps li a').each((_, el) => {
+    // Selector Oploverz terbaru
+    // Coba cari link episode dari beberapa kemungkinan
+    $('.epsleft .eps a, .epslisteps a, .lstepsiode.listeps li a').each((_, el) => {
       const title = $(el).text().trim()
       const link = $(el).attr('href')
+
       if (title && link) {
-        episodes.push({ title, url: link })
+        episodes.push({
+          title: title.replace(/\s+/g, ' ').replace('Episode', 'Ep.'),
+          url: link.startsWith('http') ? link : `https://www.oploverz.now${link}`,
+        })
       }
     })
 
-    return res.status(200).json({ episodes: episodes.reverse() })
+    return res.status(200).json({
+      episodes: episodes.reverse(), // Urut dari lama ke baru
+    })
   } catch (error) {
     console.error('Scraper Error:', error)
     return res.status(500).json({ error: 'Failed to fetch anime details' })
