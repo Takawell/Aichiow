@@ -1,12 +1,10 @@
-// pages/watch/[episodeId].tsx
-
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 
 export default function WatchEpisodePage() {
   const router = useRouter()
-  const { episodeId, src } = router.query  // src = URL episode Samehadaku
+  const { episodeId, src } = router.query // src = URL episode dari Oploverz
 
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
