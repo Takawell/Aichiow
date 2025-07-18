@@ -41,12 +41,12 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
         className="absolute z-20 bottom-5 md:bottom-10 px-5 md:px-12 w-full"
       >
         {/* Title */}
-        <h1 className="text-white text-2xl md:text-5xl font-bold mb-2 drop-shadow-lg">
+        <h1 className="text-white text-2xl md:text-5xl font-bold mb-1 drop-shadow-lg">
           {anime.title.english || anime.title.romaji}
         </h1>
 
         {/* Info row: rating, episode, genres */}
-        <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-4">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-2">
           {anime.averageScore && (
             <span className="flex items-center gap-1">
               ⭐ {anime.averageScore / 10}/10
@@ -68,7 +68,7 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
         </div>
 
         {/* Description */}
-        <p className="text-gray-200 text-sm md:text-base max-w-2xl line-clamp-3 mb-5 drop-shadow">
+        <p className="text-gray-200 text-sm md:text-base max-w-2xl line-clamp-3 mb-3 drop-shadow">
           {anime.description?.replace(/<[^>]+>/g, '')}
         </p>
 
