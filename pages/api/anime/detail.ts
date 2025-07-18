@@ -2,13 +2,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import * as cheerio from "cheerio";
 
-/**
- * API Endpoint:
- * /api/anime/detail?url=<anime_page_url>
- * 
- * Contoh:
- * /api/anime/detail?url=https://samehadaku.now/anime/solo-leveling/
- */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { url } = req.query;
@@ -17,10 +10,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Parameter 'url' diperlukan." });
     }
 
+    // Ambil halaman anime
     const { data } = await axios.get(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+        "Accept-Language": "id,en;q=0.9",
       },
     });
 
@@ -29,15 +24,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const title = $("h1.entry-title").text().trim();
     const thumbnail = $(".entry-content img").first().attr("src") || null;
 
-    // Ambil daftar episode
     const episodes: { title: string; url: string }[] = [];
-    $(".eplister ul li a").each((_, el) => {
+
+    // Cek apakah ada daftar episode
+    $(".eplister ul li").each((_, el) => {
+      const link = $(el).find("a").attr("href") || "";
       const epTitle = $(el).find(".epl-title").text().trim();
-      const epUrl = $(el).attr("href") || "";
-      if (epTitle && epUrl) {
-        episodes.push({ title: epTitle, url: epUrl });
+      if (link && epTitle) {
+        episodes.push({ title: epTitle, url: link });
       }
     });
+
+    if (episodes.length === 0) {
+      return res.status(404).json({ error: "Episode tidak ditemukan. Periksa URL Samehadaku." });
+    }
+
+    // Balik urutan agar episode 1 di awal
+    episodes.reverse();
 
     return res.status(200).json({
       title,
