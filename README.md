@@ -27,9 +27,7 @@
 
 ---
 
-## LANDING PAGE
-
-<img src="public/preview.png" alt="Aichiow Preview" style="border-radius: 12px;" />
+![Landing page](public/preview.png)
 
 ---
 
