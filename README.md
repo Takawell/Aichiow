@@ -27,6 +27,8 @@
 
 ---
 
+## LANDING PAGE
+
 ![Landing page](https://aichiow.vercel.app/preview.png)
 
 ---
