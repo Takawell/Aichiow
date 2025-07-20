@@ -7,6 +7,7 @@ import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 import { classNames } from '@/utils/classNames'
 import { useState } from 'react'
+import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -85,42 +86,22 @@ export default function Navbar() {
                   )
                 })}
 
-                {/* Community Section */}
+                {/* Community Section with Icons */}
                 <div className="mt-8 border-t border-white/20 pt-4">
                   <p className="text-sm font-semibold uppercase text-white/60 mb-3">Community</p>
-                  <div className="flex flex-col gap-2">
-                    <a
-                      href="https://discord.gg/aichinime"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-400 transition text-sm"
-                    >
-                      🗨️ Discord
-                    </a>
-                    <a
-                      href="https://youtube.com/Takadevelopment"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-400 transition text-sm"
-                    >
-                      ▶️ YouTube
-                    </a>
-                    <a
-                      href="https://tiktok.com/@putrawangyyy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-400 transition text-sm"
-                    >
-                      🎵 TikTok
-                    </a>
-                    <a
-                      href="https://instagram.com/putrasenpaiii"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-400 transition text-sm"
-                    >
-                      📷 Instagram
-                    </a>
+                  <div className="flex gap-4 text-lg">
+                    <Link href="https://discord.gg/aichinime" target="_blank" aria-label="Discord">
+                      <FaDiscord className="hover:text-blue-400 transition" />
+                    </Link>
+                    <Link href="https://youtube.com/Takadevelopment" target="_blank" aria-label="YouTube">
+                      <FaYoutube className="hover:text-blue-400 transition" />
+                    </Link>
+                    <Link href="https://tiktok.com/@putrawangyyy" target="_blank" aria-label="TikTok">
+                      <FaTiktok className="hover:text-blue-400 transition" />
+                    </Link>
+                    <Link href="https://instagram.com/putrasenpaiii" target="_blank" aria-label="Instagram">
+                      <FaInstagram className="hover:text-blue-400 transition" />
+                    </Link>
                   </div>
                 </div>
               </div>
