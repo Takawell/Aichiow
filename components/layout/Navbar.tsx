@@ -24,15 +24,15 @@ export default function Navbar() {
   return (
     <header className="bg-neutral-900 text-white shadow-md sticky top-0 z-50 backdrop-blur-md bg-opacity-80">
       <div className="max-w-7xl mx-auto px-4 md:px-10 py-4 flex items-center justify-between">
-        {/* Logo */}
+        {/* Logo di kiri */}
         <Link
           href="/"
           className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600 hover:opacity-90 transition"
         >
-          Aichiow
+          AICHIOW
         </Link>
 
-        {/* Hamburger Menu (All devices) */}
+        {/* Hamburger di kanan */}
         <div>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
