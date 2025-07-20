@@ -28,7 +28,7 @@ export default function Navbar() {
           href="/"
           className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600 hover:opacity-90 transition"
         >
-          Aichiow
+          AICHIOW
         </Link>
 
         {/* Desktop Nav */}
