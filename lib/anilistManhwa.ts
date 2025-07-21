@@ -123,3 +123,88 @@ export async function fetchManhwaDetail(id: number) {
   const { data } = await response.json()
   return data.Media
 }
+
+// genre(ambatukam)
+const ANILIST_URL = 'https://graphql.anilist.co'
+
+export async function fetchManhwaList(page = 1, genre?: string) {
+  const query = `
+    query ($page: Int, $genre: String) {
+      Page(page: $page, perPage: 20) {
+        media(type: MANGA, sort: TRENDING_DESC, countryOfOrigin: "KR", genre: $genre) {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+          }
+          bannerImage
+          averageScore
+          genres
+        }
+        pageInfo {
+          total
+          currentPage
+          lastPage
+        }
+      }
+    }
+  `
+  const response = await fetch(ANILIST_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, variables: { page, genre } })
+  })
+  const { data } = await response.json()
+  return {
+    list: data.Page.media,
+    totalPages: data.Page.pageInfo.lastPage
+  }
+}
+
+export async function fetchGenres() {
+  const query = `
+    query {
+      GenreCollection
+    }
+  `
+  const response = await fetch(ANILIST_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query })
+  })
+  const { data } = await response.json()
+  return data.GenreCollection
+}
+
+export async function searchManhwa(search: string) {
+  const query = `
+    query ($search: String) {
+      Page(page: 1, perPage: 20) {
+        media(type: MANGA, search: $search, countryOfOrigin: "KR") {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+          }
+          bannerImage
+          averageScore
+          description(asHtml: false)
+          genres
+        }
+      }
+    }
+  `
+  const response = await fetch(ANILIST_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, variables: { search } })
+  })
+  const { data } = await response.json()
+  return data.Page.media
+}
