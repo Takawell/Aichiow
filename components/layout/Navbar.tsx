@@ -15,6 +15,7 @@ const navItems = [
   { href: '/explore', label: 'Explore' },
   { href: '/search', label: 'Search' },
   { href: '/manga', label: 'Manga' },
+  { href: '/manhwa', label: 'Manhwa' }, // DITAMBAHKAN
 ]
 
 export default function Navbar() {
