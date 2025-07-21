@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { ManhwaDetail } from '@/types/manhwa'
@@ -95,7 +94,7 @@ export default function ManhwaDetailPage() {
       {/* Characters */}
       <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10">
         <h2 className="text-2xl font-bold mb-4">Characters</h2>
-        {manhwa.characters?.edges?.length > 0 ? (
+        {manhwa.characters?.edges && manhwa.characters.edges.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {manhwa.characters.edges.map((char) => (
               <motion.div
@@ -126,7 +125,7 @@ export default function ManhwaDetailPage() {
       {/* Staff */}
       <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10 pb-16">
         <h2 className="text-2xl font-bold mb-4">Staff</h2>
-        {manhwa.staff?.edges?.length > 0 ? (
+        {manhwa.staff?.edges && manhwa.staff.edges.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {manhwa.staff.edges.map((st) => (
               <motion.div
