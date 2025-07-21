@@ -90,10 +90,10 @@ export default function Navbar() {
                 <div className="mt-8 border-t border-white/20 pt-4">
                   <p className="text-sm font-semibold uppercase text-white/60 mb-3">Community</p>
                   <div className="flex gap-4 text-lg">
-                    <Link href="https://discord.gg/aichinime" target="_blank" aria-label="Discord">
+                    <Link href="https://whatsapp.com/channel/0029Vb5lXCA1SWsyWyJbvW0q" target="_blank" aria-label="Discord">
                       <FaDiscord className="hover:text-blue-400 transition" />
                     </Link>
-                    <Link href="https://youtube.com/Takadevelopment" target="_blank" aria-label="YouTube">
+                    <Link href="https://youtube.com/@TakaDevelopment" target="_blank" aria-label="YouTube">
                       <FaYoutube className="hover:text-blue-400 transition" />
                     </Link>
                     <Link href="https://tiktok.com/@putrawangyyy" target="_blank" aria-label="TikTok">
