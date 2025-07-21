@@ -1,4 +1,5 @@
 // types/manhwa.ts
+
 export interface ManhwaTitle {
   romaji: string
   english?: string
@@ -72,3 +73,5 @@ export interface Manhwa {
     edges: StaffEdge[]
   }
 }
+
+export interface ManhwaDetail extends Manhwa {}
