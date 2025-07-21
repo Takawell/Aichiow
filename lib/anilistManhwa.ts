@@ -68,3 +68,58 @@ export async function searchManhwa(search: string) {
   return data.Page.media
 }
 
+// detail
+export async function fetchManhwaDetail(id: number) {
+  const query = `
+    query ($id: Int) {
+      Media(id: $id, type: MANGA) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        description(asHtml: false)
+        bannerImage
+        coverImage {
+          large
+          extraLarge
+        }
+        averageScore
+        genres
+        status
+        format
+        startDate { year month day }
+        endDate { year month day }
+        characters(sort: ROLE, perPage: 10) {
+          edges {
+            role
+            node {
+              id
+              name { full native }
+              image { large }
+            }
+          }
+        }
+        staff(perPage: 10) {
+          edges {
+            node {
+              id
+              name { full }
+              image { large }
+            }
+          }
+        }
+      }
+    }
+  `
+
+  const response = await fetch(ANILIST_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, variables: { id } })
+  })
+
+  const { data } = await response.json()
+  return data.Media
+}
