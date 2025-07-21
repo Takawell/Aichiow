@@ -1,17 +1,60 @@
 // types/manhwa.ts
-export interface Manhwa {
+export interface ManhwaTitle {
+  romaji: string
+  english?: string
+  native?: string
+}
+
+export interface ManhwaCover {
+  large: string
+  extraLarge?: string
+  medium?: string
+  color?: string
+}
+
+export interface ManhwaCharacter {
   id: number
-  title: {
-    romaji: string
-    english?: string
+  name: {
+    full: string
     native?: string
   }
-  coverImage: {
+  image: {
     large: string
-    extraLarge?: string
   }
+  role?: string
+}
+
+export interface ManhwaStaff {
+  id: number
+  name: {
+    full: string
+  }
+  image: {
+    large: string
+  }
+}
+
+export interface Manhwa {
+  id: number
+  title: ManhwaTitle
+  description?: string
   bannerImage?: string
+  coverImage: ManhwaCover
   averageScore?: number
   genres: string[]
-  description?: string
+  chapters?: number
+  status?: string
+  format?: string
+  startDate?: {
+    year: number
+    month: number
+    day: number
+  }
+  endDate?: {
+    year: number
+    month: number
+    day: number
+  }
+  staff?: ManhwaStaff[]
+  characters?: ManhwaCharacter[]
 }
