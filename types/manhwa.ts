@@ -12,7 +12,7 @@ export interface ManhwaCover {
   color?: string
 }
 
-export interface ManhwaCharacter {
+export interface CharacterNode {
   id: number
   name: {
     full: string
@@ -21,17 +21,27 @@ export interface ManhwaCharacter {
   image: {
     large: string
   }
-  role?: string
 }
 
-export interface ManhwaStaff {
+export interface StaffNode {
   id: number
   name: {
     full: string
+    native?: string
   }
   image: {
     large: string
   }
+}
+
+export interface CharacterEdge {
+  role: string
+  node: CharacterNode
+}
+
+export interface StaffEdge {
+  role?: string
+  node: StaffNode
 }
 
 export interface Manhwa {
@@ -55,6 +65,10 @@ export interface Manhwa {
     month: number
     day: number
   }
-  staff?: ManhwaStaff[]
-  characters?: ManhwaCharacter[]
+  characters?: {
+    edges: CharacterEdge[]
+  }
+  staff?: {
+    edges: StaffEdge[]
+  }
 }
