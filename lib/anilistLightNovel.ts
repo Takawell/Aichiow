@@ -93,7 +93,7 @@ export async function searchLightNovel(search: string) {
 }
 
 /**
- * Fetch Light Novel detail by ID
+ * Fetch Light Novel detail by ID (with parsed characters & staff)
  */
 export async function fetchLightNovelDetail(id: number) {
   const query = `
@@ -153,7 +153,27 @@ export async function fetchLightNovelDetail(id: number) {
     body: JSON.stringify({ query, variables: { id } })
   })
   const { data } = await response.json()
-  return data.Media
+  const media = data.Media
+
+  // Parse characters & staff into clean arrays
+  const characters = (media.characters?.edges || []).map((edge: any) => ({
+    id: edge.node.id,
+    name: edge.node.name,
+    image: edge.node.image,
+    role: edge.role
+  }))
+
+  const staff = (media.staff?.edges || []).map((edge: any) => ({
+    id: edge.node.id,
+    name: edge.node.name,
+    image: edge.node.image
+  }))
+
+  return {
+    ...media,
+    characters,
+    staff
+  }
 }
 
 /**
