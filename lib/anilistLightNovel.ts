@@ -9,7 +9,7 @@ export async function fetchLightNovelList(page = 1, genre?: string) {
   const query = `
     query ($page: Int, $genre: String) {
       Page(page: $page, perPage: 20) {
-        media(type: NOVEL, sort: TRENDING_DESC, genre: $genre) {
+        media(type: MANGA, format: NOVEL, sort: TRENDING_DESC, genre: $genre) {
           id
           title {
             romaji
@@ -62,7 +62,7 @@ export async function searchLightNovel(search: string) {
   const query = `
     query ($search: String) {
       Page(page: 1, perPage: 20) {
-        media(type: NOVEL, search: $search) {
+        media(type: MANGA, format: NOVEL, search: $search) {
           id
           title {
             romaji
@@ -98,7 +98,7 @@ export async function searchLightNovel(search: string) {
 export async function fetchLightNovelDetail(id: number) {
   const query = `
     query ($id: Int) {
-      Media(id: $id, type: NOVEL) {
+      Media(id: $id, type: MANGA, format: NOVEL) {
         id
         title {
           romaji
