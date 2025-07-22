@@ -10,6 +10,7 @@ import {
   searchLightNovel,
 } from '@/lib/anilistLightNovel'
 import { LightNovel } from '@/types/lightNovel'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function LightNovelPage() {
   const [novels, setNovels] = useState<LightNovel[]>([])
@@ -51,15 +52,19 @@ export default function LightNovelPage() {
     loadData()
   }, [page, selectedGenre])
 
-  // Hero slider
+  // Hero slider auto change
   useEffect(() => {
     if (novels.length > 0) {
       const interval = setInterval(() => {
         setHeroIndex((prev) => (prev + 1) % novels.length)
-      }, 5000)
+      }, 7000)
       return () => clearInterval(interval)
     }
   }, [novels])
+
+  // Manual slide
+  const nextSlide = () => setHeroIndex((prev) => (prev + 1) % novels.length)
+  const prevSlide = () => setHeroIndex((prev) => (prev - 1 + novels.length) % novels.length)
 
   // Search
   const handleSearch = async (e: React.FormEvent) => {
@@ -91,10 +96,10 @@ export default function LightNovelPage() {
                 <motion.div
                   key={novels[heroIndex].id}
                   className="absolute inset-0"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.8 }}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.6 }}
                 >
                   <img
                     src={
@@ -106,7 +111,7 @@ export default function LightNovelPage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                   <div className="absolute bottom-6 left-6 max-w-lg">
-                    <h2 className="text-2xl md:text-3xl font-bold">
+                    <h2 className="text-2xl md:text-3xl font-bold drop-shadow-lg">
                       {novels[heroIndex].title.english || novels[heroIndex].title.romaji}
                     </h2>
                     <p className="text-sm text-gray-300 line-clamp-2 mt-1">
@@ -114,13 +119,27 @@ export default function LightNovelPage() {
                     </p>
                     <Link
                       href={`/light-novel/${novels[heroIndex].id}`}
-                      className="mt-3 inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-white font-medium"
+                      className="mt-3 inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-white font-medium shadow-lg"
                     >
                       Read More
                     </Link>
                   </div>
                 </motion.div>
               </AnimatePresence>
+
+              {/* Slider controls */}
+              <button
+                onClick={prevSlide}
+                className="absolute top-1/2 left-3 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 transition"
+              >
+                <ChevronLeft className="h-6 w-6 text-white" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute top-1/2 right-3 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 transition"
+              >
+                <ChevronRight className="h-6 w-6 text-white" />
+              </button>
             </div>
           ) : (
             <p className="text-red-500">Tidak ada Light Novel ditemukan.</p>
@@ -147,23 +166,24 @@ export default function LightNovelPage() {
           </form>
 
           {/* GENRE FILTER */}
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
             {genres.map((genre) => (
-              <button
+              <motion.button
                 key={genre}
                 onClick={() => {
                   setSelectedGenre(genre)
                   setPage(1)
                   setSearchResults([])
                 }}
-                className={`px-4 py-1 rounded-full text-sm font-medium transition ${
+                whileHover={{ scale: 1.08 }}
+                className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 shadow-sm ${
                   selectedGenre === genre
                     ? 'bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-lg scale-105'
-                    : 'bg-gray-700 hover:bg-gray-600'
+                    : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
                 }`}
               >
                 {genre}
-              </button>
+              </motion.button>
             ))}
           </div>
 
