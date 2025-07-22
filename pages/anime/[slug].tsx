@@ -1,11 +1,12 @@
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
-import { useResolvedGogoSlug } from '@/hooks/useResolvedGogoSlug'
-import { useGogoAnimeEpisodes } from '@/hooks/useGogoAnimeEpisodes'
+import { useQuery } from '@tanstack/react-query'
+import { fetchSimilarAnime } from '@/lib/anilist'
 import AnimeDetailHeader from '@/components/anime/AnimeDetailHeader'
 import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
+import AnimeCard from '@/components/anime/AnimeCard'
 
 export default function AnimeDetailPage() {
   const router = useRouter()
@@ -13,10 +14,13 @@ export default function AnimeDetailPage() {
 
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
-  const { gogoSlug, isLoading: loadingSlug } = useResolvedGogoSlug(anime?.title?.romaji)
-  const { episodes, isLoading: loadingEpisodes } = useGogoAnimeEpisodes(gogoSlug || '')
 
-  const isEpisodesReady = !loadingEpisodes && episodes.length > 0
+  // Fetch Similar Anime
+  const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
+    queryKey: ['similarAnime', id],
+    queryFn: () => fetchSimilarAnime(id),
+    enabled: !!id,
+  })
 
   if (isLoading) return <p className="text-center text-white mt-10">Loading...</p>
   if (isError || !anime) return <p className="text-center text-red-500 mt-10">Anime not found.</p>
@@ -37,35 +41,21 @@ export default function AnimeDetailPage() {
           <CharacterList characters={anime.characters.edges} />
         )}
 
-        {loadingSlug && <p className="text-center text-white mt-6">Mencari episode...</p>}
-
-        {isEpisodesReady && (
-          <>
-            <div className="mt-8 text-center">
-              <a
-                href={`/watch/${episodes[0].id}`}
-                className="inline-block px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg transition"
-              >
-                🎬 Tonton Episode 1
-              </a>
+        {/* Similar Anime Section */}
+        <section className="mt-10 px-4">
+          <h2 className="text-xl font-semibold mb-4">Similar Anime</h2>
+          {loadingSimilar ? (
+            <p className="text-center text-gray-400">Loading similar anime...</p>
+          ) : similarAnime.length > 0 ? (
+            <div className="flex gap-4 overflow-x-auto">
+              {similarAnime.map((anime) => (
+                <AnimeCard key={anime.id} anime={anime} />
+              ))}
             </div>
-
-            <div className="mt-10 px-4">
-              <h2 className="text-xl font-semibold mb-4">Daftar Episode</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {episodes.map((ep: any) => (
-                  <a
-                    key={ep.id}
-                    href={`/watch/${ep.id}`}
-                    className="bg-gray-800 hover:bg-primary/80 text-white px-3 py-2 rounded text-sm text-center"
-                  >
-                    Episode {ep.number}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
+          ) : (
+            <p className="text-center text-gray-500">No similar anime found.</p>
+          )}
+        </section>
       </main>
     </>
   )
