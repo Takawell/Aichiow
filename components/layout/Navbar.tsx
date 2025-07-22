@@ -10,12 +10,13 @@ import { useState } from 'react'
 import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 
 const navItems = [
-  { href: '/', label: 'Home' },
-  { href: '/upcoming', label: 'Timetable' },
-  { href: '/explore', label: 'Explore' },
-  { href: '/search', label: 'Search' },
-  { href: '/manga', label: 'Manga' },
-  { href: '/manhwa', label: 'Manhwa' }, // DITAMBAHKAN
+  { href: '/', label: 'HOME' },
+  { href: '/upcoming', label: 'TIMETABLE' },
+  { href: '/explore', label: 'EXPLORE' },
+  { href: '/search', label: 'SEARCH' },
+  { href: '/manga', label: 'MANGA' },
+  { href: '/manhwa', label: 'MANHWA' }, // DITAMBAHKAN
+  { href: '/light-novel', label: 'LIGHT NOVEL' }, // BARU DITAMBAHKAN
 ]
 
 export default function Navbar() {
