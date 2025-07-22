@@ -335,3 +335,41 @@ export async function fetchTrendingAnimePaginated(page = 1, perPage = 20): Promi
   const data = await fetchFromAnilist(query, variables)
   return data.Page.media
 }
+
+// ✅ Tambahan: Similar Anime
+export async function fetchSimilarAnime(id: number): Promise<Anime[]> {
+  const query = `
+    query ($id: Int) {
+      Media(id: $id, type: ANIME) {
+        recommendations(perPage: 10, sort: RATING_DESC) {
+          edges {
+            node {
+              mediaRecommendation {
+                id
+                title {
+                  romaji
+                  english
+                }
+                coverImage {
+                  large
+                }
+                genres
+                averageScore
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const variables = { id };
+  const data = await fetchFromAnilist(query, variables);
+
+  // Ambil daftar anime mirip dari edges
+  return (
+    data?.Media?.recommendations?.edges
+      ?.map((e: any) => e.node.mediaRecommendation)
+      ?.filter(Boolean) || []
+  );
+}
