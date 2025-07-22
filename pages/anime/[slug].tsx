@@ -34,14 +34,15 @@ export default function AnimeDetailPage() {
       ? 'bg-blue-500'
       : 'bg-gray-500'
 
-  // Hitung total episode
+  // === FIXED: Hitung episode yang sudah rilis ===
   let totalEpisodes: number | null = null
-  if (anime.episodes) {
-    totalEpisodes = anime.episodes
-  } else if (anime.status === 'RELEASING' && anime.nextAiringEpisode?.episode) {
-    totalEpisodes = anime.nextAiringEpisode.episode - 1
+  if (anime.status === 'RELEASING') {
+    totalEpisodes = anime.nextAiringEpisode?.episode
+      ? anime.nextAiringEpisode.episode - 1
+      : anime.episodes || null
+  } else if (anime.status === 'FINISHED') {
+    totalEpisodes = anime.episodes || null
   }
-
   const duration = anime.duration || null
 
   return (
@@ -80,8 +81,8 @@ export default function AnimeDetailPage() {
 
           {/* Info Total Episode + Durasi */}
           <p className="text-gray-300 text-sm mb-2">
-            {totalEpisodes
-              ? `Total Episodes: ${totalEpisodes}`
+            {anime.episodes
+              ? `Total Episodes: ${anime.episodes}`
               : 'Total Episodes: ?'}{' '}
             |{' '}
             {duration
@@ -105,9 +106,9 @@ export default function AnimeDetailPage() {
                 <a
                   key={index}
                   href="/justkidding"
-                  className="px-4 py-2 rounded-lg text-sm font-medium
-                            bg-neutral-800 hover:bg-neutral-700
-                            transition-colors duration-200 shadow-sm"
+                  className="px-4 py-2 rounded-md text-sm font-medium
+                            bg-gray-800 hover:bg-gray-700
+                            transition-all duration-200 shadow-md"
                 >
                   Episode {index + 1}
                 </a>
