@@ -25,6 +25,13 @@ export default function AnimeDetailPage() {
   if (isLoading) return <p className="text-center text-white mt-10">Loading...</p>
   if (isError || !anime) return <p className="text-center text-red-500 mt-10">Anime not found.</p>
 
+  const statusBadgeColor =
+    anime.status === 'RELEASING'
+      ? 'bg-green-500'
+      : anime.status === 'FINISHED'
+      ? 'bg-blue-500'
+      : 'bg-gray-500'
+
   return (
     <>
       <Head>
@@ -40,6 +47,50 @@ export default function AnimeDetailPage() {
         {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
           <CharacterList characters={anime.characters.edges} />
         )}
+
+        {/* Episode Mapping Section */}
+        <section className="mt-10 px-4 text-center">
+          {/* Badge Status */}
+          <div className="mb-4">
+            <span
+              className={`inline-block px-4 py-1 text-sm font-semibold rounded-full ${statusBadgeColor}`}
+            >
+              {anime.status === 'RELEASING'
+                ? 'Ongoing'
+                : anime.status === 'FINISHED'
+                ? 'Completed'
+                : 'Upcoming'}
+            </span>
+          </div>
+
+          {/* Info Total Episode + Durasi */}
+          <p className="text-gray-300 text-sm mb-6">
+            {anime.episodes
+              ? `Total Episodes: ${anime.episodes}`
+              : 'Total Episodes: ?'}{' '}
+            |{' '}
+            {anime.duration
+              ? `Duration: ${anime.duration} min/ep`
+              : 'Duration: ?'}
+          </p>
+
+          <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
+          <div className="flex flex-wrap justify-center gap-4">
+            {Array.from({ length: anime.episodes || 12 }).map((_, index) => (
+              <a
+                key={index}
+                href="/justkidding"
+                className="px-5 py-2 rounded-full text-sm font-semibold
+                          bg-gradient-to-r from-purple-600 to-pink-500
+                          hover:from-pink-500 hover:to-purple-600
+                          transition-all duration-300 transform hover:scale-105
+                          shadow-md hover:shadow-pink-500/40"
+              >
+                Episode {index + 1}
+              </a>
+            ))}
+          </div>
+        </section>
 
         {/* Similar Anime Section */}
         <section className="mt-10 px-4">
@@ -59,4 +110,4 @@ export default function AnimeDetailPage() {
       </main>
     </>
   )
-}
+      }
