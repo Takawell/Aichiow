@@ -40,6 +40,12 @@ export const ANIME_DETAIL_QUERY = `
       averageScore
       popularity
       genres
+      episodes        
+      duration        
+      nextAiringEpisode {   
+        airingAt
+        episode
+      }
       studios(isMain: true) {
         nodes {
           name
