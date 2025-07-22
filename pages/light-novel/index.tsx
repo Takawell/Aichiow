@@ -175,11 +175,11 @@ export default function LightNovelPage() {
                   setPage(1)
                   setSearchResults([])
                 }}
-                whileHover={{ scale: 1.08 }}
-                className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 shadow-sm ${
+                whileHover={{ scale: 1.05 }}
+                className={`px-3 py-1 rounded-md text-xs md:text-sm font-medium transition-all duration-300 ${
                   selectedGenre === genre
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-lg scale-105'
-                    : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
                 }`}
               >
                 {genre}
