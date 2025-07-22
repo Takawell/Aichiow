@@ -8,6 +8,8 @@ import AnimeDetailHeader from '@/components/anime/AnimeDetailHeader'
 import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
+import { format, fromUnixTime } from 'date-fns'
+import { id as localeID } from 'date-fns/locale'
 
 export default function AnimeDetailPage() {
   const router = useRouter()
@@ -16,7 +18,6 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
 
-  // Fetch Similar Anime
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
     queryKey: ['similarAnime', id],
     queryFn: () => fetchSimilarAnime(id),
@@ -33,12 +34,8 @@ export default function AnimeDetailPage() {
       ? 'bg-blue-500'
       : 'bg-gray-500'
 
-  // Tentukan jumlah episode
-  const totalEpisodes =
-    anime.episodes ||
-    (anime.nextAiringEpisode?.episode
-      ? anime.nextAiringEpisode.episode - 1
-      : null)
+  const totalEpisodes = anime.episodes || null
+  const nextAiring = anime.nextAiringEpisode
 
   return (
     <>
@@ -56,9 +53,9 @@ export default function AnimeDetailPage() {
           <CharacterList characters={anime.characters.edges} />
         )}
 
-        {/* Episode Mapping Section */}
+        {/* Episode Section */}
         <section className="mt-10 px-4 text-center">
-          {/* Badge Status */}
+          {/* Badge */}
           <div className="mb-4">
             <span
               className={`inline-block px-4 py-1 text-sm font-semibold rounded-full ${statusBadgeColor}`}
@@ -71,7 +68,7 @@ export default function AnimeDetailPage() {
             </span>
           </div>
 
-          {/* Info Total Episode + Durasi */}
+          {/* Episode Info */}
           <p className="text-gray-300 text-sm mb-6">
             {totalEpisodes
               ? `Total Episodes: ${totalEpisodes}`
@@ -83,6 +80,7 @@ export default function AnimeDetailPage() {
           </p>
 
           <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
+
           {totalEpisodes ? (
             <div className="flex flex-wrap justify-center gap-4">
               {Array.from({ length: totalEpisodes }).map((_, index) => (
@@ -90,21 +88,28 @@ export default function AnimeDetailPage() {
                   key={index}
                   href="/justkidding"
                   className="px-5 py-2 rounded-full text-sm font-semibold
-                            bg-gradient-to-r from-purple-600 to-pink-500
-                            hover:from-pink-500 hover:to-purple-600
-                            transition-all duration-300 transform hover:scale-105
-                            shadow-md hover:shadow-pink-500/40"
+                          bg-gradient-to-r from-blue-600 to-indigo-500
+                          hover:from-indigo-500 hover:to-blue-600
+                          transition-all duration-300 transform hover:scale-105
+                          shadow-md hover:shadow-indigo-500/40"
                 >
                   Episode {index + 1}
                 </a>
               ))}
             </div>
+          ) : nextAiring ? (
+            <p className="text-blue-400 font-medium">
+              Episode {nextAiring.episode} akan rilis{' '}
+              {format(fromUnixTime(nextAiring.airingAt), 'eeee, dd MMM yyyy • HH:mm', {
+                locale: localeID,
+              })}
+            </p>
           ) : (
             <p className="text-gray-400">Total episode belum diketahui.</p>
           )}
         </section>
 
-        {/* Similar Anime Section */}
+        {/* Similar Anime */}
         <section className="mt-10 px-4">
           <h2 className="text-xl font-semibold mb-4">Similar Anime</h2>
           {loadingSimilar ? (
