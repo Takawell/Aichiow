@@ -1,3 +1,4 @@
+// pages/anime/[slug].tsx
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -31,6 +32,14 @@ export default function AnimeDetailPage() {
       : anime.status === 'FINISHED'
       ? 'bg-blue-500'
       : 'bg-gray-500'
+
+  // Hitung jumlah episode
+  const totalEpisodes =
+    anime.episodes && anime.episodes > 0
+      ? anime.episodes
+      : anime.status === 'RELEASING'
+      ? 10 // fallback default 10 jika ongoing dan belum diketahui total
+      : 0
 
   return (
     <>
@@ -67,6 +76,8 @@ export default function AnimeDetailPage() {
           <p className="text-gray-300 text-sm mb-6">
             {anime.episodes
               ? `Total Episodes: ${anime.episodes}`
+              : anime.status === 'RELEASING'
+              ? 'Total Episodes: ? (ongoing)'
               : 'Total Episodes: ?'}{' '}
             |{' '}
             {anime.duration
@@ -75,21 +86,26 @@ export default function AnimeDetailPage() {
           </p>
 
           <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            {Array.from({ length: anime.episodes || 12 }).map((_, index) => (
-              <a
-                key={index}
-                href="/justkidding"
-                className="px-5 py-2 rounded-full text-sm font-semibold
-                          bg-gradient-to-r from-purple-600 to-pink-500
-                          hover:from-pink-500 hover:to-purple-600
-                          transition-all duration-300 transform hover:scale-105
-                          shadow-md hover:shadow-pink-500/40"
-              >
-                Episode {index + 1}
-              </a>
-            ))}
-          </div>
+
+          {totalEpisodes > 0 ? (
+            <div className="flex flex-wrap justify-center gap-4">
+              {Array.from({ length: totalEpisodes }).map((_, index) => (
+                <a
+                  key={index}
+                  href="/justkidding"
+                  className="px-5 py-2 rounded-full text-sm font-semibold
+                            bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500
+                            hover:from-pink-500 hover:via-purple-600 hover:to-indigo-600
+                            transition-all duration-300 transform hover:scale-110
+                            shadow-md hover:shadow-purple-500/40"
+                >
+                  Episode {index + 1}
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">Total episode belum diketahui.</p>
+          )}
         </section>
 
         {/* Similar Anime Section */}
@@ -110,4 +126,4 @@ export default function AnimeDetailPage() {
       </main>
     </>
   )
-      }
+}
