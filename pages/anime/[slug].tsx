@@ -17,6 +17,7 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
 
+  // Fetch Similar Anime
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
     queryKey: ['similarAnime', id],
     queryFn: () => fetchSimilarAnime(id),
@@ -33,18 +34,8 @@ export default function AnimeDetailPage() {
       ? 'bg-blue-500'
       : 'bg-gray-500'
 
-  // Hitung jumlah episode tayang
-  let airedEpisodes = 0
-  if (anime.status === 'RELEASING') {
-    airedEpisodes = anime.nextAiringEpisode?.episode
-      ? anime.nextAiringEpisode.episode - 1
-      : anime.episodes || 0
-  } else if (anime.status === 'FINISHED') {
-    airedEpisodes = anime.episodes || 0
-  }
-
-  const totalEpisodes = anime.episodes || '?'
-  const duration = anime.duration || '?'
+  const totalEpisodes = anime.episodes || null
+  const duration = anime.duration || null
 
   return (
     <>
@@ -52,18 +43,26 @@ export default function AnimeDetailPage() {
         <title>{anime.title.english || anime.title.romaji} | Aichiow</title>
       </Head>
       <main className="bg-dark text-white pb-20">
+        {/* Header */}
         <AnimeDetailHeader anime={anime} />
 
-        {anime.trailer?.site === 'youtube' && <AnimeTrailer trailer={anime.trailer} />}
+        {/* Trailer */}
+        {anime.trailer?.site === 'youtube' && (
+          <AnimeTrailer trailer={anime.trailer} />
+        )}
 
+        {/* Characters */}
         {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
           <CharacterList characters={anime.characters.edges} />
         )}
 
-        {/* Info Episode */}
+        {/* Episode Mapping Section */}
         <section className="mt-10 px-4 text-center">
+          {/* Badge Status */}
           <div className="mb-4">
-            <span className={`inline-block px-4 py-1 text-sm font-semibold rounded-full ${statusBadgeColor}`}>
+            <span
+              className={`inline-block px-4 py-1 text-sm font-semibold rounded-full ${statusBadgeColor}`}
+            >
               {anime.status === 'RELEASING'
                 ? 'Ongoing'
                 : anime.status === 'FINISHED'
@@ -72,10 +71,18 @@ export default function AnimeDetailPage() {
             </span>
           </div>
 
+          {/* Info Total Episode + Durasi */}
           <p className="text-gray-300 text-sm mb-2">
-            Total Episodes: {totalEpisodes} | Duration: {duration} min/ep
+            {totalEpisodes
+              ? `Total Episodes: ${totalEpisodes}`
+              : 'Total Episodes: ?'}{' '}
+            |{' '}
+            {duration
+              ? `Duration: ${duration} min/ep`
+              : 'Duration: ?'}
           </p>
 
+          {/* Next Airing Info */}
           {anime.nextAiringEpisode && (
             <p className="text-blue-400 text-sm mb-6">
               Next Episode {anime.nextAiringEpisode.episode} airs on{' '}
@@ -85,25 +92,19 @@ export default function AnimeDetailPage() {
 
           <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
 
-          {anime.status === 'UPCOMING' || airedEpisodes === 0 ? (
-            <p className="text-zinc-400 italic">Belum ada episode tayang</p>
-          ) : (
-            <div className="flex flex-wrap justify-center gap-3">
-              {Array.from({ length: airedEpisodes }).map((_, index) => (
-                <a
-                  key={index}
-                  href="/justkidding"
-                  className="px-4 py-2 rounded-md text-sm font-medium
-                            bg-gray-800 hover:bg-gray-700 transition-all duration-200 shadow-md"
-                >
-                  Episode {index + 1}
-                </a>
-              ))}
-            </div>
-          )}
+          {/* Tombol Lihat Episode */}
+          <div className="flex justify-center">
+            <a
+              href="/justkidding"
+              className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 
+                         text-white font-medium transition shadow-lg hover:shadow-xl"
+            >
+              List Episode
+            </a>
+          </div>
         </section>
 
-        {/* Similar Anime */}
+        {/* Similar Anime Section */}
         <section className="mt-10 px-4">
           <h2 className="text-xl font-semibold mb-4">Similar Anime</h2>
           {loadingSimilar ? (
