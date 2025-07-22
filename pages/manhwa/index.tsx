@@ -99,21 +99,24 @@ export default function ManhwaPage() {
           {/* GENRE FILTER */}
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {genres.map((genre) => (
-              <button
+              <motion.button
                 key={genre}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   setSelectedGenre(genre)
                   setPage(1)
                   setSearchResults([])
                 }}
-                className={`px-4 py-1 rounded-full text-sm font-medium ${
-                  selectedGenre === genre
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-700 hover:bg-gray-600'
-                }`}
+                className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-300
+                  ${
+                    selectedGenre === genre
+                      ? 'bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-md shadow-blue-500/30'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                  }`}
               >
                 {genre}
-              </button>
+              </motion.button>
             ))}
           </div>
 
@@ -133,7 +136,7 @@ export default function ManhwaPage() {
               <motion.div
                 key={m.id}
                 whileHover={{ scale: 1.05 }}
-                className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-500 transition-shadow"
+                className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-500/40 transition-shadow"
               >
                 <Link href={`/manhwa/${m.id}`}>
                   <img
@@ -185,4 +188,4 @@ export default function ManhwaPage() {
       </div>
     </>
   )
-          }
+}
