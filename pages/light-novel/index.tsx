@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
   fetchLightNovelList,
-  fetchLightNovelGenres,
   searchLightNovel,
+  fetchLightNovelGenres,
 } from '@/lib/anilistLightNovel'
-import { LightNovel } from '@/types/lightNovel'
+import { Manhwa as LightNovel } from '@/types/manhwa' // Gunakan struktur manhwa sementara
 
 export default function LightNovelPage() {
-  const [novels, setNovels] = useState<LightNovel[]>([])
+  const [lightNovels, setLightNovels] = useState<LightNovel[]>([])
   const [genres, setGenres] = useState<string[]>([])
   const [selectedGenre, setSelectedGenre] = useState<string>('ALL')
   const [loading, setLoading] = useState(true)
@@ -25,107 +25,60 @@ export default function LightNovelPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(5)
 
-  const [heroIndex, setHeroIndex] = useState(0)
-
-  // Load Light Novels
   useEffect(() => {
-    const loadData = async () => {
+    const loadLightNovels = async () => {
       try {
         setLoading(true)
+        setError(null)
+
         const data = await fetchLightNovelList(
           page,
           selectedGenre !== 'ALL' ? selectedGenre : undefined
         )
-        setNovels(data.list)
+
+        if (data.list.length === 0) {
+          setLightNovels([])
+        } else {
+          setLightNovels(data.list)
+        }
         setTotalPages(data.totalPages)
+
         if (genres.length === 0) {
           const genreList = await fetchLightNovelGenres()
           setGenres(['ALL', ...genreList])
         }
-      } catch (e: any) {
+      } catch (err) {
         setError('Gagal memuat daftar Light Novel.')
       } finally {
         setLoading(false)
       }
     }
-    loadData()
+    loadLightNovels()
   }, [page, selectedGenre])
 
-  // Hero slider
-  useEffect(() => {
-    if (novels.length > 0) {
-      const interval = setInterval(() => {
-        setHeroIndex((prev) => (prev + 1) % novels.length)
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [novels])
-
-  // Search
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
     setSearching(true)
-    const results = await searchLightNovel(query)
-    setSearchResults(results)
-    setSearching(false)
+    try {
+      const results = await searchLightNovel(query)
+      setSearchResults(results)
+    } finally {
+      setSearching(false)
+    }
   }
 
-  const displayedList = searchResults.length > 0 ? searchResults : novels
+  const displayedList = searchResults.length > 0 ? searchResults : lightNovels
 
   return (
     <>
       <Head>
-        <title>Light Novels | Aichiow</title>
+        <title>Light Novel | Aichiow</title>
         <meta name="description" content="Koleksi Light Novel dari AniList." />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
         <div className="container mx-auto px-4 py-6 space-y-6">
-          {/* HERO SLIDER */}
-          {loading ? (
-            <section className="w-full h-[320px] md:h-[460px] bg-neutral-900 rounded-lg shadow-inner overflow-hidden animate-pulse"></section>
-          ) : novels.length > 0 ? (
-            <div className="relative w-full h-[320px] md:h-[460px] rounded-xl overflow-hidden shadow-lg">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={novels[heroIndex].id}
-                  className="absolute inset-0"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.8 }}
-                >
-                  <img
-                    src={
-                      novels[heroIndex].bannerImage ||
-                      novels[heroIndex].coverImage.extraLarge
-                    }
-                    alt={novels[heroIndex].title.english || novels[heroIndex].title.romaji}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                  <div className="absolute bottom-6 left-6 max-w-lg">
-                    <h2 className="text-2xl md:text-3xl font-bold">
-                      {novels[heroIndex].title.english || novels[heroIndex].title.romaji}
-                    </h2>
-                    <p className="text-sm text-gray-300 line-clamp-2 mt-1">
-                      {novels[heroIndex].description?.replace(/<[^>]*>/g, '') || 'No description'}
-                    </p>
-                    <Link
-                      href={`/light-novel/${novels[heroIndex].id}`}
-                      className="mt-3 inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-white font-medium"
-                    >
-                      Read More
-                    </Link>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          ) : (
-            <p className="text-red-500">Tidak ada Light Novel ditemukan.</p>
-          )}
-
           {/* SEARCH */}
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
             <input
@@ -156,9 +109,9 @@ export default function LightNovelPage() {
                   setPage(1)
                   setSearchResults([])
                 }}
-                className={`px-4 py-1 rounded-full text-sm font-medium transition ${
+                className={`px-4 py-1 rounded-full text-sm font-medium ${
                   selectedGenre === genre
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-lg scale-105'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gray-700 hover:bg-gray-600'
                 }`}
               >
@@ -173,25 +126,25 @@ export default function LightNovelPage() {
           {/* LIST */}
           {loading && !searching && <p className="text-gray-400">Memuat data...</p>}
           {!loading && displayedList.length === 0 && (
-            <p className="text-gray-400">Tidak ada hasil untuk "{query}".</p>
+            <p className="text-gray-400">Tidak ada Light Novel ditemukan.</p>
           )}
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {displayedList.map((n) => (
+            {displayedList.map((novel) => (
               <motion.div
-                key={n.id}
+                key={novel.id}
                 whileHover={{ scale: 1.05 }}
                 className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-500 transition-shadow"
               >
-                <Link href={`/light-novel/${n.id}`}>
+                <Link href={`/light-novel/${novel.id}`}>
                   <img
-                    src={n.coverImage.large}
-                    alt={n.title.english || n.title.romaji}
+                    src={novel.coverImage.large}
+                    alt={novel.title.english || novel.title.romaji}
                     className="w-full h-64 object-cover"
                   />
                   <div className="p-2">
                     <h2 className="text-sm font-semibold truncate">
-                      {n.title.english || n.title.romaji}
+                      {novel.title.english || novel.title.romaji}
                     </h2>
                   </div>
                 </Link>
@@ -231,4 +184,4 @@ export default function LightNovelPage() {
       </div>
     </>
   )
-                }
+}
