@@ -1,112 +1,92 @@
-<h1 align="center">🌌 Aichiow</h1>
+<h1 align="center">✨ Aichiow</h1>
 
 <p align="center">
-  <b>Aichiow</b> — modern anime & manga streaming platform inspired by Crunchyroll and LiveChart.  
-  <br/>
-  Built with Next.js 13, TailwindCSS, Anilist GraphQL & MangaDex REST API.
+  <b>Aichiow</b> is a next-gen multimedia platform for <b>anime</b>, <b>manga</b>, <b>manhwa</b>, and <b>light novels</b>.  
+  It combines a sleek UI, powerful search, and rich content — from trending anime and trailers to integrated readers for manga, manhwa, and LN.
 </p>
 
 <p align="center">
   <a href="https://aichiow.vercel.app" target="_blank">
-    <img src="https://img.shields.io/badge/Live-Demo-blue?style=for-the-badge&logo=vercel" alt="Live Demo" />
+    <img src="https://img.shields.io/badge/Live%20Demo-Visit-blue?style=for-the-badge&logo=vercel" alt="Live Demo" />
   </a>
-  <img src="https://img.shields.io/github/languages/top/Rehannnaja/Aichiow?style=for-the-badge" alt="Top Language" />
-  <img src="https://img.shields.io/github/repo-size/Rehannnaja/Aichiow?style=for-the-badge" alt="Repo Size" />
+  <img src="https://img.shields.io/github/stars/Rehannnaja/Aichiow?style=for-the-badge" alt="GitHub Stars" />
+  <img src="https://img.shields.io/github/forks/Rehannnaja/Aichiow?style=for-the-badge" alt="GitHub Forks" />
   <img src="https://img.shields.io/github/license/Rehannnaja/Aichiow?style=for-the-badge" alt="License" />
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/github/stars/Rehannnaja/Aichiow?style=social" alt="GitHub Stars" />
-  <img src="https://img.shields.io/github/forks/Rehannnaja/Aichiow?style=social" alt="GitHub Forks" />
-  <img src="https://visitor-badge.laobi.icu/badge?page_id=Rehannnaja.Aichiow" alt="Visitors" />
-</p>
+---
 
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api/pin/?username=Rehannnaja&repo=Aichiow&theme=radical" alt="Repo Card" />
-</p>
+## 🌟 What is Aichiow?
+Aichiow is built for fans of Japanese and Korean pop culture, offering:
+- **Trending anime** with trailers and schedules.
+- **Manga & Manhwa reader** with full chapter navigation.
+- **Light Novel (LN) database** with detailed pages.
+- **Advanced search & discovery** across all content types.
+- **Character and staff insights** (powered by AniList).
 
 ---
 
-## LANDING PAGE
+## 🚀 Core Features
 
-![Landing page](https://aichiow.vercel.app/preview.png)
+### 🎬 **Anime**
+- Detail pages with trailers, genres, studios, and scores.
+- Seasonal and trending sections.
+- Weekly release timetable.
 
----
+### 📚 **Manga & Manhwa**
+- Powered by **MangaDex API**.
+- Chapter-based reader with smooth navigation.
+- Character info and series metadata.
 
-## 🚀 Features
+### ✨ **Light Novels (LN)**
+- Beautiful catalog with genre filters.
+- Detailed LN pages with characters and staff.
+- Integrated search and dynamic hero banners.
 
-### 🎬 Anime
-- Detailed pages (poster, trailer, studios, genres, score, description)
-- Characters & voice actors (seiyuu)
-- YouTube trailer integration
+### 🔍 **Explore & Search**
+- Global search across anime, manga, manhwa, and LN.
+- Genre-based discovery and trending highlights.
 
-### 🔥 Trending & Seasonal
-- Trending today (via `TRENDING_DESC`)
-- Seasonal & popular anime by category
-
-### 📅 Upcoming & Weekly Timetable
-- Upcoming anime (`NOT_YET_RELEASED`)
-- Airing schedule grouped by day
-- Daily highlight with current time zone
-
-### 📚 Manga
-- Powered by MangaDex API
-- Manga detail with chapter list
-- Built-in manga reader
-- Character + seiyuu display (if available)
-
-### 🧭 Explore & Search
-- Explore by category, format, and genre
-- Global smart search with responsive UI
-- Autocomplete search (coming soon)
-
-### 🎨 UI & UX
-- Inspired by Crunchyroll, built with TailwindCSS
-- Responsive mobile-first layout
-- Smooth transitions, dark mode ready 🌙
+### 🎨 **UI & UX**
+- Clean, modern, Crunchyroll-inspired design.
+- Mobile-first responsive layout.
+- Smooth animations with Framer Motion.
+- Dark mode ready 🌙.
 
 ---
 
-## 🧩 Tech Stack
-
-| Tool             | Description                                  |
-|------------------|----------------------------------------------|
-| **Next.js 13**   | App Router, dynamic pages, fast routing      |
-| **TailwindCSS**  | Utility-first modern styling                 |
-| **Anilist API**  | Anime data via GraphQL                       |
-| **MangaDex API** | Manga info & chapter data                    |
-| **SWR**          | Data fetching & caching                      |
-| **Vercel**       | Hosting & CI/CD deployment                   |
-
----
-
-## 🧪 Roadmap (Upcoming Features)
-
-- [ ] 🔖 Bookmark system (anime/manga)
-- [ ] ⏱️ Continue Watching
-- [ ] 📺 Anime episode tracker
-- [ ] 🎭 Genre-specific filter pages
-- [ ] 📊 Admin dashboard with analytics
+## 🧰 Tech Stack
+| Technology         | Role                                    |
+|--------------------|-----------------------------------------|
+| **Next.js 13**     | App router, SSR, and static generation   |
+| **TailwindCSS**    | Modern utility-first styling            |
+| **AniList GraphQL**| Anime & LN data source                  |
+| **MangaDex REST**  | Manga & Manhwa content                  |
+| **Framer Motion**  | Smooth animations                       |
+| **Vercel**         | Deployment & CI/CD                      |
 
 ---
 
-## 🌐 Live Demo
+## 🛣️ Roadmap
+- [ ] **Bookmark system** for anime, manga, and LN.  
+- [ ] **Continue Watching / Reading** state.  
+- [ ] **Advanced analytics dashboard** (admin only).  
+- [ ] **Community features** (comments & ratings).  
 
-> Visit: [**aichiow.vercel.app**](https://aichiow.vercel.app)
+---
+
+## 🌐 Live Preview
+> **Visit Now**: [https://aichiow.vercel.app](https://aichiow.vercel.app)
 
 ---
 
 ## 🧠 Credits
-
-> Aichiow is a personal open-source project crafted with care, designed for anime & manga fans who value beauty and function.
-
-Built with ❤️ by **[!Taka](https://github.com/Rehannnaja)**  
-Powered by [AniList.co](https://anilist.co) & [MangaDex.org](https://mangadex.org)
+Aichiow is an open-source passion project by **[!Taka](https://github.com/Takawell)**.  
+Data provided by [AniList](https://anilist.co) & [MangaDex](https://mangadex.org).
 
 ---
 
-## 🛠️ Local Development
-
+## ⚙️ Local Development
 ```bash
 git clone https://github.com/Rehannnaja/Aichiow.git
 cd Aichiow
