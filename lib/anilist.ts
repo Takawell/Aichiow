@@ -166,7 +166,7 @@ export async function fetchMangaCharacters(title: string) {
   return data?.Media?.characters?.edges || []
 }
 
-// ✅ Tambahan: Upcoming Anime
+// ✅ Upcoming Anime
 export async function fetchUpcomingAnime(): Promise<Anime[]> {
   const query = `
     query {
@@ -188,7 +188,7 @@ export async function fetchUpcomingAnime(): Promise<Anime[]> {
   return data.Page.media
 }
 
-// ✅ Tambahan: Schedule Anime Mingguan
+// ✅ Schedule Anime Mingguan
 export async function fetchScheduleAnime(): Promise<Anime[]> {
   const query = `
     query {
@@ -214,7 +214,7 @@ export async function fetchScheduleAnime(): Promise<Anime[]> {
   return data.Page.media.filter((m: any) => m.nextAiringEpisode)
 }
 
-// ✅ Tambahan: Detail Anime
+// ✅ Detail Anime
 export async function fetchAnimeDetail(id: number): Promise<any> {
   const query = `
     query ($id: Int) {
@@ -241,6 +241,10 @@ export async function fetchAnimeDetail(id: number): Promise<any> {
         season
         seasonYear
         popularity
+        nextAiringEpisode {
+          airingAt
+          episode
+        }
         trailer {
           id
           site
@@ -277,11 +281,10 @@ export async function fetchAnimeDetail(id: number): Promise<any> {
 
   const variables = { id }
   const data = await fetchFromAnilist(query, variables)
-
   return data?.Media
 }
 
-// ✅ Tambahan: Anime News (untuk landing)
+// ✅ Anime News (untuk landing)
 export async function fetchNewsAnime(): Promise<Anime[]> {
   const query = `
     query {
@@ -302,7 +305,7 @@ export async function fetchNewsAnime(): Promise<Anime[]> {
   return data.Page.media
 }
 
-// ✅ Tambahan: Trending Anime (Paginated)
+// ✅ Trending Anime (Paginated)
 export async function fetchTrendingAnimePaginated(page = 1, perPage = 20): Promise<Anime[]> {
   const query = `
     query ($page: Int, $perPage: Int) {
@@ -336,7 +339,7 @@ export async function fetchTrendingAnimePaginated(page = 1, perPage = 20): Promi
   return data.Page.media
 }
 
-// ✅ Tambahan: Similar Anime
+// ✅ Similar Anime
 export async function fetchSimilarAnime(id: number): Promise<Anime[]> {
   const query = `
     query ($id: Int) {
@@ -361,15 +364,14 @@ export async function fetchSimilarAnime(id: number): Promise<Anime[]> {
         }
       }
     }
-  `;
+  `
 
-  const variables = { id };
-  const data = await fetchFromAnilist(query, variables);
+  const variables = { id }
+  const data = await fetchFromAnilist(query, variables)
 
-  // Ambil daftar anime mirip dari edges
   return (
     data?.Media?.recommendations?.edges
       ?.map((e: any) => e.node.mediaRecommendation)
       ?.filter(Boolean) || []
-  );
-}
+  )
+    }
