@@ -9,9 +9,9 @@
   <a href="https://aichiow.vercel.app" target="_blank">
     <img src="https://img.shields.io/badge/Live%20Demo-Visit-blue?style=for-the-badge&logo=vercel" alt="Live Demo" />
   </a>
-  <img src="https://img.shields.io/github/stars/Rehannnaja/Aichiow?style=for-the-badge" alt="GitHub Stars" />
-  <img src="https://img.shields.io/github/forks/Rehannnaja/Aichiow?style=for-the-badge" alt="GitHub Forks" />
-  <img src="https://img.shields.io/github/license/Rehannnaja/Aichiow?style=for-the-badge" alt="License" />
+  <img src="https://img.shields.io/github/stars/Takawell/Aichiow?style=for-the-badge" alt="GitHub Stars" />
+  <img src="https://img.shields.io/github/forks/Takawell/Aichiow?style=for-the-badge" alt="GitHub Forks" />
+  <img src="https://img.shields.io/github/license/Takawell/Aichiow?style=for-the-badge" alt="License" />
 </p>
 
 ---
