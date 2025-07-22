@@ -34,7 +34,14 @@ export default function AnimeDetailPage() {
       ? 'bg-blue-500'
       : 'bg-gray-500'
 
-  const totalEpisodes = anime.episodes || null
+  // Hitung total episode
+  let totalEpisodes: number | null = null
+  if (anime.episodes) {
+    totalEpisodes = anime.episodes
+  } else if (anime.status === 'RELEASING' && anime.nextAiringEpisode?.episode) {
+    totalEpisodes = anime.nextAiringEpisode.episode - 1
+  }
+
   const duration = anime.duration || null
 
   return (
@@ -92,17 +99,15 @@ export default function AnimeDetailPage() {
 
           <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
 
-          {totalEpisodes ? (
-            <div className="flex flex-wrap justify-center gap-4">
+          {totalEpisodes && totalEpisodes > 0 ? (
+            <div className="flex flex-wrap justify-center gap-3">
               {Array.from({ length: totalEpisodes }).map((_, index) => (
                 <a
                   key={index}
                   href="/justkidding"
-                  className="px-5 py-2 rounded-full text-sm font-semibold
-                            bg-gradient-to-r from-purple-600 to-pink-500
-                            hover:from-pink-500 hover:to-purple-600
-                            transition-all duration-300 transform hover:scale-105
-                            shadow-md hover:shadow-pink-500/40"
+                  className="px-4 py-2 rounded-lg text-sm font-medium
+                            bg-neutral-800 hover:bg-neutral-700
+                            transition-colors duration-200 shadow-sm"
                 >
                   Episode {index + 1}
                 </a>
