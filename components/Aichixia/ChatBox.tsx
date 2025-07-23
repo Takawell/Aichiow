@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Image from "next/image";
-import "@/styles/Aichixia.css";
 
 interface Message {
   from: "user" | "bot";
