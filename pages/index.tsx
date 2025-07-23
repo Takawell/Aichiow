@@ -6,13 +6,14 @@ import Link from 'next/link'
 import { fetchTrendingAnime } from '@/lib/anilist'
 import { useEffect, useState } from 'react'
 import { Anime } from '@/types/anime'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function LandingPage() {
   const [news, setNews] = useState<Anime[]>([])
   const [lang, setLang] = useState<'ID' | 'EN'>('ID')
   const [heroTextIndex, setHeroTextIndex] = useState(0)
 
+  // Load trending anime
   useEffect(() => {
     async function load() {
       const data = await fetchTrendingAnime()
@@ -21,10 +22,7 @@ export default function LandingPage() {
     load()
   }, [])
 
-  useEffect(() => {
-    setHeroTextIndex(Math.floor(Math.random() * heroTexts.ID.length))
-  }, [lang])
-
+  // Hero texts
   const heroTexts = {
     ID: [
       "Gerbang menuju dunia anime, manga, manhwa, dan light novel – temukan kisah trending, rilis terbaru, dan dunia tanpa batas untuk dijelajahi.",
@@ -37,6 +35,10 @@ export default function LandingPage() {
       "Dive into a universe of anime, manga, manhwa, and light novels – where every story sparks imagination."
     ]
   }
+
+  useEffect(() => {
+    setHeroTextIndex(Math.floor(Math.random() * heroTexts.ID.length))
+  }, [])
 
   return (
     <>
@@ -59,15 +61,16 @@ export default function LandingPage() {
       </Head>
 
       <main className="relative min-h-screen bg-gradient-to-b from-black via-[#0a0a1a] to-[#02010a] text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_70%)] pointer-events-none" />
+        {/* Glow Background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_70%)] pointer-events-none"></div>
 
-        {/* Hero */}
-        <section className="relative flex flex-col items-center justify-center text-center px-4 min-h-screen">
+        {/* Hero Section */}
+        <section className="relative flex flex-col items-center justify-center text-center px-4 pt-20 pb-8 md:pt-24 md:pb-6">
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="space-y-6 z-10 mt-20"
+            className="space-y-6 z-10"
           >
             <Image
               src="/logo.png"
@@ -76,12 +79,11 @@ export default function LandingPage() {
               height={160}
               className="mx-auto rounded-full border-4 border-white shadow-[0_0_25px_rgba(0,200,255,0.7)] hover:scale-110 transition-transform duration-300"
             />
-
             <h1 className="text-5xl md:text-6xl font-extrabold tracking-wide bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(255,0,255,0.5)] animate-pulse">
               Welcome to Aichiow
             </h1>
 
-            {/* Language Toggle */}
+            {/* Toggle ID/EN */}
             <div className="flex justify-center gap-2 mt-2">
               <button
                 onClick={() => setLang('ID')}
@@ -101,7 +103,7 @@ export default function LandingPage() {
               </button>
             </div>
 
-            {/* Hero Description with Animation */}
+            {/* Hero Description with animation */}
             <AnimatePresence mode="wait">
               <motion.p
                 key={lang + heroTextIndex}
@@ -109,12 +111,13 @@ export default function LandingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.4 }}
-                className="text-lg text-gray-300 max-w-xl mx-auto leading-relaxed"
+                className="text-lg text-gray-300 max-w-xl mx-auto leading-relaxed px-2"
               >
                 {heroTexts[lang][heroTextIndex]}
               </motion.p>
             </AnimatePresence>
 
+            {/* Button Portal */}
             <Link
               href="/home"
               className="inline-block mt-4 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-500 hover:to-blue-500 rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(255,0,255,0.7)] transition-transform transform hover:scale-110"
@@ -124,8 +127,8 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        {/* Anime News - Super dekat ke Hero */}
-        <section className="relative w-full max-w-7xl mx-auto mt-0 px-4 z-10">
+        {/* Anime News */}
+        <section className="relative w-full max-w-7xl mx-auto mt-4 px-4 z-10">
           <h2 className="text-3xl font-bold mb-6 text-center">Latest Anime News</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5">
             {news.map((anime, index) => (
@@ -156,7 +159,7 @@ export default function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="relative mt-16">
+        <footer className="relative mt-10">
           <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-500 to-transparent mb-4"></div>
           <p className="text-center text-sm text-gray-400 py-4">
             © {new Date().getFullYear()} AICHIOW TEAM. All rights reserved.
