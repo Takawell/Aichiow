@@ -41,7 +41,7 @@ export default function ChatBox() {
       {/* Header */}
       <div className="chat-header">
         <Image
-          src="/avatar/aichixia.jpg"
+          src="/avatar/aichixia.png"
           alt="AichixiA"
           width={40}
           height={40}
