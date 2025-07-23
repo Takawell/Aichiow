@@ -1,7 +1,7 @@
 .chatbox-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh; 
   background: url("/background.jpg") center/cover no-repeat;
   position: relative;
   padding: 0;
