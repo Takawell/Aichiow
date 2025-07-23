@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import styles from "./Aichixia.css";
+import "@/styles/Aichixia.css";
 
 type Message = {
   from: "user" | "bot";
