@@ -1,28 +1,28 @@
-"use client";
-import { useState, useEffect, useRef } from "react";
-import QuickReplies from "./QuickReplies";
+import React, { useState } from "react";
 import Image from "next/image";
+import styles from "./Aichixia.css";
 
 type Message = {
   from: "user" | "bot";
   text: string;
 };
 
-export default function ChatBox() {
+const quickReplies = [
+  "Anime trending?",
+  "Manhwa populer?",
+  "Top seasonal anime?",
+  "Anime genre fantasy",
+  "Rekomendasi manhwa action"
+];
+
+const ChatBox = () => {
   const [messages, setMessages] = useState<Message[]>([
-    { from: "bot", text: "Hai! Aku AichixiA ✨. Ada yang bisa kubantu hari ini?" },
+    { from: "bot", text: "Hai! Aku AichixiA ✨. Ada yang bisa kubantu hari ini?" }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(scrollToBottom, [messages, loading]);
-
-  async function sendMessage() {
+  const sendMessage = async () => {
     if (!input.trim()) return;
     const userMessage: Message = { from: "user", text: input };
     setMessages((prev) => [...prev, userMessage]);
@@ -33,65 +33,69 @@ export default function ChatBox() {
       const res = await fetch("/api/aichixia", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: userMessage.text }),
       });
       const data = await res.json();
-      const botMessage: Message = { from: "bot", text: data.reply };
-      setMessages((prev) => [...prev, botMessage]);
-    } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        { from: "bot", text: "⚠️ AichixiA error, coba lagi nanti ya." },
-      ]);
+      setMessages((prev) => [...prev, { from: "bot", text: data.reply }]);
+    } catch (e) {
+      setMessages((prev) => [...prev, { from: "bot", text: "⚠️ AichixiA error." }]);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  const handleQuickReply = (text: string) => {
-    setInput(text);
-    setTimeout(sendMessage, 100);
+  const handleQuickReply = (reply: string) => {
+    setInput(reply);
+    setTimeout(sendMessage, 150);
   };
 
   return (
-    <div className="chatbox-container">
+    <div className={styles.chatboxContainer}>
       {/* Header */}
-      <div className="chat-header">
-        <Image src="/avatar/aichixia.png" alt="AichixiA Avatar" width={40} height={40} className="avatar" />
+      <div className={styles.chatHeader}>
+        <Image src="/avatar/aichixia.jpg" alt="AichixiA" width={40} height={40} className={styles.avatar} />
         <div>
-          <h2 className="chat-name">AichixiA</h2>
-          <span className="chat-status">Online</span>
+          <div className={styles.chatName}>AichixiA</div>
+          <div className={styles.chatStatus}>Online</div>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="chat-messages">
-        {messages.map((msg, i) => (
-          <div key={i} className={`chat-bubble ${msg.from}`}>
+      <div className={styles.chatMessages}>
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`${styles.chatBubble} ${msg.from === "user" ? styles.user : styles.bot}`}>
             {msg.text}
           </div>
         ))}
         {loading && (
-          <div className="chat-bubble bot typing">
+          <div className={`${styles.chatBubble} ${styles.bot} ${styles.typing}`}>
             <span></span><span></span><span></span>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Quick Replies */}
-      <QuickReplies onReply={handleQuickReply} />
+      <div className={styles.quickReplies}>
+        {quickReplies.map((q, i) => (
+          <button key={i} className={styles.quickReplyBtn} onClick={() => handleQuickReply(q)}>
+            {q}
+          </button>
+        ))}
+      </div>
 
       {/* Input */}
-      <div className="chat-input">
+      <div className={styles.chatInput}>
         <input
+          type="text"
+          placeholder="Ketik pesan..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ketik pesan..."
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
         />
         <button onClick={sendMessage}>Kirim</button>
       </div>
     </div>
   );
-}
+};
+
+export default ChatBox;
