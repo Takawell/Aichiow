@@ -20,7 +20,6 @@ export default function LandingPage() {
     load()
   }, [])
 
-  // Variasi teks hero (ID & EN)
   const heroTexts = {
     ID: [
       "Gerbang menuju dunia anime, manga, manhwa, dan light novel – temukan kisah trending, rilis terbaru, dan dunia tanpa batas untuk dijelajahi.",
@@ -34,7 +33,6 @@ export default function LandingPage() {
     ]
   }
 
-  // Pilih random text hero
   const [heroTextIndex, setHeroTextIndex] = useState(0)
   useEffect(() => {
     setHeroTextIndex(Math.floor(Math.random() * heroTexts.ID.length))
@@ -44,24 +42,18 @@ export default function LandingPage() {
     <>
       <Head>
         <title>AICHIOW – Anime & Manga Portal</title>
-        <meta
-          name="description"
-          content="Aichiow is your Isekai portal to the world of anime and manga – trending anime, trailers, schedules, and manga reader, all in one."
-        />
+        <meta name="description" content="Aichiow is your Isekai portal to the world of anime and manga – trending anime, trailers, schedules, and manga reader, all in one." />
         <meta name="keywords" content="anime, manga, manhwa, light novel, portal, Aichiow" />
         <meta name="author" content="Aichiow Developer Team" />
         <meta property="og:title" content="AICHIOW – Anime & Manga Portal" />
-        <meta
-          property="og:description"
-          content="Your ultimate portal to the world of trending anime and manga. Start your Isekai journey now!"
-        />
+        <meta property="og:description" content="Your ultimate portal to the world of trending anime and manga. Start your Isekai journey now!" />
         <meta property="og:image" content="https://aichiow.vercel.app/logo.png" />
         <meta property="og:url" content="https://aichiow.vercel.app" />
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
       <main className="relative min-h-screen bg-gradient-to-b from-black via-[#0a0a1a] to-[#02010a] text-white overflow-hidden">
-        {/* Soft Glow Background */}
+        {/* Background Glow */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_70%)] pointer-events-none"></div>
 
         {/* Hero Section */}
@@ -70,7 +62,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="space-y-6 z-10 mt-20"
+            className="space-y-6 z-10 mt-16"
           >
             <Image
               src="/logo.png"
@@ -87,17 +79,13 @@ export default function LandingPage() {
             <div className="flex justify-center gap-2 mt-2">
               <button
                 onClick={() => setLang('ID')}
-                className={`px-3 py-1 rounded-lg text-sm font-semibold transition ${
-                  lang === 'ID' ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'
-                }`}
+                className={`px-3 py-1 rounded-lg text-sm font-semibold transition ${lang === 'ID' ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'}`}
               >
                 ID
               </button>
               <button
                 onClick={() => setLang('EN')}
-                className={`px-3 py-1 rounded-lg text-sm font-semibold transition ${
-                  lang === 'EN' ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'
-                }`}
+                className={`px-3 py-1 rounded-lg text-sm font-semibold transition ${lang === 'EN' ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'}`}
               >
                 EN
               </button>
@@ -119,7 +107,7 @@ export default function LandingPage() {
         </section>
 
         {/* Anime News */}
-        <section className="relative w-full max-w-7xl mx-auto mt-10 px-4 z-10">
+        <section className="relative w-full max-w-7xl mx-auto mt-2 px-4 z-10">
           <h2 className="text-3xl font-bold mb-6 text-center">Latest Anime News</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5">
             {news.map((anime, index) => (
