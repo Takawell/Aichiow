@@ -1,64 +1,65 @@
-"use client";
+import { useState } from "react"
 
-import React, { useState } from "react";
+type Message = {
+  from: "user" | "bot"
+  text: string
+}
 
 export default function ChatBox() {
-  const [messages, setMessages] = useState<{ from: "user" | "bot"; text: string }[]>([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
-    const userMessage = { from: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setLoading(true);
+    if (!input.trim()) return
+
+    const userMessage: Message = { from: "user", text: input }
+    setMessages((prev: Message[]) => [...prev, userMessage])
+    setInput("")
+    setLoading(true)
 
     try {
       const res = await fetch("/api/aichixia", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input }),
-      });
-      const data = await res.json();
-      setMessages((prev) => [...prev, { from: "bot", text: data.reply }]);
+      })
+
+      const data = await res.json()
+      const botMessage: Message = { from: "bot", text: data.reply }
+      setMessages((prev: Message[]) => [...prev, botMessage])
     } catch (err) {
-      setMessages((prev) => [...prev, { from: "bot", text: "⚠️ Gagal memuat jawaban." }]);
+      setMessages((prev: Message[]) => [
+        ...prev,
+        { from: "bot", text: "⚠️ AichixiA gagal merespons." },
+      ])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="flex flex-col w-full max-w-lg mx-auto bg-gray-900 rounded-xl shadow-lg p-4">
-      <div className="flex-1 overflow-y-auto h-64 mb-4 bg-gray-800 p-3 rounded-lg">
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`mb-2 p-2 rounded-lg ${
-              msg.from === "user" ? "bg-blue-600 text-white ml-auto max-w-[80%]" : "bg-gray-700 text-white mr-auto max-w-[80%]"
-            }`}
-          >
-            {msg.text}
+    <div className="p-4 border rounded-lg">
+      <div className="h-64 overflow-y-auto bg-gray-800 text-white p-2 mb-2 rounded">
+        {messages.map((msg, i) => (
+          <div key={i} className={msg.from === "user" ? "text-blue-400" : "text-green-400"}>
+            <b>{msg.from === "user" ? "You:" : "AichixiA:"}</b> {msg.text}
           </div>
         ))}
-        {loading && <div className="text-gray-400 text-sm">AichixiA mengetik...</div>}
+        {loading && <div className="text-gray-400">Typing...</div>}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex gap-2">
         <input
-          className="flex-1 p-2 rounded-lg bg-gray-700 text-white outline-none"
-          placeholder="Ketik pesan..."
+          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          className="flex-1 border px-2 py-1 rounded"
+          placeholder="Tanya AichixiA..."
         />
-        <button
-          onClick={sendMessage}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-        >
-          Kirim
+        <button onClick={sendMessage} className="bg-blue-500 text-white px-4 py-1 rounded">
+          Send
         </button>
       </div>
     </div>
-  );
+  )
 }
