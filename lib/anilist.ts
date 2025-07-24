@@ -3,9 +3,8 @@ import { Anime } from '@/types/anime'
 
 const ANILIST_API = 'https://graphql.anilist.co'
 
-// ✅ Normalize URL untuk cover & banner
-function normalizeImageUrl(url: string): string {
-  if (!url) return url
+function normalizeImageUrl(url?: string | null): string {
+  if (!url) return ''
   return url.replace('s4.anilist.co', 'img.anili.st')
 }
 
