@@ -131,21 +131,24 @@ export default function ManhwaPage() {
             <p className="text-gray-400">Tidak ada hasil untuk "{query}".</p>
           )}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {displayedList.map((m) => (
               <motion.div
                 key={m.id}
                 whileHover={{ scale: 1.05 }}
-                className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-500/40 transition-shadow"
+                className="bg-gray-900 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-500/40 transition-shadow"
               >
                 <Link href={`/manhwa/${m.id}`}>
-                  <img
-                    src={m.coverImage.large}
-                    alt={m.title.english || m.title.romaji}
-                    className="w-full h-64 object-cover"
-                  />
+                  <div className="relative w-full aspect-[3/4] overflow-hidden">
+                    <img
+                      src={m.coverImage.large}
+                      alt={m.title.english || m.title.romaji}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                    />
+                  </div>
                   <div className="p-2">
-                    <h2 className="text-sm font-semibold truncate">
+                    <h2 className="text-sm font-semibold line-clamp-2">
                       {m.title.english || m.title.romaji}
                     </h2>
                   </div>
