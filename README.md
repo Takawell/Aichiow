@@ -31,6 +31,8 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ### Light Novels
 ![Light Novels](./public/screenshots/light-novel.png)
 
+### AND MUCH MORE
+
 ---
 
 ## 🛠 Tech Stack
