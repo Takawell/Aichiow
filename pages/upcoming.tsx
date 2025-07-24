@@ -44,44 +44,14 @@ export default function UpcomingPage() {
   return (
     <>
       <Head>
-        <title>Upcoming & Timetable | Aichiow</title>
+        <title>Anime Schedule & Upcoming | Aichiow</title>
       </Head>
       <main className="px-4 md:px-10 py-10 text-white max-w-7xl mx-auto">
-        {/* UPCOMING */}
+        {/* WEEKLY SCHEDULE */}
         <section className="mb-16">
-          <h1 className="text-3xl font-bold mb-6">🎬 Upcoming Anime</h1>
-          {loading ? (
-            <p className="text-zinc-400">Loading upcoming anime...</p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
-              {upcomingAnime.map((anime) => (
-                <Link
-                  key={anime.id}
-                  href={`/anime/${anime.id}`} // 🔁 pakai id sebagai slug
-                  className="bg-zinc-900 rounded-xl overflow-hidden hover:scale-[1.03] transition-transform duration-300 border border-zinc-800 hover:border-blue-500"
-                >
-                  <Image
-                    src={anime.coverImage.large}
-                    alt={anime.title.english || anime.title.romaji}
-                    width={300}
-                    height={400}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-3">
-                    <h2 className="text-sm font-semibold max-w-[200px] truncate">
-                      {anime.title.english || anime.title.romaji}
-                    </h2>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* TIMETABLE + DAY FILTER */}
-        <section>
           <h2 className="text-3xl font-bold mb-6">🗓️ Weekly Schedule</h2>
 
+          {/* Day Buttons */}
           <div className="flex flex-wrap gap-3 mb-6">
             {days.map((day) => (
               <button
@@ -98,6 +68,7 @@ export default function UpcomingPage() {
             ))}
           </div>
 
+          {/* Schedule List */}
           {loading ? (
             <p className="text-zinc-400">Loading schedule...</p>
           ) : filteredSchedule.length === 0 ? (
@@ -134,6 +105,42 @@ export default function UpcomingPage() {
                   </Link>
                 )
               })}
+            </div>
+          )}
+        </section>
+
+        {/* UPCOMING ANIME */}
+        <section>
+          <h1 className="text-3xl font-extrabold mb-6">🎬 Upcoming Anime</h1>
+          {loading ? (
+            <p className="text-zinc-400">Loading upcoming anime...</p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+              {upcomingAnime.map((anime) => (
+                <Link
+                  key={anime.id}
+                  href={`/anime/${anime.id}`}
+                  className="group bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-xl overflow-hidden border border-zinc-700 hover:border-blue-500 hover:shadow-blue-500/20 hover:shadow-lg transform hover:scale-[1.03] transition-all duration-300"
+                >
+                  <div className="relative">
+                    <Image
+                      src={anime.coverImage.large}
+                      alt={anime.title.english || anime.title.romaji}
+                      width={300}
+                      height={400}
+                      className="w-full h-48 object-cover group-hover:brightness-110 transition"
+                    />
+                    <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded">
+                      Soon
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <h2 className="text-sm font-semibold line-clamp-2">
+                      {anime.title.english || anime.title.romaji}
+                    </h2>
+                  </div>
+                </Link>
+              ))}
             </div>
           )}
         </section>
