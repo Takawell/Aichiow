@@ -84,7 +84,7 @@ export default function LightNovelPage() {
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
-        <div className="container mx-auto px-4 py-6 space-y-6">
+        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 py-6 space-y-6">
           {/* HERO SLIDER */}
           {loading ? (
             <section className="w-full h-[320px] md:h-[460px] bg-neutral-900 rounded-lg shadow-inner overflow-hidden animate-pulse"></section>
@@ -200,17 +200,20 @@ export default function LightNovelPage() {
             {displayedList.map((n) => (
               <motion.div
                 key={n.id}
-                whileHover={{ scale: 1.05 }}
-                className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-500/40 transition-shadow"
+                whileHover={{ scale: 1.03 }}
+                className="relative bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-blue-500/40 transition-all group"
               >
                 <Link href={`/light-novel/${n.id}`}>
-                  <img
-                    src={n.coverImage.large}
-                    alt={n.title.english || n.title.romaji}
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-2">
-                    <h2 className="text-sm font-semibold truncate">
+                  <div className="relative w-full aspect-[3/4] overflow-hidden">
+                    <img
+                      src={n.coverImage.large}
+                      alt={n.title.english || n.title.romaji}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-70 group-hover:opacity-80 transition duration-300"></div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 w-full p-3">
+                    <h2 className="text-sm sm:text-base font-semibold text-white drop-shadow-md line-clamp-2">
                       {n.title.english || n.title.romaji}
                     </h2>
                   </div>
