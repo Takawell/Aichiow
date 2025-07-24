@@ -13,7 +13,6 @@ const navItems = [
   { href: '/', label: 'HOME' },
   { href: '/upcoming', label: 'TIMETABLE' },
   { href: '/explore', label: 'EXPLORE' },
-  { href: '/search', label: 'SEARCH' },
   { href: '/manga', label: 'MANGA' },
   { href: '/manhwa', label: 'MANHWA' },
   { href: '/light-novel', label: 'LIGHT NOVEL' },
