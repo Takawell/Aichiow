@@ -62,11 +62,9 @@ export default function LightNovelPage() {
     }
   }, [novels])
 
-  // Manual slide
   const nextSlide = () => setHeroIndex((prev) => (prev + 1) % novels.length)
   const prevSlide = () => setHeroIndex((prev) => (prev - 1 + novels.length) % novels.length)
 
-  // Search
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
@@ -86,7 +84,8 @@ export default function LightNovelPage() {
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
-        <div className="container mx-auto px-4 py-6 space-y-6">
+        {/* Container full width untuk PC */}
+        <div className="w-full px-4 sm:px-6 md:px-10 lg:px-16 py-6 space-y-6 max-w-[1800px] mx-auto">
           {/* HERO SLIDER */}
           {loading ? (
             <section className="w-full h-[320px] md:h-[460px] bg-neutral-900 rounded-lg shadow-inner overflow-hidden animate-pulse"></section>
@@ -110,7 +109,7 @@ export default function LightNovelPage() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                  <div className="absolute bottom-6 left-6 max-w-lg">
+                  <div className="absolute bottom-6 left-6 max-w-2xl">
                     <h2 className="text-2xl md:text-3xl font-bold drop-shadow-lg">
                       {novels[heroIndex].title.english || novels[heroIndex].title.romaji}
                     </h2>
