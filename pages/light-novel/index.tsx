@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
   fetchLightNovelList,
@@ -10,7 +10,6 @@ import {
   searchLightNovel,
 } from '@/lib/anilistLightNovel'
 import { LightNovel } from '@/types/lightNovel'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function LightNovelPage() {
   const [novels, setNovels] = useState<LightNovel[]>([])
@@ -25,8 +24,6 @@ export default function LightNovelPage() {
 
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(5)
-
-  const [heroIndex, setHeroIndex] = useState(0)
 
   // Load Light Novels
   useEffect(() => {
@@ -52,19 +49,6 @@ export default function LightNovelPage() {
     loadData()
   }, [page, selectedGenre])
 
-  // Hero slider auto change
-  useEffect(() => {
-    if (novels.length > 0) {
-      const interval = setInterval(() => {
-        setHeroIndex((prev) => (prev + 1) % novels.length)
-      }, 7000)
-      return () => clearInterval(interval)
-    }
-  }, [novels])
-
-  const nextSlide = () => setHeroIndex((prev) => (prev + 1) % novels.length)
-  const prevSlide = () => setHeroIndex((prev) => (prev - 1 + novels.length) % novels.length)
-
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
@@ -84,66 +68,7 @@ export default function LightNovelPage() {
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
-        {/* Container full width untuk PC */}
-        <div className="w-full px-4 sm:px-6 md:px-10 lg:px-16 py-6 space-y-6 max-w-[1800px] mx-auto">
-          {/* HERO SLIDER */}
-          {loading ? (
-            <section className="w-full h-[320px] md:h-[460px] bg-neutral-900 rounded-lg shadow-inner overflow-hidden animate-pulse"></section>
-          ) : novels.length > 0 ? (
-            <div className="relative w-full h-[320px] md:h-[460px] rounded-xl overflow-hidden shadow-lg">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={novels[heroIndex].id}
-                  className="absolute inset-0"
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ duration: 0.6 }}
-                >
-                  <img
-                    src={
-                      novels[heroIndex].bannerImage ||
-                      novels[heroIndex].coverImage.extraLarge
-                    }
-                    alt={novels[heroIndex].title.english || novels[heroIndex].title.romaji}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                  <div className="absolute bottom-6 left-6 max-w-2xl">
-                    <h2 className="text-2xl md:text-3xl font-bold drop-shadow-lg">
-                      {novels[heroIndex].title.english || novels[heroIndex].title.romaji}
-                    </h2>
-                    <p className="text-sm text-gray-300 line-clamp-2 mt-1">
-                      {novels[heroIndex].description?.replace(/<[^>]*>/g, '') || 'No description'}
-                    </p>
-                    <Link
-                      href={`/light-novel/${novels[heroIndex].id}`}
-                      className="mt-3 inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-white font-medium shadow-lg"
-                    >
-                      Read More
-                    </Link>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Slider controls */}
-              <button
-                onClick={prevSlide}
-                className="absolute top-1/2 left-3 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 transition"
-              >
-                <ChevronLeft className="h-6 w-6 text-white" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute top-1/2 right-3 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 transition"
-              >
-                <ChevronRight className="h-6 w-6 text-white" />
-              </button>
-            </div>
-          ) : (
-            <p className="text-red-500">Tidak ada Light Novel ditemukan.</p>
-          )}
-
+        <div className="container mx-auto px-4 py-6 space-y-6">
           {/* SEARCH */}
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
             <input
@@ -165,21 +90,23 @@ export default function LightNovelPage() {
           </form>
 
           {/* GENRE FILTER */}
-          <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {genres.map((genre) => (
               <motion.button
                 key={genre}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   setSelectedGenre(genre)
                   setPage(1)
                   setSearchResults([])
                 }}
-                whileHover={{ scale: 1.05 }}
-                className={`px-3 py-1 rounded-md text-xs md:text-sm font-medium transition-all duration-300 ${
-                  selectedGenre === genre
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                }`}
+                className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-300
+                  ${
+                    selectedGenre === genre
+                      ? 'bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-md shadow-blue-500/30'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                  }`}
               >
                 {genre}
               </motion.button>
@@ -200,7 +127,7 @@ export default function LightNovelPage() {
               <motion.div
                 key={n.id}
                 whileHover={{ scale: 1.05 }}
-                className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-500 transition-shadow"
+                className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-500/40 transition-shadow"
               >
                 <Link href={`/light-novel/${n.id}`}>
                   <img
@@ -225,7 +152,9 @@ export default function LightNovelPage() {
                 disabled={page === 1}
                 onClick={() => setPage((prev) => prev - 1)}
                 className={`px-3 py-1 rounded ${
-                  page === 1 ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                  page === 1
+                    ? 'bg-gray-600 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700'
                 }`}
               >
                 Prev
