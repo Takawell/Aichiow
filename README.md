@@ -52,7 +52,7 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ## 📦 Installation
 ```bash
 # Clone the repository
-git clone https://github.com/username/aichiow.git
+git clone https://github.com/Takawell/aichiow.git
 
 # Navigate into the project
 cd aichiow
