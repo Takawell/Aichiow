@@ -1,11 +1,13 @@
-import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { motion } from "framer-motion";
-import Link from "next/link";
+// pages/user/index.tsx
+import dynamic from "next/dynamic";
 
-export default function UserPage() {
-  const { data: session, status } = useSession();
+function UserPageComponent() {
+  const { data: session, status } = require("next-auth/react").useSession();
+  const { signOut } = require("next-auth/react");
+  const { useRouter } = require("next/router");
+  const { useEffect } = require("react");
+  const { motion } = require("framer-motion");
+
   const router = useRouter();
 
   useEffect(() => {
@@ -49,63 +51,10 @@ export default function UserPage() {
             Logout
           </motion.button>
         </div>
-
-        {/* Statistik */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard label="Bookmark" value="12" color="bg-indigo-500" />
-          <StatCard label="Riwayat" value="5" color="bg-green-500" />
-          <StatCard label="Badge" value="3" color="bg-yellow-500" />
-        </div>
-
-        {/* Daftar Bookmark */}
-        <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl p-6">
-          <h2 className="text-xl font-bold mb-4">Bookmark Saya</h2>
-          <div className="space-y-3">
-            {["Attack on Titan", "One Piece", "Jujutsu Kaisen"].map((title, i) => (
-              <div
-                key={i}
-                className="flex justify-between items-center p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition"
-              >
-                <p>{title}</p>
-                <Link href={`/anime/${title.toLowerCase().replace(/\s+/g, '-')}`}>
-                  <span className="text-indigo-400 hover:underline cursor-pointer">
-                    Lihat
-                  </span>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Edit Profil */}
-        <motion.div
-          className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl p-6 text-center"
-          whileHover={{ scale: 1.02 }}
-        >
-          <p className="mb-3 text-gray-300">
-            Ingin mengubah nama atau email Anda?
-          </p>
-          <motion.button
-            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-bold"
-            whileTap={{ scale: 0.95 }}
-          >
-            Edit Profil (Coming Soon)
-          </motion.button>
-        </motion.div>
       </motion.div>
     </div>
   );
 }
 
-// Komponen Kartu Statistik
-function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
-  return (
-    <motion.div
-      className={`p-6 rounded-xl text-center font-bold text-white shadow-md ${color}`}
-      whileHover={{ scale: 1.05 }}
-    >
-      <p className="text-3xl">{value}</p>
-      <p className="text-sm mt-2">{label}</p>
-    </motion.div>
-  );
-}
+// Disable SSR untuk halaman ini agar tidak error di build
+export default dynamic(() => Promise.resolve(UserPageComponent), { ssr: false });
