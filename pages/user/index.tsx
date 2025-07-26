@@ -1,146 +1,147 @@
 // pages/user/index.tsx
-import Head from 'next/head'
-import Image from 'next/image'
-import Link from 'next/link'
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { FaStar, FaBookmark, FaFireAlt } from 'react-icons/fa'
+'use client'
 
-// Dummy data (nanti bisa diganti dengan data dari API / database)
-const userData = {
-  name: 'Taka dev',
-  avatar: '/default-avatar.png',
-  level: 12,
-  xp: 3500,
-  nextLevelXp: 5000,
-  favorites: [
-    { id: 1, title: 'Attack on Titan', image: '/dummy/aot.jpg' },
-    { id: 2, title: 'Jujutsu Kaisen', image: '/dummy/jujutsu.jpg' },
-  ],
-  bookmarks: [
-    { id: 3, title: 'Naruto Shippuden', image: '/dummy/naruto.jpg' },
-    { id: 4, title: 'One Piece', image: '/dummy/onepiece.jpg' },
-  ],
-}
+import { useState, useRef } from 'react'
+import Head from 'next/head'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import Image from 'next/image'
+import { motion } from 'framer-motion'
 
 export default function UserProfile() {
-  const [activeTab, setActiveTab] = useState<'favorites' | 'bookmarks'>('favorites')
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [avatar, setAvatar] = useState('/avatar.png') // default avatar
 
-  const xpProgress = (userData.xp / userData.nextLevelXp) * 100
+  // Fetch favorites
+  const { data: favorites = [], isLoading: favLoading } = useQuery({
+    queryKey: ['favorites'],
+    queryFn: async () => (await fetch('/api/user/favorites')).json(),
+  })
+
+  // Fetch bookmarks
+  const { data: bookmarks = [], isLoading: bmLoading } = useQuery({
+    queryKey: ['bookmarks'],
+    queryFn: async () => (await fetch('/api/user/bookmarks')).json(),
+  })
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+    const file = e.target.files[0]
+    const formData = new FormData()
+    formData.append('avatar', file)
+    setUploading(true)
+
+    try {
+      const { data } = await axios.post('/api/user/avatar', formData)
+      setAvatar(data.avatar)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   return (
     <>
       <Head>
-        <title>{userData.name} | Profile</title>
+        <title>User Profile | Aichiow</title>
       </Head>
-      <main className="min-h-screen bg-gradient-to-br from-neutral-900 to-neutral-800 text-white p-6 md:p-10">
+      <main className="min-h-screen bg-gradient-to-b from-neutral-950 via-neutral-900 to-black text-white p-6">
         {/* Profile Header */}
-        <section className="max-w-5xl mx-auto bg-neutral-800/70 rounded-2xl shadow-xl p-6 mb-10 border border-white/10">
-          <div className="flex items-center gap-6">
-            <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-blue-500 shadow-lg">
-              <Image src={userData.avatar} alt="User Avatar" fill className="object-cover" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-extrabold">{userData.name}</h1>
-              <p className="text-sm text-white/60">Level {userData.level}</p>
-
-              {/* XP Progress */}
-              <div className="mt-3 w-full bg-neutral-700 rounded-full h-3 overflow-hidden shadow-inner">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${xpProgress}%` }}
-                  transition={{ duration: 1 }}
-                  className="h-full bg-gradient-to-r from-blue-400 to-indigo-600"
-                />
+        <div className="max-w-5xl mx-auto text-center mb-12">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="relative inline-block cursor-pointer"
+            onClick={handleAvatarClick}
+          >
+            <Image
+              src={avatar}
+              alt="User Avatar"
+              width={120}
+              height={120}
+              className="rounded-full border-4 border-blue-500 shadow-lg hover:scale-105 transition-transform"
+            />
+            {uploading && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full">
+                <span className="text-sm">Uploading...</span>
               </div>
-              <p className="text-xs text-white/50 mt-1">
-                {userData.xp} / {userData.nextLevelXp} XP
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Tabs: Favorite vs Bookmark */}
-        <div className="max-w-5xl mx-auto mb-6 flex justify-center gap-6">
-          <button
-            onClick={() => setActiveTab('favorites')}
-            className={`px-6 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-              activeTab === 'favorites'
-                ? 'bg-blue-600 shadow-lg scale-105'
-                : 'bg-neutral-700 hover:bg-neutral-600'
-            }`}
-          >
-            <FaStar /> Favorites
-          </button>
-          <button
-            onClick={() => setActiveTab('bookmarks')}
-            className={`px-6 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-              activeTab === 'bookmarks'
-                ? 'bg-blue-600 shadow-lg scale-105'
-                : 'bg-neutral-700 hover:bg-neutral-600'
-            }`}
-          >
-            <FaBookmark /> Bookmarks
-          </button>
+            )}
+          </motion.div>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleAvatarChange}
+          />
+          <h1 className="text-3xl font-extrabold mt-4">Your Profile</h1>
         </div>
 
-        {/* Content Widget */}
-        <section className="max-w-5xl mx-auto">
-          {activeTab === 'favorites' && (
-            <WidgetGrid title="Your Favorites" items={userData.favorites} icon={<FaFireAlt />} />
+        {/* Favorites Section */}
+        <section className="max-w-5xl mx-auto mb-12">
+          <h2 className="text-2xl font-bold mb-4">Favorites</h2>
+          {favLoading ? (
+            <p>Loading favorites...</p>
+          ) : favorites.length === 0 ? (
+            <p className="text-gray-400">No favorites yet.</p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {favorites.map((fav: any) => (
+                <motion.div
+                  key={fav.id}
+                  whileHover={{ scale: 1.05 }}
+                  className="backdrop-blur-md bg-white/5 p-3 rounded-xl border border-white/10 shadow-lg"
+                >
+                  <Image
+                    src={fav.image}
+                    alt={fav.title}
+                    width={150}
+                    height={200}
+                    className="rounded-md"
+                  />
+                  <p className="mt-2 text-sm">{fav.title}</p>
+                </motion.div>
+              ))}
+            </div>
           )}
-          {activeTab === 'bookmarks' && (
-            <WidgetGrid title="Your Bookmarks" items={userData.bookmarks} icon={<FaBookmark />} />
+        </section>
+
+        {/* Bookmarks Section */}
+        <section className="max-w-5xl mx-auto">
+          <h2 className="text-2xl font-bold mb-4">Bookmarks</h2>
+          {bmLoading ? (
+            <p>Loading bookmarks...</p>
+          ) : bookmarks.length === 0 ? (
+            <p className="text-gray-400">No bookmarks yet.</p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {bookmarks.map((bm: any) => (
+                <motion.div
+                  key={bm.id}
+                  whileHover={{ scale: 1.05 }}
+                  className="backdrop-blur-md bg-white/5 p-3 rounded-xl border border-white/10 shadow-lg"
+                >
+                  <Image
+                    src={bm.image}
+                    alt={bm.title}
+                    width={150}
+                    height={200}
+                    className="rounded-md"
+                  />
+                  <p className="mt-2 text-sm">{bm.title}</p>
+                </motion.div>
+              ))}
+            </div>
           )}
         </section>
       </main>
     </>
-  )
-}
-
-function WidgetGrid({
-  title,
-  items,
-  icon,
-}: {
-  title: string
-  items: { id: number; title: string; image: string }[]
-  icon: React.ReactNode
-}) {
-  return (
-    <div className="bg-neutral-800/50 border border-white/10 rounded-2xl shadow-xl p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="text-blue-400 text-2xl">{icon}</div>
-        <h2 className="text-xl font-bold">{title}</h2>
-      </div>
-
-      {items.length === 0 ? (
-        <p className="text-center text-white/60">No items yet.</p>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {items.map((item) => (
-            <Link
-              key={item.id}
-              href={`/anime/${item.id}`}
-              className="group rounded-xl overflow-hidden bg-neutral-900 border border-neutral-700 hover:border-blue-500/50 shadow hover:shadow-lg transition"
-            >
-              <div className="relative w-full h-40">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-2">
-                <p className="text-sm font-medium truncate group-hover:text-blue-400 transition">
-                  {item.title}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
   )
 }
