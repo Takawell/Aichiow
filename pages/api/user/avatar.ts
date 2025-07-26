@@ -40,10 +40,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    const newFilename = `${session.user.email}-${Date.now()}${path.extname(avatarFile.originalFilename || "")}`;
-    const filePath = path.join(uploadDir, newFilename);
+    const originalName = (avatarFile as any).originalFilename || (avatarFile as any).name || "avatar.png";
+    const newFilename = `${session.user.email}-${Date.now()}${path.extname(originalName)}`;
 
-    fs.renameSync(avatarFile.filepath, filePath);
+    const filePath = path.join(uploadDir, newFilename);
+    fs.renameSync((avatarFile as any).filepath, filePath);
 
     const avatarUrl = `/uploads/${newFilename}`;
     await prisma.user.update({
