@@ -34,7 +34,7 @@ export default function UserDashboard() {
       const form = new FormData();
       form.append("name", name);
       if (avatarFile) form.append("avatar", avatarFile);
-      await axios.post("/api/user/update", form);
+      await axios.post("/api/user/avatar", form);
       setIsEditing(false);
       fetchUser();
     } catch (err) {
