@@ -42,7 +42,7 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/auth/login",
-    error: "/auth/login", // Redirect error ke halaman login
+    error: "/auth/login",
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -53,7 +53,8 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      // Pastikan session.user ada
+      if (session.user) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
       }
@@ -64,3 +65,4 @@ export const authOptions: NextAuthOptions = {
 };
 
 export default NextAuth(authOptions);
+  
