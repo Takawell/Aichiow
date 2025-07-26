@@ -49,7 +49,7 @@ export default function UserDashboard() {
   if (status === "loading") return <div className="text-center py-10 text-white">Loading session...</div>;
   if (!user) return <div className="text-center py-10 text-white">Loading user data...</div>;
 
-  const avatarSrc = user.avatar || "/avatar.png";
+  const avatarSrc = user.avatar || "https://aichiow.vercel.app/avatar.png";
 
   return (
     <div className="max-w-5xl mx-auto p-6">
