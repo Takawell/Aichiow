@@ -6,19 +6,23 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.4",
     "@tanstack/react-query": "^4.29.12",
     "autoprefixer": "^10.4.17",
     "axios": "^1.6.8",
+    "bcrypt": "^5.1.1",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.0.10",
     "graphql": "^16.8.1",
     "lucide-react": "^0.279.0",
     "next": "13.5.6",
+    "next-auth": "^4.24.7",
     "postcss": "^8.4.24",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -27,13 +31,15 @@
     "swr": "^2.2.0",
     "tailwindcss": "^3.3.3",
     "@tailwindcss/aspect-ratio": "^0.4.2",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "@prisma/client": "^5.14.0"
   },
   "devDependencies": {
     "@types/node": "20.11.30",
     "@types/react": "18.2.39",
     "@types/react-dom": "18.2.15",
     "eslint": "8.57.0",
-    "eslint-config-next": "14.2.3"
+    "eslint-config-next": "14.2.3",
+    "prisma": "^5.14.0"
   }
 }
