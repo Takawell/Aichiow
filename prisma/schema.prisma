@@ -8,15 +8,25 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String?
-  email     String   @unique
-  password  String   // password hashed
-  image     String?  // avatar user
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  email     String     @unique
+  password  String     // password hashed
+  image     String?    // avatar user
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relasi ke NextAuth
   sessions  Session[]
   accounts  Account[]
+
+  // Tambahan fitur user
+  bookmarks Bookmark[]
+  favorites Favorite[]
+
+  level     Int        @default(1)
+  exp       Int        @default(0)
+  badge     String?
 }
 
 model Session {
@@ -51,4 +61,32 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// Tambahan tabel Bookmark
+model Bookmark {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  itemId    String
+  itemType  String   // "anime", "manga", "manhwa", "novel"
+  title     String
+  image     String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, itemId, itemType])
+}
+
+// Tambahan tabel Favorite
+model Favorite {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  itemId    String
+  itemType  String
+  title     String
+  image     String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, itemId, itemType])
 }
