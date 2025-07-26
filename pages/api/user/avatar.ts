@@ -1,6 +1,6 @@
 // pages/api/user/avatar.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
-import formidable, { Fields, Files } from 'formidable'
+import formidable from 'formidable'
 import fs from 'fs'
 import path from 'path'
 import { getServerSession } from 'next-auth'
@@ -9,7 +9,7 @@ import prisma from '@/lib/prismadb'
 
 export const config = {
   api: {
-    bodyParser: false, // penting untuk formidable
+    bodyParser: false,
   },
 }
 
@@ -25,32 +25,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const form = formidable({
     multiples: false,
-    maxFileSize: 5 * 1024 * 1024, // Maksimal 5MB
+    maxFileSize: 5 * 1024 * 1024, // 5 MB
+    keepExtensions: true,
   })
 
-  form.keepExtensions = true
-
-  form.parse(req, async (err: Error | null, fields: Fields, files: Files) => {
+  form.parse(req, async (err, fields, files) => {
     if (err) return res.status(500).json({ error: 'Upload error' })
 
-    const file = files.avatar
-    if (!file || Array.isArray(file)) {
-      return res.status(400).json({ error: 'Invalid file upload' })
+    const avatarFile = (files as any).avatar
+    if (!avatarFile) {
+      return res.status(400).json({ error: 'No file uploaded' })
     }
 
     try {
       const uploadDir = path.join(process.cwd(), 'public/uploads')
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true })
-      }
+      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true })
 
-      const newFileName = `${Date.now()}-${file.originalFilename}`
+      const newFileName = `${Date.now()}-${avatarFile.originalFilename}`
       const newPath = path.join(uploadDir, newFileName)
 
-      // Pindahkan file
-      fs.renameSync(file.filepath, newPath)
+      fs.renameSync(avatarFile.filepath, newPath)
 
-      // Simpan path avatar ke database user
       const avatarUrl = `/uploads/${newFileName}`
       await prisma.user.update({
         where: { email: session.user.email },
@@ -58,8 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
 
       return res.status(200).json({ message: 'Avatar updated', avatarUrl })
-    } catch (error) {
-      console.error(error)
+    } catch (e) {
+      console.error(e)
       return res.status(500).json({ error: 'Server error' })
     }
   })
