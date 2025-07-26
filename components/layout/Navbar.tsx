@@ -8,6 +8,7 @@ import ThemeToggle from '@/components/shared/ThemeToggle'
 import { classNames } from '@/utils/classNames'
 import { useState } from 'react'
 import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
+import Image from 'next/image'
 
 const navItems = [
   { href: '/', label: 'HOME' },
@@ -55,11 +56,32 @@ export default function Navbar() {
             })}
           </nav>
 
+          {/* Theme Toggle */}
           <ThemeToggle />
+
+          {/* Avatar User */}
+          <Link href="/user" className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-blue-500 hover:scale-105 transition-transform">
+            <Image
+              src="/default-avatar.png" // ganti dengan avatar user real dari auth kalau sudah ada
+              alt="User Avatar"
+              fill
+              className="object-cover"
+            />
+          </Link>
         </div>
 
         {/* Mobile Nav */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-4">
+          {/* Avatar User Mobile */}
+          <Link href="/user" className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-blue-500 hover:scale-105 transition-transform">
+            <Image
+              src="/default-avatar.png"
+              alt="User Avatar"
+              fill
+              className="object-cover"
+            />
+          </Link>
+
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <button aria-label="Menu">
