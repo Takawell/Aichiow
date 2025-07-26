@@ -6,10 +6,8 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-export const dynamic = "force-dynamic"; // Hindari SSG/SSR build error
-
 export default function UserDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession() || {};
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -28,7 +26,7 @@ export default function UserDashboard() {
       setUser(res.data);
       setName(res.data.name || "");
     } catch (err) {
-      console.error("Error fetching user:", err);
+      console.error(err);
     }
   };
 
@@ -42,16 +40,13 @@ export default function UserDashboard() {
       setIsEditing(false);
       fetchUser();
     } catch (err) {
-      console.error("Error saving profile:", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Jika session belum siap
   if (status === "loading") return <div className="text-center py-10 text-white">Loading session...</div>;
-
-  // Jika user belum ada
   if (!user) return <div className="text-center py-10 text-white">Loading user data...</div>;
 
   const avatarSrc = user.avatar || "/avatar.png";
@@ -104,71 +99,11 @@ export default function UserDashboard() {
           />
         </div>
       </div>
-
-      {/* Bookmark & Favorite */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <div className="bg-gray-800 p-4 rounded-xl shadow-lg text-white">
-          <h3 className="text-lg font-semibold mb-2">Bookmarks</h3>
-          <p className="text-gray-400 text-sm mb-3">
-            Lihat daftar anime/manga yang kamu bookmark.
-          </p>
-          <button
-            onClick={() => router.push("/user/bookmarks")}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg"
-          >
-            Lihat Bookmark
-          </button>
-        </div>
-        <div className="bg-gray-800 p-4 rounded-xl shadow-lg text-white">
-          <h3 className="text-lg font-semibold mb-2">Favorites</h3>
-          <p className="text-gray-400 text-sm mb-3">
-            Lihat daftar anime/manga favoritmu.
-          </p>
-          <button
-            onClick={() => router.push("/user/favorites")}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg"
-          >
-            Lihat Favorites
-          </button>
-        </div>
-      </div>
-
-      {/* Modal Edit */}
-      {isEditing && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-6 rounded-xl shadow-xl w-96">
-            <h3 className="text-xl font-bold text-white mb-4">Edit Profile</h3>
-            <label className="block text-gray-300 mb-2">Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 rounded-lg bg-gray-700 text-white mb-4"
-            />
-            <label className="block text-gray-300 mb-2">Avatar</label>
-            <input
-              type="file"
-              onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
-              className="w-full p-2 rounded-lg bg-gray-700 text-white mb-4"
-            />
-            <div className="flex justify-between">
-              <button
-                onClick={() => setIsEditing(false)}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={saveProfile}
-                disabled={loading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-              >
-                {loading ? "Saving..." : "Save"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
+}
+
+// FIX: Hindari SSG di Vercel
+export async function getServerSideProps() {
+  return { props: {} };
 }
