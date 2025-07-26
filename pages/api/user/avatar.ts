@@ -29,33 +29,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     keepExtensions: true,
   })
 
-  form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).json({ error: 'Upload error' })
+  form.parse(req, async (err: any, fields: any, files: any) => {
+  if (err) return res.status(500).json({ error: 'Upload error' })
 
-    const avatarFile = (files as any).avatar
-    if (!avatarFile) {
-      return res.status(400).json({ error: 'No file uploaded' })
-    }
+  const avatarFile = (files as any).avatar
+  if (!avatarFile) {
+    return res.status(400).json({ error: 'No file uploaded' })
+  }
 
-    try {
-      const uploadDir = path.join(process.cwd(), 'public/uploads')
-      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true })
+  try {
+    const uploadDir = path.join(process.cwd(), 'public/uploads')
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true })
 
-      const newFileName = `${Date.now()}-${avatarFile.originalFilename}`
-      const newPath = path.join(uploadDir, newFileName)
+    const newFileName = `${Date.now()}-${avatarFile.originalFilename}`
+    const newPath = path.join(uploadDir, newFileName)
 
-      fs.renameSync(avatarFile.filepath, newPath)
+    fs.renameSync(avatarFile.filepath, newPath)
 
-      const avatarUrl = `/uploads/${newFileName}`
-      await prisma.user.update({
-        where: { email: session.user.email },
-        data: { avatar: avatarUrl },
-      })
+    const avatarUrl = `/uploads/${newFileName}`
+    await prisma.user.update({
+      where: { email: session.user.email },
+      data: { avatar: avatarUrl },
+    })
 
-      return res.status(200).json({ message: 'Avatar updated', avatarUrl })
-    } catch (e) {
-      console.error(e)
-      return res.status(500).json({ error: 'Server error' })
-    }
-  })
-}
+    return res.status(200).json({ message: 'Avatar updated', avatarUrl })
+  } catch (e) {
+    console.error(e)
+    return res.status(500).json({ error: 'Server error' })
+  }
+})
+  
