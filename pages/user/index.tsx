@@ -1,10 +1,12 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useRouter } from "next/router";
+
+export const dynamic = "force-dynamic"; // Hindari SSG/SSR build error
 
 export default function UserDashboard() {
   const { data: session, status } = useSession();
@@ -17,8 +19,8 @@ export default function UserDashboard() {
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/signin");
-    else if (session?.user) fetchUser();
-  }, [session, status]);
+    if (status === "authenticated") fetchUser();
+  }, [status]);
 
   const fetchUser = async () => {
     try {
@@ -26,7 +28,7 @@ export default function UserDashboard() {
       setUser(res.data);
       setName(res.data.name || "");
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching user:", err);
     }
   };
 
@@ -40,13 +42,18 @@ export default function UserDashboard() {
       setIsEditing(false);
       fetchUser();
     } catch (err) {
-      console.error(err);
+      console.error("Error saving profile:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!user) return <div className="text-center py-10">Loading...</div>;
+  // Jika session belum siap
+  if (status === "loading") return <div className="text-center py-10 text-white">Loading session...</div>;
+
+  // Jika user belum ada
+  if (!user) return <div className="text-center py-10 text-white">Loading user data...</div>;
+
   const avatarSrc = user.avatar || "/avatar.png";
 
   return (
