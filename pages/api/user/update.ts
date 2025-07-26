@@ -1,62 +1,69 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]";
-import prisma from "@/lib/prismadb";
-import formidable, { File } from "formidable";
+import type { NextApiRequest, NextApiResponse } from "next";
+import formidable, { Fields, Files } from "formidable";
 import fs from "fs";
 import path from "path";
-import { NextApiRequest, NextApiResponse } from "next";
+import prisma from "@/lib/prismadb";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]";
 
+// Konfigurasi untuk parsing form-data
 export const config = {
   api: {
-    bodyParser: false, // Disable body parsing, formidable handles it
+    bodyParser: false,
   },
 };
 
+const uploadDir = path.join(process.cwd(), "public", "uploads");
+
+// Pastikan folder upload ada
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions);
-  if (!session || !session.user?.email) {
+
+  if (!session) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const form = formidable({});
-  const uploadDir = path.join(process.cwd(), "public/uploads/avatars");
-  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-  form.uploadDir = uploadDir;
+  const form = formidable({ multiples: false });
   form.keepExtensions = true;
 
-  form.parse(req, async (err, fields, files) => {
+  form.parse(req, async (err: Error | null, fields: Fields, files: Files) => {
     if (err) return res.status(500).json({ error: "Upload error" });
 
     try {
-      const name = fields.name ? String(fields.name) : undefined;
-      let avatarUrl: string | undefined = undefined;
+      const name = fields.name ? String(fields.name) : session.user.name;
+      let avatarPath = session.user.image || "/avatar.png";
 
       if (files.avatar) {
-        const avatarFile = Array.isArray(files.avatar) ? files.avatar[0] : (files.avatar as File);
-        const ext = path.extname(avatarFile.originalFilename || "");
+        const avatarFile = Array.isArray(files.avatar) ? files.avatar[0] : files.avatar;
+        const ext = path.extname(avatarFile.originalFilename || ".png");
         const newFilename = `${session.user.email}-${Date.now()}${ext}`;
         const filePath = path.join(uploadDir, newFilename);
+
         fs.renameSync(avatarFile.filepath, filePath);
-        avatarUrl = `/uploads/avatars/${newFilename}`;
+        avatarPath = `/uploads/${newFilename}`;
       }
 
-      const updated = await prisma.user.update({
-        where: { email: session.user.email },
+      // Update user di database
+      const updatedUser = await prisma.user.update({
+        where: { email: session.user.email! },
         data: {
-          ...(name && { name }),
-          ...(avatarUrl && { avatar: avatarUrl }),
+          name,
+          image: avatarPath,
         },
       });
 
-      return res.json({ message: "Profile updated", user: updated });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Internal server error" });
+      return res.status(200).json({ user: updatedUser });
+    } catch (e) {
+      console.error(e);
+      return res.status(500).json({ error: "Something went wrong" });
     }
   });
 }
