@@ -9,10 +9,7 @@ import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
 import { format, fromUnixTime } from 'date-fns'
-
-// Tambahan import untuk tombol bookmark & favorite
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import axios from 'axios'
 
 export default function AnimeDetailPage() {
@@ -22,44 +19,16 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
 
+  // State bookmark & favorite
+  const [isBookmarked, setBookmarked] = useState(false)
+  const [isFavorited, setFavorited] = useState(false)
+
   // Fetch Similar Anime
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
     queryKey: ['similarAnime', id],
     queryFn: () => fetchSimilarAnime(id),
     enabled: !!id,
   })
-
-  // State Bookmark & Favorite
-  const [isBookmarked, setBookmarked] = useState(false)
-  const [isFavorited, setFavorited] = useState(false)
-
-  const handleBookmark = async () => {
-    try {
-      await axios.post('/api/bookmark', {
-        itemId: anime.id,
-        itemType: 'anime',
-        title: anime.title.english || anime.title.romaji,
-        image: anime.coverImage.large,
-      })
-      setBookmarked(!isBookmarked)
-    } catch (error) {
-      console.error('Bookmark failed', error)
-    }
-  }
-
-  const handleFavorite = async () => {
-    try {
-      await axios.post('/api/favorite', {
-        itemId: anime.id,
-        itemType: 'anime',
-        title: anime.title.english || anime.title.romaji,
-        image: anime.coverImage.large,
-      })
-      setFavorited(!isFavorited)
-    } catch (error) {
-      console.error('Favorite failed', error)
-    }
-  }
 
   if (isLoading) return <p className="text-center text-white mt-10">Loading...</p>
   if (isError || !anime) return <p className="text-center text-red-500 mt-10">Anime not found.</p>
@@ -74,6 +43,38 @@ export default function AnimeDetailPage() {
   const totalEpisodes = anime.episodes || null
   const duration = anime.duration || null
 
+  // Bookmark handler
+  const handleBookmark = async () => {
+    if (!anime) return
+    try {
+      await axios.post('/api/bookmark', {
+        itemId: anime.id,
+        itemType: 'anime',
+        title: anime.title.english || anime.title.romaji,
+        image: anime.coverImage.large,
+      })
+      setBookmarked(!isBookmarked)
+    } catch (error) {
+      console.error('Bookmark failed', error)
+    }
+  }
+
+  // Favorite handler
+  const handleFavorite = async () => {
+    if (!anime) return
+    try {
+      await axios.post('/api/favorite', {
+        itemId: anime.id,
+        itemType: 'anime',
+        title: anime.title.english || anime.title.romaji,
+        image: anime.coverImage.large,
+      })
+      setFavorited(!isFavorited)
+    } catch (error) {
+      console.error('Favorite failed', error)
+    }
+  }
+
   return (
     <>
       <Head>
@@ -83,33 +84,22 @@ export default function AnimeDetailPage() {
         {/* Header */}
         <AnimeDetailHeader anime={anime} />
 
-        {/* Tombol Bookmark & Favorite */}
-        <div className="flex justify-center gap-4 mt-6">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+        {/* Bookmark & Favorite Buttons */}
+        <div className="flex gap-3 px-4 mt-4">
+          <button
             onClick={handleBookmark}
-            className={`px-5 py-2 rounded-xl font-medium transition-colors shadow-lg ${
-              isBookmarked
-                ? 'bg-blue-600 text-white'
-                : 'bg-neutral-800 text-gray-300 hover:bg-blue-500 hover:text-white'
-            }`}
+            className={`px-4 py-2 rounded-lg font-semibold transition 
+              ${isBookmarked ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-700 hover:bg-gray-800'}`}
           >
-            {isBookmarked ? 'Bookmarked' : 'Bookmark'}
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            {isBookmarked ? 'Bookmarked' : 'Add Bookmark'}
+          </button>
+          <button
             onClick={handleFavorite}
-            className={`px-5 py-2 rounded-xl font-medium transition-colors shadow-lg ${
-              isFavorited
-                ? 'bg-red-600 text-white'
-                : 'bg-neutral-800 text-gray-300 hover:bg-red-500 hover:text-white'
-            }`}
+            className={`px-4 py-2 rounded-lg font-semibold transition 
+              ${isFavorited ? 'bg-pink-500 hover:bg-pink-600' : 'bg-gray-700 hover:bg-gray-800'}`}
           >
-            {isFavorited ? 'Favorited' : 'Add to Favorite'}
-          </motion.button>
+            {isFavorited ? 'Favorited' : 'Add Favorite'}
+          </button>
         </div>
 
         {/* Trailer */}
@@ -172,7 +162,7 @@ export default function AnimeDetailPage() {
 
         {/* Similar Anime Section */}
         <section className="mt-10 px-4">
-          <h2 className="text-xl font-semibold mb-4">ANIME MIRIP</h2>
+          <h2 className="text-xl font-semibold mb-4">Similar Anime</h2>
           {loadingSimilar ? (
             <p className="text-center text-gray-400">Loading similar anime...</p>
           ) : similarAnime.length > 0 ? (
