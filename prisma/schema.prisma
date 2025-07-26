@@ -12,7 +12,8 @@ model User {
   name      String?
   email     String     @unique
   password  String     // password hashed
-  image     String?    // avatar user
+  image     String?    // 
+  avatar    String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
