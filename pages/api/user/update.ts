@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prismadb";
 import formidable, { File } from "formidable";
 import fs from "fs";
 import path from "path";
