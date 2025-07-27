@@ -9,8 +9,6 @@ import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
 import { format, fromUnixTime } from 'date-fns'
-import { useState } from 'react'
-import axios from 'axios'
 
 export default function AnimeDetailPage() {
   const router = useRouter()
@@ -18,10 +16,6 @@ export default function AnimeDetailPage() {
 
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
-
-  // State bookmark & favorite
-  const [isBookmarked, setBookmarked] = useState(false)
-  const [isFavorited, setFavorited] = useState(false)
 
   // Fetch Similar Anime
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
@@ -43,38 +37,6 @@ export default function AnimeDetailPage() {
   const totalEpisodes = anime.episodes || null
   const duration = anime.duration || null
 
-  // Bookmark handler
-  const handleBookmark = async () => {
-    if (!anime) return
-    try {
-      await axios.post('/api/bookmark', {
-        itemId: anime.id,
-        itemType: 'anime',
-        title: anime.title.english || anime.title.romaji,
-        image: anime.coverImage.large,
-      })
-      setBookmarked(!isBookmarked)
-    } catch (error) {
-      console.error('Bookmark failed', error)
-    }
-  }
-
-  // Favorite handler
-  const handleFavorite = async () => {
-    if (!anime) return
-    try {
-      await axios.post('/api/favorite', {
-        itemId: anime.id,
-        itemType: 'anime',
-        title: anime.title.english || anime.title.romaji,
-        image: anime.coverImage.large,
-      })
-      setFavorited(!isFavorited)
-    } catch (error) {
-      console.error('Favorite failed', error)
-    }
-  }
-
   return (
     <>
       <Head>
@@ -83,24 +45,6 @@ export default function AnimeDetailPage() {
       <main className="bg-dark text-white pb-20">
         {/* Header */}
         <AnimeDetailHeader anime={anime} />
-
-        {/* Bookmark & Favorite Buttons */}
-        <div className="flex gap-3 px-4 mt-4">
-          <button
-            onClick={handleBookmark}
-            className={`px-4 py-2 rounded-lg font-semibold transition 
-              ${isBookmarked ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-700 hover:bg-gray-800'}`}
-          >
-            {isBookmarked ? 'Bookmarked' : 'Add Bookmark'}
-          </button>
-          <button
-            onClick={handleFavorite}
-            className={`px-4 py-2 rounded-lg font-semibold transition 
-              ${isFavorited ? 'bg-pink-500 hover:bg-pink-600' : 'bg-gray-700 hover:bg-gray-800'}`}
-          >
-            {isFavorited ? 'Favorited' : 'Add Favorite'}
-          </button>
-        </div>
 
         {/* Trailer */}
         {anime.trailer?.site === 'youtube' && (
