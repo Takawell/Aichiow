@@ -16,7 +16,7 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/auth/signin");
+    if (status === "unauthenticated") router.push("/auth/register");
     if (status === "authenticated") fetchUser();
   }, [status]);
 
@@ -49,7 +49,7 @@ export default function UserDashboard() {
   if (status === "loading") return <div className="text-center py-10 text-white">Loading session...</div>;
   if (!user) return <div className="text-center py-10 text-white">Loading user data...</div>;
 
-  const avatarSrc = user.avatar || "https://aichiow.vercel.app/avatar.png";
+  const avatarSrc = user.avatar || "/avatar.png";
 
   return (
     <div className="max-w-5xl mx-auto p-6">
