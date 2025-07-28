@@ -1,4 +1,4 @@
-// detail anime
+// pages/anime/[slug].tsx
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -9,12 +9,10 @@ import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
 import { format, fromUnixTime } from 'date-fns'
-import { useState } from 'react'
 
 export default function AnimeDetailPage() {
   const router = useRouter()
   const { slug } = router.query
-  const [showFullDescription, setShowFullDescription] = useState(false)
 
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
@@ -39,12 +37,6 @@ export default function AnimeDetailPage() {
   const totalEpisodes = anime.episodes || null
   const duration = anime.duration || null
 
-  const toggleDescription = () => setShowFullDescription((prev) => !prev)
-  const cleanDescription = anime.description
-    ? anime.description.replace(/<[^>]+>/g, '')
-    : ''
-  const shortDescription = cleanDescription.slice(0, 300)
-
   return (
     <>
       <Head>
@@ -53,21 +45,6 @@ export default function AnimeDetailPage() {
       <main className="bg-dark text-white pb-20">
         {/* Header */}
         <AnimeDetailHeader anime={anime} />
-
-        {/* Deskripsi dengan Show More / Show Less */}
-        {anime.description && (
-          <section className="px-4 mt-6 max-w-4xl mx-auto text-gray-300 text-sm leading-relaxed">
-            {showFullDescription ? cleanDescription : `${shortDescription}...`}
-            {cleanDescription.length > 300 && (
-              <button
-                onClick={toggleDescription}
-                className="ml-2 text-blue-400 hover:underline font-medium"
-              >
-                {showFullDescription ? 'Show Less' : 'Show More'}
-              </button>
-            )}
-          </section>
-        )}
 
         {/* Trailer */}
         {anime.trailer?.site === 'youtube' && (
