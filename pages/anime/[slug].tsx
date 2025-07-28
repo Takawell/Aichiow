@@ -1,3 +1,4 @@
+// pages/anime/[slug].tsx
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -69,6 +70,10 @@ export default function AnimeDetailPage() {
   const totalEpisodes = anime.episodes || '?'
   const duration = anime.duration || '?'
 
+  const cleanDescription = anime.description
+    ? anime.description.replace(/<\/?[^>]+(>|$)/g, '')
+    : ''
+
   return (
     <>
       <Head>
@@ -130,12 +135,10 @@ export default function AnimeDetailPage() {
               <h2 className="text-xl font-semibold mb-2">Synopsis</h2>
               <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
                 {showFullDesc
-                  ? (anime.description || '').replace(/<\/?[^>]+(>|$)/g, '')
-                  : (anime.description || '')
-                      .replace(/<\/?[^>]+(>|$)/g, '')
-                      .slice(0, 400) + '...'}
+                  ? cleanDescription
+                  : cleanDescription.slice(0, 400) + (cleanDescription.length > 400 ? '...' : '')}
               </p>
-              {(anime.description || '').length > 400 && (
+              {cleanDescription.length > 400 && (
                 <button
                   className="text-blue-400 mt-2 text-sm hover:underline"
                   onClick={() => setShowFullDesc(!showFullDesc)}
@@ -154,8 +157,8 @@ export default function AnimeDetailPage() {
               {anime.season && (
                 <p><span className="text-gray-400">Season:</span> {anime.season} {anime.seasonYear}</p>
               )}
-              {anime.studios?.edges?.[0] && (
-                <p><span className="text-gray-400">Studio:</span> {anime.studios.edges[0].node.name}</p>
+              {anime.studios?.nodes?.[0] && (
+                <p><span className="text-gray-400">Studio:</span> {anime.studios.nodes[0].name}</p>
               )}
               <p><span className="text-gray-400">Format:</span> {anime.format}</p>
               {anime.source && <p><span className="text-gray-400">Source:</span> {anime.source}</p>}
