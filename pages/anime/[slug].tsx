@@ -1,3 +1,4 @@
+// detail anime
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -50,40 +51,23 @@ export default function AnimeDetailPage() {
         <title>{anime.title.english || anime.title.romaji} | Aichiow</title>
       </Head>
       <main className="bg-dark text-white pb-20">
-        {/* Header Cover Utama */}
+        {/* Header */}
         <AnimeDetailHeader anime={anime} />
 
-        {/* Bagian dengan Background Banner */}
-        <div
-          className="relative w-full bg-cover bg-center mt-6"
-          style={{
-            backgroundImage: anime.bannerImage
-              ? `url(${anime.bannerImage})`
-              : 'none',
-          }}
-        >
-          {/* Overlay gelap supaya teks terlihat jelas */}
-          {anime.bannerImage && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-          )}
-
-          <div className="relative max-w-5xl mx-auto px-4 py-6">
-            {/* Description with Show More/Less */}
-            {anime.description && (
-              <section className="text-gray-200 text-sm leading-relaxed">
-                {showFullDescription ? cleanDescription : `${shortDescription}...`}
-                {cleanDescription.length > 300 && (
-                  <button
-                    onClick={toggleDescription}
-                    className="ml-2 text-blue-400 hover:underline"
-                  >
-                    {showFullDescription ? 'Show Less' : 'Show More'}
-                  </button>
-                )}
-              </section>
+        {/* Deskripsi dengan Show More / Show Less */}
+        {anime.description && (
+          <section className="px-4 mt-6 max-w-4xl mx-auto text-gray-300 text-sm leading-relaxed">
+            {showFullDescription ? cleanDescription : `${shortDescription}...`}
+            {cleanDescription.length > 300 && (
+              <button
+                onClick={toggleDescription}
+                className="ml-2 text-blue-400 hover:underline font-medium"
+              >
+                {showFullDescription ? 'Show Less' : 'Show More'}
+              </button>
             )}
-          </div>
-        </div>
+          </section>
+        )}
 
         {/* Trailer */}
         {anime.trailer?.site === 'youtube' && (
