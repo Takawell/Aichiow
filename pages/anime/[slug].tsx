@@ -3,7 +3,6 @@ import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
 import { useQuery } from '@tanstack/react-query'
 import { fetchSimilarAnime } from '@/lib/anilist'
-import AnimeDetailHeader from '@/components/anime/AnimeDetailHeader'
 import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
@@ -38,12 +37,10 @@ export default function AnimeDetailPage() {
   const duration = anime.duration || null
 
   const toggleDescription = () => setShowFullDescription((prev) => !prev)
-  const shortDescription = anime.description
-    ? anime.description.replace(/<[^>]+>/g, '').slice(0, 250)
-    : ''
-  const fullDescription = anime.description
+  const cleanDescription = anime.description
     ? anime.description.replace(/<[^>]+>/g, '')
     : ''
+  const shortDescription = cleanDescription.slice(0, 300)
 
   return (
     <>
@@ -61,26 +58,68 @@ export default function AnimeDetailPage() {
           </div>
         )}
 
-        {/* Header */}
-        <AnimeDetailHeader anime={anime} />
+        {/* Anime Info Section */}
+        <section className="relative px-4 -mt-24 max-w-6xl mx-auto flex flex-col md:flex-row gap-6">
+          {/* Cover Image */}
+          {anime.coverImage?.large && (
+            <div className="flex-shrink-0 w-[180px] md:w-[220px] rounded-xl overflow-hidden shadow-lg border-2 border-gray-700">
+              <img
+                src={anime.coverImage.large}
+                alt={anime.title.english || anime.title.romaji}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          )}
 
-        {/* Description Section */}
-        {anime.description && (
-          <section className="px-4 mt-6 text-center max-w-3xl mx-auto">
-            <h2 className="text-xl font-bold mb-2">Synopsis</h2>
-            <p className="text-gray-300 text-sm leading-relaxed">
-              {showFullDescription ? fullDescription : `${shortDescription}...`}
-            </p>
-            {fullDescription.length > 250 && (
-              <button
-                onClick={toggleDescription}
-                className="mt-2 text-blue-400 hover:underline text-sm"
-              >
-                {showFullDescription ? 'Show Less' : 'Show More'}
-              </button>
+          {/* Text Info */}
+          <div className="flex-1 mt-4 md:mt-0">
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">
+              {anime.title.english || anime.title.romaji}
+            </h1>
+            {anime.title.romaji && (
+              <p className="text-gray-300 italic mb-4">
+                {anime.title.romaji}
+              </p>
             )}
-          </section>
-        )}
+
+            {/* Genre Tags */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {anime.genres?.map((genre) => (
+                <span
+                  key={genre}
+                  className="px-3 py-1 text-xs bg-blue-600 rounded-full text-white"
+                >
+                  {genre}
+                </span>
+              ))}
+            </div>
+
+            {/* Description */}
+            {anime.description && (
+              <div className="text-gray-300 text-sm leading-relaxed mb-4">
+                {showFullDescription ? cleanDescription : `${shortDescription}...`}
+                {cleanDescription.length > 300 && (
+                  <button
+                    onClick={toggleDescription}
+                    className="ml-2 text-blue-400 hover:underline"
+                  >
+                    {showFullDescription ? 'Show Less' : 'Show More'}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Extra Details */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm text-gray-400">
+              <p>🎞️ <span className="text-white">{anime.format || '-'}</span></p>
+              <p>📅 Season: <span className="text-white">{anime.season || '-'} {anime.seasonYear || ''}</span></p>
+              <p>⭐ Score: <span className="text-white">{anime.averageScore || '-'}</span></p>
+              <p>🎬 Studio: <span className="text-white">{anime.studios?.nodes?.[0]?.name || '-'}</span></p>
+              <p>📈 Popularity: <span className="text-white">{anime.popularity || '-'}</span></p>
+              <p>📺 Status: <span className="text-white">{anime.status || '-'}</span></p>
+            </div>
+          </div>
+        </section>
 
         {/* Trailer */}
         {anime.trailer?.site === 'youtube' && (
