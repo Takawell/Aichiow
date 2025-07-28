@@ -51,18 +51,18 @@ export default function AnimeDetailPage() {
         {/* Background Cover */}
         {anime.bannerImage && (
           <div
-            className="relative w-full h-[250px] md:h-[300px] bg-cover bg-center"
+            className="relative w-full h-[260px] md:h-[320px] bg-cover bg-center"
             style={{ backgroundImage: `url(${anime.bannerImage})` }}
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/20"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10"></div>
           </div>
         )}
 
         {/* Anime Info Section */}
-        <section className="relative px-4 -mt-24 max-w-6xl mx-auto flex flex-col md:flex-row gap-6">
+        <section className="relative max-w-6xl mx-auto flex flex-col md:flex-row gap-8 px-4 -mt-20">
           {/* Cover Image */}
           {anime.coverImage?.large && (
-            <div className="flex-shrink-0 w-[180px] md:w-[220px] rounded-xl overflow-hidden shadow-lg border-2 border-gray-700">
+            <div className="flex-shrink-0 w-[180px] md:w-[240px] rounded-xl overflow-hidden shadow-xl border-2 border-gray-700 bg-gray-900">
               <img
                 src={anime.coverImage.large}
                 alt={anime.title.english || anime.title.romaji}
@@ -72,12 +72,12 @@ export default function AnimeDetailPage() {
           )}
 
           {/* Text Info */}
-          <div className="flex-1 mt-4 md:mt-0">
-            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">
+          <div className="flex-1 mt-6 md:mt-10">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3">
               {anime.title.english || anime.title.romaji}
             </h1>
             {anime.title.romaji && (
-              <p className="text-gray-300 italic mb-4">
+              <p className="text-gray-400 italic mb-4 text-sm md:text-base">
                 {anime.title.romaji}
               </p>
             )}
