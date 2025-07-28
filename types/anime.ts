@@ -32,6 +32,7 @@ export interface Anime {
 
 export interface AnimeDetail extends Anime {
   format?: string
+  source?: string
   season?: string
   seasonYear?: number
   popularity?: number
