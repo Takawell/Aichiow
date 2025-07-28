@@ -18,12 +18,12 @@ export default function AnimeDetailHeader({ anime }: Props) {
       {/* Banner Background */}
       <div className="absolute inset-0">
         <Image
-          src={anime.bannerImage || anime.coverImage.extraLarge}
-          alt={anime.title.romaji}
-          fill
-          priority
-          className="object-cover opacity-30 blur-sm"
-        />
+        src={anime.bannerImage ?? anime.coverImage.extraLarge ?? '/default-banner.jpg'}
+        alt={anime.title.romaji || 'Anime Banner'}
+        fill
+        priority
+        className="object-cover opacity-30 blur-sm"
+       />
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black" />
       </div>
 
