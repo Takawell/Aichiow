@@ -1,54 +1,19 @@
-// pages/anime/[slug].tsx
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
 import { useQuery } from '@tanstack/react-query'
 import { fetchSimilarAnime } from '@/lib/anilist'
 import { format, fromUnixTime } from 'date-fns'
-import { motion } from 'framer-motion'
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import AnimeCard from '@/components/anime/AnimeCard'
-
-// Komponen Character Card Carousel
-function CharacterCarousel({ characters }: { characters: any[] }) {
-  return (
-    <section className="mt-14 px-4">
-      <h2 className="text-2xl font-bold mb-4">Characters & Voice Actors</h2>
-      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-600">
-        {characters.map((char) => (
-          <div
-            key={char.node.id}
-            className="flex-shrink-0 w-44 bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition"
-          >
-            <img
-              src={char.node.image?.large}
-              alt={char.node.name?.full}
-              className="w-full h-56 object-cover"
-            />
-            <div className="p-2 text-center">
-              <p className="text-white text-sm font-semibold line-clamp-2">
-                {char.node.name.full}
-              </p>
-              {char.voiceActors?.[0] && (
-                <p className="text-gray-400 text-xs">
-                  VA: {char.voiceActors[0].name.full}
-                </p>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
 
 export default function AnimeDetailPage() {
   const router = useRouter()
   const { slug } = router.query
-
   const id = parseInt(slug as string)
-  const { anime, isLoading, isError } = useAnimeDetail(id)
 
+  const { anime, isLoading, isError } = useAnimeDetail(id)
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
     queryKey: ['similarAnime', id],
     queryFn: () => fetchSimilarAnime(id),
@@ -76,33 +41,39 @@ export default function AnimeDetailPage() {
         <title>{anime.title.english || anime.title.romaji} | Aichiow</title>
       </Head>
       <main className="bg-dark text-white pb-20">
-        {/* Hero Section */}
-        <section className="relative h-[70vh] w-full overflow-hidden">
+
+        {/* HERO SECTION */}
+        <section className="relative h-[80vh] w-full overflow-hidden">
           <img
             src={anime.bannerImage || anime.coverImage?.extraLarge}
             alt={anime.title.english || anime.title.romaji}
             className="absolute inset-0 w-full h-full object-cover brightness-50"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-dark to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-dark via-black/40 to-transparent" />
+
+          {/* Anime Info */}
           <div className="relative z-10 max-w-6xl mx-auto px-4 flex flex-col justify-end h-full pb-12">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="flex flex-col sm:flex-row gap-6 sm:items-end"
+              className="flex flex-col md:flex-row gap-8 md:items-end"
             >
-              <img
-                src={anime.coverImage?.extraLarge}
-                alt={anime.title.english || anime.title.romaji}
-                className="w-40 sm:w-56 rounded-xl shadow-xl border-2 border-gray-700"
-              />
+              {/* Cover */}
+              <div className="flex-shrink-0">
+                <img
+                  src={anime.coverImage?.extraLarge}
+                  alt={anime.title.english || anime.title.romaji}
+                  className="w-44 md:w-60 rounded-xl shadow-xl border-2 border-gray-700"
+                />
+              </div>
+
+              {/* Title & Info */}
               <div className="space-y-4">
-                <h1 className="text-3xl sm:text-5xl font-extrabold">
+                <h1 className="text-3xl md:text-5xl font-extrabold">
                   {anime.title.english || anime.title.romaji}
                 </h1>
-                <p className="text-gray-300 text-sm italic">
-                  {anime.title.native}
-                </p>
+                <p className="text-gray-300 text-sm italic">{anime.title.native}</p>
                 <div className="flex gap-2 flex-wrap">
                   {anime.genres?.map((g: string) => (
                     <span
@@ -113,12 +84,25 @@ export default function AnimeDetailPage() {
                     </span>
                   ))}
                 </div>
+                {anime.averageScore && (
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-40 h-3 bg-gray-700 rounded-full">
+                      <div
+                        className="absolute top-0 left-0 h-3 rounded-full bg-green-500"
+                        style={{ width: `${anime.averageScore}%` }}
+                      />
+                    </div>
+                    <span className="text-sm text-gray-300">
+                      {anime.averageScore}% Score
+                    </span>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
         </section>
 
-        {/* Sinopsis & Info Grid */}
+        {/* DESCRIPTION & INFO GRID */}
         <section className="max-w-6xl mx-auto px-4 mt-10">
           <motion.div
             initial={{ opacity: 0 }}
@@ -126,17 +110,17 @@ export default function AnimeDetailPage() {
             transition={{ delay: 0.2, duration: 0.7 }}
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
           >
-            {/* Deskripsi */}
+            {/* Description */}
             <div className="md:col-span-2">
               <h2 className="text-xl font-semibold mb-2">Synopsis</h2>
               <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
                 {showFullDesc
-                  ? anime.description?.replace(/<\/?[^>]+(>|$)/g, '') // Remove HTML tags
+                  ? anime.description?.replace(/<\/?[^>]+(>|$)/g, '')
                   : anime.description
-                  ?.replace(/<\/?[^>]+(>|$)/g, '')
-                  .slice(0, 400) + '...'}
+                      ?.replace(/<\/?[^>]+(>|$)/g, '')
+                      .slice(0, 450) + '...'}
               </p>
-              {anime.description?.length > 400 && (
+              {anime.description?.length > 450 && (
                 <button
                   className="text-blue-400 mt-2 text-sm hover:underline"
                   onClick={() => setShowFullDesc(!showFullDesc)}
@@ -155,8 +139,8 @@ export default function AnimeDetailPage() {
               {anime.season && (
                 <p><span className="text-gray-400">Season:</span> {anime.season} {anime.seasonYear}</p>
               )}
-              {anime.studios?.edges?.[0] && (
-                <p><span className="text-gray-400">Studio:</span> {anime.studios.edges[0].node.name}</p>
+              {anime.studios?.nodes?.[0] && (
+                <p><span className="text-gray-400">Studio:</span> {anime.studios.nodes[0].name}</p>
               )}
               <p><span className="text-gray-400">Format:</span> {anime.format}</p>
               {anime.source && <p><span className="text-gray-400">Source:</span> {anime.source}</p>}
@@ -164,7 +148,7 @@ export default function AnimeDetailPage() {
           </motion.div>
         </section>
 
-        {/* Trailer */}
+        {/* TRAILER */}
         {anime.trailer?.site === 'youtube' && (
           <section className="max-w-5xl mx-auto px-4 mt-14">
             <h2 className="text-2xl font-bold mb-4">Trailer</h2>
@@ -179,12 +163,38 @@ export default function AnimeDetailPage() {
           </section>
         )}
 
-        {/* Characters */}
+        {/* CHARACTER LIST */}
         {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
-          <CharacterCarousel characters={anime.characters.edges} />
+          <section className="max-w-6xl mx-auto px-4 mt-14">
+            <h2 className="text-2xl font-bold mb-4">Characters & Voice Actors</h2>
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-600">
+              {anime.characters.edges.map((char) => (
+                <div
+                  key={char.node.id}
+                  className="flex-shrink-0 w-44 bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition"
+                >
+                  <img
+                    src={char.node.image?.large}
+                    alt={char.node.name?.full}
+                    className="w-full h-56 object-cover"
+                  />
+                  <div className="p-2 text-center">
+                    <p className="text-white text-sm font-semibold line-clamp-2">
+                      {char.node.name.full}
+                    </p>
+                    {char.voiceActors?.[0] && (
+                      <p className="text-gray-400 text-xs">
+                        VA: {char.voiceActors[0].name.full}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
-        {/* Next Airing & Episode Info */}
+        {/* EPISODE INFO */}
         <section className="max-w-6xl mx-auto px-4 mt-14 text-center">
           <div className="mb-4">
             <span
@@ -215,7 +225,7 @@ export default function AnimeDetailPage() {
           </a>
         </section>
 
-        {/* Similar Anime */}
+        {/* SIMILAR ANIME */}
         <section className="max-w-6xl mx-auto px-4 mt-14">
           <h2 className="text-2xl font-bold mb-4">Similar Anime</h2>
           {loadingSimilar ? (
