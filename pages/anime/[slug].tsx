@@ -3,14 +3,17 @@ import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
 import { useQuery } from '@tanstack/react-query'
 import { fetchSimilarAnime } from '@/lib/anilist'
+import AnimeDetailHeader from '@/components/anime/AnimeDetailHeader'
 import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
 import { format, fromUnixTime } from 'date-fns'
+import { useState } from 'react'
 
 export default function AnimeDetailPage() {
   const router = useRouter()
   const { slug } = router.query
+  const [showFullDescription, setShowFullDescription] = useState(false)
 
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
@@ -34,40 +37,49 @@ export default function AnimeDetailPage() {
   const totalEpisodes = anime.episodes || null
   const duration = anime.duration || null
 
+  const toggleDescription = () => setShowFullDescription((prev) => !prev)
+  const shortDescription = anime.description
+    ? anime.description.replace(/<[^>]+>/g, '').slice(0, 250)
+    : ''
+  const fullDescription = anime.description
+    ? anime.description.replace(/<[^>]+>/g, '')
+    : ''
+
   return (
     <>
       <Head>
         <title>{anime.title.english || anime.title.romaji} | Aichiow</title>
       </Head>
       <main className="bg-dark text-white pb-20">
-
-        {/* Background Banner */}
+        {/* Background Cover */}
         {anime.bannerImage && (
           <div
-            className="relative w-full h-[300px] md:h-[350px] bg-cover bg-center rounded-b-lg overflow-hidden"
+            className="relative w-full h-[250px] md:h-[300px] bg-cover bg-center"
             style={{ backgroundImage: `url(${anime.bannerImage})` }}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/20"></div>
-            <div className="absolute bottom-4 left-4 md:left-8">
-              <h1 className="text-3xl md:text-4xl font-extrabold drop-shadow-lg">
-                {anime.title.english || anime.title.romaji}
-              </h1>
-              <p className="text-gray-300 text-sm mt-1">
-                {anime.title.native || ''}
-              </p>
-            </div>
           </div>
         )}
 
-        {/* Cover Image (Adjusted Size) */}
-        {anime.coverImage?.large && (
-          <div className="flex justify-center -mt-16 md:-mt-20 mb-6">
-            <img
-              src={anime.coverImage.large}
-              alt={anime.title.english || anime.title.romaji}
-              className="w-[180px] md:w-[220px] rounded-xl shadow-lg border-4 border-dark object-cover aspect-[3/4]"
-            />
-          </div>
+        {/* Header */}
+        <AnimeDetailHeader anime={anime} />
+
+        {/* Description Section */}
+        {anime.description && (
+          <section className="px-4 mt-6 text-center max-w-3xl mx-auto">
+            <h2 className="text-xl font-bold mb-2">Synopsis</h2>
+            <p className="text-gray-300 text-sm leading-relaxed">
+              {showFullDescription ? fullDescription : `${shortDescription}...`}
+            </p>
+            {fullDescription.length > 250 && (
+              <button
+                onClick={toggleDescription}
+                className="mt-2 text-blue-400 hover:underline text-sm"
+              >
+                {showFullDescription ? 'Show Less' : 'Show More'}
+              </button>
+            )}
+          </section>
         )}
 
         {/* Trailer */}
@@ -82,6 +94,7 @@ export default function AnimeDetailPage() {
 
         {/* Episode Mapping Section */}
         <section className="mt-10 px-4 text-center">
+          {/* Badge Status */}
           <div className="mb-4">
             <span
               className={`inline-block px-4 py-1 text-sm font-semibold rounded-full ${statusBadgeColor}`}
@@ -94,6 +107,7 @@ export default function AnimeDetailPage() {
             </span>
           </div>
 
+          {/* Info Total Episode + Durasi */}
           <p className="text-gray-300 text-sm mb-2">
             {totalEpisodes
               ? `Total Episodes: ${totalEpisodes}`
@@ -104,6 +118,7 @@ export default function AnimeDetailPage() {
               : 'Duration: ?'}
           </p>
 
+          {/* Next Airing Info */}
           {anime.nextAiringEpisode && (
             <p className="text-blue-400 text-sm mb-6">
               Next Episode {anime.nextAiringEpisode.episode} airs on{' '}
@@ -113,6 +128,7 @@ export default function AnimeDetailPage() {
 
           <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
 
+          {/* Tombol Lihat Episode */}
           <div className="flex justify-center">
             <a
               href="/justkidding"
