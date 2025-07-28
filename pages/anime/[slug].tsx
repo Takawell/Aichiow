@@ -70,10 +70,6 @@ export default function AnimeDetailPage() {
   const totalEpisodes = anime.episodes || '?'
   const duration = anime.duration || '?'
 
-  const cleanDescription = anime.description
-    ? anime.description.replace(/<\/?[^>]+(>|$)/g, '')
-    : ''
-
   return (
     <>
       <Head>
@@ -83,7 +79,7 @@ export default function AnimeDetailPage() {
         {/* Hero Section */}
         <section className="relative h-[70vh] w-full overflow-hidden">
           <img
-            src={anime.bannerImage || anime.coverImage?.large}
+            src={anime.bannerImage || anime.coverImage?.extraLarge}
             alt={anime.title.english || anime.title.romaji}
             className="absolute inset-0 w-full h-full object-cover brightness-50"
           />
@@ -96,7 +92,7 @@ export default function AnimeDetailPage() {
               className="flex flex-col sm:flex-row gap-6 sm:items-end"
             >
               <img
-                src={anime.coverImage?.large}
+                src={anime.coverImage?.extraLarge}
                 alt={anime.title.english || anime.title.romaji}
                 className="w-40 sm:w-56 rounded-xl shadow-xl border-2 border-gray-700"
               />
@@ -135,10 +131,12 @@ export default function AnimeDetailPage() {
               <h2 className="text-xl font-semibold mb-2">Synopsis</h2>
               <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
                 {showFullDesc
-                  ? cleanDescription
-                  : cleanDescription.slice(0, 400) + (cleanDescription.length > 400 ? '...' : '')}
+                  ? anime.description?.replace(/<\/?[^>]+(>|$)/g, '') // Remove HTML tags
+                  : anime.description
+                  ?.replace(/<\/?[^>]+(>|$)/g, '')
+                  .slice(0, 400) + '...'}
               </p>
-              {cleanDescription.length > 400 && (
+              {anime.description?.length > 400 && (
                 <button
                   className="text-blue-400 mt-2 text-sm hover:underline"
                   onClick={() => setShowFullDesc(!showFullDesc)}
@@ -157,8 +155,8 @@ export default function AnimeDetailPage() {
               {anime.season && (
                 <p><span className="text-gray-400">Season:</span> {anime.season} {anime.seasonYear}</p>
               )}
-              {anime.studios?.nodes?.[0] && (
-                <p><span className="text-gray-400">Studio:</span> {anime.studios.nodes[0].name}</p>
+              {anime.studios?.edges?.[0] && (
+                <p><span className="text-gray-400">Studio:</span> {anime.studios.edges[0].node.name}</p>
               )}
               <p><span className="text-gray-400">Format:</span> {anime.format}</p>
               {anime.source && <p><span className="text-gray-400">Source:</span> {anime.source}</p>}
