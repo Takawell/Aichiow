@@ -9,6 +9,7 @@ export interface Anime {
     native?: string
   }
   coverImage: {
+    extraLarge?: string
     large: string
     medium?: string
     color?: string
