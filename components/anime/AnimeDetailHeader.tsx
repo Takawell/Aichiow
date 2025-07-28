@@ -1,33 +1,42 @@
 // components/anime/AnimeDetailHeader.tsx
 import Image from 'next/image'
 import { AnimeDetail } from '@/types/anime'
-import { cn } from '@/utils/cn'
+import { useState } from 'react'
 
 interface Props {
   anime: AnimeDetail
 }
 
 export default function AnimeDetailHeader({ anime }: Props) {
+  const [showFullDesc, setShowFullDesc] = useState(false)
+  const cleanDesc = anime.description?.replace(/<[^>]+>/g, '') || ''
+
+  const toggleDesc = () => setShowFullDesc((prev) => !prev)
+
   return (
     <section className="relative w-full bg-neutral-900 text-white">
       {/* Banner Background */}
-      {anime.bannerImage && (
+      <div className="absolute inset-0">
         <Image
-          src={anime.bannerImage}
+          src={anime.bannerImage || anime.coverImage.extraLarge}
           alt={anime.title.romaji}
           fill
-          className="object-cover opacity-20 blur-sm"
+          priority
+          className="object-cover opacity-30 blur-sm"
         />
-      )}
-      <div className="relative z-10 flex flex-col md:flex-row items-start gap-6 p-6 md:p-10 bg-gradient-to-b from-black/70 via-black/80 to-black">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col md:flex-row items-start gap-6 p-6 md:p-10">
         {/* COVER IMAGE */}
-        <div className="min-w-[200px]">
+        <div className="min-w-[200px] max-w-[220px]">
           <Image
             src={anime.coverImage.large}
             alt={anime.title.romaji}
             width={200}
             height={300}
-            className="rounded-xl shadow-2xl border-2 border-white/10"
+            className="rounded-xl shadow-2xl border-2 border-white/10 object-cover"
           />
         </div>
 
@@ -56,19 +65,29 @@ export default function AnimeDetailHeader({ anime }: Props) {
             ))}
           </div>
 
-          {/* DESCRIPTION */}
-          <p className="mt-4 text-sm text-neutral-300 max-w-2xl line-clamp-[7] md:line-clamp-5 leading-relaxed">
-            {anime.description?.replace(/<[^>]+>/g, '')}
-          </p>
+          {/* DESCRIPTION with Show More */}
+          <div className="mt-4 max-w-2xl text-sm text-neutral-300 leading-relaxed">
+            <p className={showFullDesc ? '' : 'line-clamp-5'}>
+              {cleanDesc}
+            </p>
+            {cleanDesc.length > 300 && (
+              <button
+                onClick={toggleDesc}
+                className="mt-2 text-blue-400 hover:underline text-sm"
+              >
+                {showFullDesc ? 'Show Less' : 'Show More'}
+              </button>
+            )}
+          </div>
 
           {/* INFO GRID */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 mt-6 text-sm text-neutral-400">
-            <p><span className="font-medium text-white">🎞️ Format:</span> {anime.format}</p>
+            <p><span className="font-medium text-white">🎞️ Format:</span> {anime.format || '-'}</p>
             <p><span className="font-medium text-white">📅 Season:</span> {anime.season} {anime.seasonYear}</p>
             <p><span className="font-medium text-white">⭐ Score:</span> {anime.averageScore || '-'}</p>
             <p><span className="font-medium text-white">🎬 Studio:</span> {anime.studios.nodes[0]?.name || '-'}</p>
             <p><span className="font-medium text-white">📈 Popularity:</span> {anime.popularity || '-'}</p>
-            <p><span className="font-medium text-white">📺 Status:</span> {anime.status}</p>
+            <p><span className="font-medium text-white">📺 Status:</span> {anime.status || '-'}</p>
           </div>
         </div>
       </div>
