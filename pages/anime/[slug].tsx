@@ -1,4 +1,3 @@
-// pages/anime/[slug].tsx
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -79,7 +78,7 @@ export default function AnimeDetailPage() {
         {/* Hero Section */}
         <section className="relative h-[70vh] w-full overflow-hidden">
           <img
-            src={anime.bannerImage || anime.coverImage?.extraLarge}
+            src={anime.bannerImage || anime.coverImage?.large}
             alt={anime.title.english || anime.title.romaji}
             className="absolute inset-0 w-full h-full object-cover brightness-50"
           />
@@ -92,7 +91,7 @@ export default function AnimeDetailPage() {
               className="flex flex-col sm:flex-row gap-6 sm:items-end"
             >
               <img
-                src={anime.coverImage?.extraLarge}
+                src={anime.coverImage?.large}
                 alt={anime.title.english || anime.title.romaji}
                 className="w-40 sm:w-56 rounded-xl shadow-xl border-2 border-gray-700"
               />
@@ -131,12 +130,12 @@ export default function AnimeDetailPage() {
               <h2 className="text-xl font-semibold mb-2">Synopsis</h2>
               <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
                 {showFullDesc
-                  ? anime.description?.replace(/<\/?[^>]+(>|$)/g, '') // Remove HTML tags
-                  : anime.description
-                  ?.replace(/<\/?[^>]+(>|$)/g, '')
-                  .slice(0, 400) + '...'}
+                  ? (anime.description || '').replace(/<\/?[^>]+(>|$)/g, '')
+                  : (anime.description || '')
+                      .replace(/<\/?[^>]+(>|$)/g, '')
+                      .slice(0, 400) + '...'}
               </p>
-              {anime.description?.length > 400 && (
+              {(anime.description || '').length > 400 && (
                 <button
                   className="text-blue-400 mt-2 text-sm hover:underline"
                   onClick={() => setShowFullDesc(!showFullDesc)}
