@@ -50,33 +50,40 @@ export default function AnimeDetailPage() {
         <title>{anime.title.english || anime.title.romaji} | Aichiow</title>
       </Head>
       <main className="bg-dark text-white pb-20">
-        {/* Background Cover */}
-        {anime.bannerImage && (
-          <div
-            className="relative w-full h-[220px] md:h-[300px] bg-cover bg-center"
-            style={{ backgroundImage: `url(${anime.bannerImage})` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black"></div>
-          </div>
-        )}
-
-        {/* Header */}
+        {/* Header Cover Utama */}
         <AnimeDetailHeader anime={anime} />
 
-        {/* Description with Show More/Less */}
-        {anime.description && (
-          <section className="max-w-4xl mx-auto px-4 mt-6 text-gray-300 text-sm leading-relaxed">
-            {showFullDescription ? cleanDescription : `${shortDescription}...`}
-            {cleanDescription.length > 300 && (
-              <button
-                onClick={toggleDescription}
-                className="ml-2 text-blue-400 hover:underline"
-              >
-                {showFullDescription ? 'Show Less' : 'Show More'}
-              </button>
+        {/* Bagian dengan Background Banner */}
+        <div
+          className="relative w-full bg-cover bg-center mt-6"
+          style={{
+            backgroundImage: anime.bannerImage
+              ? `url(${anime.bannerImage})`
+              : 'none',
+          }}
+        >
+          {/* Overlay gelap supaya teks terlihat jelas */}
+          {anime.bannerImage && (
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+          )}
+
+          <div className="relative max-w-5xl mx-auto px-4 py-6">
+            {/* Description with Show More/Less */}
+            {anime.description && (
+              <section className="text-gray-200 text-sm leading-relaxed">
+                {showFullDescription ? cleanDescription : `${shortDescription}...`}
+                {cleanDescription.length > 300 && (
+                  <button
+                    onClick={toggleDescription}
+                    className="ml-2 text-blue-400 hover:underline"
+                  >
+                    {showFullDescription ? 'Show Less' : 'Show More'}
+                  </button>
+                )}
+              </section>
             )}
-          </section>
-        )}
+          </div>
+        </div>
 
         {/* Trailer */}
         {anime.trailer?.site === 'youtube' && (
