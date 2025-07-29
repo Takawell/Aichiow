@@ -1,4 +1,3 @@
-// navbar ngentot
 'use client'
 
 import Link from 'next/link'
@@ -7,7 +6,7 @@ import { Menu } from 'lucide-react'
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 import { classNames } from '@/utils/classNames'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 
 const navItems = [
@@ -22,21 +21,33 @@ const navItems = [
 export default function Navbar() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <header className="bg-neutral-900 text-white shadow-md sticky top-0 z-50 backdrop-blur-md bg-opacity-80">
-      <div className="max-w-7xl mx-auto px-4 md:px-10 py-4 flex items-center justify-between">
-        {/* Logo */}
+    <header
+      className={classNames(
+        'sticky top-0 z-50 transition-all duration-300 backdrop-blur-lg',
+        scrolled ? 'bg-neutral-900/80 shadow-lg' : 'bg-neutral-900/50'
+      )}
+    >
+      <div className="max-w-7xl mx-auto px-4 md:px-10 py-3 flex items-center justify-between">
+        {/* LOGO - pojok kiri */}
         <Link
           href="/"
-          className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600 hover:opacity-90 transition"
+          className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 drop-shadow-md hover:scale-105 transition-transform"
         >
           AICHIOW
         </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-6">
-          <nav className="flex gap-4 sm:gap-5 md:gap-6 text-sm md:text-base font-medium">
+        {/* NAV DESKTOP - pojok kanan */}
+        <div className="hidden md:flex items-center gap-8 ml-auto">
+          <nav className="flex gap-6 text-sm md:text-base font-medium">
             {navItems.map((item) => {
               const isActive =
                 router.pathname === item.href || router.pathname.startsWith(item.href + '/')
@@ -46,25 +57,28 @@ export default function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={classNames(
-                    'transition-colors duration-200 hover:text-blue-400',
-                    isActive ? 'text-blue-400' : 'text-white'
+                    'relative transition duration-200 hover:text-sky-400 group',
+                    isActive ? 'text-sky-400' : 'text-white'
                   )}
                 >
                   {item.label}
+                  {/* Underline animation */}
+                  <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-sky-400 transition-all duration-300 group-hover:w-full" />
                 </Link>
               )
             })}
           </nav>
 
+          {/* Dark/Light Mode */}
           <ThemeToggle />
         </div>
 
-        {/* Mobile Nav */}
+        {/* NAV MOBILE */}
         <div className="md:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <button aria-label="Menu">
-                <Menu className="h-6 w-6" />
+                <Menu className="h-7 w-7" />
               </button>
             </SheetTrigger>
             <SheetContent side="right" className="bg-neutral-900 text-white w-64 sm:w-72">
@@ -78,8 +92,8 @@ export default function Navbar() {
                       key={item.href}
                       href={item.href}
                       className={classNames(
-                        'text-lg font-medium transition hover:text-blue-400',
-                        isActive ? 'text-blue-400' : 'text-white'
+                        'text-lg font-medium transition hover:text-sky-400',
+                        isActive ? 'text-sky-400' : 'text-white'
                       )}
                       onClick={() => setOpen(false)}
                     >
@@ -88,7 +102,7 @@ export default function Navbar() {
                   )
                 })}
 
-                {/* Community Section with Icons */}
+                {/* Community Links */}
                 <div className="mt-8 border-t border-white/20 pt-4">
                   <p className="text-sm font-semibold uppercase text-white/60 mb-3">Community</p>
                   <div className="flex gap-4 text-lg">
@@ -96,13 +110,13 @@ export default function Navbar() {
                       <FaDiscord className="hover:text-blue-400 transition" />
                     </Link>
                     <Link href="https://youtube.com/@TakaDevelopment" target="_blank" aria-label="YouTube">
-                      <FaYoutube className="hover:text-blue-400 transition" />
+                      <FaYoutube className="hover:text-red-500 transition" />
                     </Link>
                     <Link href="https://tiktok.com/@putrawangyyy" target="_blank" aria-label="TikTok">
-                      <FaTiktok className="hover:text-blue-400 transition" />
+                      <FaTiktok className="hover:text-pink-400 transition" />
                     </Link>
                     <Link href="https://instagram.com/putrasenpaiii" target="_blank" aria-label="Instagram">
-                      <FaInstagram className="hover:text-blue-400 transition" />
+                      <FaInstagram className="hover:text-purple-400 transition" />
                     </Link>
                   </div>
                 </div>
