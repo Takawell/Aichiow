@@ -36,13 +36,14 @@ export default function Navbar() {
         scrolled ? 'bg-neutral-900/80 shadow-lg' : 'bg-neutral-900/50'
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-10 py-3 flex items-center justify-between">
-        {/* LOGO - pojok kiri */}
+      {/* Full width container */}
+      <div className="w-full px-4 md:px-10 py-3 flex items-center justify-between">
+        {/* LOGO - kiri */}
         <Link href="/" className="logo-gradient text-2xl font-extrabold tracking-wide">
           AICHIOW
         </Link>
 
-        {/* NAV DESKTOP - pojok kanan */}
+        {/* NAV DESKTOP - kanan */}
         <div className="hidden md:flex items-center gap-8 ml-auto">
           <nav className="flex gap-6 text-sm md:text-base font-medium">
             {navItems.map((item) => {
@@ -66,7 +67,7 @@ export default function Navbar() {
           <ThemeToggle />
         </div>
 
-        {/* NAV MOBILE */}
+        {/* NAV MOBILE - kanan */}
         <div className="md:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -74,7 +75,10 @@ export default function Navbar() {
                 <Menu className="h-7 w-7" />
               </button>
             </SheetTrigger>
-            <SheetContent side="right" className="bg-neutral-900 text-white w-64 sm:w-72">
+            <SheetContent
+              side="right"
+              className="bg-neutral-900 text-white w-64 sm:w-72 animate-slide-in"
+            >
               <div className="flex flex-col gap-6 mt-10 px-4">
                 {navItems.map((item) => {
                   const isActive =
