@@ -38,10 +38,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 md:px-10 py-3 flex items-center justify-between">
         {/* LOGO - pojok kiri */}
-        <Link
-          href="/"
-          className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 drop-shadow-md hover:scale-105 transition-transform"
-        >
+        <Link href="/" className="logo-gradient text-2xl font-extrabold tracking-wide">
           AICHIOW
         </Link>
 
@@ -57,19 +54,15 @@ export default function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={classNames(
-                    'relative transition duration-200 hover:text-sky-400 group',
+                    'nav-link hover:text-sky-400',
                     isActive ? 'text-sky-400' : 'text-white'
                   )}
                 >
                   {item.label}
-                  {/* Underline animation */}
-                  <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-sky-400 transition-all duration-300 group-hover:w-full" />
                 </Link>
               )
             })}
           </nav>
-
-          {/* Dark/Light Mode */}
           <ThemeToggle />
         </div>
 
@@ -121,7 +114,6 @@ export default function Navbar() {
                   </div>
                 </div>
               </div>
-
               <div className="absolute bottom-6 left-4">
                 <ThemeToggle />
               </div>
