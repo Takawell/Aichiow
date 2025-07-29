@@ -22,3 +22,37 @@ a {
   background-color: #38bdf8;
   border-radius: 4px;
 }
+
+/* ====== NAVBAR PREMIUM STYLE ====== */
+
+/* Underline animasi untuk link navbar */
+.nav-link {
+  @apply relative text-white transition-colors duration-300;
+}
+
+.nav-link::after {
+  content: "";
+  @apply absolute left-0 bottom-0 w-0 h-[2px] bg-sky-400 transition-all duration-300;
+}
+
+.nav-link:hover::after {
+  @apply w-full;
+}
+
+/* Gradient glow untuk logo */
+.logo-gradient {
+  background: linear-gradient(to right, #38bdf8, #3b82f6, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5),
+               0 0 16px rgba(59, 130, 246, 0.4),
+               0 0 24px rgba(99, 102, 241, 0.3);
+  transition: transform 0.2s ease, text-shadow 0.3s ease;
+}
+
+.logo-gradient:hover {
+  transform: scale(1.05);
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.7),
+               0 0 20px rgba(59, 130, 246, 0.5),
+               0 0 28px rgba(99, 102, 241, 0.4);
+}
