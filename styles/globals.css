@@ -22,3 +22,60 @@ a {
   background-color: #38bdf8;
   border-radius: 4px;
 }
+
+.nav-link {
+  @apply relative text-white transition-colors duration-300;
+}
+.nav-link::after {
+  content: "";
+  @apply absolute left-0 bottom-0 w-0 h-[2px] bg-sky-400 transition-all duration-300;
+}
+.nav-link:hover::after {
+  @apply w-full;
+}
+
+.logo-gradient {
+  background: linear-gradient(to right, #38bdf8, #3b82f6, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 
+    0 0 8px rgba(56, 189, 248, 0.5),
+    0 0 16px rgba(59, 130, 246, 0.4),
+    0 0 24px rgba(99, 102, 241, 0.3);
+  transition: transform 0.2s ease, text-shadow 0.3s ease;
+}
+.logo-gradient:hover {
+  transform: scale(1.05);
+  text-shadow: 
+    0 0 12px rgba(56, 189, 248, 0.7),
+    0 0 20px rgba(59, 130, 246, 0.5),
+    0 0 28px rgba(99, 102, 241, 0.4);
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-slide-in {
+  animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes fadeDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-down {
+  animation: fadeDown 0.5s ease-out forwards;
+}
