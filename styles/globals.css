@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-  @apply transition-colors duration-500 ease-in-out;
-}
-
 body {
   @apply bg-white text-black font-sans antialiased dark:bg-dark dark:text-white;
 }
