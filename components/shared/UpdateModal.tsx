@@ -2,9 +2,17 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { X, Rocket, ListChecks, Calendar, Images } from 'lucide-react'
+import {
+  X,
+  Rocket,
+  ListChecks,
+  Calendar,
+  Image as ImageIcon,
+} from 'lucide-react'
 import Particles from 'react-tsparticles'
 import { loadFull } from 'tsparticles'
+import ReactMarkdown from 'react-markdown'
+import Tilt from 'react-parallax-tilt'
 
 const STORAGE_KEY = 'aichiow-update-version'
 const CURRENT_VERSION = '2.0.0-superbeta'
@@ -17,7 +25,6 @@ export default function UpdateModal() {
   const [easterEgg, setEasterEgg] = useState(false)
   const doubleClickTimeout = useRef<NodeJS.Timeout | null>(null)
 
-  // ==== Cek Versi ====
   useEffect(() => {
     const seenVersion = localStorage.getItem(STORAGE_KEY)
     if (seenVersion !== CURRENT_VERSION) setVisible(true)
@@ -40,7 +47,7 @@ export default function UpdateModal() {
     { key: 'whatsnew', icon: Rocket, label: "What's New" },
     { key: 'changelog', icon: ListChecks, label: 'Changelog' },
     { key: 'upcoming', icon: Calendar, label: 'Upcoming' },
-    { key: 'gallery', icon: Images, label: 'Gallery' },
+    { key: 'gallery', icon: ImageIcon, label: 'Gallery' },
   ]
 
   const nextTab = () => {
@@ -65,7 +72,6 @@ export default function UpdateModal() {
     }
   }
 
-  // ==== Particles Config ====
   const particlesInit = async (main: any) => {
     await loadFull(main)
   }
@@ -91,7 +97,6 @@ export default function UpdateModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          {/* Background Particles */}
           <Particles
             id="update-modal-particles"
             init={particlesInit}
@@ -113,7 +118,6 @@ export default function UpdateModal() {
                 '0 0 20px rgba(0, 246, 255, 0.3), 0 0 50px rgba(0, 246, 255, 0.2)',
             }}
           >
-            {/* Tombol Close */}
             <button
               onClick={handleClose}
               className="absolute top-4 right-4 text-white/70 hover:text-white transition"
@@ -121,7 +125,6 @@ export default function UpdateModal() {
               <X className="w-5 h-5" />
             </button>
 
-            {/* Header */}
             <div
               className="mb-6 text-center select-none"
               onClick={triggerEasterEgg}
@@ -147,7 +150,6 @@ export default function UpdateModal() {
               </motion.div>
             )}
 
-            {/* Tabs */}
             <div className="flex justify-center mb-6 space-x-2">
               {tabs.map(({ key, icon: Icon, label }) => (
                 <button
@@ -164,7 +166,6 @@ export default function UpdateModal() {
               ))}
             </div>
 
-            {/* Konten Tab */}
             <motion.div
               key={tab}
               initial={{ opacity: 0, y: 10 }}
@@ -179,7 +180,6 @@ export default function UpdateModal() {
               {tab === 'gallery' && <GalleryContent />}
             </motion.div>
 
-            {/* Footer */}
             <div className="flex justify-between mt-6">
               <button
                 onClick={handleClose}
@@ -201,7 +201,7 @@ export default function UpdateModal() {
   )
 }
 
-// ==== COMPONENT TAB CONTENTS ====
+// === Tab Contents ===
 
 function WhatsNewContent() {
   return (
@@ -215,31 +215,24 @@ function WhatsNewContent() {
 }
 
 function ChangelogContent() {
-  const logs = [
-    { version: '2.0.0-superbeta', date: '30 Jul 2025', changes: ['New modal system', 'Particle background', 'Gallery preview'] },
-    { version: '1.9.0', date: '25 Jul 2025', changes: ['Refactor homepage', 'Improved search engine'] },
-    { version: '1.8.5', date: '20 Jul 2025', changes: ['Dark mode toggle', 'Bug fix trending page'] },
-  ]
+  const markdown = `
+### 🧾 v2.0.0-superbeta (30 Jul 2025)
+- 🚀 Modal baru dengan efek 3D, particles, dan tabs
+- 🎥 Hero banner support trailer anime
+- 📷 Gallery carousel interaktif
+- 🧠 Changelog berbasis Markdown
 
+### v1.9.0
+- Peningkatan performa search
+- Refactor hook data anime
+
+### v1.8.5
+- Dark Mode toggle
+- Bugfix halaman trending
+  `
   return (
-    <div className="space-y-4">
-      {logs.map((log, idx) => (
-        <motion.div
-          key={idx}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: idx * 0.1 }}
-          className="bg-neutral-800/50 p-4 rounded-md border border-neutral-700"
-        >
-          <h3 className="font-bold text-blue-400">v{log.version}</h3>
-          <p className="text-xs text-neutral-400 mb-2">{log.date}</p>
-          <ul className="list-disc list-inside text-neutral-300">
-            {log.changes.map((c, i) => (
-              <li key={i}>{c}</li>
-            ))}
-          </ul>
-        </motion.div>
-      ))}
+    <div className="prose prose-invert max-w-none text-sm text-neutral-300 prose-ul:pl-4 prose-li:marker:text-blue-400">
+      <ReactMarkdown>{markdown}</ReactMarkdown>
     </div>
   )
 }
@@ -256,23 +249,48 @@ function UpcomingContent() {
 }
 
 function GalleryContent() {
-  const images = [
-    '/preview1.png',
-    '/preview2.png',
-    '/preview3.png',
+  const previews = [
+    {
+      title: 'Hero Banner Update',
+      description: 'Hero section kini memiliki trailer anime full HD dengan tombol play.',
+      image: '/preview1.png',
+    },
+    {
+      title: 'Dark Mode Otomatis',
+      description: 'Auto mendeteksi sistem OS kamu dan menyesuaikan tema.',
+      image: '/preview2.png',
+    },
+    {
+      title: 'UI Genre Baru',
+      description: 'Tampilan genre lebih bersih dengan ikon dan filter langsung.',
+      image: '/preview3.png',
+    },
   ]
 
   return (
-    <div className="grid grid-cols-3 gap-3">
-      {images.map((src, i) => (
-        <motion.div
-          key={i}
-          whileHover={{ scale: 1.05 }}
-          className="rounded-lg overflow-hidden border border-neutral-700 shadow-md"
-        >
-          <img src={src} alt={`Preview ${i}`} className="w-full h-auto" />
-        </motion.div>
-      ))}
+    <div className="w-full overflow-hidden">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {previews.map((item, i) => (
+          <Tilt
+            glareEnable={true}
+            glareMaxOpacity={0.4}
+            glareColor="#00f6ff"
+            glarePosition="all"
+            scale={1.02}
+            transitionSpeed={250}
+            key={i}
+            className="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700 hover:shadow-blue-500/20 shadow-md transition duration-300"
+          >
+            <img
+              src={item.image}
+              alt={item.title}
+              className="w-full h-40 object-cover rounded-md mb-3"
+            />
+            <h4 className="font-semibold text-white text-sm mb-1">{item.title}</h4>
+            <p className="text-xs text-neutral-300">{item.description}</p>
+          </Tilt>
+        ))}
+      </div>
     </div>
   )
 }
