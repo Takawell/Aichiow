@@ -2,22 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Smooth transition untuk semua elemen */
 html, body {
   @apply transition-colors duration-500 ease-in-out;
 }
 
-/* Body default + support dark/light mode */
 body {
   @apply bg-white text-black font-sans antialiased dark:bg-dark dark:text-white;
 }
 
-/* Link */
 a {
   @apply text-inherit no-underline transition-colors duration-300;
 }
 
-/* Scrollbar style */
 * {
   scrollbar-width: thin;
   scrollbar-color: #38bdf8 #1f2937;
@@ -31,9 +27,6 @@ a {
   border-radius: 4px;
 }
 
-/* ========================= */
-/* ========== NAV ========== */
-/* ========================= */
 .nav-link {
   @apply relative text-white dark:text-white transition-colors duration-300;
 }
@@ -47,9 +40,6 @@ a {
   @apply w-full;
 }
 
-/* ========================= */
-/* ======== LOGO =========== */
-/* ========================= */
 .logo-gradient {
   background: linear-gradient(to right, #38bdf8, #3b82f6, #6366f1);
   -webkit-background-clip: text;
@@ -69,11 +59,6 @@ a {
     0 0 28px rgba(99, 102, 241, 0.4);
 }
 
-/* ========================= */
-/* ======== ANIMASI ======== */
-/* ========================= */
-
-/* Animasi slide-in untuk mobile nav */
 @keyframes slideIn {
   0% {
     transform: translateX(100%);
@@ -89,7 +74,6 @@ a {
   animation: slideIn 0.3s ease forwards;
 }
 
-/* Flash lightning untuk theme toggle */
 @keyframes flashPulse {
   0% { opacity: 0; }
   20% { opacity: 1; }
@@ -101,7 +85,6 @@ a {
   animation: flashPulse 0.4s ease-out forwards;
 }
 
-/* Fade-in (untuk hero section, dsb.) */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
