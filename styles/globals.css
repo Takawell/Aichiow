@@ -18,7 +18,6 @@ a {
 ::-webkit-scrollbar {
   width: 8px;
 }
-
 ::-webkit-scrollbar-thumb {
   background-color: #38bdf8;
   border-radius: 4px;
