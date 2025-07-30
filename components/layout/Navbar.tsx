@@ -22,8 +22,10 @@ export default function Navbar() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
@@ -32,18 +34,21 @@ export default function Navbar() {
   return (
     <header
       className={classNames(
-        'sticky top-0 z-50 transition-all duration-300 backdrop-blur-lg',
-        scrolled ? 'bg-neutral-900/80 shadow-lg' : 'bg-neutral-900/50'
+        'sticky top-0 z-50 transition-all duration-300 backdrop-blur-lg animate-fade-down',
+        scrolled ? 'bg-neutral-900/80 shadow-lg' : 'bg-neutral-900/50',
+        mounted ? 'opacity-100' : 'opacity-0'
       )}
     >
-      {/* Full width container */}
       <div className="w-full px-4 md:px-10 py-3 flex items-center justify-between">
-        {/* LOGO - kiri */}
-        <Link href="/" className="logo-gradient text-2xl font-extrabold tracking-wide">
+        {/* Logo kiri */}
+        <Link
+          href="/"
+          className="logo-gradient text-2xl font-extrabold tracking-wide hover:scale-105 transition-transform"
+        >
           AICHIOW
         </Link>
 
-        {/* NAV DESKTOP - kanan */}
+        {/* Nav desktop kanan */}
         <div className="hidden md:flex items-center gap-8 ml-auto">
           <nav className="flex gap-6 text-sm md:text-base font-medium">
             {navItems.map((item) => {
@@ -67,7 +72,7 @@ export default function Navbar() {
           <ThemeToggle />
         </div>
 
-        {/* NAV MOBILE - kanan */}
+        {/* Nav mobile */}
         <div className="md:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -99,7 +104,7 @@ export default function Navbar() {
                   )
                 })}
 
-                {/* Community Links */}
+                {/* Community */}
                 <div className="mt-8 border-t border-white/20 pt-4">
                   <p className="text-sm font-semibold uppercase text-white/60 mb-3">Community</p>
                   <div className="flex gap-4 text-lg">
