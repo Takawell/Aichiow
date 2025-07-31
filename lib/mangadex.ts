@@ -13,7 +13,6 @@ export async function fetchPopularManhwa() {
         translatedLanguage: ['en'],
       },
     })
-
     return res.data.data
   } catch (error) {
     console.error('[fetchPopularManhwa]', error)
@@ -28,7 +27,6 @@ export async function fetchManhwaDetail(mangaId: string) {
         includes: ['author', 'artist', 'cover_art'],
       },
     })
-
     return res.data.data
   } catch (error) {
     console.error('[fetchManhwaDetail]', error)
@@ -53,10 +51,9 @@ export async function fetchChapters(mangaId: string) {
         manga: mangaId,
         limit: 100,
         order: { chapter: 'desc' },
-        translatedLanguage: ['en', 'id'], // ✅ hanya EN dan ID
+        translatedLanguage: ['en', 'id'], // ✅ English + Indonesian
       },
     })
-
     return res.data.data
   } catch (error) {
     console.error('[fetchChapters]', error)
@@ -68,7 +65,7 @@ export async function fetchChapterImages(chapterId: string) {
   try {
     const res = await axios.get(`${BASE_URL}/at-home/server/${chapterId}`)
     const { baseUrl, chapter } = res.data
-    const fileList = chapter.dataSaver // ✅ versi data-saver (bebas watermark)
+    const fileList = chapter.dataSaver // ✅ bebas watermark
     const mode = 'data-saver'
 
     if (!fileList || fileList.length === 0) {
@@ -96,7 +93,6 @@ export async function searchManhwa(query: string) {
         translatedLanguage: ['en'],
       },
     })
-
     return res.data.data
   } catch (error) {
     console.error('[searchManhwa]', error)
@@ -126,7 +122,6 @@ export async function getMangaByFilter(tagId: string) {
         translatedLanguage: ['en'],
       },
     })
-
     return res.data.data
   } catch (error) {
     console.error('[getMangaByFilter]', error)
@@ -188,11 +183,6 @@ export async function getTrendingMonthly() {
   }
 }
 
-export function getCoverImage(manga: any) {
-  const coverArt = manga.relationships?.find(
-    (rel: any) => rel.type === 'cover_art'
-  )
-  return coverArt
-    ? `https://uploads.mangadex.org/covers/${manga.id}/${coverArt.attributes.fileName}.256.jpg`
-    : '/no-image.png'
+export function getCoverImage(mangaId: string, fileName: string) {
+  return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}.256.jpg`
 }
