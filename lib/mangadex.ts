@@ -23,41 +23,41 @@ export async function fetchChapters(mangaId: string) {
   return res.data
 }
 
-// ✅ Ambil gambar dari chapter (image URLs) — bebas watermark
+// ✅ Ambil gambar dari chapter (image URLs) + support next & prev tanpa filter EN
 export async function fetchChapterImages(chapterId: string) {
   try {
-    const res = await axios.get(`https://api.mangadex.org/at-home/server/${chapterId}`)
+    const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
     const { baseUrl, chapter } = res.data
 
     if (!baseUrl || !chapter?.hash) throw new Error('Invalid chapter response')
 
     const cleanBaseUrl = baseUrl.replace(/\\/g, '')
-    const imageUrls = (chapter.dataSaver || []).map(
-      (file: string) => `${cleanBaseUrl}/data-saver/${chapter.hash}/${file}`
-    )
 
-    const chapterInfo = await axios.get(`https://api.mangadex.org/chapter/${chapterId}`)
-    const chapterData = chapterInfo.data?.data
-
-    const mangaRel = chapterData.relationships?.find((rel: any) => rel.type === 'manga')
+    // Cari ID manga dan nomor chapter saat ini
+    const mangaRel = chapter?.relationships?.find((rel: any) => rel.type === 'manga')
     const mangaId = mangaRel?.id
-    const currentChapter = chapterData.attributes?.chapter
+    const currentChapter = chapter?.chapter || null
 
     let next: string | null = null
     let prev: string | null = null
 
     if (mangaId && currentChapter) {
       const listRes = await axios.get(
-        `https://api.mangadex.org/chapter?manga=${mangaId}&translatedLanguage[]=en&order[chapter]=asc&limit=500`
+        `https://api.mangadex.org/chapter?manga=${mangaId}&order[chapter]=asc&limit=500`
       )
+
       const all = listRes.data?.data || []
       const index = all.findIndex((ch: any) => ch.id === chapterId)
+
       if (index > 0) prev = all[index - 1]?.id || null
       if (index < all.length - 1) next = all[index + 1]?.id || null
     }
 
     return {
-      images: imageUrls,
+      baseUrl: cleanBaseUrl,
+      hash: chapter.hash,
+      data: chapter.data || [],
+      dataSaver: chapter.dataSaver || [],
       next,
       prev,
     }
