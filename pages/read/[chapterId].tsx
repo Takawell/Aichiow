@@ -30,11 +30,22 @@ export default function ReadPage() {
 
         const chapter = await fetchChapterImages(chapterId)
 
-        if (!chapter || !chapter.images || chapter.images.length === 0) {
+        if (!chapter || !chapter.hash || !chapter.baseUrl) {
+          throw new Error('Invalid chapter data')
+        }
+
+        const fileList = chapter.data?.length ? chapter.data : chapter.dataSaver
+        const mode = chapter.data?.length ? 'data' : 'data-saver'
+
+        if (!fileList || fileList.length === 0) {
           throw new Error('No images found')
         }
 
-        setImages(chapter.images)
+        const full = fileList.map(
+          (file: string) => `${chapter.baseUrl}/${mode}/${chapter.hash}/${file}`
+        )
+
+        setImages(full)
         setNextId(chapter.next ?? null)
         setPrevId(chapter.prev ?? null)
       } catch (err: any) {
@@ -88,7 +99,7 @@ export default function ReadPage() {
                 src={src}
                 alt={`Page ${idx + 1}`}
                 loading="lazy"
-                className="w-full object-contain rounded-md shadow border border-neutral-800 transition duration-300 ease-in-out blur-sm hover:blur-0"
+                className="w-full object-contain rounded-md shadow border border-neutral-800"
               />
             ))}
           </div>
@@ -123,9 +134,7 @@ export default function ReadPage() {
       </main>
 
       {/* Footer */}
-      <footer className="text-center text-xs text-neutral-600 py-6">
-        End of Chapter
-      </footer>
+      <footer className="text-center text-xs text-neutral-600 py-6">End of Chapter</footer>
     </div>
   )
 }
