@@ -1,145 +1,189 @@
 import axios from 'axios'
 
-// ✅ Cek apakah manga punya cover_art
-export function hasCoverArt(manga: any) {
-  return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
-}
+const BASE_URL = 'https://api.mangadex.org'
 
-// ✅ Ambil manga populer
-export async function fetchPopularManga() {
-  const res = await axios.get('/api/manga/popular')
-  return res.data
-}
-
-// ✅ Ambil detail manga
-export async function fetchMangaDetail(id: string) {
-  const res = await axios.get(`/api/manga/detail?id=${id}`)
-  return res.data
-}
-
-// ✅ Ambil semua chapter dari manga tertentu
-export async function fetchChapters(mangaId: string) {
-  const res = await axios.get(`/api/manga/chapters?mangaId=${mangaId}`)
-  return res.data
-}
-
-// ✅ Ambil gambar dari chapter (image URLs) + support next & prev tanpa watermark
-export async function fetchChapterImages(chapterId: string) {
+export async function fetchPopularManhwa() {
   try {
-    const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
-    const { baseUrl, chapter } = res.data
+    const res = await axios.get(`${BASE_URL}/manga`, {
+      params: {
+        limit: 20,
+        order: { followedCount: 'desc' },
+        includedTagsMode: 'AND',
+        contentRating: ['safe', 'suggestive'],
+        translatedLanguage: ['en'],
+      },
+    })
 
-    if (!baseUrl || !chapter?.hash) throw new Error('Invalid chapter response')
-
-    const cleanBaseUrl = baseUrl.replace(/\\/g, '')
-
-    const mangaRel = chapter?.relationships?.find((rel: any) => rel.type === 'manga')
-    const mangaId = mangaRel?.id
-    const currentChapter = chapter?.chapter || null
-
-    let next: string | null = null
-    let prev: string | null = null
-
-    if (mangaId && currentChapter) {
-      const listRes = await axios.get(
-        `https://api.mangadex.org/chapter?manga=${mangaId}&order[chapter]=asc&limit=500`
-      )
-
-      const all = listRes.data?.data || []
-      const index = all.findIndex((ch: any) => ch.id === chapterId)
-
-      if (index > 0) prev = all[index - 1]?.id || null
-      if (index < all.length - 1) next = all[index + 1]?.id || null
-    }
-
-    return {
-      baseUrl: cleanBaseUrl,
-      hash: chapter.hash,
-      files: chapter.dataSaver?.length ? chapter.dataSaver : chapter.data, // ✅ anti watermark
-      mode: chapter.dataSaver?.length ? 'data-saver' : 'data', // ✅ folder yang dipakai
-      next,
-      prev,
-    }
+    return res.data.data
   } catch (error) {
-    console.error('fetchChapterImages error:', error)
-    return null
-  }
-}
-
-// ✅ Cari manga dari judul
-export async function searchManga(query: string) {
-  const res = await axios.get(`/api/manga/search?query=${query}`)
-  const results = res.data
-  const lowered = query.toLowerCase().trim()
-
-  return results.filter((manga: any) => {
-    const titles = [
-      ...Object.values(manga.attributes.title || {}),
-      ...manga.attributes.altTitles.flatMap((alt: any) => Object.values(alt)),
-    ]
-    return titles.some(
-      (title) => typeof title === 'string' && title.toLowerCase().includes(lowered)
-    )
-  })
-}
-
-// ✅ Ambil semua genre manga
-export async function fetchGenres() {
-  const res = await axios.get('/api/manga/genres')
-  return res.data
-}
-
-// ✅ Ambil manga berdasarkan filter tag
-export async function getMangaByFilter(params: { includedTags: string[] }) {
-  try {
-    const res = await axios.post('/api/manga/filter', params)
-    const results = res.data
-    return results.filter((manga: any) => hasCoverArt(manga))
-  } catch (error) {
-    console.error('getMangaByFilter error:', error)
+    console.error('[fetchPopularManhwa]', error)
     return []
   }
 }
 
-// ✅ Ambil manga berdasarkan genre ID
-export async function fetchMangaByGenre(tagId: string) {
-  const res = await axios.get(`/api/manga/genre?id=${tagId}`)
-  return res.data
-}
-
-// ✅ Buat URL gambar cover dari MangaDex
-export function getCoverImage(mangaId: string, fileName: string) {
-  return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`
-}
-
-// ✅ Ambil judul lokal dengan fallback
-export function getLocalizedTitle(titleObj: { [key: string]: string }) {
-  return (
-    titleObj.en ||
-    titleObj.ja ||
-    titleObj['en-us'] ||
-    Object.values(titleObj)[0] ||
-    'Untitled'
-  )
-}
-
-// ✅ Urutkan chapter secara descending (chapter terbaru duluan)
-export function sortChapters(chapters: any[]) {
-  return chapters.sort((a, b) => {
-    const numA = parseFloat(a.attributes.chapter || '0')
-    const numB = parseFloat(b.attributes.chapter || '0')
-    return numB - numA
-  })
-}
-
-// ✅ Section tambahan: ongoing, completed, top rated, latest
-export async function getMangaSection(type: 'ongoing' | 'completed' | 'top_rated' | 'latest') {
+export async function fetchManhwaDetail(mangaId: string) {
   try {
-    const res = await axios.get(`/api/manga/section?type=${type}`)
-    const results = res.data
-    return results.filter((manga: any) => hasCoverArt(manga))
-  } catch (err) {
-    console.error('getMangaSection error:', err)
+    const res = await axios.get(`${BASE_URL}/manga/${mangaId}`, {
+      params: {
+        includes: ['author', 'artist', 'cover_art'],
+      },
+    })
+
+    return res.data.data
+  } catch (error) {
+    console.error('[fetchManhwaDetail]', error)
+    return null
+  }
+}
+
+export async function fetchRawManhwaDetail(mangaId: string) {
+  try {
+    const res = await axios.get(`${BASE_URL}/manga/${mangaId}`)
+    return res.data
+  } catch (error) {
+    console.error('[fetchRawManhwaDetail]', error)
+    return null
+  }
+}
+
+export async function fetchChapters(mangaId: string) {
+  try {
+    const res = await axios.get(`${BASE_URL}/chapter`, {
+      params: {
+        manga: mangaId,
+        limit: 100,
+        order: { chapter: 'desc' },
+        translatedLanguage: ['en', 'id'], // ✅ hanya EN dan ID
+      },
+    })
+
+    return res.data.data
+  } catch (error) {
+    console.error('[fetchChapters]', error)
+    return []
+  }
+}
+
+export async function fetchChapterImages(chapterId: string) {
+  try {
+    const res = await axios.get(`${BASE_URL}/at-home/server/${chapterId}`)
+    const { baseUrl, chapter } = res.data
+    const fileList = chapter.dataSaver // ✅ versi data-saver (bebas watermark)
+    const mode = 'data-saver'
+
+    if (!fileList || fileList.length === 0) {
+      throw new Error('No pages found for this chapter')
+    }
+
+    const images = fileList.map(
+      (file: string) => `${baseUrl}/${mode}/${chapter.hash}/${file}`
+    )
+
+    return images
+  } catch (error) {
+    console.error('[fetchChapterImages]', error)
+    return []
+  }
+}
+
+export async function searchManhwa(query: string) {
+  try {
+    const res = await axios.get(`${BASE_URL}/manga`, {
+      params: {
+        title: query,
+        limit: 20,
+        contentRating: ['safe', 'suggestive'],
+        translatedLanguage: ['en'],
+      },
+    })
+
+    return res.data.data
+  } catch (error) {
+    console.error('[searchManhwa]', error)
+    return []
+  }
+}
+
+export async function fetchGenres() {
+  try {
+    const res = await axios.get(`${BASE_URL}/manga/tag`)
+    return res.data.data
+  } catch (error) {
+    console.error('[fetchGenres]', error)
+    return []
+  }
+}
+
+export async function getMangaByFilter(tagId: string) {
+  try {
+    const res = await axios.get(`${BASE_URL}/manga`, {
+      params: {
+        includedTags: [tagId],
+        includedTagsMode: 'AND',
+        limit: 20,
+        order: { followedCount: 'desc' },
+        contentRating: ['safe', 'suggestive'],
+        translatedLanguage: ['en'],
+      },
+    })
+
+    return res.data.data
+  } catch (error) {
+    console.error('[getMangaByFilter]', error)
+    return []
+  }
+}
+
+export async function getTrendingDaily() {
+  try {
+    const res = await axios.get(`${BASE_URL}/manga`, {
+      params: {
+        limit: 20,
+        order: { followedCount: 'desc' },
+        createdAtSince: new Date(Date.now() - 86400000).toISOString(),
+        contentRating: ['safe', 'suggestive'],
+        translatedLanguage: ['en'],
+      },
+    })
+    return res.data.data
+  } catch (error) {
+    console.error('[getTrendingDaily]', error)
+    return []
+  }
+}
+
+export async function getTrendingWeekly() {
+  try {
+    const res = await axios.get(`${BASE_URL}/manga`, {
+      params: {
+        limit: 20,
+        order: { followedCount: 'desc' },
+        createdAtSince: new Date(Date.now() - 7 * 86400000).toISOString(),
+        contentRating: ['safe', 'suggestive'],
+        translatedLanguage: ['en'],
+      },
+    })
+    return res.data.data
+  } catch (error) {
+    console.error('[getTrendingWeekly]', error)
+    return []
+  }
+}
+
+export async function getTrendingMonthly() {
+  try {
+    const res = await axios.get(`${BASE_URL}/manga`, {
+      params: {
+        limit: 20,
+        order: { followedCount: 'desc' },
+        createdAtSince: new Date(Date.now() - 30 * 86400000).toISOString(),
+        contentRating: ['safe', 'suggestive'],
+        translatedLanguage: ['en'],
+      },
+    })
+    return res.data.data
+  } catch (error) {
+    console.error('[getTrendingMonthly]', error)
     return []
   }
 }
