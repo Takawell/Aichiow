@@ -34,8 +34,9 @@ export default function ReadPage() {
           throw new Error('Invalid chapter data')
         }
 
-        const fileList = chapter.data?.length ? chapter.data : chapter.dataSaver
-        const mode = chapter.data?.length ? 'data' : 'data-saver'
+        // Pakai dataSaver agar bebas watermark
+        const fileList = chapter.dataSaver
+        const mode = 'data-saver'
 
         if (!fileList || fileList.length === 0) {
           throw new Error('No images found')
@@ -99,7 +100,7 @@ export default function ReadPage() {
                 src={src}
                 alt={`Page ${idx + 1}`}
                 loading="lazy"
-                className="w-full object-contain rounded-md shadow border border-neutral-800"
+                className="w-full object-contain rounded-md shadow border border-neutral-800 transition duration-300 ease-in-out blur-sm hover:blur-0"
               />
             ))}
           </div>
@@ -134,7 +135,9 @@ export default function ReadPage() {
       </main>
 
       {/* Footer */}
-      <footer className="text-center text-xs text-neutral-600 py-6">End of Chapter</footer>
+      <footer className="text-center text-xs text-neutral-600 py-6">
+        End of Chapter
+      </footer>
     </div>
   )
 }
