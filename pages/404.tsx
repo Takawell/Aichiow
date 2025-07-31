@@ -55,7 +55,7 @@ export default function Custom404() {
           transition={{ delay: 2.0, duration: 1 }}
           className="mt-8 text-sm text-gray-500"
         >
-          © {new Date().getFullYear()} Aichiow. All rights reserved.
+          © {new Date().getFullYear()} AICHIOW TEAM. All rights reserved.
         </motion.p>
       </div>
     </div>
