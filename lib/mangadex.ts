@@ -187,3 +187,12 @@ export async function getTrendingMonthly() {
     return []
   }
 }
+
+export function getCoverImage(manga: any) {
+  const coverArt = manga.relationships?.find(
+    (rel: any) => rel.type === 'cover_art'
+  )
+  return coverArt
+    ? `https://uploads.mangadex.org/covers/${manga.id}/${coverArt.attributes.fileName}.256.jpg`
+    : '/no-image.png'
+}
