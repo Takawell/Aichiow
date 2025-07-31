@@ -24,7 +24,7 @@ export default async function handler(
     })
 
     const data = response.data.data.filter(hasCoverArt)
-    res.status(200).json({ data }) 
+    res.status(200).json(data)
   } catch (error: any) {
     console.error('[API] /api/manga/popular error:', error.message)
     res.status(500).json({ message: 'Failed to fetch popular manga' })
