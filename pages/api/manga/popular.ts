@@ -23,8 +23,23 @@ export default async function handler(
       },
     })
 
-    const data = response.data.data.filter(hasCoverArt)
-    res.status(200).json(data)
+    const mangaList = response.data.data
+      .filter(hasCoverArt)
+      .map((manga: any) => {
+        const cover = manga.relationships.find((rel: any) => rel.type === 'cover_art')
+        const fileName = cover?.attributes?.fileName
+
+        return {
+          id: manga.id,
+          title: manga.attributes.title.en || Object.values(manga.attributes.title)[0],
+          description: manga.attributes.description.en || '',
+          coverUrl: fileName
+            ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg`
+            : null,
+        }
+      })
+
+    res.status(200).json(mangaList)
   } catch (error: any) {
     console.error('[API] /api/manga/popular error:', error.message)
     res.status(500).json({ message: 'Failed to fetch popular manga' })
