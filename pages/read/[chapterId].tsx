@@ -30,23 +30,11 @@ export default function ReadPage() {
 
         const chapter = await fetchChapterImages(chapterId)
 
-        if (!chapter || !chapter.hash || !chapter.baseUrl) {
-          throw new Error('Invalid chapter data')
-        }
-
-        // Pakai dataSaver agar bebas watermark
-        const fileList = chapter.dataSaver
-        const mode = 'data-saver'
-
-        if (!fileList || fileList.length === 0) {
+        if (!chapter || !chapter.images || chapter.images.length === 0) {
           throw new Error('No images found')
         }
 
-        const full = fileList.map(
-          (file: string) => `${chapter.baseUrl}/${mode}/${chapter.hash}/${file}`
-        )
-
-        setImages(full)
+        setImages(chapter.images)
         setNextId(chapter.next ?? null)
         setPrevId(chapter.prev ?? null)
       } catch (err: any) {
