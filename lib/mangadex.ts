@@ -32,20 +32,23 @@ export async function fetchChapterImages(chapterId: string) {
     if (!baseUrl || !chapter?.hash) throw new Error('Invalid chapter response')
 
     const cleanBaseUrl = baseUrl.replace(/\\/g, '')
-    const imageUrls = (chapter.data || []).map(
-      (file: string) => `${cleanBaseUrl}/data/${chapter.hash}/${file}`
+    const imageUrls = (chapter.dataSaver || []).map(
+      (file: string) => `${cleanBaseUrl}/data-saver/${chapter.hash}/${file}`
     )
 
-    const mangaRel = chapter.relationships?.find((rel: any) => rel.type === 'manga')
+    const chapterInfo = await axios.get(`https://api.mangadex.org/chapter/${chapterId}`)
+    const chapterData = chapterInfo.data?.data
+
+    const mangaRel = chapterData.relationships?.find((rel: any) => rel.type === 'manga')
     const mangaId = mangaRel?.id
-    const currentChapter = chapter.chapter || null
+    const currentChapter = chapterData.attributes?.chapter
 
     let next: string | null = null
     let prev: string | null = null
 
     if (mangaId && currentChapter) {
       const listRes = await axios.get(
-        `https://api.mangadex.org/chapter?manga=${mangaId}&order[chapter]=asc&limit=500`
+        `https://api.mangadex.org/chapter?manga=${mangaId}&translatedLanguage[]=en&order[chapter]=asc&limit=500`
       )
       const all = listRes.data?.data || []
       const index = all.findIndex((ch: any) => ch.id === chapterId)
