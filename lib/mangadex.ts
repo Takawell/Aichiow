@@ -23,7 +23,7 @@ export async function fetchChapters(mangaId: string) {
   return res.data
 }
 
-// ✅ Ambil gambar dari chapter (image URLs) + support next & prev tanpa filter EN
+// ✅ Ambil gambar dari chapter (image URLs) + support next & prev tanpa watermark
 export async function fetchChapterImages(chapterId: string) {
   try {
     const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
@@ -33,7 +33,6 @@ export async function fetchChapterImages(chapterId: string) {
 
     const cleanBaseUrl = baseUrl.replace(/\\/g, '')
 
-    // Cari ID manga dan nomor chapter saat ini
     const mangaRel = chapter?.relationships?.find((rel: any) => rel.type === 'manga')
     const mangaId = mangaRel?.id
     const currentChapter = chapter?.chapter || null
@@ -56,8 +55,8 @@ export async function fetchChapterImages(chapterId: string) {
     return {
       baseUrl: cleanBaseUrl,
       hash: chapter.hash,
-      data: chapter.data || [],
-      dataSaver: chapter.dataSaver || [],
+      files: chapter.dataSaver?.length ? chapter.dataSaver : chapter.data, // ✅ anti watermark
+      mode: chapter.dataSaver?.length ? 'data-saver' : 'data', // ✅ folder yang dipakai
       next,
       prev,
     }
