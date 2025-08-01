@@ -12,7 +12,7 @@ const ImageUpload = dynamic(() => import("@/components/TraceSearch/ImageUpload")
 
 export default function FindAnimePage() {
   const { result } = useTraceSearch();
-  const { anime } = useAnimeDetail(result?.anilist?.id || 0);
+  const { anime } = useAnimeDetail(result?.anilist || 0);
 
   return (
     <>
