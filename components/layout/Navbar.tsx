@@ -11,7 +11,6 @@ import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 
 const navItems = [
   { href: '/', label: 'HOME' },
-  { href: '/find', label: 'FIND ANIME' },
   { href: '/upcoming', label: 'TIMETABLE' },
   { href: '/explore', label: 'EXPLORE' },
   { href: '/manga', label: 'MANGA' },
