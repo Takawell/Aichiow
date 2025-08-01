@@ -12,7 +12,8 @@ const ImageUpload = dynamic(() => import("@/components/TraceSearch/ImageUpload")
 
 export default function FindAnimePage() {
   const { result } = useTraceSearch();
-  const { anime } = useAnimeDetail(result?.anilist || 0);
+  const firstResult = result?.[0];
+  const { anime } = useAnimeDetail(firstResult?.anilist || 0);
 
   return (
     <>
@@ -46,7 +47,7 @@ export default function FindAnimePage() {
         <ImageUpload />
 
         {/* Hasil */}
-        {result && anime && (
+        {firstResult && anime && (
           <motion.section
             className="mt-10 w-full max-w-2xl mx-auto bg-white/5 border border-white/10 rounded-xl p-6 shadow-lg backdrop-blur-sm"
             initial={{ opacity: 0, y: 30 }}
@@ -62,8 +63,8 @@ export default function FindAnimePage() {
               />
               <div className="flex flex-col gap-2">
                 <p className="text-lg font-semibold">{anime.title.romaji}</p>
-                <p className="text-gray-400 text-sm italic">Episode: {result.episode ?? "Tidak Diketahui"}</p>
-                <p className="text-gray-400 text-sm">Similarity: {(result.similarity * 100).toFixed(2)}%</p>
+                <p className="text-gray-400 text-sm italic">Episode: {firstResult.episode ?? "Tidak Diketahui"}</p>
+                <p className="text-gray-400 text-sm">Similarity: {(firstResult.similarity * 100).toFixed(2)}%</p>
                 <Link
                   href={`/anime/${anime.id}`}
                   className="mt-3 inline-flex items-center gap-2 text-sm text-blue-400 hover:underline"
