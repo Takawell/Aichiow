@@ -129,7 +129,7 @@ export default function LandingPage() {
 
         {/* Anime Trending */}
         <section className="relative w-full max-w-7xl mx-auto mt-4 px-4 z-10">
-          <h2 className="text-3xl font-bold mb-6 text-center">LATEST ANIME TRENDING</h2>
+          <h2 className="text-3xl font-bold mb-6 text-center">latest anime trending</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5">
             {news.map((anime, index) => (
               <motion.div
