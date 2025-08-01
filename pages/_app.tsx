@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 
 export default function App({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(() => new QueryClient())
@@ -13,6 +14,9 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Head>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       {!isLanding && <Navbar />}
       <Component {...pageProps} />
     </QueryClientProvider>
