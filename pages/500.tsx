@@ -27,7 +27,7 @@ export default function Error500Page() {
           transition={{ delay: 0.2 }}
           className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-pink-500 to-indigo-500 drop-shadow-[0_0_10px_rgba(244,63,94,0.6)]"
         >
-          500 — SYSTEM FAILURE
+          500 SYSTEM FAILURE
         </motion.h1>
 
         {/* Subtitle */}
