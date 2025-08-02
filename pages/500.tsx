@@ -27,7 +27,7 @@ export default function Custom500() {
           transition={{ delay: 0.2 }}
           className="flex justify-center"
         >
-          <Image
+          <img
             src="/error.png"
             alt="Chibi Error"
             width={180}
