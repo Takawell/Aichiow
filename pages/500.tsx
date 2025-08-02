@@ -28,7 +28,7 @@ export default function Custom500() {
           className="flex justify-center"
         >
           <Image
-            src="https://aichiow.vercel.app/error.png"
+            src="/error.png"
             alt="Chibi Error"
             width={180}
             height={180}
