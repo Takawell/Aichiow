@@ -27,7 +27,7 @@ export default function Custom500() {
           transition={{ delay: 0.2 }}
           className="flex justify-center"
         >
-          <img
+          <Image
             src="/error.png"
             alt="Chibi Error"
             width={180}
@@ -56,26 +56,19 @@ export default function Custom500() {
         >
           Oops... Server Aichiow lagi error nih 🥲
         </motion.p>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="mt-1 text-sm text-gray-400"
-        >
-          Tim teknikal kami sudah di jalan, tunggu sebentar ya!
-        </motion.p>
 
         {/* Back Button */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
           className="mt-6"
         >
-          <Link href="/">
-            <span className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 transition text-white font-semibold py-2 px-5 rounded-lg shadow-lg">
-              Kembali ke Beranda
-            </span>
+          <Link
+            href="/"
+            className="inline-block px-6 py-3 rounded-full bg-orange-500 hover:bg-orange-600 transition-colors text-white font-semibold shadow-md"
+          >
+            Kembali ke Beranda
           </Link>
         </motion.div>
       </motion.div>
