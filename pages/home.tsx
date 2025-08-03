@@ -1,4 +1,3 @@
-// pages/home.tsx
 import Head from 'next/head'
 import {
   useHeroAnime,
@@ -32,31 +31,28 @@ export default function HomePage() {
       </Head>
 
       <main className="bg-gradient-to-b from-[#0f0f10] via-[#111215] to-[#0a0a0a] min-h-screen text-white">
-        {/* 🗞️ Headline News */}
         <NewsBanner />
-
-        {/* 🎬 Hero Section */}
         <HeroSection anime={heroAnime?.[0]} loading={loadingHero} />
 
-        <Divider title="Now Airing" />
+        <Divider />
         <NowAiringSection anime={ongoingAnime} />
 
-        <Divider title="Trending Now" />
+        <Divider />
         <AnimeSection title="🔥 Trending Now" anime={trendingAnime} />
 
-        <Divider title="Seasonal Picks" />
+        <Divider />
         <AnimeSection title="⛅ Seasonal Anime" anime={seasonalAnime} />
 
-        <Divider title="Top Rated" />
+        <Divider />
         <AnimeSection title="🏆 Top Rated Anime" anime={topRatedAnime} />
 
-        <Divider title="Genres You May Like" />
+        <Divider />
         <TopGenres />
 
-        <Divider title="Studios Behind the Magic" />
+        <Divider />
         <FeaturedStudios />
 
-        <Divider title="Top Characters" />
+        <Divider />
         <TopCharacters />
 
         <CTACommunity />
