@@ -30,7 +30,7 @@ export default function CTACommunityFooter() {
           viewport={{ once: true }}
           className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-white via-primary to-white text-transparent bg-clip-text"
         >
-          🌌 Dive Deeper Into The Anime Realm
+          Dive Deeper Into The Anime Realm
         </motion.h2>
 
         <motion.p
