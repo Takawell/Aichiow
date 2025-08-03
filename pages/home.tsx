@@ -43,8 +43,6 @@ export default function HomePage() {
         <SpotlightSection anime={seasonalAnime?.slice(0, 6)} />
 
         <Divider title="Now Airing" />
-
-        {/* 📡 Now Airing */}
         <NowAiringSection anime={ongoingAnime} />
 
         <Divider title="Trending Now" />
@@ -55,9 +53,6 @@ export default function HomePage() {
 
         <Divider title="Top Rated" />
         <AnimeSection title="🏆 Top Rated Anime" anime={topRatedAnime} />
-
-        <Divider title="Fan Favorites" />
-        <AnimeSection title="❤️ Fan Favorites" anime={topRatedAnime?.slice(0, 5)} />
 
         <Divider title="Genres You May Like" />
         <TopGenres />
