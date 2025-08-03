@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { fetchTopRatedAnime, fetchAnimeDetail } from '@/lib/anime'
+import { fetchTopRatedAnime, fetchAnimeDetail } from '@/lib/anilist'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 
