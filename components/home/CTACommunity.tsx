@@ -30,7 +30,7 @@ export default function CTACommunityFooter() {
           viewport={{ once: true }}
           className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-white via-primary to-white text-transparent bg-clip-text"
         >
-          Dive Deeper Into The Anime Realm
+          dive into your dream world
         </motion.h2>
 
         <motion.p
@@ -41,7 +41,7 @@ export default function CTACommunityFooter() {
           viewport={{ once: true }}
           className="text-neutral-400 mt-6 max-w-2xl mx-auto text-base md:text-lg"
         >
-          Discover hand-picked seasonal highlights, studio masterpieces, and hidden anime gems. No login needed — just your curiosity.
+          Discover anime, manga, manhwa, light novel all in one
         </motion.p>
 
         <motion.div
@@ -53,16 +53,16 @@ export default function CTACommunityFooter() {
           className="flex justify-center gap-4 mt-10 flex-wrap"
         >
           <Link
-            href="/manhwa"
+            href="/manga"
             className="bg-primary hover:bg-primary/90 text-white font-semibold px-6 py-3 rounded-full transition-all shadow-md shadow-primary/30"
           >
-            Explore Manhwa
+            Explore Manga
           </Link>
           <Link
-            href="/manga"
+            href="/manhwa"
             className="border border-white/20 text-white px-6 py-3 rounded-full hover:bg-white/5 transition-all"
           >
-            Explore Manga
+            Explore Manhwa
           </Link>
         </motion.div>
       </div>
@@ -79,10 +79,7 @@ export default function CTACommunityFooter() {
             viewport={{ once: true }}
             className="space-y-4"
           >
-            <h2 className="text-2xl font-bold tracking-wide">Aichiow</h2>
-            <p className="text-sm text-neutral-400">
-              Your anime universe — discover trending shows, top studios, and iconic characters.
-            </p>
+            <h2 className="text-2xl font-bold tracking-wide">Aichiow — all in one</h2>
           </motion.div>
 
           {/* Nav */}
@@ -97,9 +94,9 @@ export default function CTACommunityFooter() {
             <h3 className="font-semibold">Explore</h3>
             <ul className="space-y-1">
               <li><Link href="/explore" className="hover:text-primary transition">All Anime</Link></li>
-              <li><Link href="/genre" className="hover:text-primary transition">Genres</Link></li>
-              <li><Link href="/studios" className="hover:text-primary transition">Studios</Link></li>
-              <li><Link href="/characters" className="hover:text-primary transition">Characters</Link></li>
+              <li><Link href="/upcoming" className="hover:text-primary transition">Timetable</Link></li>
+              <li><Link href="/manga" className="hover:text-primary transition">Manga</Link></li>
+              <li><Link href="/light-novel" className="hover:text-primary transition">Light novel</Link></li>
             </ul>
           </motion.div>
 
