@@ -12,7 +12,6 @@ import AnimeSection from '@/components/home/AnimeSection'
 import NewsBanner from '@/components/home/NewsBanner'
 import NowAiringSection from '@/components/home/NowAiringSection'
 import TopGenres from '@/components/home/TopGenres'
-import SpotlightSection from '@/components/home/SpotlightSection'
 import Divider from '@/components/ui/Divider'
 import FeaturedStudios from '@/components/home/FeaturedStudios'
 import CTACommunity from '@/components/home/CTACommunity'
@@ -38,9 +37,6 @@ export default function HomePage() {
 
         {/* 🎬 Hero Section */}
         <HeroSection anime={heroAnime?.[0]} loading={loadingHero} />
-
-        {/* 🎯 Spotlight */}
-        <SpotlightSection anime={seasonalAnime?.slice(0, 6)} />
 
         <Divider title="Now Airing" />
         <NowAiringSection anime={ongoingAnime} />
