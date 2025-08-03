@@ -11,10 +11,7 @@ import AnimeSection from '@/components/home/AnimeSection'
 import NewsBanner from '@/components/home/NewsBanner'
 import NowAiringSection from '@/components/home/NowAiringSection'
 import TopGenres from '@/components/home/TopGenres'
-import Divider from '@/components/ui/Divider'
-import FeaturedStudios from '@/components/home/FeaturedStudios'
 import CTACommunity from '@/components/home/CTACommunity'
-import TopCharacters from '@/components/home/TopCharacters'
 
 export default function HomePage() {
   const { data: heroAnime, isLoading: loadingHero } = useHeroAnime()
@@ -27,33 +24,21 @@ export default function HomePage() {
     <>
       <Head>
         <title>Aichiow — Anime Showcase</title>
-        <meta name="description" content="Aichiow - explore trending anime, top rated, seasonal picks, and more!" />
+        <meta
+          name="description"
+          content="Aichiow - explore trending anime, top rated, seasonal picks, and more!"
+        />
       </Head>
 
       <main className="bg-gradient-to-b from-[#0f0f10] via-[#111215] to-[#0a0a0a] min-h-screen text-white">
         <NewsBanner />
         <HeroSection anime={heroAnime?.[0]} loading={loadingHero} />
 
-        <Divider />
         <NowAiringSection anime={ongoingAnime} />
-
-        <Divider />
         <AnimeSection title="🔥 Trending Now" anime={trendingAnime} />
-
-        <Divider />
         <AnimeSection title="⛅ Seasonal Anime" anime={seasonalAnime} />
-
-        <Divider />
         <AnimeSection title="🏆 Top Rated Anime" anime={topRatedAnime} />
-
-        <Divider />
         <TopGenres />
-
-        <Divider />
-        <FeaturedStudios />
-
-        <Divider />
-        <TopCharacters />
 
         <CTACommunity />
       </main>
