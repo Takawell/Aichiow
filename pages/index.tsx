@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import MediaWidgets from '@/components/ui/MediaWidgets'
+import QuoteSection from '@/components/ui/QuoteSection'
 
 export default function LandingPage() {
   const [lang, setLang] = useState<'ID' | 'EN'>('ID')
@@ -106,9 +107,14 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        {/* Media Widgets Section */}
-        <section className="relative z-10 max-w-6xl mx-auto">
+        {/* Media Widgets */}
+        <section className="relative z-10 max-w-6xl mx-auto px-4">
           <MediaWidgets />
+        </section>
+
+        {/* Threads-style Quote Section */}
+        <section className="relative z-10 max-w-6xl mx-auto px-4 mt-10">
+          <QuoteSection />
         </section>
 
         {/* Footer */}
