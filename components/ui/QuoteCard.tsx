@@ -9,6 +9,7 @@ interface QuoteCardProps {
   likes: number;
   comments: number;
   shares: number;
+  verified?: boolean;
 }
 
 export default function QuoteCard({
@@ -18,31 +19,37 @@ export default function QuoteCard({
   likes,
   comments,
   shares,
+  verified = false,
 }: QuoteCardProps) {
   return (
-    <div className="bg-neutral-900 rounded-xl p-5 text-white shadow-lg hover:scale-[1.02] transition-all duration-300">
+    <div className="bg-neutral-900 rounded-xl p-5 text-white shadow-xl hover:scale-[1.02] transition-all duration-300">
       <div className="flex gap-4 items-start">
         <Image
           src={avatar}
           alt={username}
           width={48}
           height={48}
-          className="rounded-full object-cover"
+          className="rounded-full object-cover border border-gray-700"
         />
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <span className="font-semibold">{username}</span>
-            <BsPatchCheckFill className="text-blue-500" />
+            <span className="font-semibold text-white">@{username}</span>
+            {verified && (
+              <BsPatchCheckFill
+                className="text-blue-500"
+                title="Verified Account"
+              />
+            )}
           </div>
           <p className="text-sm leading-relaxed text-gray-200">{text}</p>
           <div className="flex gap-6 mt-4 text-gray-400 text-sm">
-            <div className="flex items-center gap-1 hover:text-red-400 cursor-pointer">
+            <div className="flex items-center gap-1 hover:text-red-400 cursor-pointer transition">
               <FaHeart /> {likes}
             </div>
-            <div className="flex items-center gap-1 hover:text-blue-400 cursor-pointer">
+            <div className="flex items-center gap-1 hover:text-blue-400 cursor-pointer transition">
               <FaComment /> {comments}
             </div>
-            <div className="flex items-center gap-1 hover:text-green-400 cursor-pointer">
+            <div className="flex items-center gap-1 hover:text-green-400 cursor-pointer transition">
               <FaShare /> {shares}
             </div>
           </div>
