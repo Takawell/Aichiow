@@ -2,16 +2,17 @@
 
 import Head from 'next/head'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import MediaWidgets from '@/components/ui/MediaWidgets'
-import AnimeSection from '@/components/anime/AnimeSection'
-import { useTrendingAnime } from '@/hooks/useTrendingAnime'
+import { fetchTrendingAnime } from '@/lib/anilist'
+import { Anime } from '@/types/anime'
 
 export default function LandingPage() {
   const [lang, setLang] = useState<'ID' | 'EN'>('ID')
   const [heroTextIndex, setHeroTextIndex] = useState(0)
-  const { animeList, isLoading } = useTrendingAnime()
+  const [news, setNews] = useState<Anime[]>([])
 
   const heroTexts = {
     ID: [
@@ -28,6 +29,14 @@ export default function LandingPage() {
 
   useEffect(() => {
     setHeroTextIndex(Math.floor(Math.random() * heroTexts.ID.length))
+  }, [])
+
+  useEffect(() => {
+    async function load() {
+      const data = await fetchTrendingAnime()
+      setNews(data)
+    }
+    load()
   }, [])
 
   return (
@@ -109,18 +118,40 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        {/* Trending Anime Section */}
-        <section className="relative z-10 max-w-6xl mx-auto px-4 py-8">
-          <AnimeSection
-            title="🔥 Trending Anime Today"
-            animeList={animeList}
-            isLoading={isLoading}
-          />
-        </section>
-
-        {/* Media Widgets Section */}
+        {/* Media Widgets */}
         <section className="relative z-10 max-w-6xl mx-auto">
           <MediaWidgets />
+        </section>
+
+        {/* Anime Trending Section */}
+        <section className="relative w-full max-w-7xl mx-auto mt-10 px-4 z-10">
+          <h2 className="text-3xl font-bold mb-6 text-center">Latest Anime Trending</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5">
+            {news.map((anime, index) => (
+              <motion.div
+                key={anime.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, delay: index * 0.05 }}
+                whileHover={{ scale: 1.05, rotate: 1 }}
+                className="overflow-hidden rounded-xl border border-white/10 hover:border-blue-400 shadow-md hover:shadow-blue-400/20 transition-all"
+              >
+                <Link href={`/anime/${anime.id}`} className="block">
+                  <Image
+                    src={anime.coverImage?.large || ''}
+                    alt={anime.title?.english || anime.title?.romaji}
+                    width={300}
+                    height={400}
+                    className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="bg-black/70 text-xs p-2 text-center truncate">
+                    {anime.title?.english || anime.title?.romaji}
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </section>
 
         {/* Footer */}
