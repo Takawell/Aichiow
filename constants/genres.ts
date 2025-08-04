@@ -6,6 +6,7 @@ export const GENRES = [
   'Drama',
   'Fantasy',
   'Horror',
+  'Hentai',
   'Mecha',
   'Music',
   'Mystery',
