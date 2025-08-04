@@ -1,7 +1,7 @@
 export const TRENDING_ANIME_QUERY = `
   query ($page: Int, $perPage: Int) {
     Page(page: $page, perPage: $perPage) {
-      media(type: ANIME, sort: TRENDING_DESC, isAdult: true) {
+      media(type: ANIME, sort: TRENDING_DESC) {
         id
         title {
           romaji
@@ -23,7 +23,7 @@ export const TRENDING_ANIME_QUERY = `
 
 export const ANIME_DETAIL_QUERY = `
   query ($id: Int) {
-    Media(id: $id, type: ANIME, isAdult: true) {
+    Media(id: $id, type: ANIME) {
       id
       title {
         romaji
@@ -83,7 +83,7 @@ export const ANIME_DETAIL_QUERY = `
 export const SEARCH_ANIME_QUERY = `
   query ($search: String) {
     Page(perPage: 20) {
-      media(search: $search, type: ANIME, isAdult: true) {
+      media(search: $search, type: ANIME) {
         id
         title {
           romaji
@@ -103,10 +103,11 @@ export const SEARCH_ANIME_QUERY = `
   }
 `
 
+// ✅ Tambahan: Upcoming Anime
 export const UPCOMING_ANIME_QUERY = `
   query {
     Page(perPage: 20) {
-      media(type: ANIME, status: NOT_YET_RELEASED, sort: POPULARITY_DESC, isAdult: true) {
+      media(type: ANIME, status: NOT_YET_RELEASED, sort: POPULARITY_DESC) {
         id
         title {
           romaji
@@ -120,10 +121,11 @@ export const UPCOMING_ANIME_QUERY = `
   }
 `
 
+// ✅ Tambahan: Weekly Schedule (RELEASING + airing time)
 export const SCHEDULE_ANIME_QUERY = `
   query {
     Page(perPage: 50) {
-      media(type: ANIME, status: RELEASING, sort: POPULARITY_DESC, isAdult: true) {
+      media(type: ANIME, status: RELEASING, sort: POPULARITY_DESC) {
         id
         title {
           romaji
