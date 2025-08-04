@@ -5,13 +5,13 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import MediaWidgets from '@/components/ui/MediaWidgets'
-import { fetchTrendingAnime } from '@/lib/anilist'
-import { Anime } from '@/types/anime'
+import AnimeSection from '@/components/anime/AnimeSection'
+import { useTrendingAnime } from '@/hooks/useTrendingAnime'
 
 export default function LandingPage() {
   const [lang, setLang] = useState<'ID' | 'EN'>('ID')
   const [heroTextIndex, setHeroTextIndex] = useState(0)
-  const [trendingAnime, setTrendingAnime] = useState<Anime[]>([])
+  const { animeList, isLoading } = useTrendingAnime()
 
   const heroTexts = {
     ID: [
@@ -30,27 +30,21 @@ export default function LandingPage() {
     setHeroTextIndex(Math.floor(Math.random() * heroTexts.ID.length))
   }, [])
 
-  useEffect(() => {
-    const loadTrending = async () => {
-      try {
-        const data = await fetchTrendingAnime()
-        setTrendingAnime(data)
-      } catch (error) {
-        console.error('Gagal fetch trending anime:', error)
-      }
-    }
-    loadTrending()
-  }, [])
-
   return (
     <>
       <Head>
         <title>AICHIOW – Anime & Manga Portal</title>
-        <meta name="description" content="Aichiow is your Isekai portal to the world of anime and manga – trending anime, trailers, schedules, and manga reader, all in one." />
+        <meta
+          name="description"
+          content="Aichiow is your Isekai portal to the world of anime and manga – trending anime, trailers, schedules, and manga reader, all in one."
+        />
         <meta name="keywords" content="anime, manga, manhwa, light novel, portal, Aichiow" />
         <meta name="author" content="Aichiow Developer Team" />
         <meta property="og:title" content="AICHIOW – Anime & Manga Portal" />
-        <meta property="og:description" content="Your ultimate portal to the world of trending anime and manga. Start your Isekai journey now!" />
+        <meta
+          property="og:description"
+          content="Your ultimate portal to the world of trending anime and manga. Start your Isekai journey now!"
+        />
         <meta property="og:image" content="https://aichiow.vercel.app/logo.png" />
         <meta property="og:url" content="https://aichiow.vercel.app" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -83,19 +77,23 @@ export default function LandingPage() {
             <div className="flex justify-center gap-2 mt-2">
               <button
                 onClick={() => setLang('ID')}
-                className={`px-3 py-1 rounded-lg text-sm font-semibold transition ${lang === 'ID' ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'}`}
+                className={`px-3 py-1 rounded-lg text-sm font-semibold transition ${
+                  lang === 'ID' ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
               >
                 ID
               </button>
               <button
                 onClick={() => setLang('EN')}
-                className={`px-3 py-1 rounded-lg text-sm font-semibold transition ${lang === 'EN' ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'}`}
+                className={`px-3 py-1 rounded-lg text-sm font-semibold transition ${
+                  lang === 'EN' ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
               >
                 EN
               </button>
             </div>
 
-            {/* Hero Description */}
+            {/* Hero Description with animation */}
             <AnimatePresence mode="wait">
               <motion.p
                 key={lang + heroTextIndex}
@@ -111,33 +109,18 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
+        {/* Trending Anime Section */}
+        <section className="relative z-10 max-w-6xl mx-auto px-4 py-8">
+          <AnimeSection
+            title="🔥 Trending Anime Today"
+            animeList={animeList}
+            isLoading={isLoading}
+          />
+        </section>
+
         {/* Media Widgets Section */}
         <section className="relative z-10 max-w-6xl mx-auto">
           <MediaWidgets />
-        </section>
-
-        {/* Trending Anime Section */}
-        <section className="relative z-10 max-w-6xl mx-auto px-4 mt-12">
-          <h2 className="text-2xl font-bold mb-4 text-blue-400">🔥 Trending Anime</h2>
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {trendingAnime.map((anime) => (
-              <div
-                key={anime.id}
-                className="bg-white/5 rounded-lg overflow-hidden shadow hover:scale-[1.02] transition"
-              >
-                <img
-                  src={anime.image}
-                  alt={anime.title}
-                  className="w-full h-60 object-cover"
-                />
-                <div className="p-3">
-                  <h3 className="text-sm font-semibold text-white truncate">
-                    {anime.title}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
         </section>
 
         {/* Footer */}
