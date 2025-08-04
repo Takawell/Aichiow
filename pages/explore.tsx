@@ -7,6 +7,7 @@ import { useSearchAnime } from '@/hooks/useSearchAnime'
 import AnimeCard from '@/components/anime/AnimeCard'
 import SectionTitle from '@/components/shared/SectionTitle'
 import GenreFilter from '@/components/shared/GenreFilter'
+import { motion } from 'framer-motion'
 
 export default function ExplorePage() {
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null)
@@ -16,7 +17,6 @@ export default function ExplorePage() {
   const { anime: exploreAnime, isLoading, loadMore, hasMore } = useExploreAnime()
   const { anime: searchAnime, isLoading: searchLoading } = useSearchAnime(query)
 
-  // Data yang dipakai
   const animeData = query ? searchAnime : exploreAnime
 
   const filtered = selectedGenre
@@ -34,18 +34,29 @@ export default function ExplorePage() {
         <title>Explore Anime | Aichiow</title>
         <meta name="description" content="Discover and search for anime by genre, popularity, and more." />
       </Head>
-      <main className="bg-dark min-h-screen text-white px-4 md:px-10 py-10">
-        <SectionTitle title="🔍 Explore Anime" />
 
-        {/* Search Bar */}
-        <form
+      <main className="bg-gradient-to-b from-[#0f0f10] via-[#111215] to-[#0a0a0a] min-h-screen text-white px-4 md:px-10 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <SectionTitle title="🔍 Explore Anime" />
+        </motion.div>
+
+        <motion.form
           onSubmit={handleSubmit}
-          className="mt-6 mb-6 flex flex-col sm:flex-row items-stretch gap-3"
+          className="mt-8 mb-6 flex flex-col sm:flex-row items-stretch gap-3"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          viewport={{ once: true }}
         >
           <input
             type="text"
             placeholder="Search for anime title..."
-            className="w-full px-4 py-3 bg-neutral-800 text-white rounded-lg border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+            className="w-full px-4 py-3 bg-neutral-900 text-white rounded-lg border border-neutral-700 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all duration-300"
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
@@ -55,15 +66,26 @@ export default function ExplorePage() {
           >
             Search
           </button>
-        </form>
+        </motion.form>
 
-        {/* Genre Filter */}
         {!query && (
-          <GenreFilter selected={selectedGenre} onSelect={setSelectedGenre} />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <GenreFilter selected={selectedGenre} onSelect={setSelectedGenre} />
+          </motion.div>
         )}
 
-        {/* Anime List */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-6">
+        <motion.div
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-8"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          viewport={{ once: true }}
+        >
           {(isLoading || searchLoading) && animeData.length === 0
             ? [...Array(15)].map((_, i) => (
                 <div
@@ -72,32 +94,46 @@ export default function ExplorePage() {
                 />
               ))
             : filtered.map((a) => <AnimeCard key={a.id} anime={a} />)}
-        </div>
+        </motion.div>
 
-        {/* Search Result - No Data */}
         {query && !searchLoading && filtered.length === 0 && (
-          <p className="text-center text-zinc-400 mt-10">
+          <motion.p
+            className="text-center text-zinc-400 mt-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
             No results found for <span className="text-white font-semibold">"{query}"</span>.
-          </p>
+          </motion.p>
         )}
 
-        {/* Load More (hanya untuk Explore) */}
         {!query && hasMore && (
-          <div className="mt-10 flex justify-center">
+          <motion.div
+            className="mt-10 flex justify-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            viewport={{ once: true }}
+          >
             <button
               onClick={loadMore}
               disabled={isLoading}
-              className="px-5 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition-all"
+              className="px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all duration-300"
             >
               {isLoading ? 'Loading...' : 'Load More'}
             </button>
-          </div>
+          </motion.div>
         )}
 
         {!query && !hasMore && exploreAnime.length > 0 && (
-          <p className="text-center text-sm text-neutral-400 mt-6">
+          <motion.p
+            className="text-center text-sm text-neutral-400 mt-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
             You've reached the end of the list.
-          </p>
+          </motion.p>
         )}
       </main>
     </>
