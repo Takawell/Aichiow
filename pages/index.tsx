@@ -5,10 +5,14 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import MediaWidgets from '@/components/ui/MediaWidgets'
+import AnimeSection from '@/components/anime/AnimeSection'
+import { fetchAnimeTrending } from '@/lib/anilist'
+import { Anime } from '@/types/anime'
 
 export default function LandingPage() {
   const [lang, setLang] = useState<'ID' | 'EN'>('ID')
   const [heroTextIndex, setHeroTextIndex] = useState(0)
+  const [trendingAnime, setTrendingAnime] = useState<Anime[]>([])
 
   const heroTexts = {
     ID: [
@@ -25,6 +29,14 @@ export default function LandingPage() {
 
   useEffect(() => {
     setHeroTextIndex(Math.floor(Math.random() * heroTexts.ID.length))
+  }, [])
+
+  useEffect(() => {
+    const getTrending = async () => {
+      const data = await fetchAnimeTrending()
+      setTrendingAnime(data.slice(0, 10)) // Batasi ke 10 anime
+    }
+    getTrending()
   }, [])
 
   return (
@@ -90,7 +102,7 @@ export default function LandingPage() {
               </button>
             </div>
 
-            {/* Hero Description with animation */}
+            {/* Hero Description */}
             <AnimatePresence mode="wait">
               <motion.p
                 key={lang + heroTextIndex}
@@ -107,12 +119,17 @@ export default function LandingPage() {
         </section>
 
         {/* Media Widgets Section */}
-        <section className="relative z-10 max-w-6xl mx-auto">
+        <section className="relative z-10 max-w-6xl mx-auto px-4">
           <MediaWidgets />
         </section>
 
+        {/* Anime Trending Section */}
+        <section className="relative z-10 max-w-6xl mx-auto px-4 mt-10">
+          <AnimeSection title="Trending Anime" items={trendingAnime} />
+        </section>
+
         {/* Footer */}
-        <footer className="relative mt-10">
+        <footer className="relative mt-12">
           <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-500 to-transparent mb-4"></div>
           <p className="text-center text-sm text-gray-400 py-4">
             © {new Date().getFullYear()} AICHIOW TEAM. All rights reserved.
