@@ -82,21 +82,22 @@ export default function LandingPage() {
               Welcome to Aichiow
             </h1>
 
-            {/* Toggle ID/EN */}
-            <div className="flex justify-center gap-2 mt-2">
+            {/* Custom Toggle Switch */}
+            <div className="relative flex w-40 h-9 bg-gray-800 rounded-full overflow-hidden border border-white/10 mx-auto">
+              <div
+                className={`absolute top-1 left-1 w-1/2 h-7 rounded-full bg-gradient-to-r from-pink-500 to-blue-500 transition-transform duration-300 ease-in-out ${
+                  lang === 'EN' ? 'translate-x-full' : ''
+                }`}
+              />
               <button
                 onClick={() => setLang('ID')}
-                className={`px-3 py-1 rounded-lg text-sm font-semibold transition ${
-                  lang === 'ID' ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'
-                }`}
+                className="w-1/2 z-10 text-sm font-semibold text-white"
               >
                 ID
               </button>
               <button
                 onClick={() => setLang('EN')}
-                className={`px-3 py-1 rounded-lg text-sm font-semibold transition ${
-                  lang === 'EN' ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'
-                }`}
+                className="w-1/2 z-10 text-sm font-semibold text-white"
               >
                 EN
               </button>
