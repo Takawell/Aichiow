@@ -95,7 +95,7 @@ export default function AnimeDetailPage() {
           {/* Tombol Lihat Episode */}
           <div className="flex justify-center">
             <a
-              href="/justkidding"
+              href="/soon"
               className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 
                          text-white font-medium transition shadow-lg hover:shadow-xl"
             >
