@@ -86,7 +86,7 @@ export default function LandingPage() {
             <div className="relative flex w-40 h-9 bg-gray-800 rounded-full overflow-hidden border border-white/10 mx-auto">
               <div
                 className={`absolute top-1 left-1 w-1/2 h-7 rounded-full bg-gradient-to-r from-pink-500 to-blue-500 transition-transform duration-300 ease-in-out ${
-                  lang === 'EN' ? 'translate-x-full' : ''
+                  lang === 'EN' ? 'translate-x-[calc(100%-0.5rem)]' : ''
                 }`}
               />
               <button
