@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react'
 import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 
 const navItems = [
-  { href: '/', label: 'HOME' },
+  { href: '/home', label: 'HOME' },
   { href: '/upcoming', label: 'TIMETABLE' },
   { href: '/explore', label: 'EXPLORE' },
   { href: '/manga', label: 'MANGA' },
