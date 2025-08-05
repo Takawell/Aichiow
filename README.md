@@ -17,19 +17,19 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ## 📸 Screenshots
 
 ### Landing Page
-![Landing Page](./public/screenshots/landing.png)
+![Landing Page](https://i.ibb.co/XxdXmjkn/landing.png)
 
 ### Anime (Home)
-![Anime Home](./public/screenshots/home-anime.png)
+![Anime Home](https://i.ibb.co/mrmZ8Vsr/home-anime.png)
 
 ### Manga *(Coming Soon)*
 ![Manga Soon](https://via.placeholder.com/800x450?text=Manga+Screenshot+Coming+Soon)
 
 ### Manhwa
-![Manhwa](./public/screenshots/manhwa.png)
+![Manhwa](https://i.ibb.co/GQMC0b2b/68923578dc66d8397f76472f.png)
 
 ### Light Novels
-![Light Novels](./public/screenshots/light-novel.png)
+![Light Novels](https://i.ibb.co/VcW8m0vj/689235c8ed6a6b6ae76f9c50.png)
 
 ### AND MUCH MORE
 
