@@ -4,50 +4,35 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaDiscord, FaWhatsapp, FaTiktok, FaInstagram, FaYoutube } from 'react-icons/fa'
 
-export default function JustKiddingPage() {
+export default function ComingSoonPage() {
   const [lang, setLang] = useState<'ID' | 'EN'>('ID')
 
   const content = {
     ID: (
       <>
         <p className="text-xl text-gray-200 font-light">
-          Santai, ini hanya bercanda! <span className="text-primary font-semibold">Aichiow</span> 
-          adalah platform yang dirancang untuk menghadirkan informasi anime paling terbaru, 
-          rekomendasi menarik, serta penjelasan mendalam tentang dunia animasi yang kamu cintai. 
-          Kami ingin semua orang bisa menikmati pengalaman anime dengan cara yang aman, legal, dan nyaman.
+          Streaming anime di <span className="text-primary font-semibold">Aichiow</span> memang belum tersedia...
+          <br />Tapi tenang, kami sedang <span className="text-blue-400 font-semibold">mempersiapkannya</span> dengan penuh semangat dan cinta untuk kamu!
         </p>
         <p>
-          Kami <span className="text-red-400 font-semibold">tidak pernah</span> mendukung penyebaran 
-          konten ilegal karena kami percaya bahwa mendukung kreator dan studio adalah kunci utama 
-          agar industri ini terus berkembang. Jangan khawatir, Aichiow ada di sini untuk memberi 
-          kamu inspirasi, daftar rekomendasi, serta update dunia anime tanpa harus melanggar aturan.
+          Fitur ini akan hadir dengan pengalaman terbaik: cepat, aman, dan tentunya legal. Kami ingin pastikan semuanya berjalan mulus sebelum kamu bisa menikmati anime favoritmu langsung di platform kami.
         </p>
         <p>
-          Kami mengutamakan kenyamanan pengguna dengan antarmuka yang interaktif, desain modern, 
-          dan konten informatif. Tidak peduli kamu penggemar anime lama atau baru, 
-          kami siap menjadi teman terbaikmu untuk mengenal dunia anime lebih dalam.
+          Sementara itu, tetap dukung kami dan pantau terus perkembangan Aichiow! Yang pasti, <span className="text-pink-400 font-semibold">ini bukan sekadar wacana</span> — ini janji kami buat para pecinta anime sejati 💖
         </p>
       </>
     ),
     EN: (
       <>
         <p className="text-xl text-gray-200 font-light">
-          Relax, this is just for fun! <span className="text-primary font-semibold">Aichiow</span> 
-          is a platform designed to bring the latest anime information, exciting recommendations, 
-          and in-depth insights into the animation world you love. 
-          We aim to create a safe, legal, and enjoyable experience for every anime enthusiast.
+          Anime streaming on <span className="text-primary font-semibold">Aichiow</span> isn't available just yet...
+          <br />But hold tight — we're <span className="text-blue-400 font-semibold">working hard</span> behind the scenes to bring it to life!
         </p>
         <p>
-          We <span className="text-red-400 font-semibold">never</span> support illegal content because 
-          we believe supporting creators and studios is the key to keeping this industry alive. 
-          Aichiow is here to inspire you, give curated recommendations, and keep you updated 
-          without breaking any rules.
+          This feature is coming with the best experience possible: fast, secure, and of course, legal. We're making sure everything is perfect before letting you enjoy anime directly on our platform.
         </p>
         <p>
-          With an interactive interface, modern design, and rich content, 
-          we strive to provide the ultimate experience for both new and veteran anime fans. 
-          Whether you’re exploring anime for the first time or deepening your passion, 
-          we’ve got your back.
+          In the meantime, stay tuned and support us as we grow! One thing’s for sure — <span className="text-pink-400 font-semibold">this isn’t just a dream</span>, it’s a promise for every true anime fan 💖
         </p>
       </>
     ),
@@ -56,20 +41,20 @@ export default function JustKiddingPage() {
   return (
     <>
       <Head>
-        <title>Just Kidding | Aichiow</title>
+        <title>Coming Soon | Aichiow</title>
       </Head>
       <main className="bg-gradient-to-br from-black via-gray-900 to-black text-white min-h-screen flex flex-col items-center justify-center text-center px-6 py-12 relative overflow-hidden">
         {/* Background Glow */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08)_0%,transparent_80%)] pointer-events-none"></div>
-        
+
         {/* Title */}
         <motion.h1
           initial={{ opacity: 0, scale: 0.8, y: -30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 drop-shadow-[0_0_25px_rgba(255,0,255,0.7)] animate-pulse mb-6 hover:scale-110 transition-transform"
+          className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-600 drop-shadow-[0_0_30px_rgba(255,0,255,0.6)] animate-bounce mb-6 hover:scale-110 transition-transform"
         >
-          Just Kidding!
+          COMING SOON!
         </motion.h1>
 
         {/* Language Tabs */}
@@ -94,7 +79,7 @@ export default function JustKiddingPage() {
           ))}
         </motion.div>
 
-        {/* Description with AnimatePresence */}
+        {/* Description */}
         <AnimatePresence mode="wait">
           <motion.div
             key={lang}
@@ -147,7 +132,7 @@ export default function JustKiddingPage() {
           </motion.div>
         </motion.div>
 
-        {/* Button to Home */}
+        {/* Back to Home Button */}
         <motion.div
           className="mt-12"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -158,7 +143,7 @@ export default function JustKiddingPage() {
             href="/"
             className="inline-block px-8 py-4 bg-gradient-to-r from-pink-500 to-blue-500 hover:from-purple-500 hover:to-pink-500 rounded-xl font-bold text-lg shadow-[0_0_15px_rgba(255,0,255,0.6)] transition-transform transform hover:scale-110"
           >
-            BACK TO HOME
+            Back to home
           </Link>
         </motion.div>
       </main>
