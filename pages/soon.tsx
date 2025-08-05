@@ -11,28 +11,46 @@ export default function ComingSoonPage() {
     ID: (
       <>
         <p className="text-xl text-gray-200 font-light">
-          Streaming anime di <span className="text-primary font-semibold">Aichiow</span> memang belum tersedia...
-          <br />Tapi tenang, kami sedang <span className="text-blue-400 font-semibold">mempersiapkannya</span> dengan penuh semangat dan cinta untuk kamu!
+          🚧 <span className="text-primary font-semibold">Fitur Streaming Sedang Dikembangkan</span>
         </p>
         <p>
-          Fitur ini akan hadir dengan pengalaman terbaik: cepat, aman, dan tentunya legal. Kami ingin pastikan semuanya berjalan mulus sebelum kamu bisa menikmati anime favoritmu langsung di platform kami.
+          Kami mendengar keinginan kalian, dan kami tidak main-main. Aichiow sedang membangun <span className="text-blue-400 font-semibold">pengalaman streaming anime masa depan</span> — cepat, bersih, legal, dan dirancang khusus untuk para penikmat anime sejati.
         </p>
         <p>
-          Sementara itu, tetap dukung kami dan pantau terus perkembangan Aichiow! Yang pasti, <span className="text-pink-400 font-semibold">ini bukan sekadar wacana</span> — ini janji kami buat para pecinta anime sejati 💖
+          Kami sedang mengembangkan sistem yang tidak hanya menampilkan anime, tapi juga <span className="text-pink-400 font-semibold">menghormati karya para kreator</span> dan menjaga kualitas tanpa kompromi.
+        </p>
+        <p>
+          💡 Inovasi ini bukan proyek sambil lalu — ini adalah bagian dari misi besar kami: <br />
+          Menciptakan <span className="text-yellow-400 font-semibold">satu platform utama</span> bagi komunitas anime di seluruh dunia.
+        </p>
+        <p>
+          🔧 Mohon bersabar. Kami sedang menguji, menyempurnakan, dan menyiapkan sesuatu yang belum pernah kamu lihat sebelumnya.
+        </p>
+        <p>
+          Terima kasih sudah menjadi bagian dari perjalanan ini. <span className="text-primary font-semibold">Aichiow tidak akan mengecewakan</span>.
         </p>
       </>
     ),
     EN: (
       <>
         <p className="text-xl text-gray-200 font-light">
-          Anime streaming on <span className="text-primary font-semibold">Aichiow</span> isn't available just yet...
-          <br />But hold tight — we're <span className="text-blue-400 font-semibold">working hard</span> behind the scenes to bring it to life!
+          🚧 <span className="text-primary font-semibold">Streaming Feature Under Development</span>
         </p>
         <p>
-          This feature is coming with the best experience possible: fast, secure, and of course, legal. We're making sure everything is perfect before letting you enjoy anime directly on our platform.
+          We’ve heard your voices — and we’re not taking this lightly. Aichiow is building the <span className="text-blue-400 font-semibold">next-generation anime streaming experience</span>: fast, clean, legal, and crafted for true anime lovers.
         </p>
         <p>
-          In the meantime, stay tuned and support us as we grow! One thing’s for sure — <span className="text-pink-400 font-semibold">this isn’t just a dream</span>, it’s a promise for every true anime fan 💖
+          This isn’t just about playing videos — it’s about <span className="text-pink-400 font-semibold">honoring creators</span>, preserving quality, and reimagining how anime should be delivered.
+        </p>
+        <p>
+          💡 This is part of a much bigger vision: <br />
+          To build <span className="text-yellow-400 font-semibold">the ultimate home for the global anime community</span>.
+        </p>
+        <p>
+          🔧 Please be patient. We’re testing, refining, and preparing something the anime world hasn’t seen before.
+        </p>
+        <p>
+          Thank you for being with us on this journey. <span className="text-primary font-semibold">Aichiow won’t let you down</span>.
         </p>
       </>
     ),
