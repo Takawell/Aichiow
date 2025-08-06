@@ -10,9 +10,9 @@ export default function AnimeCard({ anime }: Props) {
   return (
     <Link
       href={`/anime/${anime.id}`}
-      className="w-[45vw] sm:w-[30vw] md:w-[180px] flex-shrink-0 group transition-transform duration-300 hover:scale-[1.03]"
+      className="flex-shrink-0 w-full max-w-[140px] sm:max-w-[160px] md:max-w-[180px] group transition-transform duration-300 hover:scale-[1.03]"
     >
-      <div className="rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300 overflow-hidden">
+      <div className="overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300">
         
         {/* IMAGE */}
         <div className="relative w-full aspect-[2/3]">
@@ -22,18 +22,18 @@ export default function AnimeCard({ anime }: Props) {
             fill
             loading="lazy"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 45vw, 20vw"
+            sizes="(max-width: 768px) 40vw, 180px"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10" />
         </div>
 
         {/* TEXT */}
-        <div className="p-2 flex flex-col gap-1">
+        <div className="p-2 space-y-1">
           <h3 className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 line-clamp-1">
             {anime.title.english || anime.title.romaji}
           </h3>
 
-          <div className="flex gap-1 overflow-hidden whitespace-nowrap text-ellipsis">
+          <div className="flex gap-1 flex-wrap">
             {anime.genres?.slice(0, 2).map((genre) => (
               <span
                 key={genre}
