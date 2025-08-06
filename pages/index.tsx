@@ -76,9 +76,9 @@ export default function LandingPage() {
               alt="Aichiow Logo"
               width={160}
               height={160}
-              className="mx-auto rounded-full border-4 border-white shadow-[0_0_25px_rgba(0,200,255,0.7)] hover:scale-110 transition-transform duration-300"
+              className="mx-auto min-w-[160px] min-h-[160px] rounded-full border-4 border-white shadow-[0_0_25px_rgba(0,200,255,0.7)] hover:scale-110 transition-transform duration-300"
             />
-            <h1 className="text-5xl md:text-6xl font-extrabold tracking-wide bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(255,0,255,0.5)] animate-pulse">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-wide bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(255,0,255,0.5)] animate-pulse">
               Welcome to Aichiow
             </h1>
 
@@ -127,7 +127,7 @@ export default function LandingPage() {
         {/* Anime Trending Section */}
         <section className="relative w-full max-w-7xl mx-auto mt-10 px-4 z-10">
           <h2 className="text-3xl font-bold mb-6 text-center">Latest Anime Trending</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-5">
             {news.map((anime, index) => (
               <motion.div
                 key={anime.id}
@@ -144,7 +144,7 @@ export default function LandingPage() {
                     alt={anime.title?.english || anime.title?.romaji}
                     width={300}
                     height={400}
-                    className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full aspect-[2/3] object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="bg-black/70 text-xs p-2 text-center truncate">
                     {anime.title?.english || anime.title?.romaji}
