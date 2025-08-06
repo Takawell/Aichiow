@@ -19,7 +19,7 @@ export default function NowAiringSection({ anime }: Props) {
             href={`/anime/${item.id}`}
             className="min-w-[140px] max-w-[160px] flex-shrink-0 group transition-transform duration-300 hover:scale-[1.03]"
           >
-            <div className="overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300">
+            <div className="overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300 flex flex-col">
               {/* IMAGE */}
               <div className="relative w-full aspect-[3/4] sm:aspect-[2/3]">
                 <Image
