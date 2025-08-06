@@ -17,9 +17,9 @@ export default function NowAiringSection({ anime }: Props) {
           <Link
             key={item.id}
             href={`/anime/${item.id}`}
-            className="min-w-[140px] max-w-[160px] h-[260px] flex-shrink-0 group transition-transform duration-300 hover:scale-[1.03]"
+            className="min-w-[140px] max-w-[160px] flex-shrink-0 group transition-transform duration-300 hover:scale-[1.03]"
           >
-            <div className="h-full flex flex-col overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300">
+            <div className="flex flex-col overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300">
               {/* IMAGE */}
               <div className="relative w-full aspect-[3/4] sm:aspect-[2/3]">
                 <Image
@@ -34,8 +34,8 @@ export default function NowAiringSection({ anime }: Props) {
               </div>
 
               {/* TEXT */}
-              <div className="relative z-20 p-3 flex-grow flex flex-col justify-between">
-                <h3 className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 truncate">
+              <div className="relative z-20 p-3 h-[76px] flex flex-col justify-between">
+                <h3 className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 leading-tight line-clamp-2">
                   {item.title.english || item.title.romaji}
                 </h3>
 
