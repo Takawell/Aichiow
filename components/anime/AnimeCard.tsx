@@ -41,11 +41,11 @@ export default function AnimeCard({ anime }: Props) {
           </h3>
 
           {/* GENRE */}
-          <div className="mt-1 flex flex-wrap gap-1">
+          <div className="flex gap-1 overflow-hidden whitespace-nowrap">
             {anime.genres?.slice(0, 2).map((genre) => (
               <span
                 key={genre}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70"
+                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70 truncate max-w-[48%]"
               >
                 {genre}
               </span>
