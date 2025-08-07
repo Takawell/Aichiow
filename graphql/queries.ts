@@ -103,7 +103,6 @@ export const SEARCH_ANIME_QUERY = `
   }
 `
 
-// ✅ Tambahan: Upcoming Anime
 export const UPCOMING_ANIME_QUERY = `
   query {
     Page(perPage: 20) {
@@ -121,7 +120,6 @@ export const UPCOMING_ANIME_QUERY = `
   }
 `
 
-// ✅ Tambahan: Weekly Schedule (RELEASING + airing time)
 export const SCHEDULE_ANIME_QUERY = `
   query {
     Page(perPage: 50) {
