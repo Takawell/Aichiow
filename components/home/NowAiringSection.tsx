@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { Anime } from '@/types/anime'
 
 interface Props {
-  anime: Anime
+  anime: Anime[] | undefined
 }
 
 export default function NowAiringSection({ anime }: Props) {
