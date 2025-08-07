@@ -1,12 +1,11 @@
 {
-  "name": "Aichiow",
+  "name": "Aichiow Plus",
   "short_name": "Aichiow",
-  "description": "Easy and Fast Anime Streaming on Aichiow.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#6366f1",
-  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1a1a1a",
+  "description": "Aichiow: Watch anime easily anywhere, anytime.",
   "icons": [
     {
       "src": "/logo.png",
