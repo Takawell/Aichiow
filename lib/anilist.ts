@@ -375,3 +375,51 @@ export async function fetchSimilarAnime(id: number): Promise<Anime[]> {
       ?.filter(Boolean) || []
   )
 }
+
+// Fetch detail voice actor by ID
+export async function fetchVoiceActorById(id: number) {
+  const query = `
+    query ($id: Int) {
+      Staff(id: $id) {
+        id
+        name {
+          full
+          native
+        }
+        image {
+          large
+        }
+        languageV2
+        characters(perPage: 50) {
+          edges {
+            role
+            node {
+              id
+              name {
+                full
+              }
+              image {
+                large
+              }
+            }
+            media {
+              nodes {
+                id
+                title {
+                  romaji
+                }
+                coverImage {
+                  large
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `
+
+  const variables = { id }
+  const data = await fetchFromAnilist(query, variables)
+  return data?.Staff
+}
