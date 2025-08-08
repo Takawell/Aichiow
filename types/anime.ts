@@ -1,5 +1,3 @@
-// types/anime.ts
-
 export interface Anime {
   id: number
   slug: string
@@ -59,6 +57,7 @@ export interface CharacterEdge {
     }
   }
   voiceActors: {
+    id: number
     name: {
       full: string
     }
