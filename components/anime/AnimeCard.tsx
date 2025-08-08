@@ -27,18 +27,10 @@ export default function AnimeCard({ anime }: Props) {
         </div>
 
         {/* TEXT */}
-        <div className="relative z-20 p-3">
-          <h3
-            className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300"
-            style={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: '140px'
-            }}
-          >
-            {anime.title.english || anime.title.romaji}
-          </h3>
+              <div className="relative z-20 p-3 h-[72px] flex flex-col justify-between">
+                <h3 className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 truncate leading-snug">
+                  {item.title.english || item.title.romaji}
+                </h3>
 
           {/* GENRE */}
           <div className="mt-1 flex gap-1 overflow-hidden whitespace-nowrap">
