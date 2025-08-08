@@ -57,7 +57,6 @@ export interface CharacterEdge {
     }
   }
   voiceActors: {
-    id: number
     name: {
       full: string
     }
