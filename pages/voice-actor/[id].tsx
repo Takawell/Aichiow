@@ -78,12 +78,32 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   if (!data) return { notFound: true }
 
-  const { name, image, language, characters } = data
+  const { name, image, language, characters: rawCharacters } = data
+
+  // Transformasi karakter dari `edges` ke `Character[]`
+  const characters: Character[] = rawCharacters.edges
+    .map((edge: any) => {
+      const media = edge.media?.nodes?.[0] // Ambil anime pertama
+      if (!media) return null
+
+      return {
+        id: edge.node.id,
+        name: edge.node.name,
+        image: edge.node.image,
+        media: {
+          id: media.id,
+          title: media.title,
+          coverImage: media.coverImage
+        }
+      }
+    })
+    .filter(Boolean) // Hilangkan yang null
+
   return {
     props: {
       id,
-      name,
-      image,
+      name: name.full,
+      image: image.large,
       language,
       characters
     }
