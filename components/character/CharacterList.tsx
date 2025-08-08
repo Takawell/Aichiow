@@ -12,7 +12,7 @@ export default function CharacterList({ characters }: Props) {
       <h2 className="text-2xl font-bold mb-6 text-white">🧑‍🎤 Characters & Voice Actors</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
         {characters.map((char, idx) => {
-          const va = char.voiceActors?.[0] 
+          const va = char.voiceActors?.[0]
           return (
             <div
               key={idx}
@@ -36,7 +36,7 @@ export default function CharacterList({ characters }: Props) {
                 <p className="text-xs text-neutral-400 mb-2">{char.role}</p>
 
                 {/* VA Section */}
-                {va && (
+                {va?.id && (
                   <Link
                     href={`/voice-actor/${va.id}`}
                     className="flex items-center gap-2 group mt-2"
