@@ -27,17 +27,18 @@ export default function AnimeCard({ anime }: Props) {
         </div>
 
         {/* TEXT */}
-              <div className="relative z-20 p-3 h-[72px] flex flex-col justify-between">
-                <h3 className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 truncate leading-snug">
-                  {anime.title.english || anime.title.romaji}
-                </h3>
+        <div className="relative z-20 p-3 h-[72px] flex flex-col justify-between min-w-0">
+          <h3 className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 leading-snug truncate">
+            {anime.title.english || anime.title.romaji}
+          </h3>
 
           {/* GENRE */}
           <div className="mt-1 flex gap-1 overflow-hidden whitespace-nowrap">
             {anime.genres?.slice(0, 2).map((genre) => (
               <span
                 key={genre}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70 truncate max-w-[48%]"
+                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70 truncate"
+                style={{ maxWidth: 'calc(50% - 2px)' }} // Precise clamp for spacing
               >
                 {genre}
               </span>
