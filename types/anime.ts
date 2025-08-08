@@ -67,3 +67,22 @@ export interface CharacterEdge {
     }
   }[]
 }
+
+export interface Character {
+  id: number
+  name: {
+    full: string
+  }
+  image: {
+    large: string
+  }
+  media: {
+    id: number
+    title: {
+      romaji: string
+    }
+    coverImage: {
+      large: string
+    }
+  }
+}
