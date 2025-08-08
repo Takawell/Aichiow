@@ -21,7 +21,7 @@ export default function NowAiringSection({ anime }: Props) {
           >
             <div className="overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300">
               {/* IMAGE */}
-              <div className="relative w-full aspect-[3/4] sm:aspect-[2/3]">
+              <div className="relative w-full h-[200px]">
                 <Image
                   src={item.coverImage.large}
                   alt={item.title.english || item.title.romaji}
