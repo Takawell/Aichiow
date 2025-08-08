@@ -1,6 +1,6 @@
+// components/character/CharacterList.tsx
 import { CharacterEdge } from '@/types/anime'
 import Image from 'next/image'
-import Link from 'next/link'
 
 interface Props {
   characters: CharacterEdge[]
@@ -9,57 +9,33 @@ interface Props {
 export default function CharacterList({ characters }: Props) {
   return (
     <section className="px-4 md:px-10 py-10">
-      <h2 className="text-2xl font-bold mb-6 text-white">🧑‍🎤 Characters & Voice Actors</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-        {characters.map((char, idx) => {
-          const va = char.voiceActors?.[0]
-
-          return (
-            <div
-              key={idx}
-              className="bg-neutral-900 rounded-xl overflow-hidden shadow-sm border border-neutral-800 hover:border-indigo-500/40 transition-all duration-300"
-            >
-              {/* Character Image */}
-              {char.node?.image?.large && (
-                <div className="relative w-full aspect-[2/3]">
-                  <Image
-                    src={char.node.image.large}
-                    alt={char.node.name?.full || 'Character'}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10" />
-                </div>
-              )}
-
-              <div className="p-4 relative z-20 text-white">
-                <h3 className="text-sm font-semibold truncate mb-1">
-                  {char.node?.name?.full || 'Unknown Character'}
-                </h3>
-                <p className="text-xs text-neutral-400 mb-2">{char.role || 'Supporting'}</p>
-
-                {/* VA Section */}
-                {va?.id && va.image?.large && va.name?.full && (
-                  <Link
-                    href={`/voice-actor/${va.id}`}
-                    className="flex items-center gap-2 group mt-2"
-                  >
-                    <Image
-                      src={va.image.large}
-                      alt={va.name.full}
-                      width={32}
-                      height={32}
-                      className="rounded-full border border-neutral-700 group-hover:ring-2 group-hover:ring-indigo-400 transition-all"
-                    />
-                    <p className="text-xs text-white group-hover:text-indigo-400 truncate">
-                      {va.name.full}
-                    </p>
-                  </Link>
-                )}
+      <h2 className="text-2xl font-bold mb-4 text-white">🧑‍🎤 Characters & Voice Actors</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {characters.map((char, idx) => (
+          <div key={idx} className="bg-neutral-800 rounded-xl p-3">
+            <Image
+              src={char.node.image.large}
+              alt={char.node.name.full}
+              width={100}
+              height={140}
+              className="rounded-md w-full h-36 object-cover"
+            />
+            <p className="text-sm font-semibold mt-2">{char.node.name.full}</p>
+            <p className="text-xs text-neutral-400">{char.role}</p>
+            {char.voiceActors?.[0] && (
+              <div className="mt-2 flex items-center gap-2">
+                <Image
+                  src={char.voiceActors[0].image.large}
+                  alt={char.voiceActors[0].name.full}
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
+                <p className="text-xs">{char.voiceActors[0].name.full}</p>
               </div>
-            </div>
-          )
-        })}
+            )}
+          </div>
+        ))}
       </div>
     </section>
   )
