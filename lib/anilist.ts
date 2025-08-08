@@ -376,7 +376,7 @@ export async function fetchSimilarAnime(id: number): Promise<Anime[]> {
   )
 }
 
-// Fetch detail voice actor by ID
+// fetch va detail
 export async function fetchVoiceActorById(id: number) {
   const query = `
     query ($id: Int) {
@@ -421,5 +421,30 @@ export async function fetchVoiceActorById(id: number) {
 
   const variables = { id }
   const data = await fetchFromAnilist(query, variables)
-  return data?.Staff
+
+  const staff = data?.Staff
+  if (!staff) return null
+
+  const characters = staff.characters?.edges?.map((edge: any) => {
+    const media = edge.media?.nodes?.[0] // Ambil anime pertama jika ada
+    return {
+      id: edge.node.id,
+      name: edge.node.name,
+      image: edge.node.image,
+      role: edge.role,
+      media: media ? {
+        id: media.id,
+        title: media.title,
+        coverImage: media.coverImage
+      } : null
+    }
+  }) ?? []
+
+  return {
+    id: staff.id,
+    name: staff.name.full,
+    image: staff.image.large,
+    language: staff.languageV2,
+    characters
+  }
 }
