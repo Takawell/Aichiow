@@ -28,9 +28,10 @@ export default function AnimeCard({ anime }: Props) {
         </div>
 
         {/* TEXT */}
-        <div className="relative z-20 p-3 h-[72px] flex flex-col justify-between min-w-0">
+        <div className="relative z-20 p-3 h-[72px] flex flex-col justify-between min-w-0 overflow-hidden">
+          
           {/* Title */}
-          <h3 className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 leading-snug line-clamp-2">
+          <h3 className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 leading-snug truncate overflow-hidden text-ellipsis whitespace-nowrap">
             {anime.title.english || anime.title.romaji}
           </h3>
 
@@ -39,13 +40,14 @@ export default function AnimeCard({ anime }: Props) {
             {anime.genres?.slice(0, 2).map((genre) => (
               <span
                 key={genre}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70 truncate"
+                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70 truncate overflow-hidden text-ellipsis"
                 style={{ maxWidth: 'calc(50% - 2px)' }}
               >
                 {genre}
               </span>
             ))}
           </div>
+
         </div>
       </div>
     </Link>
