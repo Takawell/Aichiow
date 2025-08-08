@@ -10,7 +10,7 @@ export default function AnimeCard({ anime }: Props) {
   return (
     <Link
       href={`/anime/${anime.id}`}
-      className="w-[140px] flex-shrink-0 group transition-transform duration-300 hover:scale-[1.03]"
+      className="w-full max-w-[140px] flex-shrink-0 group transition-transform duration-300 hover:scale-[1.03]"
     >
       <div className="overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300">
         
