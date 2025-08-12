@@ -76,7 +76,7 @@ export default function LandingPage() {
               alt="Aichiow Logo"
               width={160}
               height={160}
-              className="mx-auto min-w-[160px] min-h-[160px] rounded-full border-4 border-white shadow-[0_0_25px_rgba(0,200,255,0.7)] hover:scale-110 transition-transform duration-300"
+              className="mx-auto min-w-[160px] min-h-[160px] hover:scale-110 transition-transform duration-300"
             />
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-wide bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(255,0,255,0.5)] animate-pulse">
               Welcome to Aichiow
