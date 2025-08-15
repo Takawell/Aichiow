@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const response = await axios.get(`https://cmdxd98sb0x3yprd.mangadex.network/at-home/server/${chapterId}`)
+    const response = await axios.get(`https://api.mangadex.org/at-home/server/${chapterId}`)
     res.status(200).json(response.data)
   } catch (error: any) {
     console.error('[API] /api/manga/chapter-images error:', error.message)
