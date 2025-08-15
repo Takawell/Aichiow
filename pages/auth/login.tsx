@@ -1,4 +1,5 @@
 'use client'
+
 import { useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/router'
@@ -17,14 +18,21 @@ export default function LoginPage() {
     setErr(null)
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    setLoading(false)
 
     if (error) {
       setErr(error.message)
+      setLoading(false)
       return
     }
 
-    router.replace('/profile')
+    const { data } = await supabase.auth.getSession()
+    if (data.session) {
+      router.replace('/profile')
+    } else {
+      setErr('Login successful but session not found. Please try again.')
+    }
+
+    setLoading(false)
   }
 
   return (
@@ -70,7 +78,7 @@ export default function LoginPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          {loading ? 'Masuk…' : 'Login'}
+          {loading ? 'Logging in…' : 'Login'}
         </motion.button>
 
         {err && <p className="text-red-400 text-sm text-center">{err}</p>}
