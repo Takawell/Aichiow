@@ -8,7 +8,7 @@ import ThemeToggle from '@/components/shared/ThemeToggle'
 import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
 import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabaseClient'
 
 const navItems = [
   { href: '/home', label: 'HOME' },
