@@ -28,7 +28,9 @@
     "tailwindcss": "^3.3.3",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/line-clamp": "^0.4.4",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "@supabase/auth-helpers-nextjs": "^0.10.0"
   },
   "devDependencies": {
     "@types/node": "20.11.30",
