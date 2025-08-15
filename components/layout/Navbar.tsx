@@ -8,6 +8,7 @@ import ThemeToggle from '@/components/shared/ThemeToggle'
 import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
 import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
+import { supabase } from '@/lib/supabase'
 
 const navItems = [
   { href: '/home', label: 'HOME' },
@@ -23,12 +24,32 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState('/default.png')
 
   useEffect(() => {
     setMounted(true)
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    // Fetch avatar from Supabase
+    const getProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .single()
+
+        if (!error && data?.avatar_url) {
+          setAvatarUrl(data.avatar_url)
+        }
+      }
+    }
+    getProfile()
   }, [])
 
   return (
@@ -49,7 +70,7 @@ export default function Navbar() {
         </Link>
 
         {/* Nav desktop kanan */}
-        <div className="hidden md:flex items-center gap-8 ml-auto">
+        <div className="hidden md:flex items-center gap-6 ml-auto">
           <nav className="flex gap-6 text-sm md:text-base font-medium">
             {navItems.map((item) => {
               const isActive =
@@ -70,10 +91,27 @@ export default function Navbar() {
             })}
           </nav>
           <ThemeToggle />
+          {/* Avatar Profile */}
+          <Link href="/profile">
+            <img
+              src={avatarUrl}
+              alt="Profile"
+              className="w-10 h-10 rounded-full border-2 border-sky-400 hover:scale-105 transition-transform object-cover"
+            />
+          </Link>
         </div>
 
         {/* Nav mobile */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-3">
+          {/* Avatar mobile */}
+          <Link href="/profile">
+            <img
+              src={avatarUrl}
+              alt="Profile"
+              className="w-9 h-9 rounded-full border-2 border-sky-400 object-cover"
+            />
+          </Link>
+
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <button aria-label="Menu">
@@ -108,16 +146,16 @@ export default function Navbar() {
                 <div className="mt-8 border-t border-white/20 pt-4">
                   <p className="text-sm font-semibold uppercase text-white/60 mb-3">Community</p>
                   <div className="flex gap-4 text-lg">
-                    <Link href="https://whatsapp.com/channel/0029Vb5lXCA1SWsyWyJbvW0q" target="_blank" aria-label="Discord">
+                    <Link href="https://whatsapp.com/channel/0029Vb5lXCA1SWsyWyJbvW0q" target="_blank">
                       <FaDiscord className="hover:text-blue-400 transition" />
                     </Link>
-                    <Link href="https://youtube.com/@TakaDevelopment" target="_blank" aria-label="YouTube">
+                    <Link href="https://youtube.com/@TakaDevelopment" target="_blank">
                       <FaYoutube className="hover:text-red-500 transition" />
                     </Link>
-                    <Link href="https://tiktok.com/@putrawangyyy" target="_blank" aria-label="TikTok">
+                    <Link href="https://tiktok.com/@putrawangyyy" target="_blank">
                       <FaTiktok className="hover:text-pink-400 transition" />
                     </Link>
-                    <Link href="https://instagram.com/putrasenpaiii" target="_blank" aria-label="Instagram">
+                    <Link href="https://instagram.com/putrasenpaiii" target="_blank">
                       <FaInstagram className="hover:text-purple-400 transition" />
                     </Link>
                   </div>
