@@ -48,7 +48,7 @@ export default function RegisterPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
       >
-        <h1 className="text-3xl font-semibold text-center text-white">Daftar Akun</h1>
+        <h1 className="text-3xl font-semibold text-center text-white">Register account</h1>
 
         <motion.input
           className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white transition"
@@ -93,14 +93,14 @@ export default function RegisterPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          {loading ? 'Mendaftarkan…' : 'Daftar'}
+          {loading ? 'Registering…' : 'Register'}
         </motion.button>
 
         {err && <p className="text-red-400 text-sm text-center">{err}</p>}
         {msg && <p className="text-green-400 text-sm text-center">{msg}</p>}
 
         <p className="text-sm text-center text-white/70">
-          Sudah punya akun?{' '}
+          Already have an account?{' '}
           <a className="underline text-blue-400 hover:text-blue-300" href="/auth/login">
             Login
           </a>
