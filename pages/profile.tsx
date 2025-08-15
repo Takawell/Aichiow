@@ -1,7 +1,7 @@
 import { GetServerSidePropsContext, GetServerSideProps } from 'next'
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { useState } from 'react'
-import LogoutButton from '@/components/LogoutButton'
+import LogoutButton from '@/components/ui/LogoutButton'
 
 type Profile = {
   id: string
