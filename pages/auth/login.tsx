@@ -13,6 +13,8 @@ export default function LoginPage() {
   const [err, setErr] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!router.isReady) return
+
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
         router.replace('/profile')
@@ -28,18 +30,23 @@ export default function LoginPage() {
     return () => {
       authListener.subscription.unsubscribe()
     }
-  }, [router])
+  }, [router.isReady])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setErr(null)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password })
+
     if (error) {
       setErr(error.message)
       setLoading(false)
       return
+    }
+
+    if (data.session) {
+      router.replace('/profile')
     }
 
     setLoading(false)
