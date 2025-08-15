@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/router'
 import { motion } from 'framer-motion'
@@ -12,24 +12,34 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        router.replace('/profile')
+      }
+    })
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        router.replace('/profile')
+      }
+    })
+
+    return () => {
+      authListener.subscription.unsubscribe()
+    }
+  }, [router])
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setErr(null)
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-
     if (error) {
       setErr(error.message)
       setLoading(false)
       return
-    }
-
-    const { data } = await supabase.auth.getSession()
-    if (data.session) {
-      router.replace('/profile')
-    } else {
-      setErr('Login successful but session not found. Please try again.')
     }
 
     setLoading(false)
@@ -53,9 +63,6 @@ export default function LoginPage() {
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
         />
 
         <motion.input
@@ -65,18 +72,12 @@ export default function LoginPage() {
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
         />
 
         <motion.button
           disabled={loading}
           className="w-full rounded-xl p-3 bg-white text-black font-semibold hover:bg-gray-200 transition disabled:opacity-50"
           type="submit"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
         >
           {loading ? 'Logging in…' : 'Login'}
         </motion.button>
