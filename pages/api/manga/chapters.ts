@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 
-const BASE_URL = 'https://cmdxd98sb0x3yprd.mangadex.network'
+const BASE_URL = 'https://api.mangadex.org/'
 
 export default async function handler(
   req: NextApiRequest,
