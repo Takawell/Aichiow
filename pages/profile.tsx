@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import LogoutButton from '@/components/ui/LogoutButton'
 import { useRouter } from 'next/router'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabaseClient'
 
 type Profile = {
   id: string
