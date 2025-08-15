@@ -18,7 +18,6 @@ export default async function handler(
       params: {
         manga: mangaId,
         limit: 100,
-        translatedLanguage: ['en', 'id'], // ✅ Tambahkan filter bahasa
         order: { chapter: 'desc' },
       },
     })
