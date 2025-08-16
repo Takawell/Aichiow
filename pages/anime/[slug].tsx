@@ -9,6 +9,8 @@ import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
 import { format, fromUnixTime } from 'date-fns'
+import { useFavorites } from '@/hooks/useFavorites'
+import { Heart } from 'lucide-react'
 
 export default function AnimeDetailPage() {
   const router = useRouter()
@@ -16,6 +18,12 @@ export default function AnimeDetailPage() {
 
   const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
+
+  // Favorites hook
+  const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites(
+    id,
+    'anime'
+  )
 
   // Fetch Similar Anime
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
@@ -44,7 +52,24 @@ export default function AnimeDetailPage() {
       </Head>
       <main className="bg-dark text-white pb-20">
         {/* Header */}
-        <AnimeDetailHeader anime={anime} />
+        <div className="relative">
+          <AnimeDetailHeader anime={anime} />
+          <button
+            onClick={toggleFavorite}
+            disabled={favLoading}
+            className={`absolute top-4 right-4 p-3 rounded-full shadow-lg transition ${
+              isFavorite
+                ? 'bg-red-600 hover:bg-red-700'
+                : 'bg-gray-700 hover:bg-gray-600'
+            }`}
+          >
+            <Heart
+              className={`w-6 h-6 ${
+                isFavorite ? 'fill-current text-white' : 'text-white'
+              }`}
+            />
+          </button>
+        </div>
 
         {/* Trailer */}
         {anime.trailer?.site === 'youtube' && (
