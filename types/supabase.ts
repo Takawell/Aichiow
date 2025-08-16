@@ -1,24 +1,24 @@
-export type HistoryItem = {
-  id?: string | number
-  title: string
-  thumbnail: string
-  created_at?: string
-}
-
-export type Favorites = {
-  anime: string[]
-  manga: string[]
-  manhwa: string[]
-  lightNovel: string[]
-}
-
-export interface ProfileRow {
-  id: string
+export interface UserRow {
+  id: string 
   username: string | null
-  bio: string | null
-  avatar: string | null
-  history: HistoryItem[] | null
-  favorites: Favorites | null
-  created_at?: string | null
-  updated_at?: string | null
+  email: string | null
+  avatar_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface WatchHistoryRow {
+  id: number
+  user_id: string
+  media_id: number
+  media_type: 'anime' | 'manga' | 'manhwa' | 'light_novel'
+  watched_at: string
+}
+
+export interface FavoriteRow {
+  id: number
+  user_id: string
+  media_id: number
+  media_type: 'anime' | 'manga' | 'manhwa' | 'light_novel'
+  added_at: string
 }
