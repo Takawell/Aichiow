@@ -6,88 +6,54 @@ import { useRouter } from 'next/router'
 import { Session } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-
-// Types
-export interface UserRow {
-  id: string
-  username: string | null
-  email: string | null
-  avatar_url: string | null
-  created_at: string
-  updated_at: string
-}
-
-export interface WatchHistoryRow {
-  id: number
-  user_id: string
-  media_id: number
-  media_type: 'anime' | 'manga' | 'manhwa' | 'light_novel'
-  title: string
-  thumbnail: string
-  watched_at: string
-}
-
-export interface FavoriteRow {
-  id: number
-  user_id: string
-  media_id: number
-  media_type: 'anime' | 'manga' | 'manhwa' | 'light_novel'
-  title: string
-}
+import { UserRow, WatchHistoryRow, FavoriteRow } from '@/types/supabase'
 
 export default function ProfileDashboard() {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<UserRow | null>(null)
   const [history, setHistory] = useState<WatchHistoryRow[]>([])
-  const [favorites, setFavorites] = useState<Record<string, FavoriteRow[]>>({})
+  const [favorites, setFavorites] = useState<FavoriteRow[]>([])
   const [openEdit, setOpenEdit] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    const loadProfile = async () => {
+    const loadSession = async () => {
       const { data } = await supabase.auth.getSession()
       if (!data.session) {
         router.replace('/auth/login')
         return
       }
       setSession(data.session)
+
       const userId = data.session.user.id
 
-      // Fetch user
-      const { data: userData, error: userError } = await supabase
-        .from<'users', UserRow>('users')
+      // Load user profile
+      const { data: profileData } = await supabase
+        .from('users')
         .select('*')
         .eq('id', userId)
-        .single()
-      if (userError) console.error(userError)
-      else setUser(userData)
+        .single() as { data: UserRow | null; error: any }
 
-      // Fetch watch history
-      const { data: historyData, error: historyError } = await supabase
-        .from<'watch_history', WatchHistoryRow>('watch_history')
-        .select('*')
-        .eq('user_id', userId)
-        .order('watched_at', { ascending: false })
-      if (historyError) console.error(historyError)
-      else setHistory(historyData || [])
+      if (profileData) setUser(profileData)
 
-      // Fetch favorites
-      const { data: favData, error: favError } = await supabase
-        .from<'favorites', FavoriteRow>('favorites')
+      // Load watch history
+      const { data: historyData } = await supabase
+        .from('watch_history')
         .select('*')
-        .eq('user_id', userId)
-      if (favError) console.error(favError)
-      else {
-        const grouped: Record<string, FavoriteRow[]> = {}
-        favData?.forEach((fav) => {
-          if (!grouped[fav.media_type]) grouped[fav.media_type] = []
-          grouped[fav.media_type].push(fav)
-        })
-        setFavorites(grouped)
-      }
+        .eq('user_id', userId) as { data: WatchHistoryRow[] | null; error: any }
+
+      if (historyData) setHistory(historyData)
+
+      // Load favorites
+      const { data: favoritesData } = await supabase
+        .from('favorites')
+        .select('*')
+        .eq('user_id', userId) as { data: FavoriteRow[] | null; error: any }
+
+      if (favoritesData) setFavorites(favoritesData)
     }
 
-    loadProfile()
+    loadSession()
   }, [router])
 
   const handleLogout = async () => {
@@ -95,21 +61,16 @@ export default function ProfileDashboard() {
     router.replace('/auth/login')
   }
 
-  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!user) return
     const form = e.currentTarget
     const formData = new FormData(form)
-    const updated = {
-      username: formData.get('username') as string,
-      avatar_url: formData.get('avatar_url') as string | null,
+    const newUsername = formData.get('username') as string
+    const newBio = formData.get('bio') as string
+
+    if (user) {
+      setUser({ ...user, username: newUsername, bio: newBio })
     }
-    const { error } = await supabase
-      .from<'users', UserRow>('users')
-      .update(updated)
-      .eq('id', user.id)
-    if (error) console.error(error)
-    else setUser({ ...user, ...updated })
     setOpenEdit(false)
   }
 
@@ -124,6 +85,7 @@ export default function ProfileDashboard() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-3xl" />
+
         <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-4 md:gap-6">
           <div className="flex items-center space-x-4 md:space-x-6">
             <Image
@@ -134,10 +96,12 @@ export default function ProfileDashboard() {
               className="rounded-full border-4 border-blue-500 shadow-lg shadow-blue-500/40"
             />
             <div className="text-center md:text-left">
-              <h2 className="text-xl md:text-3xl font-bold">{user.username || 'No username'}</h2>
-              <p className="text-xs md:text-sm text-gray-500">{user.email}</p>
+              <h2 className="text-xl md:text-3xl font-bold">{user.username || 'Otaku Explorer ✨'}</h2>
+              <p className="text-gray-300 text-sm md:text-base">{user.bio || 'Lover of anime, manga, manhwa & light novels.'}</p>
+              <p className="text-xs md:text-sm text-gray-500">{session.user.email}</p>
             </div>
           </div>
+
           <div className="flex gap-3">
             <motion.button
               onClick={() => setOpenEdit(true)}
@@ -183,10 +147,11 @@ export default function ProfileDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block mb-1 text-sm font-semibold">Avatar URL</label>
-                  <input
-                    name="avatar_url"
-                    defaultValue={user.avatar_url || ''}
+                  <label className="block mb-1 text-sm font-semibold">Bio</label>
+                  <textarea
+                    name="bio"
+                    defaultValue={user.bio || ''}
+                    rows={3}
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
@@ -211,7 +176,7 @@ export default function ProfileDashboard() {
         )}
       </AnimatePresence>
 
-      {/* History Section */}
+      {/* Watch History Section */}
       <section className="mb-8 md:mb-12">
         <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">📺 Watch History</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
@@ -222,14 +187,14 @@ export default function ProfileDashboard() {
               className="group relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
             >
               <Image
-                src={item.thumbnail}
-                alt={item.title}
+                src={`/demo/${item.media_id}.jpg`} // replace with proper thumbnails
+                alt={item.media_type}
                 width={400}
                 height={500}
                 className="object-cover w-full h-32 md:h-48"
               />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-                <span className="text-xs md:text-lg font-semibold">▶ {item.title}</span>
+                <span className="text-xs md:text-lg font-semibold">▶ {item.media_type}</span>
               </div>
             </motion.div>
           ))}
@@ -240,27 +205,31 @@ export default function ProfileDashboard() {
       <section>
         <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">⭐ Favorites</h3>
         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-          {Object.entries(favorites).map(([category, list]) => (
-            <motion.div
-              key={category}
-              whileHover={{ y: -3 }}
-              className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/10 shadow-inner"
-            >
-              <h4 className="text-base md:text-lg font-semibold capitalize mb-3">{category}</h4>
-              <div className="flex flex-wrap gap-2">
-                {list.map((fav) => (
-                  <span
-                    key={fav.id}
-                    className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
-                  >
-                    {fav.title}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
+          {['anime','manga','manhwa','light_novel'].map((cat) => {
+            const list = favorites.filter(f => f.media_type === cat)
+            return (
+              <motion.div
+                key={cat}
+                whileHover={{ y: -3 }}
+                className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/10 shadow-inner"
+              >
+                <h4 className="text-base md:text-lg font-semibold capitalize mb-3">{cat}</h4>
+                <div className="flex flex-wrap gap-2">
+                  {list.map((fav) => (
+                    <span
+                      key={fav.id}
+                      className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
+                    >
+                      {fav.media_id}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            )
+          })}
         </div>
       </section>
     </div>
   )
 }
+        
