@@ -12,24 +12,24 @@ export default function ProfileDashboard() {
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<UserRow | null>(null)
   const [history, setHistory] = useState<WatchHistoryRow[]>([])
-  const [favorites, setFavorites] = useState<Record<string, FavoriteRow[]>>({})
+  const [favorites, setFavorites] = useState<FavoriteRow[]>([])
   const [openEdit, setOpenEdit] = useState(false)
   const router = useRouter()
 
+  // Load session + data
   useEffect(() => {
-    const loadProfile = async () => {
+    const loadData = async () => {
       const { data } = await supabase.auth.getSession()
       if (!data.session) {
         router.replace('/auth/login')
         return
       }
       setSession(data.session)
-
       const userId = data.session.user.id
 
       // Load profile
       const { data: profileData, error: profileError } = await supabase
-        .from<UserRow>('users')
+        .from<UserRow, UserRow>('users')
         .select('*')
         .eq('id', userId)
         .single()
@@ -38,7 +38,7 @@ export default function ProfileDashboard() {
 
       // Load watch history
       const { data: historyData, error: historyError } = await supabase
-        .from<WatchHistoryRow>('watch_history')
+        .from<WatchHistoryRow, WatchHistoryRow>('watch_history')
         .select('*')
         .eq('user_id', userId)
         .order('watched_at', { ascending: false })
@@ -46,23 +46,16 @@ export default function ProfileDashboard() {
       else setHistory(historyData || [])
 
       // Load favorites
-      const { data: favData, error: favError } = await supabase
-        .from<FavoriteRow>('favorites')
+      const { data: favoritesData, error: favoritesError } = await supabase
+        .from<FavoriteRow, FavoriteRow>('favorites')
         .select('*')
         .eq('user_id', userId)
         .order('added_at', { ascending: false })
-      if (favError) console.error(favError)
-      else {
-        const grouped: Record<string, FavoriteRow[]> = {}
-        favData?.forEach((f) => {
-          if (!grouped[f.media_type]) grouped[f.media_type] = []
-          grouped[f.media_type].push(f)
-        })
-        setFavorites(grouped)
-      }
+      if (favoritesError) console.error(favoritesError)
+      else setFavorites(favoritesData || [])
     }
 
-    loadProfile()
+    loadData()
   }, [router])
 
   const handleLogout = async () => {
@@ -70,7 +63,36 @@ export default function ProfileDashboard() {
     router.replace('/auth/login')
   }
 
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!session) return
+    const form = e.currentTarget
+    const formData = new FormData(form)
+    const updatedProfile = {
+      username: formData.get('username') as string,
+      email: session.user.email,
+      avatar_url: profile?.avatar_url || '/default.png',
+      updated_at: new Date().toISOString()
+    }
+
+    const { error } = await supabase
+      .from<UserRow, UserRow>('users')
+      .update(updatedProfile)
+      .eq('id', session.user.id)
+
+    if (error) console.error(error)
+    else setProfile((prev) => (prev ? { ...prev, ...updatedProfile } : updatedProfile))
+    setOpenEdit(false)
+  }
+
   if (!session || !profile) return null
+
+  // Group favorites by media_type
+  const favByCategory: Record<string, FavoriteRow[]> = {}
+  favorites.forEach((fav) => {
+    if (!favByCategory[fav.media_type]) favByCategory[fav.media_type] = []
+    favByCategory[fav.media_type].push(fav)
+  })
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#0f172a] p-4 md:p-8 text-white">
@@ -92,10 +114,10 @@ export default function ProfileDashboard() {
             />
             <div className="text-center md:text-left">
               <h2 className="text-xl md:text-3xl font-bold">{profile.username || 'No username'}</h2>
-              <p className="text-gray-300 text-sm md:text-base">{profile.bio || 'No bio yet.'}</p>
-              <p className="text-xs md:text-sm text-gray-500">{profile.email}</p>
+              <p className="text-gray-300 text-sm md:text-base">{profile.email}</p>
             </div>
           </div>
+
           <div className="flex gap-3">
             <motion.button
               onClick={() => setOpenEdit(true)}
@@ -115,6 +137,52 @@ export default function ProfileDashboard() {
         </div>
       </motion.div>
 
+      {/* Edit Profile Modal */}
+      <AnimatePresence>
+        {openEdit && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#1e293b] text-white p-6 rounded-2xl max-w-sm w-full mx-4 shadow-2xl"
+            >
+              <h3 className="text-lg font-bold mb-4">Edit Profile</h3>
+              <form onSubmit={handleSave} className="space-y-4">
+                <div>
+                  <label className="block mb-1 text-sm font-semibold">Username</label>
+                  <input
+                    name="username"
+                    defaultValue={profile.username || ''}
+                    className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
+                  />
+                </div>
+                <div className="flex gap-3 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setOpenEdit(false)}
+                    className="flex-1 py-2 rounded-xl bg-gray-600 hover:bg-gray-500 font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 font-semibold"
+                  >
+                    Save
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Watch History */}
       <section className="mb-8 md:mb-12">
         <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">📺 Watch History</h3>
@@ -125,13 +193,6 @@ export default function ProfileDashboard() {
               whileHover={{ scale: 1.05 }}
               className="group relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
             >
-              <Image
-                src={`/covers/${item.media_id}.jpg`} // atau sesuaikan path cover dari API/asset
-                alt={`${item.media_type} ${item.media_id}`}
-                width={400}
-                height={500}
-                className="object-cover w-full h-32 md:h-48"
-              />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                 <span className="text-xs md:text-lg font-semibold">▶ {item.media_type} #{item.media_id}</span>
               </div>
@@ -144,7 +205,7 @@ export default function ProfileDashboard() {
       <section>
         <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">⭐ Favorites</h3>
         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-          {Object.entries(favorites).map(([category, list]) => (
+          {Object.entries(favByCategory).map(([category, list]) => (
             <motion.div
               key={category}
               whileHover={{ y: -3 }}
@@ -157,7 +218,7 @@ export default function ProfileDashboard() {
                     key={fav.id}
                     className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
                   >
-                    {fav.media_type} #{fav.media_id}
+                    #{fav.media_id}
                   </span>
                 ))}
               </div>
