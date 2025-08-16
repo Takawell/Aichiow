@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
 import { LightNovel, LightNovelCharacter, LightNovelStaff } from '@/types/lightNovel'
-import { useFavorite } from '@/hooks/useFavorite'
+import { useFavorites } from '@/hooks/useFavorites'
 
 export default function LightNovelDetail() {
   const router = useRouter()
@@ -16,7 +16,12 @@ export default function LightNovelDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const { isFavorite, toggleFavorite } = useFavorite(Number(id), 'light_novel')
+  // gunakan useFavorites dengan bentuk objek
+  const numericId = Number(id)
+  const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
+    mediaId: Number.isFinite(numericId) ? numericId : undefined,
+    mediaType: 'light_novel',
+  })
 
   useEffect(() => {
     if (!id) return
@@ -97,13 +102,18 @@ export default function LightNovelDetail() {
               {/* Tombol Favorite */}
               <button
                 onClick={toggleFavorite}
+                disabled={favLoading || !Number.isFinite(numericId)}
                 className={`mt-4 px-4 py-2 rounded-lg shadow-md transition ${
                   isFavorite
                     ? 'bg-red-600 hover:bg-red-700'
                     : 'bg-gray-700 hover:bg-gray-600'
-                }`}
+                } ${favLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {isFavorite ? '★ Favorited' : '☆ Add to Favorite'}
+                {favLoading
+                  ? 'Processing...'
+                  : isFavorite
+                  ? '★ Favorited'
+                  : '☆ Add to Favorite'}
               </button>
             </div>
           </div>
