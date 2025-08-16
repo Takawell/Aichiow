@@ -1,43 +1,155 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/router'
 import { Session } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 
-// Dummy data
-const dummyHistory = [
-  { id: 1, title: 'Jujutsu Kaisen Season 2', thumbnail: '/demo/jjk.jpg' },
-  { id: 2, title: 'Attack on Titan Final Season', thumbnail: '/demo/aot.jpg' },
-  { id: 3, title: 'Sousou no Frieren', thumbnail: '/demo/frieren.jpg' }
-]
+const USE_JSON_COLUMNS = true
 
-const dummyFavorites = {
-  anime: ['Chainsaw Man', 'One Piece', 'Solo Leveling'],
-  manga: ['Oshi no Ko', 'Blue Lock'],
-  manhwa: ['Omniscient Reader', 'Tower of God'],
-  lightNovel: ['Mushoku Tensei', 'Re:Zero']
+type HistoryItem = {
+  id?: string | number
+  title: string
+  thumbnail: string
+  created_at?: string
+}
+
+type Favorites = {
+  anime: string[]
+  manga: string[]
+  manhwa: string[]
+  lightNovel: string[]
+}
+
+type ProfileRow = {
+  username: string | null
+  bio: string | null
+  avatar: string | null
+  history?: HistoryItem[] | null
+  favorites?: Favorites | null
 }
 
 export default function ProfileDashboard() {
+  const router = useRouter()
   const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+
   const [username, setUsername] = useState('Otaku Explorer ✨')
   const [bio, setBio] = useState('Lover of anime, manga, manhwa & light novels.')
-  const [openEdit, setOpenEdit] = useState(false)
-  const router = useRouter()
+  const [avatar, setAvatar] = useState<string | null>(null)
 
-  useEffect(() => {
-    const loadSession = async () => {
-      const { data } = await supabase.auth.getSession()
-      if (!data.session) {
-        router.replace('/auth/login')
-      } else {
-        setSession(data.session)
+  const [history, setHistory] = useState<HistoryItem[]>([])
+  const [favorites, setFavorites] = useState<Favorites>({
+    anime: [],
+    manga: [],
+    manhwa: [],
+    lightNovel: []
+  })
+
+  const [openEdit, setOpenEdit] = useState(false)
+
+  // Helper untuk grup favorites dari tabel terpisah
+  const groupFavorites = (rows: any[]): Favorites => {
+    const grouped: Favorites = { anime: [], manga: [], manhwa: [], lightNovel: [] }
+    for (const r of rows) {
+      const cat = (r.category || r.type || r.media_type || '').toString()
+      const title = (r.title || r.name || r.item_title || '').toString()
+      if (!title) continue
+      if (cat === 'anime' || cat === 'manga' || cat === 'manhwa' || cat === 'lightNovel') {
+        grouped[cat as keyof Favorites].push(title)
       }
     }
-    loadSession()
+    return grouped
+  }
+
+  useEffect(() => {
+    const bootstrap = async () => {
+      try {
+        const { data } = await supabase.auth.getSession()
+        if (!data.session) {
+          router.replace('/auth/login')
+          return
+        }
+        setSession(data.session)
+        const userId = data.session.user.id
+
+        // --- Ambil profil ---
+        const selectColumns = USE_JSON_COLUMNS
+          ? 'username, bio, avatar, history, favorites'
+          : 'username, bio, avatar'
+
+        const { data: profile, error: profileErr } = await supabase
+          .from('profiles')
+          .select(selectColumns)
+          .eq('id', userId)
+          .single()
+
+        if (profileErr && profileErr.code !== 'PGRST116') {
+          // error selain "no rows"
+          console.error('Load profile error:', profileErr)
+        }
+
+        // Jika belum ada row profile, upsert minimal
+        if (!profile) {
+          const fallbackName =
+            (data.session.user.user_metadata?.user_name as string) ||
+            (data.session.user.user_metadata?.full_name as string) ||
+            (data.session.user.email?.split('@')[0] as string) ||
+            'User'
+          const { error: upsertErr } = await supabase.from('profiles').upsert({
+            id: userId,
+            username: fallbackName,
+            bio: '',
+            avatar: null
+          })
+          if (upsertErr) console.error('Create profile error:', upsertErr)
+          setUsername(fallbackName)
+          setBio('')
+          setAvatar(null)
+        } else {
+          const p = profile as ProfileRow
+          setUsername(p.username || 'User')
+          setBio(p.bio || '')
+          setAvatar(p.avatar || null)
+
+          if (USE_JSON_COLUMNS) {
+            setHistory(Array.isArray(p.history) ? p.history : [])
+            setFavorites(
+              p.favorites || { anime: [], manga: [], manhwa: [], lightNovel: [] }
+            )
+          }
+        }
+
+        if (!USE_JSON_COLUMNS) {
+          // --- Ambil dari tabel history ---
+          const { data: histRows, error: histErr } = await supabase
+            .from('watch_history')
+            .select('id, title, thumbnail, created_at')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(50)
+          if (histErr) console.warn('Load history warning:', histErr)
+          setHistory(histRows || [])
+
+          // --- Ambil dari tabel favorites ---
+          const { data: favRows, error: favErr } = await supabase
+            .from('favorites')
+            .select('category, title')
+            .eq('user_id', userId)
+            .limit(200)
+          if (favErr) console.warn('Load favorites warning:', favErr)
+          setFavorites(favRows ? groupFavorites(favRows) : { anime: [], manga: [], manhwa: [], lightNovel: [] })
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    bootstrap()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router])
 
   const handleLogout = async () => {
@@ -45,13 +157,32 @@ export default function ProfileDashboard() {
     router.replace('/auth/login')
   }
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!session) return
     const form = e.currentTarget
     const formData = new FormData(form)
-    setUsername(formData.get('username') as string)
-    setBio(formData.get('bio') as string)
-    setOpenEdit(false) // auto close modal
+    const newUsername = (formData.get('username') as string)?.trim()
+    const newBio = (formData.get('bio') as string)?.trim()
+
+    try {
+      setSaving(true)
+      const payload: any = { id: session.user.id, username: newUsername, bio: newBio }
+      if (USE_JSON_COLUMNS) {
+        payload.history = history
+        payload.favorites = favorites
+      }
+      const { error } = await supabase.from('profiles').upsert(payload)
+      if (error) {
+        console.error('Save profile error:', error)
+        return
+      }
+      setUsername(newUsername)
+      setBio(newBio)
+      setOpenEdit(false)
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (!session) return null
@@ -65,19 +196,19 @@ export default function ProfileDashboard() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-3xl" />
-        
+
         <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-4 md:gap-6">
           <div className="flex items-center space-x-4 md:space-x-6">
             <Image
-              src="default.png"
+              src={avatar || '/default.png'}
               alt="Avatar"
               width={90}
               height={90}
-              className="rounded-full border-4 border-blue-500 shadow-lg shadow-blue-500/40"
+              className="rounded-full border-4 border-blue-500 shadow-lg shadow-blue-500/40 object-cover"
             />
             <div className="text-center md:text-left">
               <h2 className="text-xl md:text-3xl font-bold">{username}</h2>
-              <p className="text-gray-300 text-sm md:text-base">{bio}</p>
+              <p className="text-gray-300 text-sm md:text-base">{bio || '—'}</p>
               <p className="text-xs md:text-sm text-gray-500">{session.user.email}</p>
             </div>
           </div>
@@ -86,9 +217,10 @@ export default function ProfileDashboard() {
             <motion.button
               onClick={() => setOpenEdit(true)}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 md:px-6 md:py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 text-sm md:text-base font-semibold shadow-md transition"
+              className="px-4 py-2 md:px-6 md:py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 text-sm md:text-base font-semibold shadow-md transition disabled:opacity-50"
+              disabled={loading}
             >
-              Edit
+              {loading ? 'Loading…' : 'Edit'}
             </motion.button>
             <motion.button
               onClick={handleLogout}
@@ -145,9 +277,10 @@ export default function ProfileDashboard() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 font-semibold"
+                    className="flex-1 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 font-semibold disabled:opacity-50"
+                    disabled={saving}
                   >
-                    Save
+                    {saving ? 'Saving…' : 'Save'}
                   </button>
                 </div>
               </form>
@@ -158,54 +291,71 @@ export default function ProfileDashboard() {
 
       {/* History Section */}
       <section className="mb-8 md:mb-12">
-        <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">📺 Watch History</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
-          {dummyHistory.map((item) => (
-            <motion.div
-              key={item.id}
-              whileHover={{ scale: 1.05 }}
-              className="group relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
-            >
-              <Image
-                src={item.thumbnail}
-                alt={item.title}
-                width={400}
-                height={500}
-                className="object-cover w-full h-32 md:h-48"
-              />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-                <span className="text-xs md:text-lg font-semibold">▶ {item.title}</span>
-              </div>
-            </motion.div>
-          ))}
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <h3 className="text-lg md:text-2xl font-bold">📺 Watch History</h3>
+          {loading && <span className="text-xs opacity-70">Loading…</span>}
         </div>
+        {history.length === 0 && !loading ? (
+          <p className="text-sm text-gray-400">Belum ada histori.</p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
+            {history.map((item, idx) => (
+              <motion.div
+                key={item.id ?? idx}
+                whileHover={{ scale: 1.05 }}
+                className="group relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
+              >
+                <Image
+                  src={item.thumbnail}
+                  alt={item.title}
+                  width={400}
+                  height={500}
+                  className="object-cover w-full h-32 md:h-48"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                  <span className="text-xs md:text-lg font-semibold">▶ {item.title}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Favorites Section */}
       <section>
         <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">⭐ Favorites</h3>
         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-          {Object.entries(dummyFavorites).map(([category, list]) => (
-            <motion.div
-              key={category}
-              whileHover={{ y: -3 }}
-              className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/10 shadow-inner"
-            >
-              <h4 className="text-base md:text-lg font-semibold capitalize mb-3">{category}</h4>
-              <div className="flex flex-wrap gap-2">
-                {list.map((fav, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
-                  >
-                    {fav}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
+          {(['anime', 'manga', 'manhwa', 'lightNovel'] as const).map((category) => {
+            const list = favorites[category]
+            return (
+              <motion.div
+                key={category}
+                whileHover={{ y: -3 }}
+                className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/10 shadow-inner"
+              >
+                <h4 className="text-base md:text-lg font-semibold capitalize mb-3">
+                  {category}
+                </h4>
+                {list.length === 0 ? (
+                  <p className="text-sm text-gray-400">Belum ada favorit.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {list.map((fav, idx) => (
+                      <span
+                        key={`${category}-${idx}`}
+                        className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
+                      >
+                        {fav}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )
+          })}
         </div>
       </section>
     </div>
   )
 }
+            
