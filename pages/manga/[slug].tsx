@@ -6,6 +6,7 @@ import { fetchChapters, fetchMangaDetail, getCoverImage, getLocalizedTitle } fro
 import { fetchMangaCharacters } from '@/lib/anilist'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useFavorites } from '@/hooks/useFavorites'
 
 export default function MangaDetailPage() {
   const router = useRouter()
@@ -17,6 +18,12 @@ export default function MangaDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const [showFullDesc, setShowFullDesc] = useState(false)
+
+  // === favorites hook ===
+  const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
+    mediaId: manga?.id ? parseInt(manga.id, 36) : undefined, // karena id mangaDex string UUID, kita ubah ke int unik
+    mediaType: 'manga',
+  })
 
   useEffect(() => {
     if (!slug) return
@@ -67,24 +74,14 @@ export default function MangaDetailPage() {
     <main className="relative bg-neutral-950 text-white">
       {/* Banner blur background */}
       <div className="absolute inset-0 -z-10 opacity-10 blur-lg">
-        <Image
-          src={coverUrl}
-          alt="banner"
-          fill
-          className="object-cover"
-        />
+        <Image src={coverUrl} alt="banner" fill className="object-cover" />
       </div>
 
       <section className="px-4 md:px-8 py-10 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <div className="relative w-full md:w-60 aspect-[3/4] rounded-xl overflow-hidden border border-zinc-700 shadow-xl">
-            <Image
-              src={coverUrl}
-              alt={title}
-              fill
-              className="object-cover"
-            />
+            <Image src={coverUrl} alt={title} fill className="object-cover" />
           </div>
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-white mb-3">{title}</h1>
@@ -101,8 +98,21 @@ export default function MangaDetailPage() {
               ))}
             </div>
 
+            {/* Favorite button */}
+            <button
+              onClick={toggleFavorite}
+              disabled={favLoading}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                isFavorite
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-zinc-700 hover:bg-zinc-600'
+              }`}
+            >
+              {isFavorite ? '★ Remove from Favorites' : '☆ Add to Favorites'}
+            </button>
+
             {/* Description */}
-            <p className={`text-sm text-zinc-300 whitespace-pre-line ${!showFullDesc ? 'line-clamp-5' : ''}`}>
+            <p className={`mt-4 text-sm text-zinc-300 whitespace-pre-line ${!showFullDesc ? 'line-clamp-5' : ''}`}>
               {description}
             </p>
             {description.length > 200 && (
