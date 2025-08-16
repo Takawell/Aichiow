@@ -13,7 +13,12 @@ interface Favorite {
   added_at: string
 }
 
-export function useFavorites(mediaId?: number, mediaType?: MediaType) {
+interface UseFavoritesProps {
+  mediaId?: number
+  mediaType?: MediaType
+}
+
+export function useFavorites({ mediaId, mediaType }: UseFavoritesProps) {
   const supabase = createClientComponentClient()
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [loading, setLoading] = useState(false)
