@@ -61,7 +61,7 @@ export default function ProfileDashboard() {
         <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-6">
           <div className="flex items-center space-x-6">
             <Image
-              src="https://i.pravatar.cc/150"
+              src="default.png"
               alt="Avatar"
               width={120}
               height={120}
