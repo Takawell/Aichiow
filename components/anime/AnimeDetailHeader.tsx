@@ -13,7 +13,7 @@ export default function AnimeDetailHeader({ anime }: Props) {
   const [showFullDesc, setShowFullDesc] = useState(false)
   const cleanDesc = anime.description?.replace(/<[^>]+>/g, '') || ''
 
-  const { isFavorite, toggleFavorite, loading } = useFavorite({
+  const { isFavorite, toggleFavorite, loading } = useFavorites({
     mediaId: anime.id,
     mediaType: 'anime',
   })
