@@ -6,12 +6,15 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { ManhwaDetail } from '@/types/manhwa'
+import { useFavorites } from '@/hooks/useFavorites'
+import { Heart } from 'lucide-react'
 
 export default function ManhwaDetailPage() {
   const router = useRouter()
   const { id } = router.query
   const [manhwa, setManhwa] = useState<ManhwaDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showFullDesc, setShowFullDesc] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -38,6 +41,12 @@ export default function ManhwaDetailPage() {
     )
   }
 
+  const cleanDesc = manhwa.description?.replace(/<[^>]+>/g, '') || ''
+  const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
+    mediaId: manhwa.id,
+    mediaType: 'manhwa',
+  })
+
   return (
     <div className="bg-neutral-950 min-h-screen text-white">
       {/* Hero Banner */}
@@ -54,6 +63,8 @@ export default function ManhwaDetailPage() {
           <div className="w-full h-full bg-neutral-800" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+
+        {/* COVER + TITLE + FAVORITE */}
         <div className="absolute bottom-5 left-5 md:bottom-10 md:left-10 z-10 flex items-center gap-5">
           <div className="w-[120px] md:w-[180px] h-[160px] md:h-[240px] relative rounded-lg overflow-hidden shadow-lg">
             <Image
@@ -80,21 +91,44 @@ export default function ManhwaDetailPage() {
                 </span>
               ))}
             </div>
+
+            {/* FAVORITE BUTTON */}
+            <button
+              onClick={toggleFavorite}
+              disabled={favLoading}
+              className={`mt-4 flex items-center gap-2 px-4 py-2 rounded-xl border transition ${
+                isFavorite
+                  ? 'bg-red-500 border-red-500 text-white hover:bg-red-600'
+                  : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+              }`}
+            >
+              <Heart
+                size={18}
+                className={isFavorite ? 'fill-current text-white' : 'text-white'}
+              />
+              {isFavorite ? 'Favorited' : 'Add to Favorites'}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Description */}
-      <div className="max-w-5xl mx-auto px-4 md:px-8 mt-6">
-        <p className="text-gray-300 leading-relaxed whitespace-pre-line">
-          {manhwa.description?.replace(/<[^>]+>/g, '')}
-        </p>
+      <div className="max-w-5xl mx-auto px-4 md:px-8 mt-6 text-gray-300 leading-relaxed">
+        <p className={showFullDesc ? '' : 'line-clamp-5'}>{cleanDesc}</p>
+        {cleanDesc.length > 300 && (
+          <button
+            onClick={() => setShowFullDesc((prev) => !prev)}
+            className="mt-2 text-blue-400 hover:underline text-sm"
+          >
+            {showFullDesc ? 'Show Less' : 'Show More'}
+          </button>
+        )}
       </div>
 
       {/* Characters */}
       <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10">
         <h2 className="text-2xl font-bold mb-4">Characters</h2>
-        {manhwa.characters?.edges && manhwa.characters.edges.length > 0 ? (
+        {manhwa.characters?.edges?.length ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {manhwa.characters.edges.map((char) => (
               <motion.div
@@ -125,7 +159,7 @@ export default function ManhwaDetailPage() {
       {/* Staff */}
       <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10 pb-16">
         <h2 className="text-2xl font-bold mb-4">Staff</h2>
-        {manhwa.staff?.edges && manhwa.staff.edges.length > 0 ? (
+        {manhwa.staff?.edges?.length ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {manhwa.staff.edges.map((st) => (
               <motion.div
