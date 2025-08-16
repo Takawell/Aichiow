@@ -16,19 +16,19 @@ export default function AnimeDetailPage() {
   const router = useRouter()
   const { slug } = router.query
 
-  const id = parseInt(slug as string)
-  const { anime, isLoading, isError } = useAnimeDetail(id)
+  const id = slug ? parseInt(slug as string) : undefined
+  const { anime, isLoading, isError } = useAnimeDetail(id || 0)
 
   // Favorites hook
-  const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites(
-    id,
-    'anime'
-  )
+  const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
+    mediaId: id,
+    mediaType: 'anime',
+  })
 
   // Fetch Similar Anime
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
     queryKey: ['similarAnime', id],
-    queryFn: () => fetchSimilarAnime(id),
+    queryFn: () => fetchSimilarAnime(id!),
     enabled: !!id,
   })
 
@@ -54,21 +54,23 @@ export default function AnimeDetailPage() {
         {/* Header */}
         <div className="relative">
           <AnimeDetailHeader anime={anime} />
-          <button
-            onClick={toggleFavorite}
-            disabled={favLoading}
-            className={`absolute top-4 right-4 p-3 rounded-full shadow-lg transition ${
-              isFavorite
-                ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-gray-700 hover:bg-gray-600'
-            }`}
-          >
-            <Heart
-              className={`w-6 h-6 ${
-                isFavorite ? 'fill-current text-white' : 'text-white'
+          {id && (
+            <button
+              onClick={toggleFavorite}
+              disabled={favLoading}
+              className={`absolute top-4 right-4 p-3 rounded-full shadow-lg transition ${
+                isFavorite
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-gray-700 hover:bg-gray-600'
               }`}
-            />
-          </button>
+            >
+              <Heart
+                className={`w-6 h-6 ${
+                  isFavorite ? 'fill-current text-white' : 'text-white'
+                }`}
+              />
+            </button>
+          )}
         </div>
 
         {/* Trailer */}
@@ -77,9 +79,10 @@ export default function AnimeDetailPage() {
         )}
 
         {/* Characters */}
-        {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
-          <CharacterList characters={anime.characters.edges} />
-        )}
+        {Array.isArray(anime.characters?.edges) &&
+          anime.characters.edges.length > 0 && (
+            <CharacterList characters={anime.characters.edges} />
+          )}
 
         {/* Episode Mapping Section */}
         <section className="mt-10 px-4 text-center">
