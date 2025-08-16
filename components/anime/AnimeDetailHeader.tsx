@@ -2,7 +2,7 @@
 import Image from 'next/image'
 import { AnimeDetail } from '@/types/anime'
 import { useState } from 'react'
-import { useFavorite } from '@/hooks/useFavorites'
+import { useFavorites } from '@/hooks/useFavorites'
 import { Heart } from 'lucide-react'
 
 interface Props {
