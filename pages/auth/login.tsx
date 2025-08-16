@@ -48,12 +48,8 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       setErr(error.message)
-      setLoading(false)
-      return
     }
-
-    // Supaya langsung redirect tanpa nunggu onAuthStateChange
-    router.replace('/profile')
+    // ⛔ Jangan redirect manual, biarin ditangani onAuthStateChange
     setLoading(false)
   }
 
