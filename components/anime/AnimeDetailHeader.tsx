@@ -2,6 +2,8 @@
 import Image from 'next/image'
 import { AnimeDetail } from '@/types/anime'
 import { useState } from 'react'
+import { useFavorite } from '@/hooks/useFavorite'
+import { Heart } from 'lucide-react'
 
 interface Props {
   anime: AnimeDetail
@@ -11,6 +13,11 @@ export default function AnimeDetailHeader({ anime }: Props) {
   const [showFullDesc, setShowFullDesc] = useState(false)
   const cleanDesc = anime.description?.replace(/<[^>]+>/g, '') || ''
 
+  const { isFavorite, toggleFavorite, loading } = useFavorite({
+    mediaId: anime.id,
+    mediaType: 'anime',
+  })
+
   const toggleDesc = () => setShowFullDesc((prev) => !prev)
 
   return (
@@ -18,12 +25,12 @@ export default function AnimeDetailHeader({ anime }: Props) {
       {/* Banner Background */}
       <div className="absolute inset-0">
         <Image
-        src={anime.bannerImage ?? anime.coverImage.extraLarge ?? '/default-banner.jpg'}
-        alt={anime.title.romaji || 'Anime Banner'}
-        fill
-        priority
-        className="object-cover opacity-30 blur-sm"
-       />
+          src={anime.bannerImage ?? anime.coverImage.extraLarge ?? '/default-banner.jpg'}
+          alt={anime.title.romaji || 'Anime Banner'}
+          fill
+          priority
+          className="object-cover opacity-30 blur-sm"
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black" />
       </div>
 
@@ -41,17 +48,38 @@ export default function AnimeDetailHeader({ anime }: Props) {
         </div>
 
         {/* INFO */}
-        <div className="max-w-4xl">
-          {/* TITLES */}
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white">
-            {anime.title.english || anime.title.romaji}
-          </h1>
-          {anime.title.romaji && (
-            <p className="text-md text-neutral-400 italic">{anime.title.romaji}</p>
-          )}
-          {anime.title.native && (
-            <p className="text-md text-neutral-500">{anime.title.native}</p>
-          )}
+        <div className="max-w-4xl w-full">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              {/* TITLES */}
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white">
+                {anime.title.english || anime.title.romaji}
+              </h1>
+              {anime.title.romaji && (
+                <p className="text-md text-neutral-400 italic">{anime.title.romaji}</p>
+              )}
+              {anime.title.native && (
+                <p className="text-md text-neutral-500">{anime.title.native}</p>
+              )}
+            </div>
+
+            {/* FAVORITE BUTTON */}
+            <button
+              onClick={toggleFavorite}
+              disabled={loading}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition ${
+                isFavorite
+                  ? 'bg-red-500 border-red-500 text-white hover:bg-red-600'
+                  : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+              }`}
+            >
+              <Heart
+                size={18}
+                className={isFavorite ? 'fill-current text-white' : 'text-white'}
+              />
+              {isFavorite ? 'Favorited' : 'Add to Favorites'}
+            </button>
+          </div>
 
           {/* GENRES */}
           <div className="mt-3 flex flex-wrap gap-2">
