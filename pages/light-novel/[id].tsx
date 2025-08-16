@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
 import { LightNovel, LightNovelCharacter, LightNovelStaff } from '@/types/lightNovel'
+import { useFavorite } from '@/hooks/useFavorite'
 
 export default function LightNovelDetail() {
   const router = useRouter()
@@ -14,6 +15,8 @@ export default function LightNovelDetail() {
   const [novel, setNovel] = useState<LightNovel | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const { isFavorite, toggleFavorite } = useFavorite(Number(id), 'light_novel')
 
   useEffect(() => {
     if (!id) return
@@ -90,6 +93,18 @@ export default function LightNovelDetail() {
                   </span>
                 ))}
               </div>
+
+              {/* Tombol Favorite */}
+              <button
+                onClick={toggleFavorite}
+                className={`mt-4 px-4 py-2 rounded-lg shadow-md transition ${
+                  isFavorite
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+              >
+                {isFavorite ? '★ Favorited' : '☆ Add to Favorite'}
+              </button>
             </div>
           </div>
         </div>
