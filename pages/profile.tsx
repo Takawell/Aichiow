@@ -2,17 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { Session } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { ProfileRow } from '@/types/supabase' 
+import { ProfileRow } from '@/types/supabase'
 
 export default function ProfileDashboard() {
+  const router = useRouter()
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<ProfileRow | null>(null)
   const [openEdit, setOpenEdit] = useState(false)
-  const router = useRouter()
+  const [saving, setSaving] = useState(false)
 
   // Load session + profile
   useEffect(() => {
@@ -25,12 +26,12 @@ export default function ProfileDashboard() {
       setSession(data.session)
 
       const { data: profileData, error } = await supabase
-        .from('profiles')
-        .select('*')
+        .from<ProfileRow>('users') // sesuai schema kamu
+        .select('id, username, email, avatar_url, history, favorites')
         .eq('id', data.session.user.id)
         .single()
 
-      if (error) console.error(error)
+      if (error) console.error('Load profile error:', error)
       else setProfile(profileData)
     }
 
@@ -44,6 +45,7 @@ export default function ProfileDashboard() {
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!session) return
     const form = e.currentTarget
     const formData = new FormData(form)
 
@@ -52,19 +54,16 @@ export default function ProfileDashboard() {
       bio: formData.get('bio') as string,
     }
 
+    setSaving(true)
     const { error } = await supabase
-      .from('profiles')
+      .from('users')
       .update(updatedProfile)
-      .eq('id', session?.user.id)
+      .eq('id', session.user.id)
+    setSaving(false)
 
-    if (error) {
-      console.error(error)
-    } else {
-      setProfile((prev) =>
-        prev ? { ...prev, ...updatedProfile } : (updatedProfile as any)
-      )
-      setOpenEdit(false)
-    }
+    if (error) console.error('Update profile error:', error)
+    else setProfile((prev) => (prev ? { ...prev, ...updatedProfile } : null))
+    setOpenEdit(false)
   }
 
   if (!session || !profile) return null
@@ -78,26 +77,19 @@ export default function ProfileDashboard() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-3xl" />
-
         <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-4 md:gap-6">
           <div className="flex items-center space-x-4 md:space-x-6">
             <Image
-              src={profile.avatar || '/default.png'}
+              src={profile.avatar_url || '/default.png'}
               alt="Avatar"
               width={90}
               height={90}
               className="rounded-full border-4 border-blue-500 shadow-lg shadow-blue-500/40"
             />
             <div className="text-center md:text-left">
-              <h2 className="text-xl md:text-3xl font-bold">
-                {profile.username || 'No username'}
-              </h2>
-              <p className="text-gray-300 text-sm md:text-base">
-                {profile.bio || 'No bio yet.'}
-              </p>
-              <p className="text-xs md:text-sm text-gray-500">
-                {session.user.email}
-              </p>
+              <h2 className="text-xl md:text-3xl font-bold">{profile.username || 'No username'}</h2>
+              <p className="text-gray-300 text-sm md:text-base">{profile.bio || 'No bio yet.'}</p>
+              <p className="text-xs md:text-sm text-gray-500">{session.user.email}</p>
             </div>
           </div>
 
@@ -165,8 +157,9 @@ export default function ProfileDashboard() {
                   <button
                     type="submit"
                     className="flex-1 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 font-semibold"
+                    disabled={saving}
                   >
-                    Save
+                    {saving ? 'Saving…' : 'Save'}
                   </button>
                 </div>
               </form>
@@ -186,8 +179,8 @@ export default function ProfileDashboard() {
               className="group relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
             >
               <Image
-                src={item.thumbnail}
-                alt={item.title}
+                src={item.thumbnail || '/default.png'}
+                alt={item.title || 'Unknown'}
                 width={400}
                 height={500}
                 className="object-cover w-full h-32 md:h-48"
