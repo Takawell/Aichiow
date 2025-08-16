@@ -6,8 +6,9 @@ import { useRouter } from 'next/router'
 import { Session } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import { Dialog, DialogContent, DialogTrigger } from '@radix-ui/react-dialog'
 
-// Dummy data untuk demo (nanti diisi dari Anilist API)
+// Dummy data
 const dummyHistory = [
   { id: 1, title: 'Jujutsu Kaisen Season 2', thumbnail: '/demo/jjk.jpg' },
   { id: 2, title: 'Attack on Titan Final Season', thumbnail: '/demo/aot.jpg' },
@@ -23,6 +24,8 @@ const dummyFavorites = {
 
 export default function ProfileDashboard() {
   const [session, setSession] = useState<Session | null>(null)
+  const [username, setUsername] = useState('Otaku Explorer ✨')
+  const [bio, setBio] = useState('Lover of anime, manga, manhwa & light novels.')
   const router = useRouter()
 
   useEffect(() => {
@@ -48,51 +51,109 @@ export default function ProfileDashboard() {
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#0f172a] p-8 text-white">
       {/* Profile Header */}
       <motion.div
-        className="flex flex-col md:flex-row items-center md:items-start md:justify-between mb-12 bg-white/5 rounded-2xl p-6 backdrop-blur-lg border border-white/10 shadow-lg"
+        className="relative overflow-hidden rounded-3xl p-8 backdrop-blur-2xl border border-white/20 shadow-2xl mb-12"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="flex items-center space-x-6">
-          <Image
-            src="https://i.pravatar.cc/150"
-            alt="Avatar"
-            width={96}
-            height={96}
-            className="rounded-full border-4 border-blue-500 shadow-md"
-          />
-          <div>
-            <h2 className="text-2xl font-bold">{session.user.email}</h2>
-            <p className="text-gray-400">Otaku Explorer ✨</p>
+        {/* Neon Glow Background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-3xl" />
+        
+        <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-6">
+          <div className="flex items-center space-x-6">
+            <Image
+              src="https://i.pravatar.cc/150"
+              alt="Avatar"
+              width={120}
+              height={120}
+              className="rounded-full border-4 border-blue-500 shadow-lg shadow-blue-500/40"
+            />
+            <div>
+              <h2 className="text-3xl font-bold">{username}</h2>
+              <p className="text-gray-300">{bio}</p>
+              <p className="text-sm text-gray-500">{session.user.email}</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            {/* Edit Profile Modal */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 font-semibold shadow-md transition"
+                >
+                  Edit Profile
+                </motion.button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#1e293b] text-white p-6 rounded-2xl max-w-lg w-full">
+                <h3 className="text-xl font-bold mb-4">Edit Profile</h3>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    const form = e.target as HTMLFormElement
+                    const formData = new FormData(form)
+                    setUsername(formData.get('username') as string)
+                    setBio(formData.get('bio') as string)
+                  }}
+                  className="space-y-4"
+                >
+                  <div>
+                    <label className="block mb-1 text-sm font-semibold">Username</label>
+                    <input
+                      name="username"
+                      defaultValue={username}
+                      className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-sm font-semibold">Bio</label>
+                    <textarea
+                      name="bio"
+                      defaultValue={bio}
+                      rows={3}
+                      className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full mt-2 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 font-semibold shadow-md"
+                  >
+                    Save Changes
+                  </button>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            <motion.button
+              onClick={handleLogout}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 font-semibold shadow-md transition"
+            >
+              Logout
+            </motion.button>
           </div>
         </div>
-        <motion.button
-          onClick={handleLogout}
-          whileTap={{ scale: 0.95 }}
-          className="mt-6 md:mt-0 px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 font-semibold shadow-md transition"
-        >
-          Logout
-        </motion.button>
       </motion.div>
 
       {/* History Section */}
       <section className="mb-12">
-        <h3 className="text-xl font-bold mb-4">📺 Watch History</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <h3 className="text-2xl font-bold mb-6">📺 Watch History</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {dummyHistory.map((item) => (
             <motion.div
               key={item.id}
               whileHover={{ scale: 1.05 }}
-              className="relative overflow-hidden rounded-xl shadow-lg bg-white/10 backdrop-blur-md border border-white/10"
+              className="group relative overflow-hidden rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
             >
               <Image
                 src={item.thumbnail}
                 alt={item.title}
-                width={300}
-                height={400}
-                className="object-cover w-full h-40"
+                width={400}
+                height={500}
+                className="object-cover w-full h-48"
               />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 text-sm font-semibold">
-                {item.title}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                <span className="text-lg font-semibold">▶ {item.title}</span>
               </div>
             </motion.div>
           ))}
@@ -101,7 +162,7 @@ export default function ProfileDashboard() {
 
       {/* Favorites Section */}
       <section>
-        <h3 className="text-xl font-bold mb-4">⭐ Favorites</h3>
+        <h3 className="text-2xl font-bold mb-6">⭐ Favorites</h3>
         <div className="grid md:grid-cols-2 gap-6">
           {Object.entries(dummyFavorites).map(([category, list]) => (
             <motion.div
@@ -110,13 +171,16 @@ export default function ProfileDashboard() {
               className="bg-white/5 rounded-2xl p-6 border border-white/10 shadow-inner"
             >
               <h4 className="text-lg font-semibold capitalize mb-3">{category}</h4>
-              <ul className="space-y-2 text-gray-300">
+              <div className="flex flex-wrap gap-2">
                 {list.map((fav, idx) => (
-                  <li key={idx} className="flex items-center gap-2">
-                    <span className="text-blue-400">•</span> {fav}
-                  </li>
+                  <span
+                    key={idx}
+                    className="px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-sm font-medium shadow-md"
+                  >
+                    {fav}
+                  </span>
                 ))}
-              </ul>
+              </div>
             </motion.div>
           ))}
         </div>
