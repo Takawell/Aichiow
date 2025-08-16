@@ -14,11 +14,13 @@ export default function ProfileDashboard() {
   const [history, setHistory] = useState<WatchHistoryRow[]>([])
   const [favorites, setFavorites] = useState<FavoriteRow[]>([])
   const [openEdit, setOpenEdit] = useState(false)
+  const [username, setUsername] = useState('')
+  const [bio, setBio] = useState('')
   const router = useRouter()
 
-  // Load session + data
+  // Load session + profile
   useEffect(() => {
-    const loadData = async () => {
+    const load = async () => {
       const { data } = await supabase.auth.getSession()
       if (!data.session) {
         router.replace('/auth/login')
@@ -27,35 +29,42 @@ export default function ProfileDashboard() {
       setSession(data.session)
       const userId = data.session.user.id
 
-      // Load profile
+      // Fetch profile
       const { data: profileData, error: profileError } = await supabase
-        .from<UserRow, UserRow>('users')
+        .from<UserRow>('users')
         .select('*')
         .eq('id', userId)
         .single()
+
       if (profileError) console.error(profileError)
       else setProfile(profileData)
 
-      // Load watch history
+      // Fetch watch history (latest 20)
       const { data: historyData, error: historyError } = await supabase
-        .from<WatchHistoryRow, WatchHistoryRow>('watch_history')
+        .from<WatchHistoryRow>('watch_history')
         .select('*')
         .eq('user_id', userId)
         .order('watched_at', { ascending: false })
+        .limit(20)
+
       if (historyError) console.error(historyError)
       else setHistory(historyData || [])
 
-      // Load favorites
+      // Fetch favorites
       const { data: favoritesData, error: favoritesError } = await supabase
-        .from<FavoriteRow, FavoriteRow>('favorites')
+        .from<FavoriteRow>('favorites')
         .select('*')
         .eq('user_id', userId)
-        .order('added_at', { ascending: false })
+
       if (favoritesError) console.error(favoritesError)
       else setFavorites(favoritesData || [])
+
+      // Set username & bio for editing
+      setUsername(profileData?.username || '')
+      setBio('') // optional: you can add a bio column if needed
     }
 
-    loadData()
+    load()
   }, [router])
 
   const handleLogout = async () => {
@@ -65,34 +74,27 @@ export default function ProfileDashboard() {
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!session) return
     const form = e.currentTarget
     const formData = new FormData(form)
+
     const updatedProfile = {
       username: formData.get('username') as string,
-      email: session.user.email,
-      avatar_url: profile?.avatar_url || '/default.png',
-      updated_at: new Date().toISOString()
+      bio: formData.get('bio') as string, // optional if you have a bio column
     }
 
     const { error } = await supabase
-      .from<UserRow, UserRow>('users')
+      .from<UserRow>('users')
       .update(updatedProfile)
-      .eq('id', session.user.id)
+      .eq('id', session?.user.id)
 
     if (error) console.error(error)
-    else setProfile((prev) => (prev ? { ...prev, ...updatedProfile } : updatedProfile))
-    setOpenEdit(false)
+    else {
+      setProfile((prev) => (prev ? { ...prev, ...updatedProfile } : null))
+      setOpenEdit(false)
+    }
   }
 
   if (!session || !profile) return null
-
-  // Group favorites by media_type
-  const favByCategory: Record<string, FavoriteRow[]> = {}
-  favorites.forEach((fav) => {
-    if (!favByCategory[fav.media_type]) favByCategory[fav.media_type] = []
-    favByCategory[fav.media_type].push(fav)
-  })
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#0f172a] p-4 md:p-8 text-white">
@@ -103,6 +105,7 @@ export default function ProfileDashboard() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-3xl" />
+
         <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-4 md:gap-6">
           <div className="flex items-center space-x-4 md:space-x-6">
             <Image
@@ -113,8 +116,13 @@ export default function ProfileDashboard() {
               className="rounded-full border-4 border-blue-500 shadow-lg shadow-blue-500/40"
             />
             <div className="text-center md:text-left">
-              <h2 className="text-xl md:text-3xl font-bold">{profile.username || 'No username'}</h2>
-              <p className="text-gray-300 text-sm md:text-base">{profile.email}</p>
+              <h2 className="text-xl md:text-3xl font-bold">
+                {profile.username || 'No username'}
+              </h2>
+              <p className="text-gray-300 text-sm md:text-base">
+                {bio || 'No bio yet.'}
+              </p>
+              <p className="text-xs md:text-sm text-gray-500">{session.user.email}</p>
             </div>
           </div>
 
@@ -158,7 +166,16 @@ export default function ProfileDashboard() {
                   <label className="block mb-1 text-sm font-semibold">Username</label>
                   <input
                     name="username"
-                    defaultValue={profile.username || ''}
+                    defaultValue={username}
+                    className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-semibold">Bio</label>
+                  <textarea
+                    name="bio"
+                    defaultValue={bio}
+                    rows={3}
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
@@ -183,7 +200,7 @@ export default function ProfileDashboard() {
         )}
       </AnimatePresence>
 
-      {/* Watch History */}
+      {/* History Section */}
       <section className="mb-8 md:mb-12">
         <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">📺 Watch History</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
@@ -193,39 +210,53 @@ export default function ProfileDashboard() {
               whileHover={{ scale: 1.05 }}
               className="group relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
             >
+              <Image
+                src={`/covers/${item.media_id}.jpg`} // ganti sesuai path cover media
+                alt={item.media_type}
+                width={400}
+                height={500}
+                className="object-cover w-full h-32 md:h-48"
+              />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-                <span className="text-xs md:text-lg font-semibold">▶ {item.media_type} #{item.media_id}</span>
+                <span className="text-xs md:text-lg font-semibold">
+                  ▶ {item.media_type} #{item.media_id}
+                </span>
               </div>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Favorites */}
+      {/* Favorites Section */}
       <section>
         <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">⭐ Favorites</h3>
         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-          {Object.entries(favByCategory).map(([category, list]) => (
-            <motion.div
-              key={category}
-              whileHover={{ y: -3 }}
-              className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/10 shadow-inner"
-            >
-              <h4 className="text-base md:text-lg font-semibold capitalize mb-3">{category}</h4>
-              <div className="flex flex-wrap gap-2">
-                {list.map((fav) => (
-                  <span
-                    key={fav.id}
-                    className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
-                  >
-                    #{fav.media_id}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
+          {['anime','manga','manhwa','light_novel'].map((category) => {
+            const list = favorites.filter(f => f.media_type === category)
+            if (!list.length) return null
+            return (
+              <motion.div
+                key={category}
+                whileHover={{ y: -3 }}
+                className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/10 shadow-inner"
+              >
+                <h4 className="text-base md:text-lg font-semibold capitalize mb-3">{category}</h4>
+                <div className="flex flex-wrap gap-2">
+                  {list.map(fav => (
+                    <span
+                      key={fav.id}
+                      className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
+                    >
+                      {fav.media_type} #{fav.media_id}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            )
+          })}
         </div>
       </section>
     </div>
   )
 }
+          
