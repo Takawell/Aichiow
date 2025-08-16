@@ -6,21 +6,45 @@ import { useRouter } from 'next/router'
 import { Session } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { UserRow, WatchHistoryRow, FavoriteRow } from '@/types/supabase'
+
+// Types
+export interface UserRow {
+  id: string
+  username: string | null
+  email: string | null
+  avatar_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface WatchHistoryRow {
+  id: number
+  user_id: string
+  media_id: number
+  media_type: 'anime' | 'manga' | 'manhwa' | 'light_novel'
+  title: string
+  thumbnail: string
+  watched_at: string
+}
+
+export interface FavoriteRow {
+  id: number
+  user_id: string
+  media_id: number
+  media_type: 'anime' | 'manga' | 'manhwa' | 'light_novel'
+  title: string
+}
 
 export default function ProfileDashboard() {
   const [session, setSession] = useState<Session | null>(null)
-  const [profile, setProfile] = useState<UserRow | null>(null)
+  const [user, setUser] = useState<UserRow | null>(null)
   const [history, setHistory] = useState<WatchHistoryRow[]>([])
-  const [favorites, setFavorites] = useState<FavoriteRow[]>([])
+  const [favorites, setFavorites] = useState<Record<string, FavoriteRow[]>>({})
   const [openEdit, setOpenEdit] = useState(false)
-  const [username, setUsername] = useState('')
-  const [bio, setBio] = useState('')
   const router = useRouter()
 
-  // Load session + profile
   useEffect(() => {
-    const load = async () => {
+    const loadProfile = async () => {
       const { data } = await supabase.auth.getSession()
       if (!data.session) {
         router.replace('/auth/login')
@@ -29,42 +53,41 @@ export default function ProfileDashboard() {
       setSession(data.session)
       const userId = data.session.user.id
 
-      // Fetch profile
-      const { data: profileData, error: profileError } = await supabase
-        .from<UserRow>('users')
+      // Fetch user
+      const { data: userData, error: userError } = await supabase
+        .from<'users', UserRow>('users')
         .select('*')
         .eq('id', userId)
         .single()
+      if (userError) console.error(userError)
+      else setUser(userData)
 
-      if (profileError) console.error(profileError)
-      else setProfile(profileData)
-
-      // Fetch watch history (latest 20)
+      // Fetch watch history
       const { data: historyData, error: historyError } = await supabase
-        .from<WatchHistoryRow>('watch_history')
+        .from<'watch_history', WatchHistoryRow>('watch_history')
         .select('*')
         .eq('user_id', userId)
         .order('watched_at', { ascending: false })
-        .limit(20)
-
       if (historyError) console.error(historyError)
       else setHistory(historyData || [])
 
       // Fetch favorites
-      const { data: favoritesData, error: favoritesError } = await supabase
-        .from<FavoriteRow>('favorites')
+      const { data: favData, error: favError } = await supabase
+        .from<'favorites', FavoriteRow>('favorites')
         .select('*')
         .eq('user_id', userId)
-
-      if (favoritesError) console.error(favoritesError)
-      else setFavorites(favoritesData || [])
-
-      // Set username & bio for editing
-      setUsername(profileData?.username || '')
-      setBio('') // optional: you can add a bio column if needed
+      if (favError) console.error(favError)
+      else {
+        const grouped: Record<string, FavoriteRow[]> = {}
+        favData?.forEach((fav) => {
+          if (!grouped[fav.media_type]) grouped[fav.media_type] = []
+          grouped[fav.media_type].push(fav)
+        })
+        setFavorites(grouped)
+      }
     }
 
-    load()
+    loadProfile()
   }, [router])
 
   const handleLogout = async () => {
@@ -74,27 +97,23 @@ export default function ProfileDashboard() {
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!user) return
     const form = e.currentTarget
     const formData = new FormData(form)
-
-    const updatedProfile = {
+    const updated = {
       username: formData.get('username') as string,
-      bio: formData.get('bio') as string, // optional if you have a bio column
+      avatar_url: formData.get('avatar_url') as string | null,
     }
-
     const { error } = await supabase
-      .from<UserRow>('users')
-      .update(updatedProfile)
-      .eq('id', session?.user.id)
-
+      .from<'users', UserRow>('users')
+      .update(updated)
+      .eq('id', user.id)
     if (error) console.error(error)
-    else {
-      setProfile((prev) => (prev ? { ...prev, ...updatedProfile } : null))
-      setOpenEdit(false)
-    }
+    else setUser({ ...user, ...updated })
+    setOpenEdit(false)
   }
 
-  if (!session || !profile) return null
+  if (!session || !user) return null
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#0f172a] p-4 md:p-8 text-white">
@@ -105,27 +124,20 @@ export default function ProfileDashboard() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-3xl" />
-
         <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-4 md:gap-6">
           <div className="flex items-center space-x-4 md:space-x-6">
             <Image
-              src={profile.avatar_url || '/default.png'}
+              src={user.avatar_url || '/default.png'}
               alt="Avatar"
               width={90}
               height={90}
               className="rounded-full border-4 border-blue-500 shadow-lg shadow-blue-500/40"
             />
             <div className="text-center md:text-left">
-              <h2 className="text-xl md:text-3xl font-bold">
-                {profile.username || 'No username'}
-              </h2>
-              <p className="text-gray-300 text-sm md:text-base">
-                {bio || 'No bio yet.'}
-              </p>
-              <p className="text-xs md:text-sm text-gray-500">{session.user.email}</p>
+              <h2 className="text-xl md:text-3xl font-bold">{user.username || 'No username'}</h2>
+              <p className="text-xs md:text-sm text-gray-500">{user.email}</p>
             </div>
           </div>
-
           <div className="flex gap-3">
             <motion.button
               onClick={() => setOpenEdit(true)}
@@ -166,16 +178,15 @@ export default function ProfileDashboard() {
                   <label className="block mb-1 text-sm font-semibold">Username</label>
                   <input
                     name="username"
-                    defaultValue={username}
+                    defaultValue={user.username || ''}
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block mb-1 text-sm font-semibold">Bio</label>
-                  <textarea
-                    name="bio"
-                    defaultValue={bio}
-                    rows={3}
+                  <label className="block mb-1 text-sm font-semibold">Avatar URL</label>
+                  <input
+                    name="avatar_url"
+                    defaultValue={user.avatar_url || ''}
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
@@ -211,16 +222,14 @@ export default function ProfileDashboard() {
               className="group relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
             >
               <Image
-                src={`/covers/${item.media_id}.jpg`} // ganti sesuai path cover media
-                alt={item.media_type}
+                src={item.thumbnail}
+                alt={item.title}
                 width={400}
                 height={500}
                 className="object-cover w-full h-32 md:h-48"
               />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-                <span className="text-xs md:text-lg font-semibold">
-                  ▶ {item.media_type} #{item.media_id}
-                </span>
+                <span className="text-xs md:text-lg font-semibold">▶ {item.title}</span>
               </div>
             </motion.div>
           ))}
@@ -231,32 +240,27 @@ export default function ProfileDashboard() {
       <section>
         <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">⭐ Favorites</h3>
         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-          {['anime','manga','manhwa','light_novel'].map((category) => {
-            const list = favorites.filter(f => f.media_type === category)
-            if (!list.length) return null
-            return (
-              <motion.div
-                key={category}
-                whileHover={{ y: -3 }}
-                className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/10 shadow-inner"
-              >
-                <h4 className="text-base md:text-lg font-semibold capitalize mb-3">{category}</h4>
-                <div className="flex flex-wrap gap-2">
-                  {list.map(fav => (
-                    <span
-                      key={fav.id}
-                      className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
-                    >
-                      {fav.media_type} #{fav.media_id}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            )
-          })}
+          {Object.entries(favorites).map(([category, list]) => (
+            <motion.div
+              key={category}
+              whileHover={{ y: -3 }}
+              className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/10 shadow-inner"
+            >
+              <h4 className="text-base md:text-lg font-semibold capitalize mb-3">{category}</h4>
+              <div className="flex flex-wrap gap-2">
+                {list.map((fav) => (
+                  <span
+                    key={fav.id}
+                    className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
+                  >
+                    {fav.title}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          ))}
         </div>
       </section>
     </div>
   )
 }
-          
