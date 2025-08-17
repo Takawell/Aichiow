@@ -18,27 +18,6 @@ import {
   FaDragon,
 } from 'react-icons/fa'
 
-// 🔹 Favorite Card
-function FavoriteCard({ fav }: { fav: FavoriteRow }) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      className="w-24 md:w-32 rounded-xl overflow-hidden shadow-lg bg-white/10 border border-white/10"
-    >
-      <Image
-        src={fav.cover_url || '/demo/default.jpg'}
-        alt={fav.title}
-        width={200}
-        height={250}
-        className="object-cover w-full h-32 md:h-40"
-      />
-      <div className="p-2 text-xs md:text-sm text-center line-clamp-2">
-        {fav.title}
-      </div>
-    </motion.div>
-  )
-}
-
 export default function ProfileDashboard() {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<UserRow | null>(null)
@@ -58,7 +37,7 @@ export default function ProfileDashboard() {
 
       const userId = data.session.user.id
 
-      // User
+      // Load user profile
       const { data: profileData } = await supabase
         .from('users')
         .select('*')
@@ -67,7 +46,7 @@ export default function ProfileDashboard() {
 
       if (profileData) setUser(profileData)
 
-      // History
+      // Load watch history
       const { data: historyData } = await supabase
         .from('watch_history')
         .select('*')
@@ -75,7 +54,7 @@ export default function ProfileDashboard() {
 
       if (historyData) setHistory(historyData)
 
-      // Favorites
+      // Load favorites
       const { data: favoritesData } = await supabase
         .from('favorites')
         .select('*')
@@ -110,7 +89,102 @@ export default function ProfileDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#0f172a] p-4 md:p-8 text-white">
       {/* Profile Header */}
-      {/* ... kode header dan modal tetap sama ... */}
+      <motion.div
+        className="relative overflow-hidden rounded-2xl md:rounded-3xl p-6 md:p-8 backdrop-blur-2xl border border-white/20 shadow-2xl mb-8 md:mb-12"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-3xl" />
+
+        <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-4 md:gap-6">
+          <div className="flex items-center space-x-4 md:space-x-6">
+            <Image
+              src={user.avatar_url || '/default.png'}
+              alt="Avatar"
+              width={90}
+              height={90}
+              className="rounded-full border-4 border-blue-500 shadow-lg shadow-blue-500/40"
+            />
+            <div className="text-center md:text-left">
+              <h2 className="text-xl md:text-3xl font-bold">{user.username || 'Otaku Explorer ✨'}</h2>
+              <p className="text-gray-300 text-sm md:text-base">{user.bio || 'Lover of anime, manga, manhwa & light novels.'}</p>
+              <p className="text-xs md:text-sm text-gray-500">{session.user.email}</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <motion.button
+              onClick={() => setOpenEdit(true)}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 text-sm md:text-base font-semibold shadow-md transition"
+            >
+              <FaUserEdit /> Edit
+            </motion.button>
+            <motion.button
+              onClick={handleLogout}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl bg-red-600 hover:bg-red-500 text-sm md:text-base font-semibold shadow-md transition"
+            >
+              <FaSignOutAlt /> Logout
+            </motion.button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Edit Profile Modal */}
+      <AnimatePresence>
+        {openEdit && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#1e293b] text-white p-6 rounded-2xl max-w-sm w-full mx-4 shadow-2xl"
+            >
+              <h3 className="text-lg font-bold mb-4">Edit Profile</h3>
+              <form onSubmit={handleSave} className="space-y-4">
+                <div>
+                  <label className="block mb-1 text-sm font-semibold">Username</label>
+                  <input
+                    name="username"
+                    defaultValue={user.username || ''}
+                    className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-semibold">Bio</label>
+                  <textarea
+                    name="bio"
+                    defaultValue={user.bio || ''}
+                    rows={3}
+                    className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
+                  />
+                </div>
+                <div className="flex gap-3 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setOpenEdit(false)}
+                    className="flex-1 py-2 rounded-xl bg-gray-600 hover:bg-gray-500 font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 font-semibold"
+                  >
+                    Save
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Watch History Section */}
       <section className="mb-8 md:mb-12">
@@ -125,7 +199,7 @@ export default function ProfileDashboard() {
               className="group relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
             >
               <Image
-                src={`/demo/${item.media_id}.jpg`}
+                src={`/demo/${item.media_id}.jpg`} // ganti dengan thumbnail asli
                 alt={item.media_type}
                 width={400}
                 height={500}
@@ -161,9 +235,14 @@ export default function ProfileDashboard() {
                 <h4 className="flex items-center gap-2 text-base md:text-lg font-semibold capitalize mb-3">
                   {icon} {key.replace('_', ' ')}
                 </h4>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   {list.map((fav) => (
-                    <FavoriteCard key={fav.id} fav={fav} />
+                    <span
+                      key={fav.id}
+                      className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
+                    >
+                      {fav.media_id}
+                    </span>
                   ))}
                   {list.length === 0 && (
                     <span className="text-xs text-gray-400 italic">No favorites yet</span>
