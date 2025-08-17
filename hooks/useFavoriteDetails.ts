@@ -8,10 +8,10 @@ import { fetchMangaDetail } from '@/lib/mangadex'
 import { FavoriteRow } from '@/types/supabase'
 
 export type FavoriteDetail = {
-  id: string
-  media_type: FavoriteRow['media_type']
+  id: string | number
   title: string
-  coverImage: string
+  cover: string
+  type: string
 }
 
 export function useFavoriteDetails(favorites: FavoriteRow[]) {
@@ -24,60 +24,62 @@ export function useFavoriteDetails(favorites: FavoriteRow[]) {
       return
     }
 
-    async function fetchDetails() {
+    async function run() {
       setLoading(true)
-      const results = await Promise.all(
-        favorites.map(async (fav) => {
-          try {
-            let data: any = null
-            switch (fav.media_type) {
-              case 'anime':
-                data = await fetchAnimeDetail(Number(fav.media_id))
-                return {
-                  id: fav.media_id,
-                  media_type: fav.media_type,
-                  title: data?.title?.romaji ?? data?.title?.english ?? 'Unknown',
-                  coverImage: data?.coverImage?.large ?? '/default.png',
-                }
-              case 'light_novel':
-                data = await fetchLightNovelDetail(Number(fav.media_id))
-                return {
-                  id: fav.media_id,
-                  media_type: fav.media_type,
-                  title: data?.title?.romaji ?? data?.title?.english ?? 'Unknown',
-                  coverImage: data?.coverImage?.large ?? '/default.png',
-                }
-              case 'manhwa':
-                data = await fetchManhwaDetail(Number(fav.media_id))
-                return {
-                  id: fav.media_id,
-                  media_type: fav.media_type,
-                  title: data?.title?.romaji ?? data?.title?.english ?? 'Unknown',
-                  coverImage: data?.coverImage?.large ?? '/default.png',
-                }
-              case 'manga':
-                data = await fetchMangaDetail(fav.media_id.toString())
-                return {
-                  id: fav.media_id,
-                  media_type: fav.media_type,
-                  title: data?.title ?? 'Unknown',
-                  coverImage: data?.coverUrl ?? '/default.png',
-                }
-              default:
-                return null
+      try {
+        const results = await Promise.all(
+          favorites.map(async (fav) => {
+            try {
+              let data: any
+              switch (fav.media_type) {
+                case 'anime':
+                  data = await fetchAnimeDetail(Number(fav.media_id))
+                  return {
+                    id: data.id,
+                    title: data.title?.romaji ?? data.title?.english ?? 'Untitled',
+                    cover: data.coverImage?.large ?? '',
+                    type: 'anime',
+                  }
+                case 'light_novel':
+                  data = await fetchLightNovelDetail(Number(fav.media_id))
+                  return {
+                    id: data.id,
+                    title: data.title?.romaji ?? data.title?.english ?? 'Untitled',
+                    cover: data.coverImage?.large ?? '',
+                    type: 'light-novel',
+                  }
+                case 'manhwa':
+                  data = await fetchManhwaDetail(Number(fav.media_id))
+                  return {
+                    id: data.id,
+                    title: data.title?.romaji ?? data.title?.english ?? 'Untitled',
+                    cover: data.coverImage?.large ?? '',
+                    type: 'manhwa',
+                  }
+                case 'manga':
+                  data = await fetchMangaDetail(String(fav.media_id))
+                  return {
+                    id: data.id,
+                    title: data.attributes?.title?.en ?? data.attributes?.title?.ja ?? 'Untitled',
+                    cover: data.cover ?? '',
+                    type: 'manga',
+                  }
+                default:
+                  return null
+              }
+            } catch (err) {
+              console.error(`❌ Error fetching ${fav.media_type} (${fav.media_id}):`, err)
+              return null
             }
-          } catch (err) {
-            console.error(`Error fetching ${fav.media_type} detail:`, err)
-            return null
-          }
-        })
-      )
-
-      setDetails(results.filter(Boolean) as FavoriteDetail[])
-      setLoading(false)
+          })
+        )
+        setDetails(results.filter(Boolean) as FavoriteDetail[])
+      } finally {
+        setLoading(false)
+      }
     }
 
-    fetchDetails()
+    run()
   }, [favorites])
 
   return { details, loading }
