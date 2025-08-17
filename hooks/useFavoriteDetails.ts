@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getAnimeDetail } from '@/lib/anilist'
+import { fetchAnimeDetail } from '@/lib/anilist'
 import { getLightNovelDetail } from '@/lib/anilistLightNovel'
 import { getManhwaDetail } from '@/lib/anilistManhwa'
 import { getMangaDetail } from '@/lib/mangadex'
@@ -24,7 +24,7 @@ export function useFavoriteDetails(favorites: FavoriteRow[]) {
           try {
             switch (fav.media_type) {
               case 'anime':
-                return await getAnimeDetail(fav.media_id)
+                return await fetchAnimeDetail(fav.media_id) // ✅ pakai fetchAnimeDetail
               case 'light_novel':
                 return await getLightNovelDetail(fav.media_id)
               case 'manhwa':
