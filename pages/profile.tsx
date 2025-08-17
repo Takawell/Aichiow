@@ -7,6 +7,16 @@ import { Session } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { UserRow, WatchHistoryRow, FavoriteRow } from '@/types/supabase'
+import {
+  FaUserEdit,
+  FaSignOutAlt,
+  FaHistory,
+  FaStar,
+  FaTv,
+  FaBook,
+  FaBookOpen,
+  FaDragon,
+} from 'react-icons/fa'
 
 export default function ProfileDashboard() {
   const [session, setSession] = useState<Session | null>(null)
@@ -106,16 +116,16 @@ export default function ProfileDashboard() {
             <motion.button
               onClick={() => setOpenEdit(true)}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 md:px-6 md:py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 text-sm md:text-base font-semibold shadow-md transition"
+              className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 text-sm md:text-base font-semibold shadow-md transition"
             >
-              Edit
+              <FaUserEdit /> Edit
             </motion.button>
             <motion.button
               onClick={handleLogout}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 md:px-6 md:py-3 rounded-xl bg-red-600 hover:bg-red-500 text-sm md:text-base font-semibold shadow-md transition"
+              className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl bg-red-600 hover:bg-red-500 text-sm md:text-base font-semibold shadow-md transition"
             >
-              Logout
+              <FaSignOutAlt /> Logout
             </motion.button>
           </div>
         </div>
@@ -178,7 +188,9 @@ export default function ProfileDashboard() {
 
       {/* Watch History Section */}
       <section className="mb-8 md:mb-12">
-        <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">📺 Watch History</h3>
+        <h3 className="flex items-center gap-2 text-lg md:text-2xl font-bold mb-4 md:mb-6">
+          <FaHistory /> Watch History
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
           {history.map((item) => (
             <motion.div
@@ -187,7 +199,7 @@ export default function ProfileDashboard() {
               className="group relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
             >
               <Image
-                src={`/demo/${item.media_id}.jpg`} // replace with proper thumbnails
+                src={`/demo/${item.media_id}.jpg`} // ganti dengan thumbnail asli
                 alt={item.media_type}
                 width={400}
                 height={500}
@@ -203,17 +215,26 @@ export default function ProfileDashboard() {
 
       {/* Favorites Section */}
       <section>
-        <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">⭐ Favorites</h3>
+        <h3 className="flex items-center gap-2 text-lg md:text-2xl font-bold mb-4 md:mb-6">
+          <FaStar /> Favorites
+        </h3>
         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-          {['anime','manga','manhwa','light_novel'].map((cat) => {
-            const list = favorites.filter(f => f.media_type === cat)
+          {[
+            { key: 'anime', icon: <FaTv /> },
+            { key: 'manga', icon: <FaBook /> },
+            { key: 'manhwa', icon: <FaDragon /> },
+            { key: 'light_novel', icon: <FaBookOpen /> },
+          ].map(({ key, icon }) => {
+            const list = favorites.filter((f) => f.media_type === key)
             return (
               <motion.div
-                key={cat}
+                key={key}
                 whileHover={{ y: -3 }}
                 className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/10 shadow-inner"
               >
-                <h4 className="text-base md:text-lg font-semibold capitalize mb-3">{cat}</h4>
+                <h4 className="flex items-center gap-2 text-base md:text-lg font-semibold capitalize mb-3">
+                  {icon} {key.replace('_', ' ')}
+                </h4>
                 <div className="flex flex-wrap gap-2">
                   {list.map((fav) => (
                     <span
@@ -223,6 +244,9 @@ export default function ProfileDashboard() {
                       {fav.media_id}
                     </span>
                   ))}
+                  {list.length === 0 && (
+                    <span className="text-xs text-gray-400 italic">No favorites yet</span>
+                  )}
                 </div>
               </motion.div>
             )
@@ -232,4 +256,3 @@ export default function ProfileDashboard() {
     </div>
   )
 }
-        
