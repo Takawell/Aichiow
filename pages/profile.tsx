@@ -18,7 +18,7 @@ import {
   FaDragon,
 } from 'react-icons/fa'
 import { useFavoriteDetails } from '@/hooks/useFavoriteDetails'
-import FavoriteCard from '@/components/profile/FavoriteCard'
+import FavoriteCard from '@/components/favorite/FavoriteCard'
 
 export default function ProfileDashboard() {
   const [session, setSession] = useState<Session | null>(null)
