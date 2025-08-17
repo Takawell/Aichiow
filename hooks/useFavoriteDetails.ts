@@ -5,10 +5,17 @@ import { fetchAnimeDetail } from '@/lib/anilist'
 import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { fetchMangaDetail } from '@/lib/mangadex'
-import { FavoriteRow } from '@/types/supabase'
+import { FavoriteRow } from '@types/supabase'
+
+export type FavoriteDetail = {
+  id: string
+  media_type: FavoriteRow['media_type']
+  title: string
+  coverImage: string
+}
 
 export function useFavoriteDetails(favorites: FavoriteRow[]) {
-  const [details, setDetails] = useState<any[]>([])
+  const [details, setDetails] = useState<FavoriteDetail[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -17,39 +24,60 @@ export function useFavoriteDetails(favorites: FavoriteRow[]) {
       return
     }
 
-    async function run() {
+    async function fetchDetails() {
       setLoading(true)
       const results = await Promise.all(
         favorites.map(async (fav) => {
           try {
+            let data: any = null
             switch (fav.media_type) {
               case 'anime':
-                // Anilist expects number
-                return await fetchAnimeDetail(fav.media_id)
+                data = await fetchAnimeDetail(Number(fav.media_id))
+                return {
+                  id: fav.media_id,
+                  media_type: fav.media_type,
+                  title: data?.title?.romaji ?? data?.title?.english ?? 'Unknown',
+                  coverImage: data?.coverImage?.large ?? '/default.png',
+                }
               case 'light_novel':
-                // Anilist expects number
-                return await fetchLightNovelDetail(fav.media_id)
+                data = await fetchLightNovelDetail(Number(fav.media_id))
+                return {
+                  id: fav.media_id,
+                  media_type: fav.media_type,
+                  title: data?.title?.romaji ?? data?.title?.english ?? 'Unknown',
+                  coverImage: data?.coverImage?.large ?? '/default.png',
+                }
               case 'manhwa':
-                // Anilist expects number
-                return await fetchManhwaDetail(fav.media_id)
+                data = await fetchManhwaDetail(Number(fav.media_id))
+                return {
+                  id: fav.media_id,
+                  media_type: fav.media_type,
+                  title: data?.title?.romaji ?? data?.title?.english ?? 'Unknown',
+                  coverImage: data?.coverImage?.large ?? '/default.png',
+                }
               case 'manga':
-                // Mangadex expects string
-                return await fetchMangaDetail(String(fav.media_id))
+                data = await fetchMangaDetail(fav.media_id.toString())
+                return {
+                  id: fav.media_id,
+                  media_type: fav.media_type,
+                  title: data?.title ?? 'Unknown',
+                  coverImage: data?.coverUrl ?? '/default.png',
+                }
               default:
                 return null
             }
-          } catch (e) {
-            console.error(`Error fetching ${fav.media_type} (${fav.media_id})`, e)
+          } catch (err) {
+            console.error(`Error fetching ${fav.media_type} detail:`, err)
             return null
           }
         })
       )
 
-      setDetails(results.filter(Boolean) as any[])
+      setDetails(results.filter(Boolean) as FavoriteDetail[])
       setLoading(false)
     }
 
-    run()
+    fetchDetails()
   }, [favorites])
 
   return { details, loading }
