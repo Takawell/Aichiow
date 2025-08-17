@@ -1,10 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import type { FavoriteRow } from '@/types'
 
-export function useFavorites(userId: string | null) {
+export function useFavorites(
+  userId: string | null,
+  media?: { mediaId: number; type: 'anime' | 'manga' | 'manhwa' | 'light_novel' }
+) {
   const [favorites, setFavorites] = useState<FavoriteRow[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -31,7 +34,15 @@ export function useFavorites(userId: string | null) {
     fetchFavorites()
   }, [userId])
 
-  // Toggle favorite (add/remove)
+  // Cek apakah media ini sudah difavoritkan
+  const isFavorite = useMemo(() => {
+    if (!media) return false
+    return favorites.some(
+      (f) => f.media_id === media.mediaId && f.media_type === media.type
+    )
+  }, [favorites, media])
+
+  // Toggle favorite
   const toggleFavorite = useCallback(
     async (fav: {
       mediaId: number
@@ -44,7 +55,6 @@ export function useFavorites(userId: string | null) {
       )
 
       if (existing) {
-        // Remove
         const { error } = await supabase
           .from('favorites')
           .delete()
@@ -57,7 +67,6 @@ export function useFavorites(userId: string | null) {
           setFavorites((prev) => prev.filter((f) => f.id !== existing.id))
         }
       } else {
-        // Add
         const { data, error } = await supabase
           .from('favorites')
           .insert([
@@ -81,5 +90,5 @@ export function useFavorites(userId: string | null) {
     [userId, favorites]
   )
 
-  return { favorites, loading, toggleFavorite }
+  return { favorites, isFavorite, loading, toggleFavorite }
 }
