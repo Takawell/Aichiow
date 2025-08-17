@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { fetchAnimeDetail } from '@/lib/anilist'
-import { getLightNovelDetail } from '@/lib/anilistLightNovel'
-import { getManhwaDetail } from '@/lib/anilistManhwa'
-import { getMangaDetail } from '@/lib/mangadex'
+import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
+import { fetchManhwaDetail } from '@/lib/anilistManhwa'
+import { fetchMangaDetail } from '@/lib/mangadex'
 import { FavoriteRow } from '@/types'
 
 export function useFavoriteDetails(favorites: FavoriteRow[]) {
@@ -24,18 +24,18 @@ export function useFavoriteDetails(favorites: FavoriteRow[]) {
           try {
             switch (fav.media_type) {
               case 'anime':
-                return await fetchAnimeDetail(fav.media_id) // ✅ pakai fetchAnimeDetail
+                return await fetchAnimeDetail(fav.media_id)
               case 'light_novel':
-                return await getLightNovelDetail(fav.media_id)
+                return await fetchLightNovelDetail(fav.media_id)
               case 'manhwa':
-                return await getManhwaDetail(fav.media_id)
+                return await fetchManhwaDetail(fav.media_id)
               case 'manga':
-                return await getMangaDetail(fav.media_id)
+                return await fetchMangaDetail(fav.media_id)
               default:
                 return null
             }
           } catch (err) {
-            console.error('Error fetching detail:', err)
+            console.error(`Error fetching ${fav.media_type} detail:`, err)
             return null
           }
         })
