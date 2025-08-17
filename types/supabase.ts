@@ -11,7 +11,7 @@ export interface UserRow {
 export interface WatchHistoryRow {
   id: number
   user_id: string
-  media_id: string
+  media_id: number
   media_type: 'anime' | 'manga' | 'manhwa' | 'light_novel'
   watched_at: string
 }
@@ -19,7 +19,7 @@ export interface WatchHistoryRow {
 export interface FavoriteRow {
   id: number
   user_id: string
-  media_id: string
+  media_id: number
   media_type: 'anime' | 'manga' | 'manhwa' | 'light_novel'
   added_at: string
 }
