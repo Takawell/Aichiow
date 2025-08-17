@@ -5,7 +5,7 @@ import { fetchAnimeDetail } from '@/lib/anilist'
 import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { fetchMangaDetail } from '@/lib/mangadex'
-import { FavoriteRow } from '@/types/supabase'   
+import { FavoriteRow } from '@types/supabase'
 
 export function useFavoriteDetails(favorites: FavoriteRow[]) {
   const [details, setDetails] = useState<any[]>([])
@@ -24,13 +24,13 @@ export function useFavoriteDetails(favorites: FavoriteRow[]) {
           try {
             switch (fav.media_type) {
               case 'anime':
-                return await fetchAnimeDetail(fav.media_id)
+                return await fetchAnimeDetail(fav.media_id.toString())
               case 'light_novel':
-                return await fetchLightNovelDetail(fav.media_id)
+                return await fetchLightNovelDetail(fav.media_id.toString())
               case 'manhwa':
-                return await fetchManhwaDetail(fav.media_id)
+                return await fetchManhwaDetail(fav.media_id.toString())
               case 'manga':
-                return await fetchMangaDetail(fav.media_id)
+                return await fetchMangaDetail(fav.media_id.toString())
               default:
                 return null
             }
