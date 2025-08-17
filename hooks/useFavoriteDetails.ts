@@ -5,7 +5,7 @@ import { fetchAnimeDetail } from '@/lib/anilist'
 import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { fetchMangaDetail } from '@/lib/mangadex'
-import { FavoriteRow } from '@types/supabase'
+import { FavoriteRow } from '@/types/supabase'   
 
 export function useFavoriteDetails(favorites: FavoriteRow[]) {
   const [details, setDetails] = useState<any[]>([])
