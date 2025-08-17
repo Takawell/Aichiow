@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
 
 type MediaType = 'anime' | 'manga' | 'manhwa' | 'light_novel'
 
@@ -20,6 +21,7 @@ interface UseFavoritesProps {
 
 export function useFavorites({ mediaId, mediaType }: UseFavoritesProps) {
   const supabase = createClientComponentClient()
+  const router = useRouter()
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [loading, setLoading] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
@@ -68,7 +70,14 @@ export function useFavorites({ mediaId, mediaType }: UseFavoritesProps) {
       data: { user },
     } = await supabase.auth.getUser()
 
-    if (!user || !mediaId || !mediaType) {
+    if (!user) {
+      // redirect
+      router.push('/auth/login')
+      setLoading(false)
+      return
+    }
+
+    if (!mediaId || !mediaType) {
       setLoading(false)
       return
     }
@@ -82,7 +91,11 @@ export function useFavorites({ mediaId, mediaType }: UseFavoritesProps) {
         .eq('media_id', mediaId)
         .eq('media_type', mediaType)
 
-      if (error) console.error('Error removing favorite:', error.message)
+      if (error) {
+        console.error('Error removing favorite:', error.message)
+      } else {
+        setIsFavorite(false) 
+      }
     } else {
       // insert
       const { error } = await supabase.from('favorites').insert([
@@ -90,17 +103,21 @@ export function useFavorites({ mediaId, mediaType }: UseFavoritesProps) {
           user_id: user.id,
           media_id: mediaId,
           media_type: mediaType,
+          added_at: new Date().toISOString(),
         },
       ])
 
-      if (error) console.error('Error adding favorite:', error.message)
+      if (error) {
+        console.error('Error adding favorite:', error.message)
+      } else {
+        setIsFavorite(true) // langsung update state
+      }
     }
 
     await getFavorites()
     setLoading(false)
-  }, [isFavorite, mediaId, mediaType, supabase, getFavorites])
+  }, [isFavorite, mediaId, mediaType, supabase, getFavorites, router])
 
-  // Auto load on mount
   useEffect(() => {
     getFavorites()
   }, [getFavorites])
