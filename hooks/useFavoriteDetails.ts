@@ -17,35 +17,39 @@ export function useFavoriteDetails(favorites: FavoriteRow[]) {
       return
     }
 
-    async function fetchDetails() {
+    async function run() {
       setLoading(true)
       const results = await Promise.all(
         favorites.map(async (fav) => {
           try {
             switch (fav.media_type) {
               case 'anime':
-                return await fetchAnimeDetail(fav.media_id.toString())
+                // Anilist expects number
+                return await fetchAnimeDetail(fav.media_id)
               case 'light_novel':
-                return await fetchLightNovelDetail(fav.media_id.toString())
+                // Anilist expects number
+                return await fetchLightNovelDetail(fav.media_id)
               case 'manhwa':
-                return await fetchManhwaDetail(fav.media_id.toString())
+                // Anilist expects number
+                return await fetchManhwaDetail(fav.media_id)
               case 'manga':
-                return await fetchMangaDetail(fav.media_id.toString())
+                // Mangadex expects string
+                return await fetchMangaDetail(String(fav.media_id))
               default:
                 return null
             }
-          } catch (err) {
-            console.error(`Error fetching ${fav.media_type} detail:`, err)
+          } catch (e) {
+            console.error(`Error fetching ${fav.media_type} (${fav.media_id})`, e)
             return null
           }
         })
       )
 
-      setDetails(results.filter(Boolean))
+      setDetails(results.filter(Boolean) as any[])
       setLoading(false)
     }
 
-    fetchDetails()
+    run()
   }, [favorites])
 
   return { details, loading }
