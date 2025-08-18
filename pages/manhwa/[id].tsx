@@ -182,17 +182,17 @@ export default function ManhwaDetailPage() {
           <p className="text-gray-400">No staff data available.</p>
         )}
       </section>
+
+      {/* Back Button */}
+      <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
+        <Link
+          href="/manhwa"
+          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl backdrop-blur-md border border-transparent hover:border-blue-400"
+        >
+          <FaArrowLeft className="mr-2 text-xl transition-all duration-300" />
+          Back to Manhwa
+        </Link>
+      </div>
     </div>
   )
 }
-
-      {/* back button */}
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
-       <Link
-         href="/manhwa"
-         className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl backdrop-blur-md border border-transparent hover:border-blue-400"
-       >
-      <FaArrowLeft className="mr-2 text-xl transition-all duration-300" />
-      Back to Manhwa
-    </Link>
-  </div>
