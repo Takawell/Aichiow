@@ -29,7 +29,7 @@ export default function AnimeCard({ anime }: Props) {
         {/* TEXT */}
         <div className="relative z-20 p-3">
           <h3
-            className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 truncate w-full"
+            className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 truncate whitespace-nowrap overflow-hidden text-ellipsis w-full max-w-[140px]"
           >
             {anime.title.english || anime.title.romaji}
           </h3>
