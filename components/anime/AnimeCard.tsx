@@ -14,7 +14,7 @@ export default function AnimeCard({ anime }: Props) {
     >
       <div className="overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-sm group-hover:shadow-md group-hover:border-indigo-500/40 transition-all duration-300">
         {/* IMAGE */}
-        <div className="relative w-full h-[200px]">
+        <div className="relative w-full h-[200px] overflow-hidden rounded-t-xl">
           <Image
             src={anime.coverImage.large}
             alt={anime.title.english || anime.title.romaji}
