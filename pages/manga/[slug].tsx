@@ -186,3 +186,17 @@ export default function MangaDetailPage() {
     </main>
   )
 }
+
+        {/* Back Button */}
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
+          <Link
+            href="/manga"
+            className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition shadow-lg"
+          >
+            ← Back to Manga
+          </Link>
+        </div>
+      </div>
+    </>
+  )
+}
