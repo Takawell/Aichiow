@@ -100,7 +100,7 @@ export default function ExplorePage() {
             ? [...Array(15)].map((_, i) => (
                 <motion.div
                   key={i}
-                  className="h-[260px] bg-neutral-800 rounded-xl animate-pulse"
+                  className="aspect-[2/3] w-full bg-neutral-800 animate-pulse rounded-xl"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.03 }}
