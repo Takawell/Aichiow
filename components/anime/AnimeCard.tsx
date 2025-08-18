@@ -29,17 +29,17 @@ export default function AnimeCard({ anime }: Props) {
         {/* TEXT */}
         <div className="relative z-20 p-3">
           <h3
-            className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 truncate whitespace-nowrap overflow-hidden text-ellipsis w-full max-w-[140px]"
+            className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors duration-300 truncate w-full"
           >
             {anime.title.english || anime.title.romaji}
           </h3>
 
           {/* GENRE */}
-          <div className="mt-1 flex gap-1 overflow-hidden whitespace-nowrap">
+          <div className="mt-1 flex gap-1 overflow-hidden">
             {anime.genres?.slice(0, 2).map((genre) => (
               <span
                 key={genre}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70 truncate max-w-[48%]"
+                className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70 truncate"
               >
                 {genre}
               </span>
