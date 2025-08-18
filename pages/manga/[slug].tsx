@@ -195,6 +195,4 @@ export default function MangaDetailPage() {
   >
     ← Back to Manga
   </Link>
-  </div>
- )
-}
+</div>
