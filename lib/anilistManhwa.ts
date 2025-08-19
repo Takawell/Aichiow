@@ -1,9 +1,5 @@
-// lib/anilistManhwa.ts
 const ANILIST_URL = 'https://graphql.anilist.co'
 
-// =============================
-// Fetch Manhwa List (Trending + Pagination + Genre)
-// =============================
 export async function fetchManhwaList(page = 1, genre?: string) {
   const query = `
     query ($page: Int, $genre: String) {
@@ -49,9 +45,6 @@ export async function fetchManhwaList(page = 1, genre?: string) {
   }
 }
 
-// =============================
-// Search Manhwa
-// =============================
 export async function searchManhwa(search: string) {
   const query = `
     query ($search: String) {
@@ -82,9 +75,6 @@ export async function searchManhwa(search: string) {
   return data.Page.media
 }
 
-// =============================
-// Fetch Detail Manhwa
-// =============================
 export async function fetchManhwaDetail(id: number) {
   const query = `
     query ($id: Int) {
@@ -138,9 +128,6 @@ export async function fetchManhwaDetail(id: number) {
   return data.Media
 }
 
-// =============================
-// Fetch Genres
-// =============================
 export async function fetchGenres() {
   const query = `
     query {
