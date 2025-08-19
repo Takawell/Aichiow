@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function NewsBanner() {
   const { data: ongoingAnime, isLoading } = useOngoingAnime()
-  const newsAnime = ongoingAnime?.slice(0, 5)
+  const newsAnime = ongoingAnime?.slice(0, 10)
 
   if (isLoading || !newsAnime) return null
 
