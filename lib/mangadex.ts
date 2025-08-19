@@ -1,29 +1,24 @@
 import axios from 'axios'
 
-// ✅ Cek apakah manga punya cover_art
 export function hasCoverArt(manga: any) {
   return manga.relationships?.some((rel: any) => rel.type === 'cover_art')
 }
 
-// ✅ Ambil manga populer
 export async function fetchPopularManga() {
   const res = await axios.get('/api/manga/popular')
   return res.data
 }
 
-// ✅ Ambil detail manga
 export async function fetchMangaDetail(id: string) {
   const res = await axios.get(`/api/manga/detail?id=${id}`)
   return res.data
 }
 
-// ✅ Ambil semua chapter dari manga tertentu
 export async function fetchChapters(mangaId: string) {
   const res = await axios.get(`/api/manga/chapters?mangaId=${mangaId}`)
   return res.data
 }
 
-// ✅ Ambil gambar dari chapter (image URLs) + support next & prev tanpa filter EN
 export async function fetchChapterImages(chapterId: string) {
   try {
     const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
@@ -33,7 +28,6 @@ export async function fetchChapterImages(chapterId: string) {
 
     const cleanBaseUrl = baseUrl.replace(/\\/g, '')
 
-    // Cari ID manga dan nomor chapter saat ini
     const mangaRel = chapter?.relationships?.find((rel: any) => rel.type === 'manga')
     const mangaId = mangaRel?.id
     const currentChapter = chapter?.chapter || null
@@ -67,7 +61,6 @@ export async function fetchChapterImages(chapterId: string) {
   }
 }
 
-// ✅ Cari manga dari judul
 export async function searchManga(query: string) {
   const res = await axios.get(`/api/manga/search?query=${query}`)
   const results = res.data
@@ -84,13 +77,11 @@ export async function searchManga(query: string) {
   })
 }
 
-// ✅ Ambil semua genre manga
 export async function fetchGenres() {
   const res = await axios.get('/api/manga/genres')
   return res.data
 }
 
-// ✅ Ambil manga berdasarkan filter tag
 export async function getMangaByFilter(params: { includedTags: string[] }) {
   try {
     const res = await axios.post('/api/manga/filter', params)
@@ -102,18 +93,15 @@ export async function getMangaByFilter(params: { includedTags: string[] }) {
   }
 }
 
-// ✅ Ambil manga berdasarkan genre ID
 export async function fetchMangaByGenre(tagId: string) {
   const res = await axios.get(`/api/manga/genre?id=${tagId}`)
   return res.data
 }
 
-// ✅ Buat URL gambar cover dari MangaDex
 export function getCoverImage(mangaId: string, fileName: string) {
   return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`
 }
 
-// ✅ Ambil judul lokal dengan fallback
 export function getLocalizedTitle(titleObj: { [key: string]: string }) {
   return (
     titleObj.en ||
@@ -124,7 +112,6 @@ export function getLocalizedTitle(titleObj: { [key: string]: string }) {
   )
 }
 
-// ✅ Urutkan chapter secara descending (chapter terbaru duluan)
 export function sortChapters(chapters: any[]) {
   return chapters.sort((a, b) => {
     const numA = parseFloat(a.attributes.chapter || '0')
@@ -133,7 +120,6 @@ export function sortChapters(chapters: any[]) {
   })
 }
 
-// ✅ Section tambahan: ongoing, completed, top rated, latest
 export async function getMangaSection(type: 'ongoing' | 'completed' | 'top_rated' | 'latest') {
   try {
     const res = await axios.get(`/api/manga/section?type=${type}`)
