@@ -1,10 +1,5 @@
-// lib/anilistLightNovel.ts
-
 const ANILIST_URL = 'https://graphql.anilist.co'
 
-/**
- * Fetch trending Light Novels
- */
 export async function fetchLightNovelList(page = 1, genre?: string) {
   const query = `
     query ($page: Int, $genre: String) {
@@ -55,9 +50,6 @@ export async function fetchLightNovelList(page = 1, genre?: string) {
   }
 }
 
-/**
- * Search Light Novels
- */
 export async function searchLightNovel(search: string) {
   const query = `
     query ($search: String) {
@@ -92,9 +84,6 @@ export async function searchLightNovel(search: string) {
   return data.Page.media
 }
 
-/**
- * Fetch Light Novel detail by ID (with parsed characters & staff)
- */
 export async function fetchLightNovelDetail(id: number) {
   const query = `
     query ($id: Int) {
@@ -155,7 +144,6 @@ export async function fetchLightNovelDetail(id: number) {
   const { data } = await response.json()
   const media = data.Media
 
-  // Parse characters & staff into clean arrays
   const characters = (media.characters?.edges || []).map((edge: any) => ({
     id: edge.node.id,
     name: edge.node.name,
@@ -176,9 +164,6 @@ export async function fetchLightNovelDetail(id: number) {
   }
 }
 
-/**
- * Fetch all genres for Light Novels
- */
 export async function fetchLightNovelGenres() {
   const query = `
     query {
