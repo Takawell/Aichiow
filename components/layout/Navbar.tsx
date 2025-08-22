@@ -2,12 +2,9 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Menu } from 'lucide-react'
-import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
-import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 import { supabase } from '@/lib/supabaseClient'
 import BottomNav from './BottomNav'
 
@@ -22,7 +19,6 @@ const navItems = [
 
 export default function Navbar() {
   const router = useRouter()
-  const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState('/default.png')
@@ -102,7 +98,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Nav mobile → tetap avatar + menu drawer */}
+          {/* Mobile: cuma avatar */}
           <div className="md:hidden flex items-center gap-3">
             <Link href="/profile">
               <img
@@ -111,61 +107,6 @@ export default function Navbar() {
                 className="w-9 h-9 rounded-full border-2 border-sky-400 object-cover"
               />
             </Link>
-
-            <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <button aria-label="Menu">
-                  <Menu className="h-7 w-7" />
-                </button>
-              </SheetTrigger>
-              <SheetContent
-                side="right"
-                className="bg-neutral-900 text-white w-64 sm:w-72 animate-slide-in"
-              >
-                <div className="flex flex-col gap-6 mt-10 px-4">
-                  {navItems.map((item) => {
-                    const isActive =
-                      router.pathname === item.href || router.pathname.startsWith(item.href + '/')
-
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={classNames(
-                          'text-lg font-medium transition hover:text-sky-400',
-                          isActive ? 'text-sky-400' : 'text-white'
-                        )}
-                        onClick={() => setOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    )
-                  })}
-
-                  {/* Community */}
-                  <div className="mt-8 border-t border-white/20 pt-4">
-                    <p className="text-sm font-semibold uppercase text-white/60 mb-3">Community</p>
-                    <div className="flex gap-4 text-lg">
-                      <Link href="https://whatsapp.com/channel/0029Vb5lXCA1SWsyWyJbvW0q" target="_blank">
-                        <FaDiscord className="hover:text-blue-400 transition" />
-                      </Link>
-                      <Link href="https://youtube.com/@TakaDevelopment" target="_blank">
-                        <FaYoutube className="hover:text-red-500 transition" />
-                      </Link>
-                      <Link href="https://tiktok.com/@putrawangyyy" target="_blank">
-                        <FaTiktok className="hover:text-pink-400 transition" />
-                      </Link>
-                      <Link href="https://instagram.com/putrasenpaiii" target="_blank">
-                        <FaInstagram className="hover:text-purple-400 transition" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute bottom-6 left-4">
-                  <ThemeToggle />
-                </div>
-              </SheetContent>
-            </Sheet>
           </div>
         </div>
       </header>
