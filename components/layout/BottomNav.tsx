@@ -4,12 +4,14 @@ import { useRouter } from "next/router"
 import { motion, AnimatePresence } from "framer-motion"
 import { FaHome, FaCalendarAlt, FaCompass, FaBookOpen } from "react-icons/fa"
 import { GiBookshelf } from "react-icons/gi"
+import { MdMenuBook } from "react-icons/md" // buat Manhwa biar beda icon
 
 const navItems = [
   { href: "/home", label: "Home", icon: <FaHome size={20} /> },
   { href: "/upcoming", label: "Timetable", icon: <FaCalendarAlt size={20} /> },
   { href: "/explore", label: "Explore", icon: <FaCompass size={20} /> },
   { href: "/manga", label: "Manga", icon: <FaBookOpen size={20} /> },
+  { href: "/manhwa", label: "Manhwa", icon: <MdMenuBook size={20} /> },
   { href: "/light-novel", label: "LN", icon: <GiBookshelf size={20} /> },
 ]
 
