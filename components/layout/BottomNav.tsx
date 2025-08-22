@@ -9,11 +9,11 @@ import { MdMenuBook } from "react-icons/md"
 
 const navItems = [
   { href: "/home", label: "Home", icon: <FaHome size={22} /> },
-  { href: "/upcoming", label: "Timetable", icon: <FaCalendarAlt size={22} /> },
+  { href: "/upcoming", label: "Schedule", icon: <FaCalendarAlt size={22} /> },
   { href: "/explore", label: "Explore", icon: <FaCompass size={22} /> },
   { href: "/manga", label: "Manga", icon: <FaBookOpen size={22} /> },
   { href: "/manhwa", label: "Manhwa", icon: <MdMenuBook size={22} /> },
-  { href: "/light-novel", label: "LN", icon: <GiBookshelf size={22} /> },
+  { href: "/light-novel", label: "Light Novel", icon: <GiBookshelf size={22} /> },
 ]
 
 export default function BottomNav() {
