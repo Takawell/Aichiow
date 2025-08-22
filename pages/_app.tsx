@@ -20,7 +20,6 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       {!isLanding && <Navbar />}
-
       <main className="md:pb-0 pb-[calc(var(--bottom-nav,72px)+env(safe-area-inset-bottom))]">
         <Component {...pageProps} />
       </main>
