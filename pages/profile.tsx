@@ -37,7 +37,6 @@ export default function ProfileDashboard() {
 
       const userId = data.session.user.id
 
-      // Load user profile
       const { data: profileData } = await supabase
         .from('users')
         .select('*')
@@ -46,7 +45,6 @@ export default function ProfileDashboard() {
 
       if (profileData) setUser(profileData)
 
-      // Load watch history
       const { data: historyData } = await supabase
         .from('watch_history')
         .select('*')
@@ -54,7 +52,6 @@ export default function ProfileDashboard() {
 
       if (historyData) setHistory(historyData)
 
-      // Load favorites
       const { data: favoritesData } = await supabase
         .from('favorites')
         .select('*')
@@ -87,43 +84,58 @@ export default function ProfileDashboard() {
   if (!session || !user) return null
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#0f172a] p-4 md:p-8 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#1e1b2e] to-[#0f172a] p-4 md:p-8 text-white">
       {/* Profile Header */}
       <motion.div
-        className="relative overflow-hidden rounded-2xl md:rounded-3xl p-6 md:p-8 backdrop-blur-2xl border border-white/20 shadow-2xl mb-8 md:mb-12"
+        className="relative overflow-hidden rounded-3xl p-6 md:p-10 backdrop-blur-2xl border border-white/20 shadow-[0_0_35px_rgba(59,130,246,0.6)] mb-10"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-3xl" />
+        {/* Avatar Background */}
+        <div className="absolute inset-0">
+          <Image src="/background.png" alt="bg" fill className="object-cover opacity-30 blur-sm" />
+        </div>
 
-        <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-4 md:gap-6">
-          <div className="flex items-center space-x-4 md:space-x-6">
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-pink-500/30 mix-blend-overlay animate-pulse" />
+
+        <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-6">
+          <motion.div
+            whileHover={{ rotate: 6, scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+            className="relative"
+          >
             <Image
               src={user.avatar_url || '/default.png'}
               alt="Avatar"
-              width={90}
-              height={90}
-              className="rounded-full border-4 border-blue-500 shadow-lg shadow-blue-500/40"
+              width={120}
+              height={120}
+              className="rounded-full border-4 border-blue-500 shadow-lg shadow-blue-500/60"
             />
-            <div className="text-center md:text-left">
-              <h2 className="text-xl md:text-3xl font-bold">{user.username || 'Otaku Explorer ✨'}</h2>
-              <p className="text-gray-300 text-sm md:text-base">{user.bio || 'Lover of anime, manga, manhwa & light novels.'}</p>
-              <p className="text-xs md:text-sm text-gray-500">{session.user.email}</p>
-            </div>
+          </motion.div>
+
+          <div className="text-center md:text-left max-w-md">
+            <h2 className="text-2xl md:text-4xl font-extrabold tracking-wide drop-shadow-lg">
+              {user.username || 'Otaku Explorer ✨'}
+            </h2>
+            <p className="text-gray-300 text-sm md:text-base italic">
+              {user.bio || 'Lover of anime, manga, manhwa & light novels.'}
+            </p>
+            <p className="text-xs md:text-sm text-gray-400 mt-1">{session.user.email}</p>
           </div>
 
           <div className="flex gap-3">
             <motion.button
               onClick={() => setOpenEdit(true)}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 text-sm md:text-base font-semibold shadow-md transition"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 font-semibold shadow-lg"
             >
               <FaUserEdit /> Edit
             </motion.button>
             <motion.button
               onClick={handleLogout}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl bg-red-600 hover:bg-red-500 text-sm md:text-base font-semibold shadow-md transition"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-red-600 hover:bg-red-500 font-semibold shadow-lg"
             >
               <FaSignOutAlt /> Logout
             </motion.button>
@@ -144,7 +156,7 @@ export default function ProfileDashboard() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#1e293b] text-white p-6 rounded-2xl max-w-sm w-full mx-4 shadow-2xl"
+              className="bg-[#1e293b]/90 text-white p-6 rounded-2xl max-w-sm w-full mx-4 shadow-[0_0_25px_rgba(59,130,246,0.7)]"
             >
               <h3 className="text-lg font-bold mb-4">Edit Profile</h3>
               <form onSubmit={handleSave} className="space-y-4">
@@ -187,26 +199,32 @@ export default function ProfileDashboard() {
       </AnimatePresence>
 
       {/* Watch History Section */}
-      <section className="mb-8 md:mb-12">
-        <h3 className="flex items-center gap-2 text-lg md:text-2xl font-bold mb-4 md:mb-6">
+      <section className="mb-12">
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="flex items-center gap-2 text-2xl font-bold mb-6"
+        >
           <FaHistory /> Watch History
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
+        </motion.h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {history.map((item) => (
             <motion.div
               key={item.id}
               whileHover={{ scale: 1.05 }}
-              className="group relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
+              className="group relative overflow-hidden rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
             >
               <Image
-                src={`/demo/${item.media_id}.jpg`} // ganti dengan thumbnail asli
+                src={`/demo/${item.media_id}.jpg`}
                 alt={item.media_type}
                 width={400}
                 height={500}
-                className="object-cover w-full h-32 md:h-48"
+                className="object-cover w-full h-36 md:h-52"
               />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-                <span className="text-xs md:text-lg font-semibold">▶ {item.media_type}</span>
+                <span className="text-sm md:text-lg font-semibold">▶ {item.media_type}</span>
               </div>
             </motion.div>
           ))}
@@ -215,10 +233,16 @@ export default function ProfileDashboard() {
 
       {/* Favorites Section */}
       <section>
-        <h3 className="flex items-center gap-2 text-lg md:text-2xl font-bold mb-4 md:mb-6">
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="flex items-center gap-2 text-2xl font-bold mb-6"
+        >
           <FaStar /> Favorites
-        </h3>
-        <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+        </motion.h3>
+        <div className="grid md:grid-cols-2 gap-6">
           {[
             { key: 'anime', icon: <FaTv /> },
             { key: 'manga', icon: <FaBook /> },
@@ -229,17 +253,18 @@ export default function ProfileDashboard() {
             return (
               <motion.div
                 key={key}
-                whileHover={{ y: -3 }}
-                className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/10 shadow-inner"
+                whileHover={{ scale: 1.03 }}
+                className="relative overflow-hidden rounded-2xl p-6 border border-white/10 shadow-lg bg-gradient-to-br from-slate-800/60 to-slate-900/80 backdrop-blur-xl"
               >
-                <h4 className="flex items-center gap-2 text-base md:text-lg font-semibold capitalize mb-3">
-                  {icon} {key.replace('_', ' ')}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-2xl opacity-50" />
+                <h4 className="relative flex items-center gap-2 text-lg font-semibold capitalize mb-4">
+                  <span className="text-xl">{icon}</span> {key.replace('_', ' ')}
                 </h4>
-                <div className="flex flex-wrap gap-2">
+                <div className="relative flex flex-wrap gap-2 z-10">
                   {list.map((fav) => (
                     <span
                       key={fav.id}
-                      className="px-2 md:px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-xs md:text-sm font-medium shadow-md"
+                      className="px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-xs md:text-sm font-medium shadow-md hover:scale-105 transition"
                     >
                       {fav.media_id}
                     </span>
