@@ -18,7 +18,6 @@ export default async function handler(
     const response = await axios.get(`${BASE_URL}/manga/${id}`, {
       params: {
         includes: ['author', 'artist', 'cover_art'],
-        contentRating: ['safe', 'suggestive', 'erotica', 'pornographic'], // ⬅️ Tambahkan ini
       },
     })
 
