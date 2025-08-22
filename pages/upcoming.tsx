@@ -6,6 +6,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { format, fromUnixTime } from 'date-fns'
 import { id as localeID } from 'date-fns/locale'
+import { AiOutlineCalendar } from 'react-icons/ai'
+import { FaRegClock } from 'react-icons/fa'
+import { BiMoviePlay } from 'react-icons/bi'
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -49,7 +52,9 @@ export default function UpcomingPage() {
       <main className="px-4 md:px-10 py-10 text-white max-w-7xl mx-auto">
         {/* WEEKLY SCHEDULE */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-6">🗓️ Weekly Schedule</h2>
+          <h2 className="flex items-center gap-2 text-3xl font-bold mb-6">
+            <AiOutlineCalendar className="text-blue-500" /> Weekly Schedule
+          </h2>
 
           {/* Day Buttons */}
           <div className="flex flex-wrap gap-3 mb-6">
@@ -57,11 +62,11 @@ export default function UpcomingPage() {
               <button
                 key={day}
                 onClick={() => setSelectedDay(day)}
-                className={`px-4 py-2 rounded-full border ${
-                  selectedDay === day
-                    ? 'bg-blue-600 text-white border-blue-600'
+                className={`px-4 py-2 rounded-full border text-sm font-medium shadow-sm
+                  ${selectedDay === day
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/30'
                     : 'bg-zinc-800 text-zinc-300 border-zinc-600 hover:bg-zinc-700'
-                } transition`}
+                  } transition-all`}
               >
                 {day}
               </button>
@@ -85,7 +90,7 @@ export default function UpcomingPage() {
                   <Link
                     key={anime.id}
                     href={`/anime/${anime.id}`}
-                    className="flex items-center gap-4 p-4 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-blue-500 transition-all"
+                    className="flex items-center gap-4 p-4 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all"
                   >
                     <Image
                       src={anime.coverImage.large}
@@ -98,7 +103,8 @@ export default function UpcomingPage() {
                       <h3 className="text-sm font-semibold max-w-[180px] truncate">
                         {anime.title.english || anime.title.romaji}
                       </h3>
-                      <p className="text-zinc-400 text-xs">
+                      <p className="flex items-center gap-1 text-zinc-400 text-xs">
+                        <FaRegClock className="text-blue-400" />
                         Episode {episode} • <span className="text-blue-400">{dateText}</span>
                       </p>
                     </div>
@@ -111,7 +117,9 @@ export default function UpcomingPage() {
 
         {/* UPCOMING ANIME */}
         <section>
-          <h1 className="text-3xl font-extrabold mb-6">🎬 Upcoming Anime</h1>
+          <h1 className="flex items-center gap-2 text-3xl font-extrabold mb-6">
+            <BiMoviePlay className="text-blue-500" /> Upcoming Anime
+          </h1>
           {loading ? (
             <p className="text-zinc-400">Loading upcoming anime...</p>
           ) : (
@@ -120,7 +128,7 @@ export default function UpcomingPage() {
                 <Link
                   key={anime.id}
                   href={`/anime/${anime.id}`}
-                  className="group bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-xl overflow-hidden border border-zinc-700 hover:border-blue-500 hover:shadow-blue-500/20 hover:shadow-lg transform hover:scale-[1.03] transition-all duration-300"
+                  className="group bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-xl overflow-hidden border border-zinc-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transform hover:scale-[1.03] transition-all duration-300"
                 >
                   <div className="relative">
                     <Image
@@ -130,8 +138,8 @@ export default function UpcomingPage() {
                       height={400}
                       className="w-full h-48 object-cover group-hover:brightness-110 transition"
                     />
-                    <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded">
-                      Soon
+                    <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded flex items-center gap-1">
+                      <AiOutlineCalendar /> Soon
                     </div>
                   </div>
                   <div className="p-3">
