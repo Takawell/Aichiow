@@ -1,6 +1,8 @@
 // components/character/CharacterList.tsx
 import { CharacterEdge } from '@/types/anime'
 import Image from 'next/image'
+import { FaMicrophoneAlt } from 'react-icons/fa'
+import { motion } from 'framer-motion'
 
 interface Props {
   characters: CharacterEdge[]
@@ -9,32 +11,53 @@ interface Props {
 export default function CharacterList({ characters }: Props) {
   return (
     <section className="px-4 md:px-10 py-10">
-      <h2 className="text-2xl font-bold mb-4 text-white">🧑‍🎤 Characters & Voice Actors</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <h2 className="text-3xl font-extrabold mb-6 text-white flex items-center gap-2">
+        🧑‍🎤 Characters & Voice Actors
+      </h2>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
         {characters.map((char, idx) => (
-          <div key={idx} className="bg-neutral-800 rounded-xl p-3">
-            <Image
-              src={char.node.image.large}
-              alt={char.node.name.full}
-              width={100}
-              height={140}
-              className="rounded-md w-full h-36 object-cover"
-            />
-            <p className="text-sm font-semibold mt-2">{char.node.name.full}</p>
-            <p className="text-xs text-neutral-400">{char.role}</p>
+          <motion.div
+            key={idx}
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+            className="relative bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-xl overflow-hidden border border-zinc-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all"
+          >
+            {/* Character Image */}
+            <div className="relative w-full h-40">
+              <Image
+                src={char.node.image.large}
+                alt={char.node.name.full}
+                fill
+                className="object-cover"
+              />
+            </div>
+
+            {/* Character Info */}
+            <div className="p-3">
+              <h3 className="text-sm font-bold truncate text-white">
+                {char.node.name.full}
+              </h3>
+              <p className="text-xs text-zinc-400">{char.role}</p>
+            </div>
+
+            {/* Voice Actor */}
             {char.voiceActors?.[0] && (
-              <div className="mt-2 flex items-center gap-2">
+              <div className="px-3 pb-3 flex items-center gap-2 mt-auto">
                 <Image
                   src={char.voiceActors[0].image.large}
                   alt={char.voiceActors[0].name.full}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
+                  width={30}
+                  height={30}
+                  className="rounded-full border border-zinc-600"
                 />
-                <p className="text-xs">{char.voiceActors[0].name.full}</p>
+                <p className="text-xs text-zinc-300 truncate flex-1">
+                  {char.voiceActors[0].name.full}
+                </p>
+                <FaMicrophoneAlt className="text-blue-400 text-sm" />
               </div>
             )}
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>
