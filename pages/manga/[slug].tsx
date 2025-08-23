@@ -108,7 +108,7 @@ export default function MangaDetailPage() {
                   : 'bg-zinc-700 hover:bg-zinc-600'
               }`}
             >
-              {isFavorite ? '★ Remove from Favorites' : '☆ Add to Favorites'}
+              {isFavorite ? '★ Remove from Favorites' : '♡ Add to Favorites'}
             </button>
 
             {/* Description */}
