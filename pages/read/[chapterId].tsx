@@ -14,10 +14,9 @@ export default function ReadPage() {
   const [error, setError] = useState<string>('')
   const [nextId, setNextId] = useState<string | null>(null)
   const [prevId, setPrevId] = useState<string | null>(null)
-
-  // reader mode (scroll / swipe)
   const [mode, setMode] = useState<'scroll' | 'swipe'>('scroll')
   const [currentPage, setCurrentPage] = useState(0)
+  const [fit, setFit] = useState<'width' | 'height'>('width')
 
   useEffect(() => {
     if (!router.isReady) return
@@ -95,7 +94,7 @@ export default function ReadPage() {
         </button>
         <span className="text-sm tracking-wide text-neutral-400">📖 Chapter Reader</span>
 
-        {/* Mode Toggle */}
+        {/* Mode + Fit Toggle */}
         <div className="flex gap-2">
           <button
             onClick={() => setMode('scroll')}
@@ -116,6 +115,12 @@ export default function ReadPage() {
             }`}
           >
             Swipe
+          </button>
+          <button
+            onClick={() => setFit(fit === 'width' ? 'height' : 'width')}
+            className="px-3 py-1 rounded-md text-xs font-medium bg-neutral-800 text-neutral-400 hover:bg-neutral-700 transition"
+          >
+            Fit: {fit === 'width' ? 'Width' : 'Height'}
           </button>
         </div>
       </header>
@@ -148,7 +153,11 @@ export default function ReadPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="w-full object-contain rounded-lg shadow-lg border border-neutral-800 hover:scale-[1.01] transition-transform"
+                    className={`rounded-lg shadow-lg border border-neutral-800 hover:scale-[1.01] transition-transform ${
+                      fit === 'width'
+                        ? 'w-full h-auto'
+                        : 'h-[90vh] w-auto mx-auto'
+                    }`}
                   />
                 ))}
               </div>
@@ -161,7 +170,11 @@ export default function ReadPage() {
                   key={currentPage}
                   src={images[currentPage]}
                   alt={`Page ${currentPage + 1}`}
-                  className="max-h-full max-w-full object-contain rounded-lg shadow-lg border border-neutral-800"
+                  className={`rounded-lg shadow-lg border border-neutral-800 ${
+                    fit === 'width'
+                      ? 'w-full h-auto max-h-full'
+                      : 'h-full w-auto mx-auto'
+                  }`}
                   initial={{ x: 200, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: -200, opacity: 0 }}
@@ -220,3 +233,4 @@ export default function ReadPage() {
     </div>
   )
 }
+          
