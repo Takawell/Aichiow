@@ -22,8 +22,9 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ### Anime (Home)
 ![Anime Home](https://i.ibb.co/mrmZ8Vsr/home-anime.png)
 
-### Manga *(Coming Soon)*
+### Manga
 ![Manga](https://i.ibb.co/BKjQZrL7/1755945661098.jpg)
+
 [Detail](https://i.ibb.co/tw2fnskp/1755945936255.jpg)
 
 ### Manhwa
