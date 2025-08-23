@@ -16,13 +16,13 @@ export default function ReadPage() {
   const [prevId, setPrevId] = useState<string | null>(null)
   const [mode, setMode] = useState<'scroll' | 'swipe'>('scroll')
   const [currentPage, setCurrentPage] = useState(0)
-  const [fit, setFit] = useState<'width' | 'auto'>('width')
 
   useEffect(() => {
     if (!router.isReady) return
 
     const raw = router.query.chapterId
-    const chapterId = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] : ''
+    const chapterId =
+      typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] : ''
 
     if (!chapterId) {
       setError('No chapter ID provided.')
@@ -92,9 +92,11 @@ export default function ReadPage() {
           <MdArrowBack size={18} />
           Back
         </button>
-        <span className="text-sm tracking-wide text-neutral-400">📖 Chapter Reader</span>
+        <span className="text-sm tracking-wide text-neutral-400">
+          📖 Chapter Reader
+        </span>
 
-        {/* Mode + Fit Toggle */}
+        {/* Mode Toggle */}
         <div className="flex gap-2">
           <button
             onClick={() => setMode('scroll')}
@@ -116,17 +118,11 @@ export default function ReadPage() {
           >
             Swipe
           </button>
-          <button
-            onClick={() => setFit(fit === 'width' ? 'auto' : 'width')}
-            className="px-3 py-1 rounded-md text-xs font-medium bg-neutral-800 text-neutral-400 hover:bg-neutral-700 transition"
-          >
-            {fit === 'width' ? 'Fit: Width' : 'Fit: Auto'}
-          </button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-4xl mx-auto px-4 py-6 w-full">
+      <main className="flex-1 max-w-5xl mx-auto px-4 py-6 w-full">
         {loading && (
           <div className="text-center py-16 text-zinc-400 animate-pulse text-lg">
             Loading chapter...
@@ -153,11 +149,7 @@ export default function ReadPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className={`rounded-lg shadow-lg border border-neutral-800 hover:scale-[1.01] transition-transform ${
-                      fit === 'width'
-                        ? 'w-full h-auto'
-                        : 'max-w-full h-auto mx-auto'
-                    }`}
+                    className="w-full h-auto object-contain rounded-lg shadow-lg border border-neutral-800 hover:scale-[1.01] transition-transform"
                   />
                 ))}
               </div>
@@ -165,16 +157,12 @@ export default function ReadPage() {
 
             {/* Swipe Mode */}
             {mode === 'swipe' && (
-              <div className="relative w-full h-[80vh] flex items-center justify-center overflow-hidden">
+              <div className="relative w-full flex items-center justify-center overflow-hidden">
                 <motion.img
                   key={currentPage}
                   src={images[currentPage]}
                   alt={`Page ${currentPage + 1}`}
-                  className={`rounded-lg shadow-lg border border-neutral-800 ${
-                    fit === 'width'
-                      ? 'w-full h-auto'
-                      : 'max-w-full h-auto mx-auto'
-                  }`}
+                  className="w-full h-auto object-contain rounded-lg shadow-lg border border-neutral-800"
                   initial={{ x: 200, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: -200, opacity: 0 }}
