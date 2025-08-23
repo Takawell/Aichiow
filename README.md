@@ -9,7 +9,7 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 - **Anime:** Trending titles, official trailers, and detailed character info.
 - **Manga & Manhwa:** Seamless reader, genre filters, and discovery tools.
 - **Light Novels:** Smooth browsing with hero sliders.
-- **Fast Navigation:** Optimized for mobile and desktop.
+- **Fast Navigation:** Optimized for mobile(priority) and desktop.
 - **Search & Filter:** Quickly find what you love.
 
 ---
@@ -23,7 +23,8 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ![Anime Home](https://i.ibb.co/mrmZ8Vsr/home-anime.png)
 
 ### Manga *(Coming Soon)*
-![Manga Soon](https://via.placeholder.com/800x450?text=Manga+Screenshot+Coming+Soon)
+![Manga](https://i.ibb.co/BKjQZrL7/1755945661098.jpg)
+[Detail](https://i.ibb.co/tw2fnskp/1755945936255.jpg)
 
 ### Manhwa
 ![Manhwa](https://i.ibb.co/GQMC0b2b/68923578dc66d8397f76472f.png)
@@ -40,6 +41,7 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 - **TypeScript**  
 - **Tailwind CSS**  
 - **Framer Motion**  
+- **Supabase Database**
 - **AniList & MangaDex API**  
 
 ---
