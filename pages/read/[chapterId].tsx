@@ -16,7 +16,7 @@ export default function ReadPage() {
   const [prevId, setPrevId] = useState<string | null>(null)
   const [mode, setMode] = useState<'scroll' | 'swipe'>('scroll')
   const [currentPage, setCurrentPage] = useState(0)
-  const [fit, setFit] = useState<'width' | 'height'>('width')
+  const [fit, setFit] = useState<'width' | 'auto'>('width')
 
   useEffect(() => {
     if (!router.isReady) return
@@ -117,10 +117,10 @@ export default function ReadPage() {
             Swipe
           </button>
           <button
-            onClick={() => setFit(fit === 'width' ? 'height' : 'width')}
+            onClick={() => setFit(fit === 'width' ? 'auto' : 'width')}
             className="px-3 py-1 rounded-md text-xs font-medium bg-neutral-800 text-neutral-400 hover:bg-neutral-700 transition"
           >
-            Fit: {fit === 'width' ? 'Width' : 'Height'}
+            {fit === 'width' ? 'Fit: Width' : 'Fit: Auto'}
           </button>
         </div>
       </header>
@@ -156,7 +156,7 @@ export default function ReadPage() {
                     className={`rounded-lg shadow-lg border border-neutral-800 hover:scale-[1.01] transition-transform ${
                       fit === 'width'
                         ? 'w-full h-auto'
-                        : 'h-[90vh] w-auto mx-auto'
+                        : 'max-w-full h-auto mx-auto'
                     }`}
                   />
                 ))}
@@ -172,8 +172,8 @@ export default function ReadPage() {
                   alt={`Page ${currentPage + 1}`}
                   className={`rounded-lg shadow-lg border border-neutral-800 ${
                     fit === 'width'
-                      ? 'w-full h-auto max-h-full'
-                      : 'h-full w-auto mx-auto'
+                      ? 'w-full h-auto'
+                      : 'max-w-full h-auto mx-auto'
                   }`}
                   initial={{ x: 200, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
