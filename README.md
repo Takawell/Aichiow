@@ -25,7 +25,7 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ### Manga
 ![Manga](https://i.ibb.co/BKjQZrL7/1755945661098.jpg)
 
-[Detail](https://i.ibb.co/tw2fnskp/1755945936255.jpg)
+![Detail](https://i.ibb.co/tw2fnskp/1755945936255.jpg)
 
 ### Manhwa
 ![Manhwa](https://i.ibb.co/GQMC0b2b/68923578dc66d8397f76472f.png)
