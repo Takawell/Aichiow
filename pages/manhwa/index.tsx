@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { Search } from 'lucide-react'
 import ManhwaHeroSection from '@/components/manhwa/ManhwaHeroSection'
 import { fetchManhwaList, searchManhwa, fetchGenres } from '@/lib/anilistManhwa'
 import { Manhwa } from '@/types/manhwa'
@@ -61,12 +60,11 @@ export default function ManhwaPage() {
     <>
       <Head>
         <title>Manhwa | Aichiow</title>
-        <meta name="description" content="Find manhwa that you like and love" />
+        <meta name="description" content="Koleksi Manhwa dari AniList." />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
-        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 py-6 space-y-8">
-
+        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 py-6 space-y-6">
           {/* HERO */}
           {loading ? (
             <section className="w-full h-[320px] md:h-[460px] bg-neutral-900 rounded-lg shadow-inner overflow-hidden animate-pulse"></section>
@@ -77,25 +75,21 @@ export default function ManhwaPage() {
           )}
 
           {/* SEARCH */}
-          <form
-            onSubmit={handleSearch}
-            className="relative flex items-center w-full sm:max-w-md"
-          >
-            <Search className="absolute left-3 text-gray-400 w-5 h-5" />
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
-              placeholder="Cari manhwa..."
+              placeholder="Search manhwa..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
+              className="flex-1 p-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-blue-400 text-white"
             />
             <button
               type="submit"
               disabled={searching}
-              className={`ml-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`px-4 py-2 rounded-lg ${
                 searching
                   ? 'bg-blue-400 cursor-wait'
-                  : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:opacity-90'
+                  : 'bg-blue-500 hover:bg-blue-600'
               }`}
             >
               {searching ? 'Mencari...' : 'Search'}
@@ -103,29 +97,27 @@ export default function ManhwaPage() {
           </form>
 
           {/* GENRE FILTER */}
-          <div className="relative">
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {genres.map((genre) => (
-                <motion.button
-                  key={genre}
-                  whileHover={{ scale: 1.08 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    setSelectedGenre(genre)
-                    setPage(1)
-                    setSearchResults([])
-                  }}
-                  className={`px-4 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-300
-                    ${
-                      selectedGenre === genre
-                        ? 'bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-md shadow-blue-500/30'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
-                    }`}
-                >
-                  {genre}
-                </motion.button>
-              ))}
-            </div>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {genres.map((genre) => (
+              <motion.button
+                key={genre}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setSelectedGenre(genre)
+                  setPage(1)
+                  setSearchResults([])
+                }}
+                className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-300
+                  ${
+                    selectedGenre === genre
+                      ? 'bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-md shadow-blue-500/30'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                  }`}
+              >
+                {genre}
+              </motion.button>
+            ))}
           </div>
 
           {/* ERROR */}
@@ -139,78 +131,62 @@ export default function ManhwaPage() {
             <p className="text-gray-400">Tidak ada hasil untuk "{query}".</p>
           )}
 
-          <motion.div
-            layout
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
-          >
-            <AnimatePresence>
-              {displayedList.map((m) => (
-                <motion.div
-                  key={m.id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  whileHover={{ scale: 1.04 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-blue-500/40 transition-all group"
-                >
-                  <Link href={`/manhwa/${m.id}`}>
-                    {/* Cover */}
-                    <div className="relative w-full aspect-[3/4] overflow-hidden">
-                      <img
-                        src={m.coverImage.large}
-                        alt={m.title.english || m.title.romaji}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      {/* Score Badge */}
-                      {m.averageScore && (
-                        <span className="absolute top-2 left-2 bg-black/70 text-yellow-400 text-xs font-semibold px-2 py-1 rounded-full shadow">
-                          ⭐ {m.averageScore}
-                        </span>
-                      )}
-                      {/* Gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-70 group-hover:opacity-90 transition duration-300"></div>
-                    </div>
-                    {/* Title */}
-                    <div className="absolute bottom-0 left-0 w-full p-3">
-                      <h2 className="text-sm sm:text-base font-semibold text-white drop-shadow-md line-clamp-2 group-hover:translate-y-[-2px] transition-all">
-                        {m.title.english || m.title.romaji}
-                      </h2>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {displayedList.map((m) => (
+              <motion.div
+                key={m.id}
+                whileHover={{ scale: 1.03 }}
+                className="relative bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-blue-500/40 transition-all group"
+              >
+                <Link href={`/manhwa/${m.id}`}>
+                  {/* Cover */}
+                  <div className="relative w-full aspect-[3/4] overflow-hidden">
+                    <img
+                      src={m.coverImage.large}
+                      alt={m.title.english || m.title.romaji}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {/* Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-70 group-hover:opacity-80 transition duration-300"></div>
+                  </div>
+                  {/* Title */}
+                  <div className="absolute bottom-0 left-0 w-full p-3">
+                    <h2 className="text-sm sm:text-base font-semibold text-white drop-shadow-md line-clamp-2">
+                      {m.title.english || m.title.romaji}
+                    </h2>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
 
           {/* PAGINATION */}
           {searchResults.length === 0 && totalPages > 1 && (
-            <div className="flex justify-center items-center gap-3 mt-6">
+            <div className="flex justify-center gap-2 mt-4">
               <button
                 disabled={page === 1}
                 onClick={() => setPage((prev) => prev - 1)}
-                className={`w-10 h-10 flex items-center justify-center rounded-full transition-all ${
+                className={`px-3 py-1 rounded ${
                   page === 1
                     ? 'bg-gray-600 cursor-not-allowed'
                     : 'bg-blue-600 hover:bg-blue-700'
                 }`}
               >
-                ←
+                Prev
               </button>
-              <span className="px-3 py-1 text-gray-300 text-sm">
+              <span className="px-3 py-1 text-gray-300">
                 Page {page} / {totalPages}
               </span>
               <button
                 disabled={page === totalPages}
                 onClick={() => setPage((prev) => prev + 1)}
-                className={`w-10 h-10 flex items-center justify-center rounded-full transition-all ${
+                className={`px-3 py-1 rounded ${
                   page === totalPages
                     ? 'bg-gray-600 cursor-not-allowed'
                     : 'bg-blue-600 hover:bg-blue-700'
                 }`}
               >
-                →
+                Next
               </button>
             </div>
           )}
