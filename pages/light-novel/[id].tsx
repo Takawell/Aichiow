@@ -113,7 +113,7 @@ export default function LightNovelDetail() {
                   ? 'Processing...'
                   : isFavorite
                   ? '★ Favorited'
-                  : '☆ Add to Favorite'}
+                  : '♡ Add to Favorite'}
               </button>
             </div>
           </div>
