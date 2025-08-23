@@ -4,8 +4,8 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { fetchChapterImages } from '@/lib/mangadex'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
-import { MdArrowBack, MdViewDay, MdViewCarousel } from 'react-icons/md'
-import { motion, AnimatePresence } from 'framer-motion'
+import { MdArrowBack } from 'react-icons/md'
+import { motion } from 'framer-motion'
 
 export default function ReadPage() {
   const router = useRouter()
@@ -14,6 +14,8 @@ export default function ReadPage() {
   const [error, setError] = useState<string>('')
   const [nextId, setNextId] = useState<string | null>(null)
   const [prevId, setPrevId] = useState<string | null>(null)
+
+  // reader mode (scroll / swipe)
   const [mode, setMode] = useState<'scroll' | 'swipe'>('scroll')
   const [currentPage, setCurrentPage] = useState(0)
 
@@ -53,7 +55,6 @@ export default function ReadPage() {
         setImages(full)
         setNextId(chapter.next ?? null)
         setPrevId(chapter.prev ?? null)
-        setCurrentPage(0)
       } catch (err: any) {
         console.error(err)
         setError('Failed to load chapter.')
@@ -72,12 +73,13 @@ export default function ReadPage() {
     }
   }
 
-  const handleSwipeNext = () => {
-    if (currentPage < images.length - 1) setCurrentPage((p) => p + 1)
-  }
-
-  const handleSwipePrev = () => {
-    if (currentPage > 0) setCurrentPage((p) => p - 1)
+  const handleSwipe = (direction: 'left' | 'right') => {
+    if (direction === 'left' && currentPage < images.length - 1) {
+      setCurrentPage(currentPage + 1)
+    }
+    if (direction === 'right' && currentPage > 0) {
+      setCurrentPage(currentPage - 1)
+    }
   }
 
   return (
@@ -92,24 +94,34 @@ export default function ReadPage() {
           Back
         </button>
         <span className="text-sm tracking-wide text-neutral-400">📖 Chapter Reader</span>
-        <button
-          onClick={() => setMode(mode === 'scroll' ? 'swipe' : 'scroll')}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-zinc-700 transition"
-        >
-          {mode === 'scroll' ? (
-            <>
-              <MdViewCarousel size={18} /> Swipe Mode
-            </>
-          ) : (
-            <>
-              <MdViewDay size={18} /> Scroll Mode
-            </>
-          )}
-        </button>
+
+        {/* Mode Toggle */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setMode('scroll')}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition ${
+              mode === 'scroll'
+                ? 'bg-blue-500 text-white'
+                : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+            }`}
+          >
+            Scroll
+          </button>
+          <button
+            onClick={() => setMode('swipe')}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition ${
+              mode === 'swipe'
+                ? 'bg-blue-500 text-white'
+                : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+            }`}
+          >
+            Swipe
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-5xl mx-auto px-4 py-6 w-full">
+      <main className="flex-1 max-w-4xl mx-auto px-4 py-6 w-full">
         {loading && (
           <div className="text-center py-16 text-zinc-400 animate-pulse text-lg">
             Loading chapter...
@@ -124,7 +136,8 @@ export default function ReadPage() {
 
         {!loading && !error && images.length > 0 && (
           <>
-            {mode === 'scroll' ? (
+            {/* Scroll Mode */}
+            {mode === 'scroll' && (
               <div className="space-y-6">
                 {images.map((src, idx) => (
                   <motion.img
@@ -139,42 +152,31 @@ export default function ReadPage() {
                   />
                 ))}
               </div>
-            ) : (
-              <div className="relative w-full aspect-[3/4] flex items-center justify-center bg-black rounded-lg overflow-hidden shadow-xl border border-neutral-800">
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={currentPage}
-                    src={images[currentPage]}
-                    alt={`Page ${currentPage + 1}`}
-                    initial={{ opacity: 0, x: 100 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -100 }}
-                    transition={{ duration: 0.4 }}
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </AnimatePresence>
+            )}
 
-                {/* Swipe Controls */}
-                {currentPage > 0 && (
-                  <button
-                    onClick={handleSwipePrev}
-                    className="absolute left-3 p-2 rounded-full bg-black/50 hover:bg-black/70 transition"
-                  >
-                    <FiChevronLeft size={28} />
-                  </button>
-                )}
-                {currentPage < images.length - 1 && (
-                  <button
-                    onClick={handleSwipeNext}
-                    className="absolute right-3 p-2 rounded-full bg-black/50 hover:bg-black/70 transition"
-                  >
-                    <FiChevronRight size={28} />
-                  </button>
-                )}
+            {/* Swipe Mode */}
+            {mode === 'swipe' && (
+              <div className="relative w-full h-[80vh] flex items-center justify-center overflow-hidden">
+                <motion.img
+                  key={currentPage}
+                  src={images[currentPage]}
+                  alt={`Page ${currentPage + 1}`}
+                  className="max-h-full max-w-full object-contain rounded-lg shadow-lg border border-neutral-800"
+                  initial={{ x: 200, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -200, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x < -100) handleSwipe('left')
+                    if (info.offset.x > 100) handleSwipe('right')
+                  }}
+                />
 
-                {/* Page Indicator */}
-                <div className="absolute bottom-3 px-3 py-1 rounded-full bg-black/60 text-xs text-neutral-300">
-                  Page {currentPage + 1} / {images.length}
+                {/* Page Counter */}
+                <div className="absolute bottom-4 right-4 bg-black/60 text-xs px-3 py-1 rounded-full">
+                  {currentPage + 1} / {images.length}
                 </div>
               </div>
             )}
