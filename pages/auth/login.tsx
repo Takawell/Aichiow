@@ -46,17 +46,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
-      {/* ✨ Background Glow */}
-      <div className="absolute inset-0">
+    <div className="min-h-screen flex items-center justify-center bg-black p-6 text-white relative overflow-hidden">
+      {/* 🔮 Animated Glow Background */}
+      <div className="absolute inset-0 -z-10">
         <motion.div
           className="absolute -top-40 -left-40 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] }}
+          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
           transition={{ repeat: Infinity, duration: 6 }}
         />
         <motion.div
           className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.4, 0.7, 0.4] }}
+          animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.7, 0.3] }}
           transition={{ repeat: Infinity, duration: 8 }}
         />
       </div>
@@ -64,12 +64,12 @@ export default function LoginPage() {
       {/* 🔒 Login Card */}
       <motion.form
         onSubmit={onSubmit}
-        className="relative w-full max-w-md space-y-6 p-8 rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/10 z-10"
+        className="relative w-full max-w-md space-y-6 p-8 rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/10"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
       >
-        <h1 className="text-4xl font-bold text-center text-white">Welcome Back</h1>
+        <h1 className="text-3xl font-semibold text-center text-white">Welcome back</h1>
         <p className="text-center text-white/60 text-sm">Login to continue your journey 🚀</p>
 
         <motion.input
@@ -105,7 +105,7 @@ export default function LoginPage() {
         {err && <p className="text-red-400 text-sm text-center">{err}</p>}
 
         <p className="text-sm text-center text-white/70">
-          Don&apos;t have an account?{' '}
+          Don’t have an account?{' '}
           <a className="underline text-blue-400 hover:text-blue-300" href="/auth/register">
             Register
           </a>
