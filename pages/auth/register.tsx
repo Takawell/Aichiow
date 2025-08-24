@@ -18,7 +18,7 @@ export default function RegisterPage() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
-          router.replace('/profile') // auto redirect setelah confirm
+          router.replace('/profile')
         }
       }
     )
