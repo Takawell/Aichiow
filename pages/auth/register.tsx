@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/router'
 import { motion } from 'framer-motion'
@@ -14,13 +14,27 @@ export default function RegisterPage() {
   const [msg, setMsg] = useState<string | null>(null)
   const [err, setErr] = useState<string | null>(null)
 
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          router.replace('/profile') // auto redirect setelah confirm
+        }
+      }
+    )
+
+    return () => {
+      listener.subscription.unsubscribe()
+    }
+  }, [router])
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMsg(null)
     setErr(null)
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name: username } },
@@ -33,11 +47,7 @@ export default function RegisterPage() {
       return
     }
 
-    if (data.session) {
-      router.replace('/profile')
-    } else {
-      setMsg('Cek email untuk verifikasi, lalu login kembali.')
-    }
+    setMsg('Check your email for verification. After clicking the link, youre be automatically logged in.')
   }
 
   return (
@@ -57,9 +67,6 @@ export default function RegisterPage() {
           value={username}
           onChange={e => setUsername(e.target.value)}
           required
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
         />
 
         <motion.input
@@ -69,9 +76,6 @@ export default function RegisterPage() {
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
         />
 
         <motion.input
@@ -81,18 +85,12 @@ export default function RegisterPage() {
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
         />
 
         <motion.button
           disabled={loading}
           className="w-full rounded-xl p-3 bg-white text-black font-semibold hover:bg-gray-200 transition disabled:opacity-50"
           type="submit"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
         >
           {loading ? 'Registering…' : 'Register'}
         </motion.button>
