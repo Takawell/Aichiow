@@ -49,72 +49,7 @@ export default function ManhwaDetailPage() {
     )
   }
 
-  return (
-    <div className="bg-neutral-950 min-h-screen text-white relative overflow-hidden">
-      {/* Notification Overlay */}
-      <AnimatePresence>
-        {showCard && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed top-0 left-0 w-screen h-screen z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm md:backdrop-blur-md"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 30 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="relative max-w-md w-[90%] p-6 rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/20 text-center"
-            >
-              <h2 className="text-xl md:text-2xl font-bold mb-3">
-                {lang === 'en' ? 'Notice' : 'Pemberitahuan'}
-              </h2>
-              <p className="text-gray-200 mb-4 text-sm md:text-base">
-                {lang === 'en'
-                  ? 'You can read this manhwa in the Manga section.'
-                  : 'Anda dapat membaca manhwa ini di halaman Manga.'}
-              </p>
-              <div className="flex justify-center gap-3 mt-4">
-                <Link
-                  href="/manga/explore"
-                  className="px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-medium shadow-lg transition"
-                >
-                  {lang === 'en' ? 'Go to Manga' : 'Buka Manga'}
-                </Link>
-                <button
-                  onClick={() => setShowCard(false)}
-                  className="px-5 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium shadow-lg border border-white/20 transition"
-                >
-                  {lang === 'en' ? 'Close' : 'Tutup'}
-                </button>
-              </div>
-
-              {/* Toggle Language */}
-              <div className="mt-6 flex items-center justify-center gap-2 text-sm">
-                <span className={lang === 'en' ? 'text-blue-400 font-semibold' : 'text-gray-300'}>
-                  EN
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={lang === 'id'}
-                    onChange={() => setLang(lang === 'en' ? 'id' : 'en')}
-                  />
-                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600 transition"></div>
-                  <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
-                </label>
-                <span className={lang === 'id' ? 'text-blue-400 font-semibold' : 'text-gray-300'}>
-                  ID
-                </span>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Hero Banner */}
+        {/* Hero Banner */}
       <div className="relative w-full h-[360px] md:h-[480px] overflow-hidden">
         {manhwa.bannerImage ? (
           <Image
