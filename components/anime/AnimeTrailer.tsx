@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import { useUser } from '@supabase/auth-helpers-react'
+import { useUser } from '@supabase/auth-helpers-nextjs'
 
 interface Props {
   animeId: number
