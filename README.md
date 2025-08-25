@@ -1,4 +1,3 @@
-![logo](https://i.ibb.co/0jv04cT4/aichiow.jpg)
 ### AICHIOW PLUS
 
 Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design, fast navigation, and rich details in one place.
