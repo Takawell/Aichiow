@@ -16,7 +16,11 @@ export default function ManhwaDetailPage() {
   const { id } = router.query
   const [manhwa, setManhwa] = useState<ManhwaDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showNotice, setShowNotice] = useState(true)
+
+  const [showCard, setShowCard] = useState(true)
+  const [lang, setLang] = useState<'en' | 'id'>('en')
+
+  // hook favorit (mediaType = 'manhwa')
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: id ? Number(id) : undefined,
     mediaType: 'manhwa',
@@ -48,51 +52,66 @@ export default function ManhwaDetailPage() {
   }
 
   return (
-    <div className={`bg-neutral-950 min-h-screen text-white relative`}>
-      {/* Blur overlay kalau notice aktif */}
-      {showNotice && (
-        <div className="absolute inset-0 backdrop-blur-sm bg-black/40 z-40" />
-      )}
-
-      {/* Notifikasi Modal */}
+    <div className="bg-neutral-950 min-h-screen text-white relative overflow-hidden">
+      {/* Notification Overlay */}
       <AnimatePresence>
-        {showNotice && (
+        {showCard && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: -50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: -50 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-sm bg-black/50"
           >
-            <div className="bg-gradient-to-br from-blue-600/80 to-indigo-800/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl max-w-md w-full p-6 text-center relative">
-              <h2 className="text-2xl font-bold text-white drop-shadow mb-3">
-                📢 Notice / Pemberitahuan
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="relative max-w-md w-[90%] p-6 rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/20 text-center"
+            >
+              <h2 className="text-xl md:text-2xl font-bold mb-3">
+                {lang === 'en' ? 'Notice' : 'Pemberitahuan'}
               </h2>
-              <p className="text-gray-100 mb-4 leading-relaxed">
-                This Manhwa is only available to read in the{" "}
-                <span className="font-semibold text-yellow-300">Manga</span>{" "}
-                section. <br />
-                <span className="text-sm text-gray-200">
-                  (Manhwa ini hanya bisa dibaca di bagian{" "}
-                  <span className="font-semibold text-yellow-300">Manga</span>.)
-                </span>
+              <p className="text-gray-200 mb-4 text-sm md:text-base">
+                {lang === 'en'
+                  ? 'You can read this manhwa in the Manga section.'
+                  : 'Anda dapat membaca manhwa ini di halaman Manga.'}
               </p>
-
-              <div className="flex justify-center gap-4 mt-5">
-                <button
-                  onClick={() => setShowNotice(false)}
-                  className="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/30 transition transform hover:scale-105"
-                >
-                  Close
-                </button>
+              <div className="flex justify-center gap-3 mt-4">
                 <Link
                   href="/manga/explore"
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition"
+                  className="px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-medium shadow-lg transition"
                 >
-                  Go to Manga
+                  {lang === 'en' ? 'Go to Manga' : 'Buka Manga'}
                 </Link>
+                <button
+                  onClick={() => setShowCard(false)}
+                  className="px-5 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium shadow-lg border border-white/20 transition"
+                >
+                  {lang === 'en' ? 'Close' : 'Tutup'}
+                </button>
               </div>
-            </div>
+
+              {/* Toggle Language */}
+              <div className="mt-6 flex items-center justify-center gap-2 text-sm">
+                <span className={lang === 'en' ? 'text-blue-400 font-semibold' : 'text-gray-300'}>
+                  EN
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={lang === 'id'}
+                    onChange={() => setLang(lang === 'en' ? 'id' : 'en')}
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600 transition"></div>
+                  <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </label>
+                <span className={lang === 'id' ? 'text-blue-400 font-semibold' : 'text-gray-300'}>
+                  ID
+                </span>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -129,7 +148,6 @@ export default function ManhwaDetailPage() {
                 ⭐ {manhwa.averageScore / 10}/10
               </p>
             )}
-
             {/* tombol favorite */}
             <button
               onClick={toggleFavorite}
@@ -146,17 +164,6 @@ export default function ManhwaDetailPage() {
               />
               {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
             </button>
-
-            <div className="flex flex-wrap gap-2 mt-3">
-              {manhwa.genres?.map((genre) => (
-                <span
-                  key={genre}
-                  className="px-3 py-1 text-xs font-medium text-white bg-white/10 border border-white/20 rounded-full backdrop-blur-md"
-                >
-                  {genre}
-                </span>
-              ))}
-            </div>
           </div>
         </div>
       </div>
