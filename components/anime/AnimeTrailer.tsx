@@ -2,46 +2,56 @@
 
 import { useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import { useUser } from '@supabase/auth-helpers-nextjs'
 
 interface Props {
   animeId: number
   trailer: {
     id: string
     site: string
-    thumbnail?: string
+    thumbnail?: string | null
   }
 }
 
 export default function AnimeTrailer({ animeId, trailer }: Props) {
-  const user = useUser()
-
   const trailerUrl =
-    trailer.site === 'youtube'
-      ? `https://www.youtube.com/embed/${trailer.id}`
-      : ''
+    trailer.site === 'youtube' ? `https://www.youtube.com/embed/${trailer.id}` : ''
 
   useEffect(() => {
+    let mounted = true
+
     const saveWatchHistory = async () => {
-      if (!user) return
+      try {
+        const { data } = await supabase.auth.getSession()
+        const session = (data as any)?.session
+        if (!session?.user?.id) return
+        const userId = session.user.id
+        const { error } = await supabase.from('trailer_watch_history').insert([
+          {
+            user_id: userId,
+            anime_id: animeId,
+            trailer_id: trailer.id,
+            trailer_site: trailer.site,
+            trailer_thumbnail: trailer.thumbnail ?? null,
+            watched_at: new Date(),
+            watch_count: 1,
+          },
+        ])
 
-      const { error } = await supabase.from('watch_history').insert([
-        {
-          user_id: user.id,
-          anime_id: animeId,
-          trailer_id: trailer.id,
-          trailer_site: trailer.site,
-          trailer_thumbnail: trailer.thumbnail || null,
-          watched_at: new Date(),
-          watch_count: 1,
-        },
-      ])
-
-      if (error) console.error('Error saving watch history:', error)
+        if (error) {
+          console.error('Gagal simpan trailer history:', error)
+        } else {
+        }
+      } catch (err) {
+        console.error('saveWatchHistory error', err)
+      }
     }
 
     saveWatchHistory()
-  }, [user, animeId, trailer])
+
+    return () => {
+      mounted = false
+    }
+  }, [animeId, trailer.id, trailer.site, trailer.thumbnail])
 
   return (
     <section className="px-4 md:px-10 py-10">
