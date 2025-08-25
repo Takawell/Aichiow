@@ -1,4 +1,3 @@
-// pages/anime/[slug].tsx
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAnimeDetail } from '@/hooks/useAnimeDetail'
@@ -48,7 +47,7 @@ export default function AnimeDetailPage() {
 
         {/* Trailer */}
         {anime.trailer?.site === 'youtube' && (
-          <AnimeTrailer animeId={anime.id} trailer={anime.trailer} />
+          <AnimeTrailer trailer={anime.trailer} />
         )}
 
         {/* Characters */}
