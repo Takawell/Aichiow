@@ -115,7 +115,7 @@ export default function ManhwaDetailPage() {
       </AnimatePresence>
 
       {/* Hero Banner */}
-      <div className="relative w-full h-[320px] md:h-[460px] overflow-hidden">
+      <div className="relative w-full h-[360px] md:h-[480px] overflow-hidden">
         {manhwa.bannerImage ? (
           <Image
             src={manhwa.bannerImage}
@@ -129,7 +129,7 @@ export default function ManhwaDetailPage() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
 
-        <div className="absolute bottom-5 left-5 md:bottom-10 md:left-10 z-10 flex flex-col sm:flex-row gap-4 sm:items-end">
+        <div className="absolute bottom-4 left-4 right-4 md:bottom-10 md:left-10 md:right-auto z-10 flex flex-col md:flex-row items-start md:items-end gap-4">
           {/* Poster */}
           <div className="w-[120px] md:w-[180px] aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg shrink-0">
             <Image
@@ -141,8 +141,8 @@ export default function ManhwaDetailPage() {
           </div>
 
           {/* Info */}
-          <div className="max-w-[calc(100vw-150px)] md:max-w-[calc(100vw-240px-5rem)]">
-            <h1 className="text-2xl md:text-4xl font-bold drop-shadow-lg break-words">
+          <div className="w-full max-w-full md:max-w-[calc(100vw-240px-6rem)]">
+            <h1 className="text-xl sm:text-2xl md:text-4xl font-bold drop-shadow-lg break-words leading-tight">
               {manhwa.title.english || manhwa.title.romaji}
             </h1>
             {manhwa.averageScore && (
