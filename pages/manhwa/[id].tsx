@@ -8,9 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { ManhwaDetail } from '@/types/manhwa'
 import { useFavorites } from '@/hooks/useFavorites'
-import { Heart } from 'lucide-react'
+import { Heart, X } from 'lucide-react'
 import { FaArrowLeft } from 'react-icons/fa'
-import { X } from 'lucide-react'
 
 export default function ManhwaDetailPage() {
   const router = useRouter()
@@ -50,9 +49,8 @@ export default function ManhwaDetailPage() {
     )
   }
 
-  const mangaSlug = manhwa.title.romaji
-    ? manhwa.title.romaji.toLowerCase().replace(/\s+/g, '-')
-    : manhwa.id
+  // ✅ pakai id MangaDex langsung, bukan slug romaji
+  const mangaLink = `/manga/${manhwa.idMal || manhwa.id}`
 
   return (
     <div className="bg-neutral-950 min-h-screen text-white">
@@ -130,11 +128,11 @@ export default function ManhwaDetailPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.4 }}
-              className="relative mb-6 p-6 rounded-xl border border-yellow-500/40 bg-gradient-to-r from-yellow-600/20 to-yellow-400/10 text-yellow-300 text-center shadow-lg backdrop-blur-md"
+              className="relative mb-6 p-6 rounded-xl border border-indigo-500/40 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 text-indigo-300 text-center shadow-xl backdrop-blur-lg"
             >
               <button
                 onClick={() => setShowNotice(false)}
-                className="absolute top-3 right-3 text-yellow-300 hover:text-white transition"
+                className="absolute top-3 right-3 text-indigo-300 hover:text-white transition"
               >
                 <X size={20} />
               </button>
@@ -150,8 +148,8 @@ export default function ManhwaDetailPage() {
                 </span>
               </p>
               <Link
-                href={`/manga/${mangaSlug}`}
-                className="inline-block mt-4 px-6 py-2 rounded-lg bg-yellow-400 text-black font-bold hover:bg-yellow-300 transition transform hover:scale-105 shadow-md"
+                href={mangaLink}
+                className="inline-block mt-4 px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-400 to-purple-400 text-black font-bold hover:from-indigo-300 hover:to-purple-300 transition transform hover:scale-105 shadow-md"
               >
                 Go to Manga 📖
               </Link>
