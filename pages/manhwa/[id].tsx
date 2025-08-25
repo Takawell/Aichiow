@@ -131,7 +131,7 @@ export default function ManhwaDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
         <div className="absolute bottom-5 left-5 md:bottom-10 md:left-10 z-10 flex items-center gap-5">
           {/* Poster locked aspect ratio */}
-          <div className="w-[120px] md:w-[180px] aspect-[4/3] relative rounded-lg overflow-hidden shadow-lg">
+          <div className="w-[120px] md:w-[180px] aspect-[9/16] relative rounded-lg overflow-hidden shadow-lg">
             <Image
               src={manhwa.coverImage.extraLarge || manhwa.coverImage.large}
               alt={manhwa.title.english || manhwa.title.romaji}
