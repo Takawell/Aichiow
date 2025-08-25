@@ -54,16 +54,12 @@ export default function ProfileDashboard() {
         setSession(sess)
 
         const userId = sess.user.id
-
-        // load profile
         const { data: profileData } = await supabase
           .from('users')
           .select('*')
           .eq('id', userId)
           .single()
         if (profileData) setUser(profileData)
-
-        // load trailer_watch_history (with joined anime)
         const { data: rawHistoryData, error: histErr } = await supabase
           .from('trailer_watch_history')
           .select(`
@@ -86,9 +82,7 @@ export default function ProfileDashboard() {
         if (histErr) {
           console.error('Error fetching trailer history:', histErr)
         } else if (rawHistoryData && Array.isArray(rawHistoryData)) {
-          // Normalize each item: Supabase may return anime as array or object
           const normalized: TrailerHistoryRow[] = rawHistoryData.map((it: any) => {
-            // anime can be array (e.g. [{...}]) or object ({...}) or null
             let animeObj: any = null
             if (it.anime) {
               if (Array.isArray(it.anime)) animeObj = it.anime[0] ?? null
@@ -304,4 +298,3 @@ export default function ProfileDashboard() {
     </div>
   )
 }
-                    
