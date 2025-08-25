@@ -19,8 +19,6 @@ export default function ManhwaDetailPage() {
 
   const [showCard, setShowCard] = useState(true)
   const [lang, setLang] = useState<'en' | 'id'>('en')
-
-  // hook favorit (mediaType = 'manhwa')
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: id ? Number(id) : undefined,
     mediaType: 'manhwa',
@@ -60,7 +58,7 @@ export default function ManhwaDetailPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-sm bg-black/50"
+            className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-md lg:backdrop-blur-xl bg-black/60"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 30 }}
@@ -131,7 +129,8 @@ export default function ManhwaDetailPage() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
         <div className="absolute bottom-5 left-5 md:bottom-10 md:left-10 z-10 flex items-center gap-5">
-          <div className="w-[120px] md:w-[180px] h-[160px] md:h-[240px] relative rounded-lg overflow-hidden shadow-lg">
+          {/* Poster locked aspect ratio */}
+          <div className="w-[120px] md:w-[180px] aspect-[3/4] relative rounded-lg overflow-hidden shadow-lg">
             <Image
               src={manhwa.coverImage.extraLarge || manhwa.coverImage.large}
               alt={manhwa.title.english || manhwa.title.romaji}
