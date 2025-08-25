@@ -10,16 +10,13 @@ import { ManhwaDetail } from '@/types/manhwa'
 import { useFavorites } from '@/hooks/useFavorites'
 import { Heart } from 'lucide-react'
 import { FaArrowLeft } from 'react-icons/fa'
-import { X } from 'lucide-react'
 
 export default function ManhwaDetailPage() {
   const router = useRouter()
   const { id } = router.query
   const [manhwa, setManhwa] = useState<ManhwaDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showNotice, setShowNotice] = useState(true) // notifikasi muncul pertama kali
-  const [lang, setLang] = useState<'en' | 'id'>('en')
-
+  const [showNotice, setShowNotice] = useState(true)
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: id ? Number(id) : undefined,
     mediaType: 'manhwa',
@@ -51,70 +48,51 @@ export default function ManhwaDetailPage() {
   }
 
   return (
-    <div className="relative bg-neutral-950 min-h-screen text-white overflow-hidden">
-      {/* Overlay Notifikasi */}
+    <div className={`bg-neutral-950 min-h-screen text-white relative`}>
+      {/* Blur overlay kalau notice aktif */}
+      {showNotice && (
+        <div className="absolute inset-0 backdrop-blur-sm bg-black/40 z-40" />
+      )}
+
+      {/* Notifikasi Modal */}
       <AnimatePresence>
         {showNotice && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, scale: 0.8, y: -50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: -50 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gradient-to-br from-neutral-900 to-neutral-800 p-6 rounded-2xl shadow-2xl max-w-md w-full text-center relative"
-            >
-              <button
-                onClick={() => setShowNotice(false)}
-                className="absolute top-3 right-3 text-gray-400 hover:text-white transition"
-              >
-                <X size={22} />
-              </button>
-
-              <h2 className="text-xl font-bold mb-3">
-                {lang === 'en'
-                  ? 'Notice for Manhwa Readers'
-                  : 'Pemberitahuan untuk Pembaca Manhwa'}
+            <div className="bg-gradient-to-br from-blue-600/80 to-indigo-800/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl max-w-md w-full p-6 text-center relative">
+              <h2 className="text-2xl font-bold text-white drop-shadow mb-3">
+                📢 Notice / Pemberitahuan
               </h2>
-              <p className="text-gray-300 mb-5">
-                {lang === 'en'
-                  ? 'You can read manhwa chapters on the Manga section.'
-                  : 'Kamu dapat membaca chapter manhwa di bagian Manga.'}
+              <p className="text-gray-100 mb-4 leading-relaxed">
+                This Manhwa is only available to read in the{" "}
+                <span className="font-semibold text-yellow-300">Manga</span>{" "}
+                section. <br />
+                <span className="text-sm text-gray-200">
+                  (Manhwa ini hanya bisa dibaca di bagian{" "}
+                  <span className="font-semibold text-yellow-300">Manga</span>.)
+                </span>
               </p>
 
-              <Link
-                href="/manga/explore"
-                className="inline-block px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition shadow-md"
-              >
-                {lang === 'en' ? 'Go to Manga' : 'Pergi ke Manga'}
-              </Link>
-
-              <div className="mt-4 flex justify-center gap-2">
+              <div className="flex justify-center gap-4 mt-5">
                 <button
-                  onClick={() => setLang('en')}
-                  className={`px-3 py-1 rounded-md text-sm ${
-                    lang === 'en'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-neutral-700 text-gray-300'
-                  }`}
+                  onClick={() => setShowNotice(false)}
+                  className="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/30 transition transform hover:scale-105"
                 >
-                  EN
+                  Close
                 </button>
-                <button
-                  onClick={() => setLang('id')}
-                  className={`px-3 py-1 rounded-md text-sm ${
-                    lang === 'id'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-neutral-700 text-gray-300'
-                  }`}
+                <Link
+                  href="/manga/explore"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition"
                 >
-                  ID
-                </button>
+                  Go to Manga
+                </Link>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -265,4 +243,3 @@ export default function ManhwaDetailPage() {
     </div>
   )
 }
-      
