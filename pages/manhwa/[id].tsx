@@ -4,18 +4,20 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { ManhwaDetail } from '@/types/manhwa'
 import { useFavorites } from '@/hooks/useFavorites'
 import { Heart } from 'lucide-react'
 import { FaArrowLeft } from 'react-icons/fa'
+import { X } from 'lucide-react'
 
 export default function ManhwaDetailPage() {
   const router = useRouter()
   const { id } = router.query
   const [manhwa, setManhwa] = useState<ManhwaDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showNotice, setShowNotice] = useState(true)
 
   // hook favorit (mediaType = 'manhwa')
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
@@ -47,6 +49,10 @@ export default function ManhwaDetailPage() {
       </div>
     )
   }
+
+  const mangaSlug = manhwa.title.romaji
+    ? manhwa.title.romaji.toLowerCase().replace(/\s+/g, '-')
+    : manhwa.id
 
   return (
     <div className="bg-neutral-950 min-h-screen text-white">
@@ -114,8 +120,46 @@ export default function ManhwaDetailPage() {
         </div>
       </div>
 
-      {/* Description */}
+      {/* Description + Notice */}
       <div className="max-w-5xl mx-auto px-4 md:px-8 mt-6">
+        {/* 🔔 Notice Banner */}
+        <AnimatePresence>
+          {showNotice && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
+              className="relative mb-6 p-6 rounded-xl border border-yellow-500/40 bg-gradient-to-r from-yellow-600/20 to-yellow-400/10 text-yellow-300 text-center shadow-lg backdrop-blur-md"
+            >
+              <button
+                onClick={() => setShowNotice(false)}
+                className="absolute top-3 right-3 text-yellow-300 hover:text-white transition"
+              >
+                <X size={20} />
+              </button>
+              <p className="font-semibold text-lg flex flex-col sm:flex-row items-center justify-center gap-2">
+                <span>📢 Heads up!</span>
+                <span>
+                  Reading chapters for{' '}
+                  <span className="text-white font-bold">
+                    {manhwa.title.english || manhwa.title.romaji}
+                  </span>{' '}
+                  is only available on the{' '}
+                  <span className="underline">Manga</span> page.
+                </span>
+              </p>
+              <Link
+                href={`/manga/${mangaSlug}`}
+                className="inline-block mt-4 px-6 py-2 rounded-lg bg-yellow-400 text-black font-bold hover:bg-yellow-300 transition transform hover:scale-105 shadow-md"
+              >
+                Go to Manga 📖
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Description */}
         <p className="text-gray-300 leading-relaxed whitespace-pre-line">
           {manhwa.description?.replace(/<[^>]+>/g, '')}
         </p>
