@@ -16,7 +16,6 @@ export default function ManhwaDetailPage() {
   const { id } = router.query
   const [manhwa, setManhwa] = useState<ManhwaDetail | null>(null)
   const [loading, setLoading] = useState(true)
-
   const [showCard, setShowCard] = useState(true)
   const [lang, setLang] = useState<'en' | 'id'>('en')
 
@@ -129,9 +128,10 @@ export default function ManhwaDetailPage() {
           <div className="w-full h-full bg-neutral-800" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-        <div className="absolute bottom-5 left-5 md:bottom-10 md:left-10 z-10 flex items-center gap-5">
-          {/* Poster locked aspect ratio */}
-          <div className="w-[120px] md:w-[180px] aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg">
+
+        <div className="absolute bottom-5 left-5 md:bottom-10 md:left-10 z-10 flex flex-col sm:flex-row gap-4 sm:items-end">
+          {/* Poster */}
+          <div className="w-[120px] md:w-[180px] aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg shrink-0">
             <Image
               src={manhwa.coverImage.extraLarge || manhwa.coverImage.large}
               alt={manhwa.title.english || manhwa.title.romaji}
@@ -139,8 +139,10 @@ export default function ManhwaDetailPage() {
               className="object-cover"
             />
           </div>
-          <div>
-            <h1 className="text-2xl md:text-4xl font-bold drop-shadow-lg">
+
+          {/* Info */}
+          <div className="max-w-[calc(100vw-150px)] md:max-w-[calc(100vw-240px-5rem)]">
+            <h1 className="text-2xl md:text-4xl font-bold drop-shadow-lg break-words">
               {manhwa.title.english || manhwa.title.romaji}
             </h1>
             {manhwa.averageScore && (
@@ -148,7 +150,6 @@ export default function ManhwaDetailPage() {
                 ⭐ {manhwa.averageScore / 10}/10
               </p>
             )}
-            {/* tombol favorite */}
             <button
               onClick={toggleFavorite}
               disabled={favLoading}
