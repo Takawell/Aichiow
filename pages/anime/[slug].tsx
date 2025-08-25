@@ -48,7 +48,7 @@ export default function AnimeDetailPage() {
 
         {/* Trailer */}
         {anime.trailer?.site === 'youtube' && (
-          <AnimeTrailer trailer={anime.trailer} />
+          <AnimeTrailer animeId={anime.id} trailer={anime.trailer} />
         )}
 
         {/* Characters */}
