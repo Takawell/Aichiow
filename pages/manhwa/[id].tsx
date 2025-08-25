@@ -8,17 +8,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { ManhwaDetail } from '@/types/manhwa'
 import { useFavorites } from '@/hooks/useFavorites'
-import { Heart, X } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { FaArrowLeft } from 'react-icons/fa'
+import { X } from 'lucide-react'
 
 export default function ManhwaDetailPage() {
   const router = useRouter()
   const { id } = router.query
   const [manhwa, setManhwa] = useState<ManhwaDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showNotice, setShowNotice] = useState(true)
+  const [showNotice, setShowNotice] = useState(true) // notifikasi muncul pertama kali
+  const [lang, setLang] = useState<'en' | 'id'>('en')
 
-  // hook favorit (mediaType = 'manhwa')
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: id ? Number(id) : undefined,
     mediaType: 'manhwa',
@@ -49,11 +50,75 @@ export default function ManhwaDetailPage() {
     )
   }
 
-  // ✅ pakai id MangaDex langsung, bukan slug romaji
-  const mangaLink = `/manga/${manhwa.idMal || manhwa.id}`
-
   return (
-    <div className="bg-neutral-950 min-h-screen text-white">
+    <div className="relative bg-neutral-950 min-h-screen text-white overflow-hidden">
+      {/* Overlay Notifikasi */}
+      <AnimatePresence>
+        {showNotice && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-gradient-to-br from-neutral-900 to-neutral-800 p-6 rounded-2xl shadow-2xl max-w-md w-full text-center relative"
+            >
+              <button
+                onClick={() => setShowNotice(false)}
+                className="absolute top-3 right-3 text-gray-400 hover:text-white transition"
+              >
+                <X size={22} />
+              </button>
+
+              <h2 className="text-xl font-bold mb-3">
+                {lang === 'en'
+                  ? 'Notice for Manhwa Readers'
+                  : 'Pemberitahuan untuk Pembaca Manhwa'}
+              </h2>
+              <p className="text-gray-300 mb-5">
+                {lang === 'en'
+                  ? 'You can read manhwa chapters on the Manga section.'
+                  : 'Kamu dapat membaca chapter manhwa di bagian Manga.'}
+              </p>
+
+              <Link
+                href="/manga/explore"
+                className="inline-block px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition shadow-md"
+              >
+                {lang === 'en' ? 'Go to Manga' : 'Pergi ke Manga'}
+              </Link>
+
+              <div className="mt-4 flex justify-center gap-2">
+                <button
+                  onClick={() => setLang('en')}
+                  className={`px-3 py-1 rounded-md text-sm ${
+                    lang === 'en'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-neutral-700 text-gray-300'
+                  }`}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => setLang('id')}
+                  className={`px-3 py-1 rounded-md text-sm ${
+                    lang === 'id'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-neutral-700 text-gray-300'
+                  }`}
+                >
+                  ID
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero Banner */}
       <div className="relative w-full h-[320px] md:h-[460px] overflow-hidden">
         {manhwa.bannerImage ? (
@@ -118,46 +183,8 @@ export default function ManhwaDetailPage() {
         </div>
       </div>
 
-      {/* Description + Notice */}
+      {/* Description */}
       <div className="max-w-5xl mx-auto px-4 md:px-8 mt-6">
-        {/* 🔔 Notice Banner */}
-        <AnimatePresence>
-          {showNotice && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.4 }}
-              className="relative mb-6 p-6 rounded-xl border border-indigo-500/40 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 text-indigo-300 text-center shadow-xl backdrop-blur-lg"
-            >
-              <button
-                onClick={() => setShowNotice(false)}
-                className="absolute top-3 right-3 text-indigo-300 hover:text-white transition"
-              >
-                <X size={20} />
-              </button>
-              <p className="font-semibold text-lg flex flex-col sm:flex-row items-center justify-center gap-2">
-                <span>📢 Heads up!</span>
-                <span>
-                  Reading chapters for{' '}
-                  <span className="text-white font-bold">
-                    {manhwa.title.english || manhwa.title.romaji}
-                  </span>{' '}
-                  is only available on the{' '}
-                  <span className="underline">Manga</span> page.
-                </span>
-              </p>
-              <Link
-                href={mangaLink}
-                className="inline-block mt-4 px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-400 to-purple-400 text-black font-bold hover:from-indigo-300 hover:to-purple-300 transition transform hover:scale-105 shadow-md"
-              >
-                Go to Manga 📖
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Description */}
         <p className="text-gray-300 leading-relaxed whitespace-pre-line">
           {manhwa.description?.replace(/<[^>]+>/g, '')}
         </p>
@@ -238,3 +265,4 @@ export default function ManhwaDetailPage() {
     </div>
   )
 }
+      
