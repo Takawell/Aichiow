@@ -30,7 +30,7 @@ type TrailerHistoryRow = {
   anime: {
     title_romaji: string
     cover_image: string
-  }
+  } | null   // 👈 fix: bukan array, tapi object / null
 }
 
 export default function ProfileDashboard() {
@@ -62,7 +62,7 @@ export default function ProfileDashboard() {
 
       if (profileData) setUser(profileData)
 
-      // ✅ Load trailer watch history (join anime)
+      // Load trailer watch history with join anime
       const { data: historyData } = await supabase
         .from('trailer_watch_history')
         .select(`
@@ -82,7 +82,10 @@ export default function ProfileDashboard() {
         .eq('user_id', userId)
         .order('watched_at', { ascending: false })
 
-      if (historyData) setHistory(historyData as TrailerHistoryRow[])
+      if (historyData) {
+        // supabase return: anime bisa object atau null
+        setHistory(historyData as TrailerHistoryRow[])
+      }
 
       // Load favorites
       const { data: favoritesData } = await supabase
@@ -120,8 +123,97 @@ export default function ProfileDashboard() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(1200px_600px_at_20%_-10%,rgba(59,130,246,0.2),transparent),radial-gradient(1200px_600px_at_80%_110%,rgba(236,72,153,0.15),transparent)] from-[#0f172a] via-[#121026] to-[#0f172a] p-4 md:p-8 text-white">
-      
-      {/* ... header dan modal edit (biarkan sama persis punyamu) ... */}
+
+      {/* Trailer Watch History Section */}
+      <section className="mb-12">
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="flex items-center gap-2 text-2xl font-bold mb-6"
+        >
+          <FaHistory /> Trailer Watch History
+        </motion.h3>
+
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="rounded-2xl h-36 md:h-52 bg-white/10 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {history.map((item) => (
+              <motion.div
+                key={item.id}
+                whileHover={{ scale: 1.05 }}
+                className="group relative overflow-hidden rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
+              >
+                <Image
+                  src={item.anime?.cover_image || '/default.png'}
+                  alt={item.anime?.title_romaji || 'Unknown'}
+                  width={400}
+                  height={500}
+                  className="object-cover w-full h-36 md:h-52"
+                />
+                <span className="absolute left-2 top-2 z-10 px-2 py-0.5 rounded-full text-[10px] bg-black/70">
+                  {item.watch_count}x Watched
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
+                  <button className="w-full py-1.5 rounded-lg bg-white/90 text-black text-xs font-bold shadow">
+                    ▶ Watch Again
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {!loading && history.length === 0 && (
+          <div className="mt-6 text-center text-sm text-gray-400">
+            Belum ada riwayat trailer ditonton.
+          </div>
+        )}
+      </section>
+
+      // Load favorites
+      const { data: favoritesData } = await supabase
+        .from('favorites')
+        .select('*')
+        .eq('user_id', userId)
+
+      if (favoritesData) setFavorites(favoritesData)
+
+      setLoading(false)
+    }
+
+    loadSession()
+  }, [router])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.replace('/auth/login')
+  }
+
+  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const form = e.currentTarget
+    const formData = new FormData(form)
+    const newUsername = formData.get('username') as string
+    const newBio = formData.get('bio') as string
+
+    if (user) {
+      setUser({ ...user, username: newUsername, bio: newBio })
+    }
+    setOpenEdit(false)
+  }
+
+  if (!session || !user) return null
+
+  return (
+    <div className="min-h-screen bg-[radial-gradient(1200px_600px_at_20%_-10%,rgba(59,130,246,0.2),transparent),radial-gradient(1200px_600px_at_80%_110%,rgba(236,72,153,0.15),transparent)] from-[#0f172a] via-[#121026] to-[#0f172a] p-4 md:p-8 text-white"</div>
 
       {/* Trailer Watch History Section */}
       <section className="mb-12">
