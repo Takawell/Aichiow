@@ -1,4 +1,3 @@
-// constants/genres.ts
 export const GENRES = [
   'Action',
   'Adventure',
