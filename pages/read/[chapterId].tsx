@@ -6,11 +6,11 @@ import { fetchChapterImages } from '@/lib/mangadex'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { MdArrowBack } from 'react-icons/md'
 import { motion } from 'framer-motion'
-import { useSession } from 'next-auth/react'
+import { supabase } from '@/lib/supabaseClient'
 
 export default function ReadPage() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { chapterId } = router.query
 
   const [images, setImages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
@@ -19,45 +19,57 @@ export default function ReadPage() {
   const [prevId, setPrevId] = useState<string | null>(null)
   const [mode, setMode] = useState<'scroll' | 'swipe'>('scroll')
   const [currentPage, setCurrentPage] = useState(0)
+  const [user, setUser] = useState<any>(null)
 
+  // Cek login
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
+    const checkUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        router.push('/auth/login')
+      } else {
+        setUser(user)
+      }
     }
-  }, [status, router])
+
+    checkUser()
+  }, [router])
 
   useEffect(() => {
-    if (!router.isReady) return
+    if (!router.isReady || !user) return
 
     const raw = router.query.chapterId
-    const chapterId =
+    const chapterIdStr =
       typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] : ''
 
-    if (!chapterId) {
+    if (!chapterIdStr) {
       setError('No chapter ID provided.')
       setLoading(false)
       return
     }
 
-    async function loadImages() {
+    const loadImages = async () => {
       try {
         setLoading(true)
 
-        const chapter = await fetchChapterImages(chapterId)
+        const chapter = await fetchChapterImages(chapterIdStr)
 
         if (!chapter || !chapter.hash || !chapter.baseUrl) {
           throw new Error('Invalid chapter data')
         }
 
         const fileList = chapter.data?.length ? chapter.data : chapter.dataSaver
-        const mode = chapter.data?.length ? 'data' : 'data-saver'
+        const modeStr = chapter.data?.length ? 'data' : 'data-saver'
 
         if (!fileList || fileList.length === 0) {
           throw new Error('No images found')
         }
 
         const full = fileList.map(
-          (file: string) => `${chapter.baseUrl}/${mode}/${chapter.hash}/${file}`
+          (file: string) => `${chapter.baseUrl}/${modeStr}/${chapter.hash}/${file}`
         )
 
         setImages(full)
@@ -72,7 +84,7 @@ export default function ReadPage() {
     }
 
     loadImages()
-  }, [router.isReady, router.query.chapterId])
+  }, [router.isReady, router.query.chapterId, user])
 
   const handleNavigation = (targetId: string | null) => {
     if (targetId) {
@@ -90,10 +102,10 @@ export default function ReadPage() {
     }
   }
 
-  if (status === 'loading') {
+  if (!user || loading) {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
-        Checking login...
+        Loading / Checking login...
       </div>
     )
   }
@@ -140,19 +152,13 @@ export default function ReadPage() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-5xl mx-auto px-4 py-6 w-full">
-        {loading && (
-          <div className="text-center py-16 text-zinc-400 animate-pulse text-lg">
-            Loading chapter...
-          </div>
-        )}
-
         {error && (
           <div className="text-center py-16 text-red-500 font-semibold text-lg">
             {error}
           </div>
         )}
 
-        {!loading && !error && images.length > 0 && (
+        {images.length > 0 && (
           <>
             {/* Scroll Mode */}
             {mode === 'scroll' && (
@@ -204,7 +210,6 @@ export default function ReadPage() {
                     className="w-full h-auto object-contain"
                   />
 
-                  {/* Efek bayangan dinamis */}
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"
                     initial={{ opacity: 0.3 }}
