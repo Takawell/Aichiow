@@ -6,9 +6,12 @@ import { fetchChapterImages } from '@/lib/mangadex'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { MdArrowBack } from 'react-icons/md'
 import { motion } from 'framer-motion'
+import { useSession } from 'next-auth/react'
 
 export default function ReadPage() {
   const router = useRouter()
+  const { data: session, status } = useSession()
+
   const [images, setImages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
@@ -16,6 +19,12 @@ export default function ReadPage() {
   const [prevId, setPrevId] = useState<string | null>(null)
   const [mode, setMode] = useState<'scroll' | 'swipe'>('scroll')
   const [currentPage, setCurrentPage] = useState(0)
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+    }
+  }, [status, router])
 
   useEffect(() => {
     if (!router.isReady) return
@@ -79,6 +88,14 @@ export default function ReadPage() {
     if (direction === 'right' && currentPage > 0) {
       setCurrentPage(currentPage - 1)
     }
+  }
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
+        Checking login...
+      </div>
+    )
   }
 
   return (
@@ -157,23 +174,44 @@ export default function ReadPage() {
 
             {/* Swipe Mode */}
             {mode === 'swipe' && (
-              <div className="relative w-full flex items-center justify-center overflow-hidden">
-                <motion.img
+              <div
+                className="relative w-full flex items-center justify-center overflow-hidden"
+                style={{ perspective: '2000px' }}
+              >
+                <motion.div
                   key={currentPage}
-                  src={images[currentPage]}
-                  alt={`Page ${currentPage + 1}`}
-                  className="w-full h-auto object-contain rounded-lg shadow-lg border border-neutral-800"
-                  initial={{ x: 200, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -200, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
+                  className="relative w-full max-w-4xl"
+                  initial={{ rotateY: 90, opacity: 0 }}
+                  animate={{ rotateY: 0, opacity: 1 }}
+                  exit={{ rotateY: -90, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: 'easeInOut' }}
                   drag="x"
                   dragConstraints={{ left: 0, right: 0 }}
                   onDragEnd={(_, info) => {
                     if (info.offset.x < -100) handleSwipe('left')
                     if (info.offset.x > 100) handleSwipe('right')
                   }}
-                />
+                  style={{
+                    transformOrigin: 'center left',
+                    boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <img
+                    src={images[currentPage]}
+                    alt={`Page ${currentPage + 1}`}
+                    className="w-full h-auto object-contain"
+                  />
+
+                  {/* Efek bayangan dinamis */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"
+                    initial={{ opacity: 0.3 }}
+                    animate={{ opacity: [0.3, 0.1, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                  />
+                </motion.div>
 
                 {/* Page Counter */}
                 <div className="absolute bottom-4 right-4 bg-black/60 text-xs px-3 py-1 rounded-full">
