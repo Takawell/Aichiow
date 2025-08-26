@@ -72,8 +72,8 @@ export default function ManhwaDetailPage() {
               </h2>
               <p className="text-gray-200 mb-4 text-sm md:text-base">
                 {lang === 'en'
-                  ? 'You can read this manhwa in the Manga section.'
-                  : 'kamu dapat membaca manhwa ini di halaman Manga.'}
+                  ? 'Just a reminder, this manhwa can only be read on the manga page. Press close if you want to continue viewing the details.'
+                  : 'Sekadar mengingatkan, manhwa ini hanya bisa dibaca di halaman manga. Tekan tutup jika kamu ingin melanjutkan melihat detailnya.'}
               </p>
               <div className="flex justify-center gap-3 mt-4">
                 <Link
