@@ -21,7 +21,6 @@ export default function ReadPage() {
   const [currentPage, setCurrentPage] = useState(0)
   const [user, setUser] = useState<any>(null)
 
-  // Cek login
   useEffect(() => {
     const checkUser = async () => {
       const {
