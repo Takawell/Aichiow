@@ -9,7 +9,7 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 - **Anime:** Trending titles, official trailers, and detailed character info.
 - **Manga & Manhwa:** Seamless reader, genre filters, and discovery tools.
 - **Light Novels:** Smooth browsing with hero sliders.
-- **Fast Navigation:** Optimized for mobile[priority] and desktop.
+- **Fast Navigation:** Optimized for mobile and desktop.
 - **Search & Filter:** Quickly find what you love.
 
 ---
