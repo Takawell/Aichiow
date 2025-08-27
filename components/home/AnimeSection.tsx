@@ -1,4 +1,3 @@
-// components/home/AnimeSection.tsx
 import Link from 'next/link'
 import { Anime } from '@/types/anime'
 import AnimeCard from '../anime/AnimeCard'
