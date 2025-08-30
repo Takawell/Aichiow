@@ -45,36 +45,38 @@ export default function TopRatedList() {
               ? Array.from({ length: 6 }).map((_, i) => (
                   <Skeleton
                     key={i}
-                    className="h-52 w-full rounded-3xl bg-muted/30"
+                    className="h-40 w-full rounded-xl bg-muted/30"
                   />
                 ))
               : data?.map((anime, index) => (
                   <motion.div
                     key={anime.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{
                       delay: index * 0.05,
                       type: "spring",
-                      stiffness: 300,
+                      stiffness: 200,
                     }}
-                    className="flex flex-col gap-4 rounded-3xl bg-gradient-to-b from-[#1a1a1a] to-[#333333] p-6 shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all ease-in-out"
+                    className="flex items-center gap-6 rounded-xl bg-gradient-to-b from-[#1a1a1a] to-[#333333] p-4 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all ease-in-out"
                   >
-                    <div className="relative h-64 w-full overflow-hidden rounded-xl shadow-xl">
+                    {/* Gambar Anime */}
+                    <div className="relative h-32 w-24 flex-shrink-0 overflow-hidden rounded-md shadow-lg">
                       <Image
                         src={anime.coverImage?.large || "/logo.png"}
                         alt={anime.title.romaji}
                         fill
-                        className="object-cover rounded-xl"
+                        className="object-cover rounded-md"
                       />
                     </div>
 
-                    <div className="flex flex-col gap-2 text-white">
-                      <span className="text-2xl font-semibold line-clamp-2">
+                    {/* Detail Anime */}
+                    <div className="flex flex-col w-full">
+                      <span className="text-xl font-semibold text-white line-clamp-2">
                         {anime.title.romaji}
                       </span>
 
-                      <div className="flex items-center gap-1 text-sm text-yellow-400">
+                      <div className="flex items-center gap-1 text-yellow-400 mt-2">
                         <FaStar className="text-yellow-400" />
                         <span>{anime.averageScore || "N/A"}</span>
                       </div>
