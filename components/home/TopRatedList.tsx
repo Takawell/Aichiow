@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs } from "@/components/ui/tabs"
 import Image from "next/image"
 import { motion } from "framer-motion"
+import { FaStar, FaPlayCircle, FaCalendarAlt } from "react-icons/fa"
+import { BsFillPersonFill } from "react-icons/bs"
 
 type TabKey = "all" | "weekly" | "monthly"
 
@@ -25,8 +27,8 @@ export default function TopRatedList() {
   })
 
   return (
-    <div className="w-full py-10">
-      <h2 className="mb-6 text-2xl font-bold tracking-tight text-foreground">
+    <div className="w-full py-16 px-4">
+      <h2 className="mb-6 text-3xl font-bold text-center text-foreground">
         ⭐ Top Rated Anime
       </h2>
 
@@ -39,12 +41,12 @@ export default function TopRatedList() {
         defaultValue="all"
       >
         {(active) => (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {isLoading
               ? Array.from({ length: 6 }).map((_, i) => (
                   <Skeleton
                     key={i}
-                    className="h-32 w-full rounded-xl bg-muted/30"
+                    className="h-52 w-full rounded-3xl bg-muted/30"
                   />
                 ))
               : data?.map((anime, index) => (
@@ -53,23 +55,43 @@ export default function TopRatedList() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="flex items-center gap-4 rounded-xl bg-card p-3 shadow-md hover:shadow-lg transition"
+                    className="flex flex-col gap-4 bg-gradient-to-b from-[#2a2a2a] to-[#1c1c1c] rounded-3xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all ease-in-out p-6"
                   >
-                    <div className="relative h-20 w-16 flex-shrink-0 overflow-hidden rounded-md">
+                    <div className="relative h-64 w-full overflow-hidden rounded-xl shadow-lg transition-all">
                       <Image
                         src={anime.coverImage?.large || "/logo.png"}
                         alt={anime.title.romaji}
                         fill
-                        className="object-cover"
+                        className="object-cover rounded-xl"
                       />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="line-clamp-2 font-medium">
+                    <div className="flex flex-col gap-2 text-white">
+                      <span className="text-2xl font-semibold line-clamp-2">
                         {anime.title.romaji}
                       </span>
-                      <span className="mt-1 text-sm text-muted-foreground">
-                        ⭐ {anime.averageScore || "N/A"}
-                      </span>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <FaStar className="text-yellow-400" />
+                        <span>{anime.averageScore || "N/A"}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <BsFillPersonFill className="text-gray-400" />
+                        <span>{anime.characters?.length || "Unknown"} Characters</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <FaCalendarAlt className="text-gray-400" />
+                        <span>
+                          {anime.startDate
+                            ? new Date(anime.startDate).toLocaleDateString()
+                            : "TBD"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <FaPlayCircle className="text-gray-400" />
+                        <span>{anime.episodes || "N/A"} Episodes</span>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
