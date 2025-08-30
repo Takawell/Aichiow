@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FaDiscord, FaWhatsapp, FaTiktok, FaInstagram, FaYoutube } from 'react-icons/fa'
 
 export default function ComingSoonPage() {
-  const [lang, setLang] = useState<'ID' | 'EN'>('ID')
+  const [lang, setLang] = useState<'EN' | 'ID'>('EN')
 
   const content = {
     ID: (
