@@ -10,7 +10,7 @@ import HeroSection from '@/components/home/HeroSection'
 import AnimeSection from '@/components/home/AnimeSection'
 import NewsBanner from '@/components/home/NewsBanner'
 import NowAiringSection from '@/components/home/NowAiringSection'
-import TopRatedList from '@components/home/TopRatedList'
+import TopRatedList from '@/components/home/TopRatedList'
 import TopGenres from '@/components/home/TopGenres'
 import CTACommunity from '@/components/home/CTACommunity'
 
