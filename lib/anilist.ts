@@ -1,4 +1,3 @@
-Eror nih kamu aja no overload macthes this call
 import axios from 'axios'
 import { Anime } from '@/types/anime'
 
