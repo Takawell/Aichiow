@@ -163,7 +163,7 @@ export default function CTACommunityFooter() {
           viewport={{ once: true }}
           className="mt-12 text-center text-neutral-500 text-xs border-t border-white/5 pt-6"
         >
-          © {new Date().getFullYear()} Aichiow. Made with passion for anime lovers.
+          © {new Date().getFullYear()} Aichiow Plus. All rights reserved.
         </motion.div>
       </footer>
     </section>
