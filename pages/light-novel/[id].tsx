@@ -5,10 +5,10 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
 import { LightNovel, LightNovelCharacter, LightNovelStaff } from '@/types/lightNovel'
 import { useFavorites } from '@/hooks/useFavorites'
+import Image from 'next/image'
 
 export default function LightNovelDetail() {
   const router = useRouter()
@@ -69,7 +69,7 @@ export default function LightNovelDetail() {
         {/* Banner Section */}
         <div className="relative w-full h-[320px] md:h-[450px] overflow-hidden group">
           <Image
-            src={novel.bannerImage || novel.coverImage.extraLarge}
+            src={novel.bannerImage || novel.coverImage?.extraLarge || '/fallback.jpg'}
             alt={novel.title.english || novel.title.romaji}
             layout="fill"
             objectFit="cover"
@@ -78,20 +78,14 @@ export default function LightNovelDetail() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
           <div className="absolute bottom-6 left-6 flex items-end gap-6">
-            <motion.div
+            <motion.img
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-            >
-              <Image
-                src={novel.coverImage.extraLarge || novel.coverImage.large}
-                alt={novel.title.english || novel.title.romaji}
-                width={150}
-                height={225}
-                className="rounded-xl shadow-2xl border-2 border-white/10"
-              />
-            </motion.div>
-
+              src={novel.coverImage.extraLarge || novel.coverImage.large}
+              alt={novel.title.english || novel.title.romaji}
+              className="w-32 md:w-48 rounded-xl shadow-2xl border-2 border-white/10"
+            />
             <div className="max-w-xl">
               <h1 className="text-3xl md:text-4xl font-bold drop-shadow-md">
                 {novel.title.english || novel.title.romaji}
@@ -193,11 +187,9 @@ export default function LightNovelDetail() {
                   whileHover={{ scale: 1.05 }}
                   className="relative rounded-lg overflow-hidden group bg-gray-800 shadow-lg"
                 >
-                  <Image
+                  <img
                     src={char.image.large}
                     alt={char.name.full}
-                    width={200}
-                    height={300}
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition">
@@ -228,9 +220,9 @@ export default function LightNovelDetail() {
                   <Image
                     src={person.image.large}
                     alt={person.name.full}
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                     width={200}
                     height={300}
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition">
                     <div className="absolute bottom-2 left-2">
