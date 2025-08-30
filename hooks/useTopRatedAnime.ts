@@ -1,11 +1,22 @@
-// hooks/useTopRatedAnime.ts
 import { useQuery } from '@tanstack/react-query'
 import { fetchTopRatedAnime } from '@/lib/anilist'
 import { Anime } from '@/types/anime'
 
-export function useTopRatedAnime() {
+interface UseTopRatedAnimeOptions {
+  page?: number
+  perPage?: number
+  sort?: string[] 
+}
+
+export function useTopRatedAnime({
+  page = 1,
+  perPage = 10,
+  sort = ['SCORE_DESC'],
+}: UseTopRatedAnimeOptions = {}) {
   return useQuery<Anime[]>({
-    queryKey: ['topRatedAnime'],
-    queryFn: fetchTopRatedAnime,
+    queryKey: ['topRatedAnime', page, perPage, sort],
+    queryFn: () => fetchTopRatedAnime(page, perPage, sort),
+    staleTime: 1000 * 60 * 5, 
+    refetchOnWindowFocus: false,
   })
 }
