@@ -101,11 +101,15 @@ export async function fetchSeasonalAnime(): Promise<Anime[]> {
   return data.Page.media
 }
 
-export async function fetchTopRatedAnime(): Promise<Anime[]> {
+export async function fetchTopRatedAnime(
+  page = 1,
+  perPage = 10,
+  sort: string[] = ["SCORE_DESC"] 
+): Promise<Anime[]> {
   const query = `
-    query {
-      Page(perPage: 10) {
-        media(type: ANIME, sort: SCORE_DESC) {
+    query ($page: Int, $perPage: Int, $sort: [MediaSort]) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: ANIME, sort: $sort) {
           id
           title {
             romaji
@@ -125,9 +129,12 @@ export async function fetchTopRatedAnime(): Promise<Anime[]> {
       }
     }
   `
-  const data = await fetchFromAnilist(query)
+
+  const variables = { page, perPage, sort }
+  const data = await fetchFromAnilist(query, variables)
   return data.Page.media
 }
+
 
 export async function fetchMangaCharacters(title: string) {
   const query = `
