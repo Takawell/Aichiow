@@ -6,8 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs } from "@/components/ui/tabs"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { FaStar, FaPlayCircle, FaCalendarAlt } from "react-icons/fa"
-import { BsFillPersonFill } from "react-icons/bs"
+import { FaStar } from "react-icons/fa"
 
 type TabKey = "all" | "weekly" | "monthly"
 
@@ -27,8 +26,8 @@ export default function TopRatedList() {
   })
 
   return (
-    <div className="w-full py-16 px-4">
-      <h2 className="mb-6 text-3xl font-bold text-center text-foreground">
+    <div className="w-full py-16 px-6">
+      <h2 className="mb-8 text-3xl font-semibold text-center text-foreground">
         ⭐ Top Rated Anime
       </h2>
 
@@ -52,12 +51,16 @@ export default function TopRatedList() {
               : data?.map((anime, index) => (
                   <motion.div
                     key={anime.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flex flex-col gap-4 bg-gradient-to-b from-[#2a2a2a] to-[#1c1c1c] rounded-3xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all ease-in-out p-6"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{
+                      delay: index * 0.05,
+                      type: "spring",
+                      stiffness: 300,
+                    }}
+                    className="flex flex-col gap-4 rounded-3xl bg-gradient-to-b from-[#1a1a1a] to-[#333333] p-6 shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all ease-in-out"
                   >
-                    <div className="relative h-64 w-full overflow-hidden rounded-xl shadow-lg transition-all">
+                    <div className="relative h-64 w-full overflow-hidden rounded-xl shadow-xl">
                       <Image
                         src={anime.coverImage?.large || "/logo.png"}
                         alt={anime.title.romaji}
@@ -65,32 +68,15 @@ export default function TopRatedList() {
                         className="object-cover rounded-xl"
                       />
                     </div>
+
                     <div className="flex flex-col gap-2 text-white">
                       <span className="text-2xl font-semibold line-clamp-2">
                         {anime.title.romaji}
                       </span>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+
+                      <div className="flex items-center gap-1 text-sm text-yellow-400">
                         <FaStar className="text-yellow-400" />
                         <span>{anime.averageScore || "N/A"}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <BsFillPersonFill className="text-gray-400" />
-                        <span>{anime.characters?.length || "Unknown"} Characters</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <FaCalendarAlt className="text-gray-400" />
-                        <span>
-                          {anime.startDate
-                            ? new Date(anime.startDate).toLocaleDateString()
-                            : "TBD"}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <FaPlayCircle className="text-gray-400" />
-                        <span>{anime.episodes || "N/A"} Episodes</span>
                       </div>
                     </div>
                   </motion.div>
