@@ -8,7 +8,6 @@ import { motion } from 'framer-motion'
 import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
 import { LightNovel, LightNovelCharacter, LightNovelStaff } from '@/types/lightNovel'
 import { useFavorites } from '@/hooks/useFavorites'
-import Image from 'next/image'
 
 export default function LightNovelDetail() {
   const router = useRouter()
@@ -16,7 +15,6 @@ export default function LightNovelDetail() {
   const [novel, setNovel] = useState<LightNovel | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
   const numericId = Number(id)
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: Number.isFinite(numericId) ? numericId : undefined,
@@ -68,12 +66,10 @@ export default function LightNovelDetail() {
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
         {/* Banner Section */}
         <div className="relative w-full h-[320px] md:h-[450px] overflow-hidden group">
-          <Image
-            src={novel.bannerImage || novel.coverImage?.extraLarge || '/fallback.jpg'}
+          <img
+            src={novel.bannerImage || novel.coverImage.extraLarge}
             alt={novel.title.english || novel.title.romaji}
-            layout="fill"
-            objectFit="cover"
-            className="group-hover:scale-110 transition-transform duration-700"
+            className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
@@ -217,12 +213,10 @@ export default function LightNovelDetail() {
                   whileHover={{ scale: 1.05 }}
                   className="relative rounded-lg overflow-hidden group bg-gray-800 shadow-lg"
                 >
-                  <Image
+                  <img
                     src={person.image.large}
                     alt={person.name.full}
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                    width={200}
-                    height={300}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition">
                     <div className="absolute bottom-2 left-2">
