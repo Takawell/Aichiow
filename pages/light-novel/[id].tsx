@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
 import { LightNovel, LightNovelCharacter, LightNovelStaff } from '@/types/lightNovel'
 import { useFavorites } from '@/hooks/useFavorites'
@@ -16,7 +17,6 @@ export default function LightNovelDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // gunakan useFavorites dengan bentuk objek
   const numericId = Number(id)
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: Number.isFinite(numericId) ? numericId : undefined,
@@ -68,22 +68,30 @@ export default function LightNovelDetail() {
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
         {/* Banner Section */}
         <div className="relative w-full h-[320px] md:h-[450px] overflow-hidden group">
-          <img
+          <Image
             src={novel.bannerImage || novel.coverImage.extraLarge}
             alt={novel.title.english || novel.title.romaji}
-            className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
+            layout="fill"
+            objectFit="cover"
+            className="group-hover:scale-110 transition-transform duration-700"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
           <div className="absolute bottom-6 left-6 flex items-end gap-6">
-            <motion.img
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              src={novel.coverImage.extraLarge || novel.coverImage.large}
-              alt={novel.title.english || novel.title.romaji}
-              className="w-32 md:w-48 rounded-xl shadow-2xl border-2 border-white/10"
-            />
+            >
+              <Image
+                src={novel.coverImage.extraLarge || novel.coverImage.large}
+                alt={novel.title.english || novel.title.romaji}
+                width={150}
+                height={225}
+                className="rounded-xl shadow-2xl border-2 border-white/10"
+              />
+            </motion.div>
+
             <div className="max-w-xl">
               <h1 className="text-3xl md:text-4xl font-bold drop-shadow-md">
                 {novel.title.english || novel.title.romaji}
@@ -185,9 +193,11 @@ export default function LightNovelDetail() {
                   whileHover={{ scale: 1.05 }}
                   className="relative rounded-lg overflow-hidden group bg-gray-800 shadow-lg"
                 >
-                  <img
+                  <Image
                     src={char.image.large}
                     alt={char.name.full}
+                    width={200}
+                    height={300}
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition">
@@ -215,9 +225,11 @@ export default function LightNovelDetail() {
                   whileHover={{ scale: 1.05 }}
                   className="relative rounded-lg overflow-hidden group bg-gray-800 shadow-lg"
                 >
-                  <img
+                  <Image
                     src={person.image.large}
                     alt={person.name.full}
+                    width={200}
+                    height={300}
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition">
