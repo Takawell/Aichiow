@@ -10,6 +10,7 @@ import HeroSection from '@/components/home/HeroSection'
 import AnimeSection from '@/components/home/AnimeSection'
 import NewsBanner from '@/components/home/NewsBanner'
 import NowAiringSection from '@/components/home/NowAiringSection'
+import TopRatedList from '@components/home/TopRatedList.tsx'
 import TopGenres from '@/components/home/TopGenres'
 import CTACommunity from '@/components/home/CTACommunity'
 
@@ -37,7 +38,7 @@ export default function HomePage() {
         <NowAiringSection anime={ongoingAnime} />
         <AnimeSection title="🔥 Trending Now" anime={trendingAnime} />
         <AnimeSection title="⛅ Seasonal Anime" anime={seasonalAnime} />
-        <AnimeSection title="🏆 Top Rated Anime" anime={topRatedAnime} />
+        <TopRatedList />
         <TopGenres />
 
         <CTACommunity />
