@@ -124,7 +124,7 @@ export default function CTACommunityFooter() {
                 <FaDiscord />
               </motion.a>
               <motion.a
-                href="https://youtube.com/"
+                href="https://youtube.com/TakaDevelopment"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.2 }}
@@ -133,7 +133,7 @@ export default function CTACommunityFooter() {
                 <FaYoutube />
               </motion.a>
               <motion.a
-                href="https://tiktok.com/"
+                href="https://tiktok.com/@putrawangyyy"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.2 }}
@@ -142,7 +142,7 @@ export default function CTACommunityFooter() {
                 <FaTiktok />
               </motion.a>
               <motion.a
-                href="https://instagram.com/"
+                href="https://instagram.com/putrasenpaiii"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.2 }}
