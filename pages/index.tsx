@@ -159,7 +159,7 @@ export default function LandingPage() {
         <footer className="relative mt-10">
           <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-500 to-transparent mb-4"></div>
           <p className="text-center text-sm text-gray-400 py-4">
-            © {new Date().getFullYear()} AICHIOW TEAM. All rights reserved.
+            © {new Date().getFullYear()} Aichiow Plus. All rights reserved.
           </p>
         </footer>
       </main>
