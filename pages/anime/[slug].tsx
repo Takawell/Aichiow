@@ -55,7 +55,7 @@ export default function AnimeDetailPage() {
           <CharacterList characters={anime.characters.edges} />
         )}
 
-        {/* Episode Mapping Section */}
+        {/* Info Section */}
         <section className="mt-10 px-4 text-center">
           {/* Badge Status */}
           <div className="mb-4">
@@ -89,9 +89,8 @@ export default function AnimeDetailPage() {
             </p>
           )}
 
-          <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
-
           {/* Tombol Lihat Episode */}
+          <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
           <div className="flex justify-center">
             <a
               href="/soon"
@@ -102,6 +101,27 @@ export default function AnimeDetailPage() {
             </a>
           </div>
         </section>
+
+        {/* Genre List */}
+        {anime.genres && anime.genres.length > 0 && (
+          <section className="mt-10 px-4">
+            <h2 className="text-xl font-semibold mb-3">Genres</h2>
+            <div className="flex flex-wrap gap-2">
+              {anime.genres.map((genre: string) => (
+                <a
+                  key={genre}
+                  href={`/anime/genre/${encodeURIComponent(
+                    genre.toLowerCase().replace(/\s+/g, '-')
+                  )}`}
+                  className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 
+                             text-white text-sm font-medium transition shadow-md hover:shadow-lg"
+                >
+                  {genre}
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Similar Anime Section */}
         <section className="mt-10 px-4">
