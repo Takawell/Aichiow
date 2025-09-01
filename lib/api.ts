@@ -4,7 +4,7 @@ export async function fetchAnimeByGenre(genre: string, page = 1): Promise<Anime[
   const query = `
     query ($genre: String, $page: Int) {
       Page(page: $page, perPage: 20) {
-        media(genre_in: [$genre], type: ANIME, isAdult: false, sort: ["START_DATE"]) {
+        media(genre_in: [$genre], type: ANIME, isAdult: false, sort: ["START_DATE_DESC"]) {
           id
           title {
             romaji
