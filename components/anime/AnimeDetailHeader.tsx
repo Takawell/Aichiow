@@ -1,4 +1,4 @@
-// components/anime/AnimeDetailHeader.tsx
+import Link from 'next/link'
 import Image from 'next/image'
 import { AnimeDetail } from '@/types/anime'
 import { useState } from 'react'
@@ -83,15 +83,23 @@ export default function AnimeDetailHeader({ anime }: Props) {
 
           {/* GENRES */}
           <div className="mt-3 flex flex-wrap gap-2">
-            {anime.genres.slice(0, 6).map((genre) => (
+           {anime.genres.slice(0, 6).map((genre) => (
+             <Link
+               key={genre}
+               href={`/anime/genre/${encodeURIComponent(
+                 genre.toLowerCase().replace(/\s+/g, '-')
+              )}`}
+             >
               <span
-                key={genre}
-                className="text-[11px] uppercase tracking-wide font-medium px-3 py-1 rounded-full bg-white/10 text-white/80 hover:bg-white/20 transition"
-              >
-                {genre}
-              </span>
-            ))}
-          </div>
+                className="cursor-pointer text-[11px] uppercase tracking-wide font-medium px-3 py-1 
+                           rounded-full bg-white/10 text-white/80 hover:bg-blue-500/80 hover:text-white 
+                           transition"
+             >
+               {genre}
+             </span>
+           </Link>
+         ))}
+       </div>
 
           {/* DESCRIPTION with Show More */}
           <div className="mt-4 max-w-2xl text-sm text-neutral-300 leading-relaxed">
