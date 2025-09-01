@@ -1,11 +1,10 @@
-// lib/api.ts
 import { Anime } from '@/types/anime'
 
 export async function fetchAnimeByGenre(genre: string, page = 1): Promise<Anime[]> {
   const query = `
     query ($genre: String, $page: Int) {
       Page(page: $page, perPage: 20) {
-        media(genre_in: [$genre], type: ANIME, isAdult: false) {
+        media(genre_in: [$genre], type: ANIME, isAdult: false, status: RELEASING sort: ["START_DATE"]) {
           id
           title {
             romaji
