@@ -8,7 +8,6 @@ import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
 import { format, fromUnixTime } from 'date-fns'
-import Link from 'next/link'
 
 export default function AnimeDetailPage() {
   const router = useRouter()
@@ -101,23 +100,6 @@ export default function AnimeDetailPage() {
             >
               List Episode
             </a>
-          </div>
-        </section>
-
-        {/* Genre List */}
-        <section className="mt-10 px-4">
-          <h2 className="text-xl font-semibold mb-3">Genres</h2>
-          <div className="flex flex-wrap gap-2">
-            {anime.genres?.map((genre: string) => (
-              <Link
-                key={genre}
-                href={`/anime/genre/${encodeURIComponent(genre)}`}
-                className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 
-                           text-white text-sm font-medium transition shadow-md hover:shadow-lg"
-              >
-                {genre}
-              </Link>
-            ))}
           </div>
         </section>
 
