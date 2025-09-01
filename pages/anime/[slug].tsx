@@ -105,9 +105,9 @@ export default function AnimeDetailPage() {
 
         {/* Similar Anime Section */}
         <section className="mt-10 px-4">
-          <h2 className="text-xl font-semibold mb-4">Similar Anime</h2>
+          <h2 className="text-xl font-semibold mb-4">Recommendations just for you</h2>
           {loadingSimilar ? (
-            <p className="text-center text-gray-400">Loading similar anime...</p>
+            <p className="text-center text-gray-400">Looking for recommendations...</p>
           ) : similarAnime.length > 0 ? (
             <div className="flex gap-4 overflow-x-auto">
               {similarAnime.map((anime) => (
@@ -115,7 +115,7 @@ export default function AnimeDetailPage() {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">No similar anime found.</p>
+            <p className="text-center text-gray-500">No recommendations found.</p>
           )}
         </section>
       </main>
