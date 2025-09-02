@@ -11,6 +11,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
 
   const isLanding = router.pathname === '/'
+  const isMaintenance = router.pathname === '/maintenance'
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -19,7 +20,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {!isLanding && <Navbar />}
+      {!isLanding && !isMaintenance && <Navbar />}
+
       <main className="md:pb-0 pb-[calc(var(--bottom-nav,72px)+env(safe-area-inset-bottom))]">
         <Component {...pageProps} />
       </main>
