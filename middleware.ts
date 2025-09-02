@@ -20,6 +20,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!favicon.ico|manifest.json|maintenance).*)",
+    "/((?!_next/static|favicon.ico|manifest.json|maintenance).*)",
   ],
 };
