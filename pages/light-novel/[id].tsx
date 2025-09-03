@@ -12,10 +12,10 @@ import { useFavorites } from '@/hooks/useFavorites'
 export default function LightNovelDetail() {
   const router = useRouter()
   const { id } = router.query
-  const numericId = Number(id)
   const [novel, setNovel] = useState<LightNovel | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const numericId = Number(id)
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: Number.isFinite(numericId) ? numericId : undefined,
     mediaType: 'light_novel',
@@ -37,19 +37,21 @@ export default function LightNovelDetail() {
     loadDetail()
   }, [id])
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white px-4">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
         <p>Loading detail...</p>
       </div>
     )
+  }
 
-  if (error || !novel)
+  if (error || !novel) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-red-500 px-4 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-black text-red-500">
         <p>{error || 'Light Novel tidak ditemukan.'}</p>
       </div>
     )
+  }
 
   return (
     <>
@@ -63,7 +65,7 @@ export default function LightNovelDetail() {
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
         {/* Banner Section */}
-        <div className="relative w-full h-[280px] sm:h-[320px] md:h-[450px] lg:h-[500px] overflow-hidden group">
+        <div className="relative w-full h-[320px] md:h-[450px] overflow-hidden group">
           <img
             src={novel.bannerImage || novel.coverImage.extraLarge}
             alt={novel.title.english || novel.title.romaji}
@@ -71,24 +73,24 @@ export default function LightNovelDetail() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
-          <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6">
+          <div className="absolute bottom-6 left-6 flex items-end gap-6">
             <motion.img
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               src={novel.coverImage.extraLarge || novel.coverImage.large}
               alt={novel.title.english || novel.title.romaji}
-              className="w-24 sm:w-32 md:w-48 rounded-xl shadow-2xl border-2 border-white/10"
+              className="w-32 md:w-48 rounded-xl shadow-2xl border-2 border-white/10"
             />
-            <div className="max-w-full sm:max-w-xl">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold drop-shadow-md leading-tight">
+            <div className="max-w-xl">
+              <h1 className="text-3xl md:text-4xl font-bold drop-shadow-md">
                 {novel.title.english || novel.title.romaji}
               </h1>
               <div className="flex flex-wrap gap-2 mt-2">
                 {novel.genres.map((g) => (
                   <span
                     key={g}
-                    className="px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full text-xs sm:text-sm shadow-md"
+                    className="px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full text-xs shadow-md"
                   >
                     {g}
                   </span>
@@ -99,7 +101,7 @@ export default function LightNovelDetail() {
               <button
                 onClick={toggleFavorite}
                 disabled={favLoading || !Number.isFinite(numericId)}
-                className={`mt-3 sm:mt-4 px-4 py-2 rounded-lg shadow-md transition transform hover:scale-105 ${
+                className={`mt-4 px-4 py-2 rounded-lg shadow-md transition ${
                   isFavorite
                     ? 'bg-red-600 hover:bg-red-700'
                     : 'bg-gray-700 hover:bg-gray-600'
@@ -116,16 +118,16 @@ export default function LightNovelDetail() {
         </div>
 
         {/* Detail Section */}
-        <section className="max-w-6xl mx-auto px-4 md:px-8 py-8 sm:py-10 space-y-6 sm:space-y-8">
+        <section className="max-w-6xl mx-auto px-4 md:px-8 py-10 space-y-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-gray-800/60 backdrop-blur-md p-4 sm:p-6 rounded-xl shadow-lg"
+            className="bg-gray-800/60 backdrop-blur-md p-6 rounded-xl shadow-lg"
           >
-            <h2 className="text-lg sm:text-xl font-semibold mb-2">Description</h2>
+            <h2 className="text-xl font-semibold mb-2">Description</h2>
             <p
-              className="text-gray-300 leading-relaxed text-sm sm:text-base break-words"
+              className="text-gray-300 leading-relaxed text-sm md:text-base"
               dangerouslySetInnerHTML={{
                 __html: novel.description || 'No description available.',
               }}
@@ -137,7 +139,7 @@ export default function LightNovelDetail() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
           >
             {[
               { label: 'Status', value: novel.status || 'Unknown' },
@@ -161,7 +163,7 @@ export default function LightNovelDetail() {
             ].map((info) => (
               <div
                 key={info.label}
-                className="bg-gray-800/50 backdrop-blur-md p-3 sm:p-4 rounded-lg text-gray-300 hover:bg-gray-700/50 transition break-words"
+                className="bg-gray-800/50 backdrop-blur-md p-4 rounded-lg text-gray-300 hover:bg-gray-700/50 transition"
               >
                 <span className="font-semibold text-white">{info.label}: </span>
                 {info.value}
@@ -171,10 +173,10 @@ export default function LightNovelDetail() {
         </section>
 
         {/* Characters Section */}
-        {novel.characters?.length > 0 && (
-          <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10 sm:mt-12">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4">Characters</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-5">
+        {novel.characters && novel.characters.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 md:px-8 mt-12">
+            <h2 className="text-2xl font-bold mb-4">Characters</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
               {novel.characters.map((char: LightNovelCharacter) => (
                 <motion.div
                   key={char.id}
@@ -184,15 +186,13 @@ export default function LightNovelDetail() {
                   <img
                     src={char.image.large}
                     alt={char.name.full}
-                    className="w-full h-40 sm:h-48 md:h-52 object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-2">
-                    <div>
-                      <h3 className="text-xs sm:text-sm font-semibold text-white">
-                        {char.name.full}
-                      </h3>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition">
+                    <div className="absolute bottom-2 left-2">
+                      <h3 className="text-sm font-semibold text-white">{char.name.full}</h3>
                       {char.role && (
-                        <p className="text-[10px] sm:text-xs text-gray-300">{char.role}</p>
+                        <p className="text-xs text-gray-300">{char.role}</p>
                       )}
                     </div>
                   </div>
@@ -203,10 +203,10 @@ export default function LightNovelDetail() {
         )}
 
         {/* Staff Section */}
-        {novel.staff?.length > 0 && (
-          <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10 sm:mt-12">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4">Staff</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-5">
+        {novel.staff && novel.staff.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 md:px-8 mt-12">
+            <h2 className="text-2xl font-bold mb-4">Staff</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
               {novel.staff.map((person: LightNovelStaff) => (
                 <motion.div
                   key={person.id}
@@ -216,12 +216,12 @@ export default function LightNovelDetail() {
                   <img
                     src={person.image.large}
                     alt={person.name.full}
-                    className="w-full h-40 sm:h-48 md:h-52 object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-2">
-                    <h3 className="text-xs sm:text-sm font-semibold text-white">
-                      {person.name.full}
-                    </h3>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition">
+                    <div className="absolute bottom-2 left-2">
+                      <h3 className="text-sm font-semibold text-white">{person.name.full}</h3>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -230,10 +230,10 @@ export default function LightNovelDetail() {
         )}
 
         {/* Back Button */}
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 sm:py-10">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
           <Link
             href="/light-novel"
-            className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition shadow-lg transform hover:scale-105"
+            className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition shadow-lg"
           >
             ← Back to Light Novels
           </Link>
