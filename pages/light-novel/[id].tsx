@@ -3,55 +3,58 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
-import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
 import { LightNovel, LightNovelCharacter, LightNovelStaff } from '@/types/lightNovel'
 import { useFavorites } from '@/hooks/useFavorites'
-import { Heart } from 'lucide-react'
-import { FaArrowLeft } from 'react-icons/fa'
 
-export default function LightNovelDetailPage() {
+export default function LightNovelDetail() {
   const router = useRouter()
   const { id } = router.query
   const [novel, setNovel] = useState<LightNovel | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  const numericId = id ? Number(id) : undefined
+  const numericId = Number(id)
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
-    mediaId: numericId,
+    mediaId: Number.isFinite(numericId) ? numericId : undefined,
     mediaType: 'light_novel',
   })
 
   useEffect(() => {
     if (!id) return
-    setLoading(true)
-    fetchLightNovelDetail(Number(id))
-      .then((data) => setNovel(data))
-      .catch(() => setError('Gagal memuat detail Light Novel.'))
-      .finally(() => setLoading(false))
+    const loadDetail = async () => {
+      try {
+        setLoading(true)
+        const data = await fetchLightNovelDetail(Number(id))
+        setNovel(data)
+      } catch (e: any) {
+        setError('Gagal memuat detail Light Novel.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadDetail()
   }, [id])
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-neutral-900 text-white">
-        <p className="animate-pulse text-lg">Loading Light Novel...</p>
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <p>Loading detail...</p>
       </div>
     )
   }
 
   if (error || !novel) {
     return (
-      <div className="flex items-center justify-center h-screen bg-neutral-900 text-red-500">
+      <div className="min-h-screen flex items-center justify-center bg-black text-red-500">
         <p>{error || 'Light Novel tidak ditemukan.'}</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-neutral-950 min-h-screen text-white relative overflow-hidden">
+    <>
       <Head>
         <title>{novel.title.english || novel.title.romaji} | Light Novel Detail</title>
         <meta
@@ -60,63 +63,52 @@ export default function LightNovelDetailPage() {
         />
       </Head>
 
-      {/* Hero Banner */}
-      <div className="relative w-full h-[360px] md:h-[480px] overflow-hidden">
-        {novel.bannerImage ? (
-          <Image
-            src={novel.bannerImage}
+      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
+        {/* Banner */}
+        <div className="relative w-full h-[320px] md:h-[450px] overflow-hidden">
+          <img
+            src={novel.bannerImage || novel.coverImage.extraLarge}
             alt={novel.title.english || novel.title.romaji}
-            fill
-            priority
-            className="object-cover brightness-50"
+            className="w-full h-full object-cover"
           />
-        ) : (
-          <div className="w-full h-full bg-neutral-800" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-      </div>
-
-      {/* Cover + Info */}
-      <div className="relative max-w-5xl mx-auto px-4 md:px-8 -mt-24 z-10">
-        {/* Cover */}
-        <div className="w-[140px] md:w-[200px] aspect-[2/3] relative rounded-lg overflow-hidden shadow-xl border-2 border-white/20">
-          <Image
-            src={novel.coverImage.extraLarge || novel.coverImage.large}
-            alt={novel.title.english || novel.title.romaji}
-            fill
-            className="object-cover"
-          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
         </div>
 
-        {/* Text Info */}
-        <div className="mt-6">
-          <h1 className="text-2xl md:text-4xl font-bold drop-shadow-lg">
+        {/* Cover + Info di bawah banner */}
+        <div className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 relative z-10">
+          <motion.img
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            src={novel.coverImage.extraLarge || novel.coverImage.large}
+            alt={novel.title.english || novel.title.romaji}
+            className="w-32 md:w-48 rounded-xl shadow-2xl border-2 border-white/10"
+          />
+
+          {/* Judul */}
+          <h1 className="mt-4 text-3xl md:text-4xl font-bold drop-shadow-md">
             {novel.title.english || novel.title.romaji}
           </h1>
 
           {/* Tombol Favorite */}
           <button
             onClick={toggleFavorite}
-            disabled={favLoading}
-            className={`mt-3 flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+            disabled={favLoading || !Number.isFinite(numericId)}
+            className={`mt-3 px-4 py-2 rounded-lg shadow-md transition ${
               isFavorite
                 ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-white/10 hover:bg-white/20'
-            }`}
+                : 'bg-gray-700 hover:bg-gray-600'
+            } ${favLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            <Heart
-              size={18}
-              className={isFavorite ? 'fill-current text-white' : 'text-white'}
-            />
             {favLoading
               ? 'Processing...'
               : isFavorite
-              ? 'Remove from Favorites'
-              : 'Add to Favorites'}
+              ? '★ Favorited'
+              : '♡ Add to Favorite'}
           </button>
 
           {/* Genre */}
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-2 mt-4">
             {novel.genres.map((g) => (
               <span
                 key={g}
@@ -127,94 +119,129 @@ export default function LightNovelDetailPage() {
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Description */}
-      <div className="max-w-5xl mx-auto px-4 md:px-8 mt-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-gray-800/60 backdrop-blur-md p-6 rounded-xl shadow-lg"
-        >
-          <h2 className="text-xl font-semibold mb-2">Description</h2>
-          <p
-            className="text-gray-300 leading-relaxed text-sm md:text-base"
-            dangerouslySetInnerHTML={{
-              __html: novel.description || 'No description available.',
-            }}
-          />
-        </motion.div>
-      </div>
+        {/* Detail Section */}
+        <section className="max-w-6xl mx-auto px-4 md:px-8 py-10 space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-gray-800/60 backdrop-blur-md p-6 rounded-xl shadow-lg"
+          >
+            <h2 className="text-xl font-semibold mb-2">Description</h2>
+            <p
+              className="text-gray-300 leading-relaxed text-sm md:text-base"
+              dangerouslySetInnerHTML={{
+                __html: novel.description || 'No description available.',
+              }}
+            />
+          </motion.div>
 
-      {/* Characters */}
-      {novel.characters && novel.characters.length > 0 && (
-        <section className="max-w-6xl mx-auto px-4 md:px-8 mt-12">
-          <h2 className="text-2xl font-bold mb-4">Characters</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-            {novel.characters.map((char: LightNovelCharacter) => (
-              <motion.div
-                key={char.id}
-                whileHover={{ scale: 1.05 }}
-                className="bg-neutral-900 rounded-lg overflow-hidden shadow hover:shadow-lg transition"
+          {/* Additional Info */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+          >
+            {[
+              { label: 'Status', value: novel.status || 'Unknown' },
+              { label: 'Format', value: novel.format || 'N/A' },
+              {
+                label: 'Average Score',
+                value: novel.averageScore ? `${novel.averageScore}/100` : 'N/A',
+              },
+              {
+                label: 'Start Date',
+                value: novel.startDate
+                  ? `${novel.startDate.day}/${novel.startDate.month}/${novel.startDate.year}`
+                  : 'N/A',
+              },
+              {
+                label: 'End Date',
+                value: novel.endDate
+                  ? `${novel.endDate.day}/${novel.endDate.month}/${novel.endDate.year}`
+                  : 'N/A',
+              },
+            ].map((info) => (
+              <div
+                key={info.label}
+                className="bg-gray-800/50 backdrop-blur-md p-4 rounded-lg text-gray-300 hover:bg-gray-700/50 transition"
               >
-                <div className="relative w-full h-48">
-                  <Image
+                <span className="font-semibold text-white">{info.label}: </span>
+                {info.value}
+              </div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* Characters Section */}
+        {novel.characters && novel.characters.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 md:px-8 mt-12">
+            <h2 className="text-2xl font-bold mb-4">Characters</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+              {novel.characters.map((char: LightNovelCharacter) => (
+                <motion.div
+                  key={char.id}
+                  whileHover={{ scale: 1.05 }}
+                  className="relative rounded-lg overflow-hidden group bg-gray-800 shadow-lg"
+                >
+                  <img
                     src={char.image.large}
                     alt={char.name.full}
-                    fill
-                    className="object-cover"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                </div>
-                <div className="p-2">
-                  <p className="text-sm font-semibold">{char.name.full}</p>
-                  <p className="text-xs text-gray-400">{char.role}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition">
+                    <div className="absolute bottom-2 left-2">
+                      <h3 className="text-sm font-semibold text-white">{char.name.full}</h3>
+                      {char.role && (
+                        <p className="text-xs text-gray-300">{char.role}</p>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )}
 
-      {/* Staff */}
-      {novel.staff && novel.staff.length > 0 && (
-        <section className="max-w-6xl mx-auto px-4 md:px-8 mt-12 pb-16">
-          <h2 className="text-2xl font-bold mb-4">Staff</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-            {novel.staff.map((person: LightNovelStaff) => (
-              <motion.div
-                key={person.id}
-                whileHover={{ scale: 1.05 }}
-                className="bg-neutral-900 rounded-lg overflow-hidden shadow hover:shadow-lg transition"
-              >
-                <div className="relative w-full h-48">
-                  <Image
+        {/* Staff Section */}
+        {novel.staff && novel.staff.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 md:px-8 mt-12">
+            <h2 className="text-2xl font-bold mb-4">Staff</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+              {novel.staff.map((person: LightNovelStaff) => (
+                <motion.div
+                  key={person.id}
+                  whileHover={{ scale: 1.05 }}
+                  className="relative rounded-lg overflow-hidden group bg-gray-800 shadow-lg"
+                >
+                  <img
                     src={person.image.large}
                     alt={person.name.full}
-                    fill
-                    className="object-cover"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                </div>
-                <div className="p-2">
-                  <p className="text-sm font-semibold">{person.name.full}</p>
-                  {person.role && <p className="text-xs text-gray-400">{person.role}</p>}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition">
+                    <div className="absolute bottom-2 left-2">
+                      <h3 className="text-sm font-semibold text-white">{person.name.full}</h3>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )}
 
-      {/* Back Button */}
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
-        <Link
-          href="/light-novel"
-          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl backdrop-blur-md"
-        >
-          <FaArrowLeft className="mr-2 text-xl" />
-          Back to Light Novels
-        </Link>
+        {/* Back Button */}
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
+          <Link
+            href="/light-novel"
+            className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition shadow-lg"
+          >
+            ← Back to Light Novels
+          </Link>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
