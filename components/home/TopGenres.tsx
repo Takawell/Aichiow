@@ -3,38 +3,29 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { 
-  FaDragon, FaHatWizard, FaHeartbeat, FaMusic, FaRobot, FaBasketballBall,
-  FaGhost, FaBook, FaStar, FaLaugh, FaVenusMars, FaBrain, FaSchool,
-  FaRunning, FaSatellite, FaMagic, FaMask, FaGuitar, FaQuestionCircle
+  FaDragon, FaHatWizard, FaHeartbeat, FaMusic, FaRobot,
+  FaGhost, FaBook, FaStar, FaLaugh, FaVenusMars, FaBrain,
+  FaSatellite, FaMask, FaRunning, FaBasketballBall
 } from "react-icons/fa"
-import { GiKnifeFork, GiLoveMystery, GiCursedStar } from "react-icons/gi"
-import { MdOutlineBoy, MdOutlineGirl } from "react-icons/md"
 
 const genres = [
   { name: "Action", icon: <FaDragon /> },
   { name: "Adventure", icon: <FaHatWizard /> },
-  { name: "Avant Garde", icon: <FaStar /> },
-  { name: "Boys Love", icon: <MdOutlineBoy /> },
   { name: "Comedy", icon: <FaLaugh /> },
   { name: "Drama", icon: <FaBook /> },
   { name: "Ecchi", icon: <FaVenusMars /> },
-  { name: "Fantasy", icon: <FaMagic /> },
-  { name: "Girls Love", icon: <MdOutlineGirl /> },
-  { name: "Gourmet", icon: <GiKnifeFork /> },
+  { name: "Fantasy", icon: <FaStar /> },
   { name: "Horror", icon: <FaGhost /> },
-  { name: "Isekai", icon: <GiLoveMystery /> },
   { name: "Mahou Shoujo", icon: <FaHeartbeat /> },
   { name: "Mecha", icon: <FaRobot /> },
   { name: "Music", icon: <FaMusic /> },
-  { name: "Mystery", icon: <FaQuestionCircle /> },
+  { name: "Mystery", icon: <FaBook /> },
   { name: "Psychological", icon: <FaBrain /> },
-  { name: "Romance", icon: <GiCursedStar /> },
-  { name: "School", icon: <FaSchool /> },
+  { name: "Romance", icon: <FaStar /> },
   { name: "Sci-Fi", icon: <FaSatellite /> },
   { name: "Slice of Life", icon: <FaBook /> },
   { name: "Sports", icon: <FaBasketballBall /> },
   { name: "Supernatural", icon: <FaMask /> },
-  { name: "Suspense", icon: <GiLoveMystery /> },
   { name: "Thriller", icon: <FaRunning /> },
 ]
 
