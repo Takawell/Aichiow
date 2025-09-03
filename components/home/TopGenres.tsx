@@ -3,10 +3,13 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { 
-  FaDragon, FaHatWizard, FaHeartbeat, FaMusic, FaRobot,
-  FaGhost, FaBook, FaStar, FaLaugh, FaVenusMars, FaBrain,
-  FaSatellite, FaMask, FaRunning, FaBasketballBall
+  FaDragon, FaHatWizard, FaHeartbeat, FaMusic, FaRobot, FaGhost,
+  FaBook, FaStar, FaLaugh, FaVenusMars, FaBrain, FaSatellite,
+  FaMask, FaRunning, FaBasketballBall, FaUtensils, FaTheaterMasks,
+  FaSchool, FaTransgender, FaQuestionCircle
 } from "react-icons/fa"
+import { GiMagicGate, GiLovers, GiStarsStack } from "react-icons/gi"
+import { MdOutlineBoy, MdOutlineGirl } from "react-icons/md"
 
 const genres = [
   { name: "Action", icon: <FaDragon /> },
@@ -14,14 +17,14 @@ const genres = [
   { name: "Comedy", icon: <FaLaugh /> },
   { name: "Drama", icon: <FaBook /> },
   { name: "Ecchi", icon: <FaVenusMars /> },
-  { name: "Fantasy", icon: <FaStar /> },
+  { name: "Fantasy", icon: <GiMagicGate /> },
   { name: "Horror", icon: <FaGhost /> },
   { name: "Mahou Shoujo", icon: <FaHeartbeat /> },
   { name: "Mecha", icon: <FaRobot /> },
   { name: "Music", icon: <FaMusic /> },
-  { name: "Mystery", icon: <FaBook /> },
+  { name: "Mystery", icon: <FaQuestionCircle /> },
   { name: "Psychological", icon: <FaBrain /> },
-  { name: "Romance", icon: <FaStar /> },
+  { name: "Romance", icon: <GiStarsStack /> },
   { name: "Sci-Fi", icon: <FaSatellite /> },
   { name: "Slice of Life", icon: <FaBook /> },
   { name: "Sports", icon: <FaBasketballBall /> },
@@ -29,12 +32,25 @@ const genres = [
   { name: "Thriller", icon: <FaRunning /> },
 ]
 
-export default function TopGenres() {
+const tags = [
+  { name: "Isekai", icon: <GiMagicGate /> },
+  { name: "Boys Love", icon: <MdOutlineBoy /> },
+  { name: "Girls Love", icon: <MdOutlineGirl /> },
+  { name: "School", icon: <FaSchool /> },
+  { name: "Gourmet", icon: <FaUtensils /> },
+  { name: "Suspense", icon: <FaTheaterMasks /> },
+  { name: "Avant Garde", icon: <FaStar /> },
+  { name: "Super Power", icon: <FaTransgender /> },
+  { name: "Parody", icon: <FaLaugh /> },
+  { name: "Detective", icon: <FaQuestionCircle /> },
+]
+
+function GenreGrid({ title, items }: { title: string, items: { name: string, icon: JSX.Element }[] }) {
   return (
     <div className="px-4 py-6">
-      <h2 className="text-xl font-semibold text-white mb-5">🎯 Popular Genres</h2>
+      <h2 className="text-xl font-semibold text-white mb-5">{title}</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {genres.map((genre) => (
+        {items.map((genre) => (
           <Link
             key={genre.name}
             href={`/anime/genre/${genre.name.toLowerCase().replace(/\s+/g, "-")}`}
@@ -48,11 +64,20 @@ export default function TopGenres() {
                          transition-all duration-300"
             >
               <span className="text-2xl mb-2 text-sky-400">{genre.icon}</span>
-              <span className="text-sm font-medium">{genre.name}</span>
+              <span className="text-sm font-medium text-center">{genre.name}</span>
             </motion.div>
           </Link>
         ))}
       </div>
+    </div>
+  )
+}
+
+export default function TopGenres() {
+  return (
+    <div>
+      <GenreGrid title="🎯 Top Genres" items={genres} />
+      <GenreGrid title="🔖 Popular Tags" items={tags} />
     </div>
   )
 }
