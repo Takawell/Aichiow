@@ -1,4 +1,3 @@
-// detail ln
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -75,6 +74,7 @@ export default function LightNovelDetail() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
           <div className="absolute bottom-6 left-6 flex items-end gap-6">
+            {/* Cover */}
             <motion.img
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -83,29 +83,32 @@ export default function LightNovelDetail() {
               alt={novel.title.english || novel.title.romaji}
               className="w-32 md:w-48 rounded-xl shadow-2xl border-2 border-white/10"
             />
+
+            {/* Detail Info */}
             <div className="max-w-xl">
-              <h1 className="text-3xl md:text-4xl font-bold drop-shadow-md">
-                {novel.title.english || novel.title.romaji}
-              </h1>
+              {/* Judul + Favorite sejajar */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <h1 className="text-3xl md:text-4xl font-bold drop-shadow-md">
+                  {novel.title.english || novel.title.romaji}
+                </h1>
+                <button
+                  onClick={toggleFavorite}
+                  disabled={favLoading || !Number.isFinite(numericId)}
+                  className={`px-4 py-2 rounded-lg shadow-md transition text-sm ${
+                    isFavorite
+                      ? 'bg-red-600 hover:bg-red-700'
+                      : 'bg-gray-700 hover:bg-gray-600'
+                  } ${favLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                >
+                  {favLoading
+                    ? '...'
+                    : isFavorite
+                    ? '★ Favorited'
+                    : '♡ Favorite'}
+                </button>
+              </div>
 
-              {/* Tombol Favorite */}
-              <button
-                onClick={toggleFavorite}
-                disabled={favLoading || !Number.isFinite(numericId)}
-                className={`mt-3 px-4 py-2 rounded-lg shadow-md transition ${
-                  isFavorite
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-gray-700 hover:bg-gray-600'
-                } ${favLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-              >
-                {favLoading
-                  ? 'Processing...'
-                  : isFavorite
-                  ? '★ Favorited'
-                  : '♡ Add to Favorite'}
-              </button>
-
-              {/* Genres pindah ke bawah cover */}
+              {/* Genre di bawah */}
               <div className="flex flex-wrap gap-2 mt-3">
                 {novel.genres.map((g) => (
                   <span
