@@ -64,59 +64,56 @@ export default function LightNovelDetail() {
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
-        {/* Banner */}
-        <div className="relative w-full h-[320px] md:h-[450px] overflow-hidden">
+        {/* Banner Section */}
+        <div className="relative w-full h-[320px] md:h-[450px] overflow-hidden group">
           <img
             src={novel.bannerImage || novel.coverImage.extraLarge}
             alt={novel.title.english || novel.title.romaji}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
-        </div>
 
-        {/* Cover + Info di bawah banner */}
-        <div className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 relative z-10">
-          <motion.img
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            src={novel.coverImage.extraLarge || novel.coverImage.large}
-            alt={novel.title.english || novel.title.romaji}
-            className="w-32 md:w-48 rounded-xl shadow-2xl border-2 border-white/10"
-          />
+          <div className="absolute bottom-6 left-6 flex items-end gap-6">
+            <motion.img
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              src={novel.coverImage.extraLarge || novel.coverImage.large}
+              alt={novel.title.english || novel.title.romaji}
+              className="w-32 md:w-48 rounded-xl shadow-2xl border-2 border-white/10"
+            />
+            <div className="max-w-xl">
+              <h1 className="text-3xl md:text-4xl font-bold drop-shadow-md">
+                {novel.title.english || novel.title.romaji}
+              </h1>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {novel.genres.map((g) => (
+                  <span
+                    key={g}
+                    className="px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full text-xs shadow-md"
+                  >
+                    {g}
+                  </span>
+                ))}
+              </div>
 
-          {/* Judul */}
-          <h1 className="mt-4 text-3xl md:text-4xl font-bold drop-shadow-md">
-            {novel.title.english || novel.title.romaji}
-          </h1>
-
-          {/* Tombol Favorite */}
-          <button
-            onClick={toggleFavorite}
-            disabled={favLoading || !Number.isFinite(numericId)}
-            className={`mt-3 px-4 py-2 rounded-lg shadow-md transition ${
-              isFavorite
-                ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-gray-700 hover:bg-gray-600'
-            } ${favLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-          >
-            {favLoading
-              ? 'Processing...'
-              : isFavorite
-              ? '★ Favorited'
-              : '♡ Add to Favorite'}
-          </button>
-
-          {/* Genre */}
-          <div className="flex flex-wrap gap-2 mt-4">
-            {novel.genres.map((g) => (
-              <span
-                key={g}
-                className="px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full text-xs shadow-md"
+              {/* Tombol Favorite */}
+              <button
+                onClick={toggleFavorite}
+                disabled={favLoading || !Number.isFinite(numericId)}
+                className={`mt-4 px-4 py-2 rounded-lg shadow-md transition ${
+                  isFavorite
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-gray-700 hover:bg-gray-600'
+                } ${favLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {g}
-              </span>
-            ))}
+                {favLoading
+                  ? 'Processing...'
+                  : isFavorite
+                  ? '★ Favorited'
+                  : '♡ Add to Favorite'}
+              </button>
+            </div>
           </div>
         </div>
 
