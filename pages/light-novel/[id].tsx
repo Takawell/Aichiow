@@ -26,8 +26,6 @@ export default function LightNovelDetail() {
 
   useEffect(() => {
     if (!id) return
-
-    // reset states
     setError(null)
     setNovel(null)
     setBannerLoaded(false)
@@ -51,6 +49,7 @@ export default function LightNovelDetail() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [id])
 
+  // Fallback images
   const fallbackBanner = '/fallback.png'
   const fallbackCover = '/fallback.png'
 
@@ -88,8 +87,8 @@ export default function LightNovelDetail() {
         <meta name="description" content={`Detail tentang Light Novel ${title}`} />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white pb-24">
-        {/* Banner Section with subtle parallax and overlay */}
+      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white pb-16">
+        {/* Banner Section */}
         <div className="relative w-full h-[320px] md:h-[420px] overflow-hidden">
           <motion.img
             src={bannerSrc}
@@ -132,7 +131,6 @@ export default function LightNovelDetail() {
                 ))}
               </div>
 
-              {/* Small info row */}
               <div className="mt-3 text-sm text-gray-300">
                 <span>{novel.format || 'N/A'}</span>
                 <span className="mx-2">•</span>
@@ -140,17 +138,27 @@ export default function LightNovelDetail() {
               </div>
             </div>
           </div>
-
-          {/* Back button top-left (mobile friendly) */}
-          <div className="absolute top-4 left-4">
-            <Link href="/light-novel" className="inline-flex items-center gap-2 bg-black/40 backdrop-blur p-2 rounded-full shadow-md">
-              <span className="text-white text-lg">←</span>
-            </Link>
-          </div>
         </div>
 
         {/* Main content */}
         <section className="max-w-4xl mx-auto px-4 md:px-8 py-8 space-y-6">
+          {/* Favorite Button above Description */}
+          <div className="flex justify-end">
+            <button
+              onClick={toggleFavorite}
+              disabled={favLoading || !Number.isFinite(numericId)}
+              aria-label={isFavorite ? 'Remove favorite' : 'Add favorite'}
+              className={`px-5 py-2 rounded-lg shadow-md transition font-medium text-sm flex items-center gap-2 ${
+                isFavorite
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700'
+              } ${favLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
+              <span className="text-lg">{isFavorite ? '★' : '♡'}</span>
+              {favLoading ? 'Processing...' : isFavorite ? 'Favorited' : 'Add to Favorite'}
+            </button>
+          </div>
+
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -176,7 +184,7 @@ export default function LightNovelDetail() {
             </div>
           </motion.div>
 
-          {/* Additional Info grid */}
+          {/* Additional Info */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -261,21 +269,6 @@ export default function LightNovelDetail() {
             </Link>
           </div>
         </section>
-
-        {/* Floating Favorite Button (FAB) - Mobile */}
-        <div className="fixed right-4 bottom-6 md:bottom-10 z-50">
-          <button
-            onClick={toggleFavorite}
-            disabled={favLoading || !Number.isFinite(numericId)}
-            aria-label={isFavorite ? 'Remove favorite' : 'Add favorite'}
-            className={`relative flex items-center gap-2 px-4 py-3 rounded-full shadow-2xl transition transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-              isFavorite ? 'bg-red-600 hover:bg-red-700' : 'bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700'
-            } ${favLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-          >
-            <span className="text-xl">{isFavorite ? '★' : '♡'}</span>
-            <span className="font-medium text-sm">{favLoading ? 'Processing...' : isFavorite ? 'Favorited' : 'Favorite'}</span>
-          </button>
-        </div>
       </div>
     </>
   )
