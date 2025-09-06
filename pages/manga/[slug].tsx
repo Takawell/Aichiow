@@ -7,6 +7,7 @@ import { fetchMangaCharacters } from '@/lib/anilist'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useFavorites } from '@/hooks/useFavorites'
+import { Heart, Share2 } from 'lucide-react'
 
 export default function MangaDetailPage() {
   const router = useRouter()
@@ -21,7 +22,7 @@ export default function MangaDetailPage() {
 
   // === favorites hook ===
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
-    mediaId: manga?.id ? parseInt(manga.id, 36) : undefined, // karena id mangaDex string UUID, kita ubah ke int unik
+    mediaId: manga?.id ? parseInt(manga.id, 36) : undefined,
     mediaType: 'manga',
   })
 
@@ -70,6 +71,19 @@ export default function MangaDetailPage() {
   const coverUrl = getCoverImage(manga.id, cover?.attributes?.fileName || '')
   const tags = manga.attributes.tags || []
 
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title,
+        text: `Check out this manga: ${title}`,
+        url: window.location.href,
+      }).catch(console.error)
+    } else {
+      navigator.clipboard.writeText(window.location.href)
+      alert('Link copied to clipboard!')
+    }
+  }
+
   return (
     <main className="relative bg-neutral-950 text-white">
       {/* Banner blur background */}
@@ -80,14 +94,17 @@ export default function MangaDetailPage() {
       <section className="px-4 md:px-8 py-10 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row gap-6 items-start">
+          {/* Cover */}
           <div className="relative w-full md:w-60 aspect-[3/4] rounded-xl overflow-hidden border border-zinc-700 shadow-xl">
             <Image src={coverUrl} alt={title} fill className="object-cover" />
           </div>
+
+          {/* Info */}
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-white mb-3">{title}</h1>
 
             {/* Genre Tags */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-3">
               {tags.slice(0, 6).map((tag: any) => (
                 <span
                   key={tag.attributes.name?.en}
@@ -98,21 +115,35 @@ export default function MangaDetailPage() {
               ))}
             </div>
 
-            {/* Favorite button */}
-            <button
-              onClick={toggleFavorite}
-              disabled={favLoading}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                isFavorite
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-zinc-700 hover:bg-zinc-600'
-              }`}
-            >
-              {isFavorite ? '★ Remove from Favorites' : '♡ Add to Favorites'}
-            </button>
+            {/* Favorite & Share */}
+            <div className="flex gap-3 mb-4">
+              <button
+                onClick={toggleFavorite}
+                disabled={favLoading}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  isFavorite
+                    ? 'bg-red-500 hover:bg-red-600'
+                    : 'bg-zinc-700 hover:bg-zinc-600'
+                }`}
+              >
+                <Heart
+                  size={18}
+                  className={isFavorite ? 'fill-current text-white' : 'text-white'}
+                />
+                {isFavorite ? 'Favorited' : 'Favorite'}
+              </button>
+
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-zinc-700 hover:bg-zinc-600 transition"
+              >
+                <Share2 size={18} className="text-white" />
+                Share
+              </button>
+            </div>
 
             {/* Description */}
-            <p className={`mt-4 text-sm text-zinc-300 whitespace-pre-line ${!showFullDesc ? 'line-clamp-5' : ''}`}>
+            <p className={`text-sm text-zinc-300 whitespace-pre-line ${!showFullDesc ? 'line-clamp-5' : ''}`}>
               {description}
             </p>
             {description.length > 200 && (
@@ -184,11 +215,12 @@ export default function MangaDetailPage() {
         )}
       </section>  
 
-        {/* Back Button */}
+      {/* Back Button */}
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
         <Link
           href="/manga"
-          className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition shadow-lg"
+          className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 
+                     hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition shadow-lg"
         >
           ← Back to Manga
         </Link>
