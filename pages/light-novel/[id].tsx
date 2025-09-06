@@ -29,7 +29,6 @@ export default function LightNovelDetail() {
 
   useEffect(() => {
     if (!id) return
-
     setError(null)
     setNovel(null)
     setBannerLoaded(false)
@@ -110,7 +109,8 @@ export default function LightNovelDetail() {
 
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
 
-          <div className="absolute bottom-4 left-4 flex items-end gap-4 md:gap-6">
+          {/* Cover + Info */}
+          <div className="absolute bottom-4 left-4 right-4 flex flex-col sm:flex-row sm:items-end gap-4 md:gap-6">
             <motion.img
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -119,25 +119,25 @@ export default function LightNovelDetail() {
               alt={title}
               loading="lazy"
               onError={(e) => (e.currentTarget.src = fallbackCover)}
-              className="w-28 md:w-44 rounded-xl shadow-2xl border-2 border-white/10 object-cover"
+              className="w-24 sm:w-28 md:w-44 rounded-xl shadow-2xl border-2 border-white/10 object-cover mx-auto sm:mx-0"
             />
 
-            <div className="max-w-xs md:max-w-xl">
-              <h1 className="text-2xl md:text-4xl font-extrabold drop-shadow-md leading-tight line-clamp-2">
+            <div className="flex-1 text-center sm:text-left">
+              <h1 className="text-xl sm:text-2xl md:text-4xl font-extrabold drop-shadow-md leading-tight line-clamp-2">
                 {title}
               </h1>
-              <div className="flex flex-wrap gap-2 mt-2">
+
+              <div className="flex gap-2 mt-2 overflow-x-auto sm:flex-wrap scrollbar-hide">
                 {novel.genres.map((g) => (
                   <span
                     key={g}
-                    className="px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full text-xs shadow-md"
+                    className="px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full text-xs shadow-md whitespace-nowrap"
                   >
                     {g}
                   </span>
                 ))}
               </div>
 
-              {/* Favorite + Share button under genres */}
               <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:gap-4">
                 <motion.button
                   onClick={toggleFavorite}
@@ -161,10 +161,10 @@ export default function LightNovelDetail() {
                   <FaShareAlt className="text-lg" />
                   Share
                 </motion.button>
+              </div>
 
-                <div className="mt-2 sm:mt-0 text-sm text-gray-300">
-                  {novel.format || 'N/A'} • {novel.averageScore ? `${novel.averageScore}/100` : 'N/A'}
-                </div>
+              <div className="mt-2 text-xs sm:text-sm text-gray-300">
+                {novel.format || 'N/A'} • {novel.averageScore ? `${novel.averageScore}/100` : 'N/A'}
               </div>
             </div>
           </div>
@@ -177,7 +177,7 @@ export default function LightNovelDetail() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
-            className="bg-gray-800/50 backdrop-blur-md p-5 rounded-xl shadow-lg"
+            className="bg-gray-800/50 backdrop-blur-md p-5 md:p-6 rounded-xl shadow-lg"
           >
             <h2 className="text-lg font-semibold mb-3">Description</h2>
 
@@ -238,7 +238,6 @@ export default function LightNovelDetail() {
                       onError={(e) => (e.currentTarget.src = '/fallback.png')}
                       className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-
                     <div className="p-3">
                       <div className="font-medium text-sm line-clamp-1">{char.name.full}</div>
                       {char.role && <div className="text-xs text-gray-400">{char.role}</div>}
@@ -267,7 +266,6 @@ export default function LightNovelDetail() {
                       onError={(e) => (e.currentTarget.src = '/fallback.png')}
                       className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-
                     <div className="p-3">
                       <div className="font-medium text-sm line-clamp-1">{person.name.full}</div>
                     </div>
