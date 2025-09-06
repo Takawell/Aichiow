@@ -8,8 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { ManhwaDetail } from '@/types/manhwa'
 import { useFavorites } from '@/hooks/useFavorites'
-import { Heart, Share2 } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { FaArrowLeft } from 'react-icons/fa'
+import { Share2 } from 'lucide-react'
 import ShareModal from '@/components/shared/ShareModal'
 
 export default function ManhwaDetailPage() {
@@ -51,16 +52,73 @@ export default function ManhwaDetailPage() {
     )
   }
 
+  const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/manhwa/${manhwa.id}`
+  const shareTitle = manhwa.title.english || manhwa.title.romaji
+
   return (
     <div className="bg-neutral-950 min-h-screen text-white relative overflow-hidden">
-      {/* Share Modal */}
-      <ShareModal
-        isOpen={showShare}
-        onClose={() => setShowShare(false)}
-        title={manhwa.title.english || manhwa.title.romaji}
-        url={`https://aichiow.vercel.app/manhwa/${id}`}
-        thumbnail={manhwa.coverImage.extraLarge || manhwa.coverImage.large}
-      />
+      {/* Notification Overlay */}
+      <AnimatePresence>
+        {showCard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed top-0 left-0 w-screen h-screen z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm md:backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="relative max-w-md w-[90%] p-6 rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/20 text-center"
+            >
+              <h2 className="text-xl md:text-2xl font-bold mb-3">
+                {lang === 'en' ? 'Notice' : 'Pemberitahuan'}
+              </h2>
+              <p className="text-gray-200 mb-4 text-sm md:text-base">
+                {lang === 'en'
+                  ? 'Just a reminder, this manhwa can only be read on the manga page. Press close if you want to continue viewing the details.'
+                  : 'Sekadar mengingatkan, manhwa ini hanya bisa dibaca di halaman manga. Tekan tutup jika kamu ingin melanjutkan melihat detailnya.'}
+              </p>
+              <div className="flex justify-center gap-3 mt-4">
+                <Link
+                  href="/manga/explore"
+                  className="px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-medium shadow-lg transition"
+                >
+                  {lang === 'en' ? 'Go to Manga' : 'Buka Manga'}
+                </Link>
+                <button
+                  onClick={() => setShowCard(false)}
+                  className="px-5 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium shadow-lg border border-white/20 transition"
+                >
+                  {lang === 'en' ? 'Close' : 'Tutup'}
+                </button>
+              </div>
+
+              {/* Toggle Language */}
+              <div className="mt-6 flex items-center justify-center gap-2 text-sm">
+                <span className={lang === 'en' ? 'text-blue-400 font-semibold' : 'text-gray-300'}>
+                  EN
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={lang === 'id'}
+                    onChange={() => setLang(lang === 'en' ? 'id' : 'en')}
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600 transition"></div>
+                  <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </label>
+                <span className={lang === 'id' ? 'text-blue-400 font-semibold' : 'text-gray-300'}>
+                  ID
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hero Banner */}
       <div className="relative w-full h-[360px] md:h-[480px] overflow-hidden">
@@ -104,26 +162,41 @@ export default function ManhwaDetailPage() {
               <button
                 onClick={toggleFavorite}
                 disabled={favLoading}
-                className={`p-3 rounded-full shadow-md transition hover:scale-110 ${
-                  isFavorite ? 'bg-red-600' : 'bg-white/10 hover:bg-white/20'
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                  isFavorite
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-white/10 hover:bg-white/20'
                 }`}
               >
                 <Heart
                   size={18}
                   className={isFavorite ? 'fill-current text-white' : 'text-white'}
                 />
+                {isFavorite ? 'Remove Favorite' : 'Add Favorite'}
               </button>
 
               <button
                 onClick={() => setShowShare(true)}
-                className="p-3 rounded-full bg-white/10 hover:bg-white/20 shadow-md transition hover:scale-110"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition"
               >
                 <Share2 size={18} className="text-white" />
+                Share
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Share Modal */}
+      {showShare && (
+        <ShareModal
+          isOpen={showShare}
+          onClose={() => setShowShare(false)}
+          url={shareUrl}
+          title={shareTitle}
+          image={manhwa.coverImage.large}
+        />
+      )}
 
       {/* Description */}
       <div className="max-w-5xl mx-auto px-4 md:px-8 mt-6">
@@ -207,4 +280,3 @@ export default function ManhwaDetailPage() {
     </div>
   )
 }
-        
