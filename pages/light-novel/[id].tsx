@@ -5,10 +5,11 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { FaHeart } from 'react-icons/fa'
+import { FaHeart, FaShareAlt } from 'react-icons/fa'
 import { fetchLightNovelDetail } from '@/lib/anilistLightNovel'
 import { LightNovel, LightNovelCharacter, LightNovelStaff } from '@/types/lightNovel'
 import { useFavorites } from '@/hooks/useFavorites'
+import ShareModal from '@/components/shared/ShareModal'
 
 export default function LightNovelDetail() {
   const router = useRouter()
@@ -18,6 +19,7 @@ export default function LightNovelDetail() {
   const [error, setError] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
   const [bannerLoaded, setBannerLoaded] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
   const numericId = Number(id)
 
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
@@ -78,12 +80,17 @@ export default function LightNovelDetail() {
   const title = novel.title.english || novel.title.romaji
   const bannerSrc = novel.bannerImage || novel.coverImage.extraLarge || fallbackBanner
   const coverSrc = novel.coverImage.extraLarge || novel.coverImage.large || fallbackCover
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
 
   return (
     <>
       <Head>
         <title>{`${title} | Light Novel Detail`}</title>
         <meta name="description" content={`Detail tentang Light Novel ${title}`} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={novel.description?.slice(0, 150) || 'No description'} />
+        <meta property="og:image" content={coverSrc} />
+        <meta property="og:url" content={shareUrl} />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white pb-24">
@@ -130,7 +137,7 @@ export default function LightNovelDetail() {
                 ))}
               </div>
 
-              {/* Favorite button under genres */}
+              {/* Favorite + Share button under genres */}
               <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:gap-4">
                 <motion.button
                   onClick={toggleFavorite}
@@ -146,6 +153,15 @@ export default function LightNovelDetail() {
                   {favLoading ? 'Processing...' : isFavorite ? 'Favorited' : 'Add to Favorite'}
                 </motion.button>
 
+                <motion.button
+                  onClick={() => setShareOpen(true)}
+                  whileTap={{ scale: 0.9 }}
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg shadow-lg transition text-white w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+                >
+                  <FaShareAlt className="text-lg" />
+                  Share
+                </motion.button>
+
                 <div className="mt-2 sm:mt-0 text-sm text-gray-300">
                   {novel.format || 'N/A'} • {novel.averageScore ? `${novel.averageScore}/100` : 'N/A'}
                 </div>
@@ -156,6 +172,7 @@ export default function LightNovelDetail() {
 
         {/* Main content */}
         <section className="max-w-4xl mx-auto px-4 md:px-8 py-8 space-y-6">
+          {/* Description */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -181,7 +198,7 @@ export default function LightNovelDetail() {
             </div>
           </motion.div>
 
-          {/* Additional Info grid */}
+          {/* Info grid */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -267,6 +284,15 @@ export default function LightNovelDetail() {
           </div>
         </section>
       </div>
+
+      {/* Share Modal */}
+      <ShareModal
+        open={shareOpen}
+        setOpen={setShareOpen}
+        title={title}
+        url={shareUrl}
+        thumbnail={coverSrc}
+      />
     </>
   )
 }
