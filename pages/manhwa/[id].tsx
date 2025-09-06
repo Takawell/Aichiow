@@ -8,9 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { ManhwaDetail } from '@/types/manhwa'
 import { useFavorites } from '@/hooks/useFavorites'
-import { Heart } from 'lucide-react'
+import { Heart, Share2 } from 'lucide-react'
 import { FaArrowLeft } from 'react-icons/fa'
-import { Share2 } from 'lucide-react'
 import ShareModal from '@/components/shared/ShareModal'
 
 export default function ManhwaDetailPage() {
@@ -188,15 +187,13 @@ export default function ManhwaDetailPage() {
       </div>
 
       {/* Share Modal */}
-      {showShare && (
-        <ShareModal
-          isOpen={showShare}
-          onClose={() => setShowShare(false)}
-          url={shareUrl}
-          title={shareTitle}
-          image={manhwa.coverImage.large}
-        />
-      )}
+      <ShareModal
+        open={showShare}
+        setOpen={setShowShare}
+        url={shareUrl}
+        title={shareTitle}
+        thumbnail={manhwa.coverImage.large}
+      />
 
       {/* Description */}
       <div className="max-w-5xl mx-auto px-4 md:px-8 mt-6">
