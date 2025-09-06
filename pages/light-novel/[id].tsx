@@ -29,9 +29,6 @@ export default function LightNovelDetail() {
 
   useEffect(() => {
     if (!id) return
-    setError(null)
-    setNovel(null)
-    setBannerLoaded(false)
 
     const loadDetail = async () => {
       try {
@@ -39,7 +36,6 @@ export default function LightNovelDetail() {
         const data = await fetchLightNovelDetail(Number(id))
         setNovel(data)
       } catch (e) {
-        console.error(e)
         setError('Gagal memuat detail Light Novel.')
       } finally {
         setLoading(false)
@@ -56,13 +52,11 @@ export default function LightNovelDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="w-full max-w-md px-6">
-          <div className="animate-pulse">
-            <div className="h-48 md:h-64 bg-gray-800 rounded-lg mb-4" />
-            <div className="h-6 bg-gray-700 rounded w-3/5 mb-3" />
-            <div className="h-4 bg-gray-700 rounded w-4/5 mb-2" />
-            <div className="h-36 bg-gray-800 rounded mt-6" />
-          </div>
+        <div className="animate-pulse w-full max-w-md px-6">
+          <div className="h-48 md:h-64 bg-gray-800 rounded-lg mb-4" />
+          <div className="h-6 bg-gray-700 rounded w-3/5 mb-3" />
+          <div className="h-4 bg-gray-700 rounded w-4/5 mb-2" />
+          <div className="h-36 bg-gray-800 rounded mt-6" />
         </div>
       </div>
     )
@@ -85,20 +79,14 @@ export default function LightNovelDetail() {
     <>
       <Head>
         <title>{`${title} | Light Novel Detail`}</title>
-        <meta name="description" content={`Detail tentang Light Novel ${title}`} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={novel.description?.slice(0, 150) || 'No description'} />
-        <meta property="og:image" content={coverSrc} />
-        <meta property="og:url" content={shareUrl} />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white pb-24">
         {/* Banner */}
-        <div className="relative w-full h-[280px] md:h-[380px] overflow-hidden">
+        <div className="relative w-full h-[220px] md:h-[320px] overflow-hidden">
           <motion.img
             src={bannerSrc}
             alt={title}
-            loading="lazy"
             onError={(e) => (e.currentTarget.src = fallbackBanner)}
             initial={{ scale: 1.05 }}
             animate={bannerLoaded ? { scale: 1 } : { scale: 1.05 }}
@@ -109,77 +97,81 @@ export default function LightNovelDetail() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
         </div>
 
-        {/* Header Info */}
-        <section className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 relative z-10">
+        {/* Header Section */}
+        <section className="max-w-5xl mx-auto px-4 -mt-20 md:-mt-28 relative z-10">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Cover */}
             <motion.img
               src={coverSrc}
               alt={title}
-              loading="lazy"
               onError={(e) => (e.currentTarget.src = fallbackCover)}
+              className="w-32 md:w-52 rounded-xl shadow-2xl border border-white/10 mx-auto md:mx-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="w-32 sm:w-40 md:w-52 rounded-xl shadow-2xl border border-white/10 object-cover"
             />
 
-            {/* Info */}
-            <div className="flex-1">
-              <h1 className="text-2xl md:text-4xl font-extrabold leading-tight mb-3">
-                {title}
-              </h1>
-
-              {/* Genres */}
-              <div className="flex flex-wrap gap-2 mb-4">
+            {/* Text Info */}
+            <div className="flex-1 flex flex-col justify-end text-center md:text-left">
+              <h1 className="text-2xl md:text-4xl font-extrabold">{title}</h1>
+              <div className="flex flex-wrap gap-2 justify-center md:justify-start mt-2">
                 {novel.genres.map((g) => (
                   <span
                     key={g}
-                    className="px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full text-xs"
+                    className="px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full text-xs shadow-md"
                   >
                     {g}
                   </span>
                 ))}
               </div>
 
-              {/* Action buttons: Favorite + Share */}
-              <div className="flex items-center gap-3">
+              {/* Buttons */}
+              <div className="mt-4 flex items-center justify-center md:justify-start gap-4">
+                {/* Mobile: icon only */}
+                <button
+                  onClick={toggleFavorite}
+                  disabled={favLoading}
+                  className="p-2 rounded-full bg-red-600/80 hover:bg-red-700 md:hidden"
+                >
+                  <FaHeart className={`text-lg ${isFavorite ? 'text-red-300' : 'text-white'}`} />
+                </button>
+                <button
+                  onClick={() => setShareOpen(true)}
+                  className="p-2 rounded-full bg-green-600/80 hover:bg-green-700 md:hidden"
+                >
+                  <FaShareAlt className="text-lg text-white" />
+                </button>
+
+                {/* Desktop: full buttons */}
                 <motion.button
                   onClick={toggleFavorite}
-                  disabled={favLoading || !Number.isFinite(numericId)}
+                  disabled={favLoading}
                   whileTap={{ scale: 0.9 }}
-                  className={`p-3 rounded-full shadow-md ${
+                  className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg transition text-white ${
                     isFavorite
                       ? 'bg-red-600 hover:bg-red-700'
-                      : 'bg-gray-700 hover:bg-gray-600'
-                  } ${favLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      : 'bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800'
+                  }`}
                 >
-                  <FaHeart
-                    className={`text-lg ${isFavorite ? 'text-red-200' : 'text-white'}`}
-                  />
+                  <FaHeart className={`text-lg ${isFavorite ? 'text-red-300' : 'text-white'}`} />
+                  {isFavorite ? 'Favorited' : 'Add to Favorite'}
                 </motion.button>
 
                 <motion.button
                   onClick={() => setShareOpen(true)}
                   whileTap={{ scale: 0.9 }}
-                  className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 shadow-md"
+                  className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg text-white bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
                 >
-                  <FaShareAlt className="text-lg text-white" />
+                  <FaShareAlt className="text-lg" />
+                  Share
                 </motion.button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Main Content */}
+        {/* Description */}
         <section className="max-w-4xl mx-auto px-4 md:px-8 py-8 space-y-6">
-          {/* Description */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45 }}
-            className="bg-gray-800/50 backdrop-blur-md p-5 rounded-xl shadow-lg"
-          >
+          <motion.div className="bg-gray-800/50 backdrop-blur-md p-5 rounded-xl shadow-lg">
             <h2 className="text-lg font-semibold mb-3">Description</h2>
             <div className="text-gray-300 text-sm md:text-base leading-relaxed">
               <p
@@ -197,7 +189,7 @@ export default function LightNovelDetail() {
             </div>
           </motion.div>
 
-          {/* Info Grid */}
+          {/* Info grid */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -273,23 +265,17 @@ export default function LightNovelDetail() {
               </div>
             </section>
           )}
-
-          <div className="py-6 text-center">
-            <Link href="/light-novel" className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 rounded-lg text-white shadow-md">
-              ← Back to Light Novels
-            </Link>
-          </div>
         </section>
+
+        <div className="py-6 text-center">
+          <Link href="/light-novel" className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 rounded-lg text-white shadow-md">
+            ← Back to Light Novels
+          </Link>
+        </div>
       </div>
 
       {/* Share Modal */}
-      <ShareModal
-        open={shareOpen}
-        setOpen={setShareOpen}
-        title={title}
-        url={shareUrl}
-        thumbnail={coverSrc}
-      />
+      <ShareModal open={shareOpen} setOpen={setShareOpen} title={title} url={shareUrl} thumbnail={coverSrc} />
     </>
   )
 }
