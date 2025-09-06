@@ -1,0 +1,124 @@
+"use client"
+
+import React, { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { FaWhatsapp, FaInstagram, FaTelegramPlane, FaLink } from "react-icons/fa"
+import { FaXTwitter } from "react-icons/fa6"
+
+interface ShareModalProps {
+  title: string
+  image: string
+  url: string
+}
+
+export default function ShareModal({ title, image, url }: ShareModalProps) {
+  const [open, setOpen] = useState(false)
+
+  const shareData = {
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(title + " " + url)}`,
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+    x: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+    instagram: `https://www.instagram.com/?url=${encodeURIComponent(url)}`,
+  }
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(url)
+    alert("Link copied to clipboard ✅")
+  }
+
+  return (
+    <>
+      {/* Tombol buka modal */}
+      <button
+        onClick={() => setOpen(true)}
+        className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 text-white font-medium shadow-md hover:opacity-90"
+      >
+        Share
+      </button>
+
+      {/* Overlay Modal */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Konten Modal */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-gray-900 text-white rounded-2xl shadow-2xl w-[90%] max-w-md p-6 relative"
+            >
+              {/* Tombol close */}
+              <button
+                onClick={() => setOpen(false)}
+                className="absolute top-3 right-3 text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+
+              {/* Preview Thumbnail */}
+              <div className="flex items-center gap-4">
+                <img
+                  src={image}
+                  alt={title}
+                  className="w-20 h-28 object-cover rounded-lg shadow-md"
+                />
+                <div>
+                  <h2 className="font-bold text-lg line-clamp-2">{title}</h2>
+                  <p className="text-sm text-gray-400 line-clamp-1">{url}</p>
+                </div>
+              </div>
+
+              {/* Tombol share */}
+              <div className="flex justify-center gap-4 mt-6">
+                <a
+                  href={shareData.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-full bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <FaWhatsapp size={22} />
+                </a>
+                <a
+                  href={shareData.telegram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-full bg-sky-500 hover:bg-sky-600 text-white"
+                >
+                  <FaTelegramPlane size={22} />
+                </a>
+                <a
+                  href={shareData.x}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-full bg-black hover:bg-gray-900 text-white"
+                >
+                  <FaXTwitter size={22} />
+                </a>
+                <a
+                  href={shareData.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-full bg-pink-500 hover:bg-pink-600 text-white"
+                >
+                  <FaInstagram size={22} />
+                </a>
+                <button
+                  onClick={copyToClipboard}
+                  className="p-3 rounded-full bg-gray-700 hover:bg-gray-800 text-white"
+                >
+                  <FaLink size={22} />
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
