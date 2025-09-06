@@ -8,6 +8,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useFavorites } from '@/hooks/useFavorites'
 import { Heart, Share2 } from 'lucide-react'
+import ShareModal from '@/components/shared/ShareModal'
 
 export default function MangaDetailPage() {
   const router = useRouter()
@@ -19,8 +20,8 @@ export default function MangaDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const [showFullDesc, setShowFullDesc] = useState(false)
+  const [showShare, setShowShare] = useState(false)
 
-  // === favorites hook ===
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: manga?.id ? parseInt(manga.id, 36) : undefined,
     mediaType: 'manga',
@@ -71,18 +72,11 @@ export default function MangaDetailPage() {
   const coverUrl = getCoverImage(manga.id, cover?.attributes?.fileName || '')
   const tags = manga.attributes.tags || []
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title,
-        text: `Check out this manga: ${title}`,
-        url: window.location.href,
-      }).catch(console.error)
-    } else {
-      navigator.clipboard.writeText(window.location.href)
-      alert('Link copied to clipboard!')
-    }
-  }
+  // Share data
+  const shareUrl =
+    typeof window !== 'undefined' ? `${window.location.origin}/manga/${manga.id}` : ''
+  const shareTitle = title
+  const shareThumbnail = coverUrl
 
   return (
     <main className="relative bg-neutral-950 text-white">
@@ -134,7 +128,7 @@ export default function MangaDetailPage() {
               </button>
 
               <button
-                onClick={handleShare}
+                onClick={() => setShowShare(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-zinc-700 hover:bg-zinc-600 transition"
               >
                 <Share2 size={18} className="text-white" />
@@ -143,7 +137,11 @@ export default function MangaDetailPage() {
             </div>
 
             {/* Description */}
-            <p className={`text-sm text-zinc-300 whitespace-pre-line ${!showFullDesc ? 'line-clamp-5' : ''}`}>
+            <p
+              className={`text-sm text-zinc-300 whitespace-pre-line ${
+                !showFullDesc ? 'line-clamp-5' : ''
+              }`}
+            >
               {description}
             </p>
             {description.length > 200 && (
@@ -171,7 +169,10 @@ export default function MangaDetailPage() {
                       href={`/read/${chapter.id}`}
                       className="block px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg border border-zinc-700 transition"
                     >
-                      <span className="font-semibold text-indigo-400">Chapter {chapterNumber}</span>: {chapterTitle}
+                      <span className="font-semibold text-indigo-400">
+                        Chapter {chapterNumber}
+                      </span>
+                      : {chapterTitle}
                     </Link>
                   </li>
                 )
@@ -213,7 +214,16 @@ export default function MangaDetailPage() {
             </div>
           </section>
         )}
-      </section>  
+      </section>
+
+      {/* Share Modal */}
+      <ShareModal
+        open={showShare}
+        setOpen={setShowShare}
+        url={shareUrl}
+        title={shareTitle}
+        thumbnail={shareThumbnail}
+      />
 
       {/* Back Button */}
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
