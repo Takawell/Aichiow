@@ -60,7 +60,7 @@ export default function ShareModal({ open, setOpen, title, url, thumbnail }: Sha
               />
               <div>
                 <h2 className="font-bold text-lg line-clamp-2">{title}</h2>
-                <p className="text-sm text-gray-400 line-clamp-1">{url}</p>
+                <p className="text-sm text-gray-400 truncate max-w-[180px]">{url}</p>
               </div>
             </div>
 
