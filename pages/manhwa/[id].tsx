@@ -51,7 +51,8 @@ export default function ManhwaDetailPage() {
     )
   }
 
-  const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/manhwa/${manhwa.id}`
+  // share 
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const shareTitle = manhwa.title.english || manhwa.title.romaji
 
   return (
