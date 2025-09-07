@@ -72,9 +72,7 @@ export default function MangaDetailPage() {
   const coverUrl = getCoverImage(manga.id, cover?.attributes?.fileName || '')
   const tags = manga.attributes.tags || []
 
-  // Share data
-  const shareUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}/manga/${manga.id}` : ''
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const shareTitle = title
   const shareThumbnail = coverUrl
 
