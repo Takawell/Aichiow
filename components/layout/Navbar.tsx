@@ -10,7 +10,7 @@ import BottomNav from './BottomNav'
 
 const navItems = [
   { href: '/home', label: 'HOME' },
-  { href: '/upcoming', label: 'TIMETABLE' },
+  { href: '/upcoming', label: 'SCHEDULE' },
   { href: '/explore', label: 'EXPLORE' },
   { href: '/manga', label: 'MANGA' },
   { href: '/manhwa', label: 'MANHWA' },
