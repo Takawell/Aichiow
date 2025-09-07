@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
-import qs from 'qs' 
 
 const BASE_URL = 'https://api.mangadex.org'
 
@@ -20,14 +19,7 @@ export default async function handler(
         includes: ['author', 'artist', 'cover_art'],
         'contentRating[]': ['safe', 'suggestive', 'erotica', 'pornographic'],
       },
-      paramsSerializer: (params) =>
-        qs.stringify(params, { arrayFormat: 'repeat' }),
     })
-
-    if (response.data?.result === 'error') {
-      console.error('[API Error]', response.data.errors)
-      return res.status(404).json({ message: 'Manga not found or restricted' })
-    }
 
     const manga = response.data?.data
 
