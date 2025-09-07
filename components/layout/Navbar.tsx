@@ -32,7 +32,9 @@ export default function Navbar() {
 
   useEffect(() => {
     const getProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (user) {
         const { data, error } = await supabase
           .from('profiles')
@@ -47,6 +49,8 @@ export default function Navbar() {
     }
     getProfile()
   }, [])
+
+  const isReadPage = router.pathname.startsWith('/read/')
 
   return (
     <>
@@ -98,7 +102,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile: cuma avatar */}
+          {/* Mobile Avatar only*/}
           <div className="md:hidden flex items-center gap-3">
             <Link href="/profile">
               <img
@@ -111,8 +115,8 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Bottom Navigation khusus mobile */}
-      <BottomNav />
+      {/* Navbar mobile */}
+      {!isReadPage && <BottomNav />}
     </>
   )
 }
