@@ -14,20 +14,22 @@ export default function ComingSoonPage() {
           🚧 <span className="text-primary font-semibold">Fitur Streaming Sedang Dikembangkan</span>
         </p>
         <p>
-          Kami mendengar keinginan kalian, dan kami tidak main-main. Aichiow sedang membangun <span className="text-blue-400 font-semibold">pengalaman streaming anime masa depan</span> — cepat, bersih, legal, dan dirancang khusus untuk para penikmat anime sejati.
+          Aichiow sedang merancang{' '}
+          <span className="text-blue-400 font-semibold">pengalaman streaming generasi berikutnya</span> — cepat, bersih, dan sepenuhnya legal.
         </p>
         <p>
-          Kami sedang mengembangkan sistem yang tidak hanya menampilkan anime, tapi juga <span className="text-pink-400 font-semibold">menghormati karya para kreator</span> dan menjaga kualitas tanpa kompromi.
+          Tidak seperti platform yang hanya menyalin konten tanpa izin, kami membangun ekosistem yang{' '}
+          <span className="text-pink-400 font-semibold">menghormati kreator</span>, menjaga kualitas, dan menghadirkan kenyamanan terbaik bagi komunitas anime.
         </p>
         <p>
-          💡 Inovasi ini bukan proyek sambil lalu — ini adalah bagian dari misi besar kami: <br />
-          Menciptakan <span className="text-yellow-400 font-semibold">satu platform utama</span> bagi komunitas anime di seluruh dunia.
+          💡 Ini adalah bagian dari visi besar kami: <br />
+          Menciptakan <span className="text-yellow-400 font-semibold">satu rumah utama</span> bagi penikmat anime di seluruh dunia.
         </p>
         <p>
-          🔧 Mohon bersabar. Kami sedang menguji, menyempurnakan, dan menyiapkan sesuatu yang belum pernah kamu lihat sebelumnya.
+          🔧 Mohon bersabar. Kami sedang menguji, menyempurnakan, dan menyiapkan sesuatu yang belum pernah ada sebelumnya.
         </p>
-        <p>
-          Terima kasih sudah menjadi bagian dari perjalanan ini. <span className="text-primary font-semibold">Aichiow tidak akan mengecewakan</span>.
+        <p className="italic text-gray-400 text-sm">
+          Aichiow bukan sekadar streaming — ini adalah standar baru.
         </p>
       </>
     ),
@@ -37,20 +39,22 @@ export default function ComingSoonPage() {
           🚧 <span className="text-primary font-semibold">Streaming Feature Under Development</span>
         </p>
         <p>
-          We’ve heard your voices — and we’re not taking this lightly. Aichiow is building the <span className="text-blue-400 font-semibold">next-generation anime streaming experience</span>: fast, clean, legal, and crafted for true anime lovers.
+          Aichiow is building the{' '}
+          <span className="text-blue-400 font-semibold">next-generation streaming experience</span>: fast, clean, and fully legal.
         </p>
         <p>
-          This isn’t just about playing videos — it’s about <span className="text-pink-400 font-semibold">honoring creators</span>, preserving quality, and reimagining how anime should be delivered.
+          Unlike platforms that simply scrape content without permission, we’re creating an ecosystem that{' '}
+          <span className="text-pink-400 font-semibold">respects creators</span>, preserves quality, and delivers true comfort for anime fans.
         </p>
         <p>
-          💡 This is part of a much bigger vision: <br />
-          To build <span className="text-yellow-400 font-semibold">the ultimate home for the global anime community</span>.
+          💡 This is part of our bigger vision: <br />
+          To build <span className="text-yellow-400 font-semibold">the ultimate home</span> for anime lovers worldwide.
         </p>
         <p>
           🔧 Please be patient. We’re testing, refining, and preparing something the anime world hasn’t seen before.
         </p>
-        <p>
-          Thank you for being with us on this journey. <span className="text-primary font-semibold">Aichiow won’t let you down</span>.
+        <p className="italic text-gray-400 text-sm">
+          Aichiow is not just streaming — it’s a new standard.
         </p>
       </>
     ),
@@ -61,16 +65,73 @@ export default function ComingSoonPage() {
       <Head>
         <title>Coming Soon | Aichiow</title>
       </Head>
-      <main className="bg-gradient-to-br from-black via-gray-900 to-black text-white min-h-screen flex flex-col items-center justify-center text-center px-6 py-12 relative overflow-hidden">
+      <main className="relative bg-gradient-to-br from-black via-gray-900 to-black text-white min-h-screen flex flex-col items-center justify-center text-center px-6 py-12 overflow-hidden">
         {/* Background Glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08)_0%,transparent_80%)] pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_70%)] pointer-events-none animate-pulse"></div>
+
+        {/* Shine Effect */}
+        <style>{`
+          .shine {
+            position: relative;
+            overflow: hidden;
+          }
+          .shine::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+            animation: shine 3s infinite;
+          }
+          @keyframes shine {
+            0% { left: -75%; }
+            100% { left: 125%; }
+          }
+          .glitch {
+            position: relative;
+          }
+          .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            width: 100%;
+            background: transparent;
+            overflow: hidden;
+            clip: rect(0, 900px, 0, 0);
+          }
+          .glitch::before {
+            animation: glitchTop 2s infinite linear alternate-reverse;
+            color: #ff00ff;
+          }
+          .glitch::after {
+            animation: glitchBottom 1.5s infinite linear alternate-reverse;
+            color: #00ffff;
+          }
+          @keyframes glitchTop {
+            0% { clip: rect(0, 9999px, 0, 0); }
+            20% { clip: rect(0, 9999px, 100%, 0); transform: translate(-2px, -2px); }
+            40% { clip: rect(0, 9999px, 0, 0); }
+            60% { clip: rect(0, 9999px, 100%, 0); transform: translate(2px, -1px); }
+            100% { clip: rect(0, 9999px, 0, 0); }
+          }
+          @keyframes glitchBottom {
+            0% { clip: rect(0, 9999px, 0, 0); }
+            20% { clip: rect(0, 9999px, 100%, 0); transform: translate(2px, 1px); }
+            40% { clip: rect(0, 9999px, 0, 0); }
+            60% { clip: rect(0, 9999px, 100%, 0); transform: translate(-1px, 2px); }
+            100% { clip: rect(0, 9999px, 0, 0); }
+          }
+        `}</style>
 
         {/* Title */}
         <motion.h1
           initial={{ opacity: 0, scale: 0.8, y: -30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-600 drop-shadow-[0_0_30px_rgba(255,0,255,0.6)] animate-bounce mb-6 hover:scale-110 transition-transform"
+          data-text="COMING SOON!"
+          className="glitch shine text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-600 drop-shadow-[0_0_30px_rgba(255,0,255,0.6)] mb-6"
         >
           COMING SOON!
         </motion.h1>
