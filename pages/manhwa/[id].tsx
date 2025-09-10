@@ -193,8 +193,8 @@ export default function ManhwaDetailPage() {
                     <Link
                       key={genre}
                       href={`/manhwa/genre/${encodeURIComponent(slug)}`}
-                      className="px-3 py-1 text-sm rounded-full bg-emerald-600/20 hover:bg-emerald-600/40 
-                                 text-emerald-300 border border-emerald-600/40 transition transform hover:scale-105"
+                      className="px-3 py-1 text-sm rounded-full bg-blue-600/20 hover:bg-blue-600/40 
+                                 text-blue-300 border border-blue-600/40 transition transform hover:scale-105"
                     >
                       {genre}
                     </Link>
