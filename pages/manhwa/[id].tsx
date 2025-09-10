@@ -51,7 +51,6 @@ export default function ManhwaDetailPage() {
     )
   }
 
-  // share 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const shareTitle = manhwa.title.english || manhwa.title.romaji
 
@@ -120,22 +119,26 @@ export default function ManhwaDetailPage() {
         )}
       </AnimatePresence>
 
-      {/* Hero Banner */}
-      <div className="relative w-full h-[360px] md:h-[480px] overflow-hidden">
-        {manhwa.bannerImage ? (
-          <Image
-            src={manhwa.bannerImage}
-            alt={manhwa.title.english || manhwa.title.romaji}
-            fill
-            priority
-            className="object-cover brightness-50"
-          />
-        ) : (
-          <div className="w-full h-full bg-neutral-800" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+      {/* Hero Section */}
+      <div className="relative w-full">
+        {/* Banner */}
+        <div className="relative w-full h-[260px] md:h-[480px]">
+          {manhwa.bannerImage ? (
+            <Image
+              src={manhwa.bannerImage}
+              alt={manhwa.title.english || manhwa.title.romaji}
+              fill
+              priority
+              className="object-cover brightness-50"
+            />
+          ) : (
+            <div className="w-full h-full bg-neutral-800" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+        </div>
 
-        <div className="absolute bottom-4 left-4 right-4 md:bottom-10 md:left-10 md:right-auto z-10 flex flex-col md:flex-row items-start md:items-end gap-4">
+        {/* Info Section */}
+        <div className="relative max-w-5xl mx-auto px-4 -mt-16 md:-mt-24 flex flex-col md:flex-row gap-6">
           {/* Poster */}
           <div className="w-[120px] md:w-[180px] aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg shrink-0">
             <Image
@@ -147,17 +150,18 @@ export default function ManhwaDetailPage() {
           </div>
 
           {/* Info */}
-          <div className="w-full max-w-full md:max-w-[calc(100vw-240px-6rem)]">
+          <div className="flex-1 flex flex-col justify-end">
             <h1 className="text-xl sm:text-2xl md:text-4xl font-bold drop-shadow-lg break-words leading-tight">
               {manhwa.title.english || manhwa.title.romaji}
             </h1>
+
             {manhwa.averageScore && (
               <p className="text-blue-400 mt-2 font-medium">
                 ⭐ {manhwa.averageScore / 10}/10
               </p>
             )}
 
-            {/* Genres (all devices) */}
+            {/* Genres */}
             {manhwa.genres && manhwa.genres.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {manhwa.genres.map((genre) => (
@@ -173,7 +177,7 @@ export default function ManhwaDetailPage() {
             )}
 
             {/* Favorite + Share */}
-            <div className="flex gap-3 mt-4 md:mt-3"> {/* mobile diturunin lebih jauh */}
+            <div className="flex gap-3 mt-4">
               <button
                 onClick={toggleFavorite}
                 disabled={favLoading}
