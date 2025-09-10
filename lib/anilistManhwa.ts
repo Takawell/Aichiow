@@ -142,3 +142,49 @@ export async function fetchGenres() {
   const { data } = await response.json()
   return data.GenreCollection
 }
+
+export async function fetchManhwaByGenre(page = 1, genre: string) {
+  const query = `
+    query ($page: Int, $genre: String) {
+      Page(page: $page, perPage: 20) {
+        media(
+          type: MANGA
+          countryOfOrigin: "KR"
+          genre: $genre
+          sort: POPULARITY_DESC
+        ) {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          coverImage {
+            large
+            extraLarge
+          }
+          bannerImage
+          averageScore
+          description(asHtml: false)
+          genres
+        }
+        pageInfo {
+          total
+          currentPage
+          lastPage
+          hasNextPage
+        }
+      }
+    }
+  `
+  const response = await fetch(ANILIST_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, variables: { page, genre } })
+  })
+  const { data } = await response.json()
+  return {
+    list: data.Page.media,
+    pageInfo: data.Page.pageInfo
+  }
+}
