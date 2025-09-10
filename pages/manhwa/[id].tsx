@@ -51,96 +51,31 @@ export default function ManhwaDetailPage() {
     )
   }
 
+  // share 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const shareTitle = manhwa.title.english || manhwa.title.romaji
 
   return (
     <div className="bg-neutral-950 min-h-screen text-white relative overflow-hidden">
-      {/* Notification Overlay */}
-      <AnimatePresence>
-        {showCard && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed top-0 left-0 w-screen h-screen z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm md:backdrop-blur-md"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 30 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="relative max-w-md w-[90%] p-6 rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/20 text-center"
-            >
-              <h2 className="text-xl md:text-2xl font-bold mb-3">
-                {lang === 'en' ? 'Notice' : 'Pemberitahuan'}
-              </h2>
-              <p className="text-gray-200 mb-4 text-sm md:text-base">
-                {lang === 'en'
-                  ? 'Just a reminder, this manhwa can only be read on the manga page. Press close if you want to continue viewing the details.'
-                  : 'Sekadar mengingatkan, manhwa ini hanya bisa dibaca di halaman manga. Tekan tutup jika kamu ingin melanjutkan melihat detailnya.'}
-              </p>
-              <div className="flex justify-center gap-3 mt-4">
-                <Link
-                  href="/manga/explore"
-                  className="px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-medium shadow-lg transition"
-                >
-                  {lang === 'en' ? 'Go to Manga' : 'Buka Manga'}
-                </Link>
-                <button
-                  onClick={() => setShowCard(false)}
-                  className="px-5 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium shadow-lg border border-white/20 transition"
-                >
-                  {lang === 'en' ? 'Close' : 'Tutup'}
-                </button>
-              </div>
-
-              {/* Toggle Language */}
-              <div className="mt-6 flex items-center justify-center gap-2 text-sm">
-                <span className={lang === 'en' ? 'text-blue-400 font-semibold' : 'text-gray-300'}>
-                  EN
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={lang === 'id'}
-                    onChange={() => setLang(lang === 'en' ? 'id' : 'en')}
-                  />
-                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600 transition"></div>
-                  <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
-                </label>
-                <span className={lang === 'id' ? 'text-blue-400 font-semibold' : 'text-gray-300'}>
-                  ID
-                </span>
-              </div>
-            </motion.div>
-          </motion.div>
+      {/* Hero Banner */}
+      <div className="relative w-full h-[280px] sm:h-[340px] md:h-[480px] overflow-hidden">
+        {manhwa.bannerImage ? (
+          <Image
+            src={manhwa.bannerImage}
+            alt={manhwa.title.english || manhwa.title.romaji}
+            fill
+            priority
+            className="object-cover brightness-50"
+          />
+        ) : (
+          <div className="w-full h-full bg-neutral-800" />
         )}
-      </AnimatePresence>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
 
-      {/* Hero Section */}
-      <div className="relative w-full">
-        {/* Banner */}
-        <div className="relative w-full h-[260px] md:h-[480px]">
-          {manhwa.bannerImage ? (
-            <Image
-              src={manhwa.bannerImage}
-              alt={manhwa.title.english || manhwa.title.romaji}
-              fill
-              priority
-              className="object-cover brightness-50"
-            />
-          ) : (
-            <div className="w-full h-full bg-neutral-800" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-        </div>
-
-        {/* Info Section */}
-        <div className="relative max-w-5xl mx-auto px-4 -mt-16 md:-mt-24 flex flex-col md:flex-row gap-6">
+        {/* Content wrapper */}
+        <div className="absolute inset-x-4 bottom-[-80px] sm:bottom-[-100px] md:bottom-10 md:left-10 md:right-auto z-10 flex flex-col md:flex-row items-start md:items-end gap-6">
           {/* Poster */}
-          <div className="w-[120px] md:w-[180px] aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg shrink-0">
+          <div className="w-[120px] sm:w-[150px] md:w-[200px] aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg shrink-0">
             <Image
               src={manhwa.coverImage.extraLarge || manhwa.coverImage.large}
               alt={manhwa.title.english || manhwa.title.romaji}
@@ -150,13 +85,12 @@ export default function ManhwaDetailPage() {
           </div>
 
           {/* Info */}
-          <div className="flex-1 flex flex-col justify-end">
-            <h1 className="text-xl sm:text-2xl md:text-4xl font-bold drop-shadow-lg break-words leading-tight">
+          <div className="w-full md:max-w-[calc(100vw-260px-6rem)]">
+            <h1 className="text-2xl md:text-4xl font-bold drop-shadow-lg break-words leading-tight">
               {manhwa.title.english || manhwa.title.romaji}
             </h1>
-
             {manhwa.averageScore && (
-              <p className="text-blue-400 mt-2 font-medium">
+              <p className="text-blue-400 mt-1 font-medium">
                 ⭐ {manhwa.averageScore / 10}/10
               </p>
             )}
@@ -168,7 +102,7 @@ export default function ManhwaDetailPage() {
                   <Link
                     key={genre}
                     href={`/manhwa/genre/${encodeURIComponent(genre)}`}
-                    className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm transition"
+                    className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm transition"
                   >
                     {genre}
                   </Link>
@@ -177,11 +111,11 @@ export default function ManhwaDetailPage() {
             )}
 
             {/* Favorite + Share */}
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-3 mt-5 md:mt-4">
               <button
                 onClick={toggleFavorite}
                 disabled={favLoading}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition text-sm sm:text-base ${
                   isFavorite
                     ? 'bg-red-600 hover:bg-red-700'
                     : 'bg-white/10 hover:bg-white/20'
@@ -191,12 +125,12 @@ export default function ManhwaDetailPage() {
                   size={18}
                   className={isFavorite ? 'fill-current text-white' : 'text-white'}
                 />
-                {isFavorite ? 'Remove Favorite' : 'Add Favorite'}
+                {isFavorite ? 'Favorited' : 'Favorite'}
               </button>
 
               <button
                 onClick={() => setShowShare(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm sm:text-base"
               >
                 <Share2 size={18} className="text-white" />
                 Share
@@ -205,6 +139,9 @@ export default function ManhwaDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Spacer for mobile so content tidak nabrak */}
+      <div className="h-[100px] sm:h-[120px] md:h-0"></div>
 
       {/* Share Modal */}
       <ShareModal
@@ -288,7 +225,7 @@ export default function ManhwaDetailPage() {
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
         <Link
           href="/manhwa"
-          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl backdrop-blur-md border border-transparent hover:border-blue-400"
+          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl backdrop-blur-md"
         >
           <FaArrowLeft className="mr-2 text-xl transition-all duration-300" />
           Back to Manhwa
