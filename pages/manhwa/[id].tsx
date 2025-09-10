@@ -51,7 +51,7 @@ export default function ManhwaDetailPage() {
     )
   }
 
-  // share 
+  // share
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const shareTitle = manhwa.title.english || manhwa.title.romaji
 
@@ -157,6 +157,23 @@ export default function ManhwaDetailPage() {
               </p>
             )}
 
+            {/* Genres */}
+            {manhwa.genres && manhwa.genres.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {manhwa.genres.map((genre) => (
+                  <Link
+                    key={genre}
+                    href={`/manhwa/genre/${encodeURIComponent(
+                      genre.toLowerCase().replace(/\s+/g, '-')
+                    )}`}
+                    className="px-3 py-1 text-sm rounded-full bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-600/40 transition transform hover:scale-105"
+                  >
+                    {genre}
+                  </Link>
+                ))}
+              </div>
+            )}
+
             {/* Favorite + Share */}
             <div className="flex gap-3 mt-3">
               <button
@@ -183,25 +200,6 @@ export default function ManhwaDetailPage() {
                 Share
               </button>
             </div>
-
-            {/* Genres */}
-            {manhwa.genres && manhwa.genres.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {manhwa.genres.map((genre) => {
-                  const slug = genre.toLowerCase().replace(/\s+/g, "-")
-                  return (
-                    <Link
-                      key={genre}
-                      href={`/manhwa/genre/${encodeURIComponent(slug)}`}
-                      className="px-3 py-1 text-sm rounded-full bg-blue-600/20 hover:bg-blue-600/40 
-                                 text-blue-300 border border-blue-600/40 transition transform hover:scale-105"
-                    >
-                      {genre}
-                    </Link>
-                  )
-                })}
-              </div>
-            )}
           </div>
         </div>
       </div>
