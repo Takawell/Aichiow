@@ -166,7 +166,7 @@ export default function ManhwaDetailPage() {
                     href={`/manhwa/genre/${encodeURIComponent(
                       genre.toLowerCase().replace(/\s+/g, '-')
                     )}`}
-                    className="px-3 py-1 text-sm rounded-full bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-600/40 transition transform hover:scale-105"
+                    className="px-3 py-1 text-sm rounded-full bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-600/40 transition"
                   >
                     {genre}
                   </Link>
