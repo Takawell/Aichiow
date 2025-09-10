@@ -157,9 +157,9 @@ export default function ManhwaDetailPage() {
               </p>
             )}
 
-            {/* Genres (PC only) */}
+            {/* Genres (all devices) */}
             {manhwa.genres && manhwa.genres.length > 0 && (
-              <div className="hidden md:flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {manhwa.genres.map((genre) => (
                   <Link
                     key={genre}
@@ -173,7 +173,7 @@ export default function ManhwaDetailPage() {
             )}
 
             {/* Favorite + Share */}
-            <div className="flex gap-3 mt-3">
+            <div className="flex gap-3 mt-4 md:mt-3"> {/* mobile diturunin lebih jauh */}
               <button
                 onClick={toggleFavorite}
                 disabled={favLoading}
@@ -211,24 +211,8 @@ export default function ManhwaDetailPage() {
         thumbnail={manhwa.coverImage.large}
       />
 
-      {/* Description + Genres (Mobile) */}
+      {/* Description */}
       <div className="max-w-5xl mx-auto px-4 md:px-8 mt-6">
-        {/* Genres (Mobile only) */}
-        {manhwa.genres && manhwa.genres.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4 md:hidden">
-            {manhwa.genres.map((genre) => (
-              <Link
-                key={genre}
-                href={`/manhwa/genre/${encodeURIComponent(genre)}`}
-                className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm transition"
-              >
-                {genre}
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {/* Description */}
         <p className="text-gray-300 leading-relaxed whitespace-pre-line">
           {manhwa.description?.replace(/<[^>]+>/g, '')}
         </p>
