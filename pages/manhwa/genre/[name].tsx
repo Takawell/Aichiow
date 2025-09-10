@@ -32,7 +32,7 @@ export default function GenreManhwaPage() {
       <Head>
         <title>{genreName} Manhwa — Aichiow</title>
       </Head>
-      <main className="min-h-screen px-4 py-10 bg-gradient-to-b from-[#0d1512] via-[#0f1f1a] to-[#132820] text-white">
+      <main className="min-h-screen px-4 py-10 bg-gradient-to-b from-[#0a0f1a] via-[#0d1520] to-[#101826] text-white">
         {/* Header */}
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
@@ -40,16 +40,16 @@ export default function GenreManhwaPage() {
           transition={{ duration: 0.6 }}
           className="text-4xl font-extrabold mb-10 tracking-wide flex items-center gap-3 drop-shadow-lg"
         >
-          <FaBookOpen className="text-emerald-500 animate-pulse" />
+          <FaBookOpen className="text-blue-500 animate-pulse drop-shadow-md" />
           <span>
-            <span className="text-emerald-400">{genreName}</span> Manhwa
+            <span className="text-blue-400">{genreName}</span> Manhwa
           </span>
         </motion.h1>
 
         {/* Loading */}
         {loading ? (
           <div className="flex justify-center items-center text-lg gap-2 animate-pulse">
-            <FaSpinner className="animate-spin text-emerald-400 text-xl" />
+            <FaSpinner className="animate-spin text-blue-400 text-xl" />
             Loading manhwa...
           </div>
         ) : manhwas.length === 0 ? (
@@ -60,7 +60,7 @@ export default function GenreManhwaPage() {
             transition={{ duration: 0.5 }}
             className="text-center text-lg text-gray-400 flex flex-col items-center gap-2"
           >
-            <FaSadTear className="text-3xl text-emerald-400" />
+            <FaSadTear className="text-3xl text-blue-400" />
             No manhwa found in this genre.
           </motion.div>
         ) : (
@@ -95,7 +95,7 @@ export default function GenreManhwaPage() {
               <div className="mt-10 flex justify-center">
                 <button
                   onClick={handleLoadMore}
-                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 transition rounded-md text-white font-semibold shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 transition rounded-md text-white font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40"
                 >
                   Load More
                 </button>
