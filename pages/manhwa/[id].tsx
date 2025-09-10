@@ -51,13 +51,12 @@ export default function ManhwaDetailPage() {
     )
   }
 
-  // share 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const shareTitle = manhwa.title.english || manhwa.title.romaji
 
   return (
     <div className="bg-neutral-950 min-h-screen text-white relative overflow-hidden">
-      {/* Notification Overlay */}
+      {/* Overlay Notice */}
       <AnimatePresence>
         {showCard && (
           <motion.div
@@ -95,8 +94,6 @@ export default function ManhwaDetailPage() {
                   {lang === 'en' ? 'Close' : 'Tutup'}
                 </button>
               </div>
-
-              {/* Toggle Language */}
               <div className="mt-6 flex items-center justify-center gap-2 text-sm">
                 <span className={lang === 'en' ? 'text-blue-400 font-semibold' : 'text-gray-300'}>
                   EN
@@ -108,7 +105,7 @@ export default function ManhwaDetailPage() {
                     checked={lang === 'id'}
                     onChange={() => setLang(lang === 'en' ? 'id' : 'en')}
                   />
-                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600 transition"></div>
+                  <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-blue-600 transition"></div>
                   <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
                 </label>
                 <span className={lang === 'id' ? 'text-blue-400 font-semibold' : 'text-gray-300'}>
@@ -121,23 +118,27 @@ export default function ManhwaDetailPage() {
       </AnimatePresence>
 
       {/* Hero Banner */}
-      <div className="relative w-full h-[360px] md:h-[480px] overflow-hidden">
+      <div className="relative w-full h-auto md:h-[500px] bg-neutral-900">
+        {/* Banner */}
         {manhwa.bannerImage ? (
-          <Image
-            src={manhwa.bannerImage}
-            alt={manhwa.title.english || manhwa.title.romaji}
-            fill
-            priority
-            className="object-cover brightness-50"
-          />
+          <div className="relative w-full h-[220px] md:h-[500px]">
+            <Image
+              src={manhwa.bannerImage}
+              alt={manhwa.title.english || manhwa.title.romaji}
+              fill
+              priority
+              className="object-cover brightness-50"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+          </div>
         ) : (
-          <div className="w-full h-full bg-neutral-800" />
+          <div className="w-full h-[220px] md:h-[500px] bg-neutral-800" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
 
-        <div className="absolute bottom-4 left-4 right-4 md:bottom-10 md:left-10 md:right-auto z-10 flex flex-col md:flex-row items-start md:items-end gap-4">
+        {/* Info Section */}
+        <div className="relative -mt-20 md:absolute md:bottom-10 md:left-10 md:right-10 z-10 flex flex-col md:flex-row items-start md:items-end gap-6 px-4 md:px-0">
           {/* Poster */}
-          <div className="w-[120px] md:w-[180px] aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg shrink-0">
+          <div className="w-[130px] md:w-[200px] aspect-[2/3] relative rounded-xl overflow-hidden shadow-2xl shrink-0 border border-white/10">
             <Image
               src={manhwa.coverImage.extraLarge || manhwa.coverImage.large}
               alt={manhwa.title.english || manhwa.title.romaji}
@@ -147,10 +148,11 @@ export default function ManhwaDetailPage() {
           </div>
 
           {/* Info */}
-          <div className="w-full max-w-full md:max-w-[calc(100vw-240px-6rem)]">
-            <h1 className="text-xl sm:text-2xl md:text-4xl font-bold drop-shadow-lg break-words leading-tight">
+          <div className="w-full md:max-w-[calc(100vw-260px-6rem)]">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold drop-shadow-lg break-words leading-tight">
               {manhwa.title.english || manhwa.title.romaji}
             </h1>
+
             {manhwa.averageScore && (
               <p className="text-blue-400 mt-2 font-medium">
                 ⭐ {manhwa.averageScore / 10}/10
@@ -159,7 +161,7 @@ export default function ManhwaDetailPage() {
 
             {/* Genres */}
             {manhwa.genres && manhwa.genres.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-2 mt-4">
                 {manhwa.genres.map((genre) => (
                   <Link
                     key={genre}
@@ -173,7 +175,7 @@ export default function ManhwaDetailPage() {
             )}
 
             {/* Favorite + Share */}
-            <div className="flex gap-3 mt-3">
+            <div className="flex gap-3 mt-4">
               <button
                 onClick={toggleFavorite}
                 disabled={favLoading}
@@ -284,9 +286,9 @@ export default function ManhwaDetailPage() {
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
         <Link
           href="/manhwa"
-          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl backdrop-blur-md border border-transparent hover:border-blue-400"
+          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-lg text-white transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
         >
-          <FaArrowLeft className="mr-2 text-xl transition-all duration-300" />
+          <FaArrowLeft className="mr-2 text-xl" />
           Back to Manhwa
         </Link>
       </div>
