@@ -1,34 +1,17 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 
 export default function Error500Page() {
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-black via-neutral-950 to-black flex items-center justify-center px-6 overflow-hidden text-white">
-      {/* Background Glitches / Floating Cubes */}
-      {Array.from({ length: 8 }).map((_, i) => (
-        <motion.div
-          key={i}
-          animate={{
-            x: [0, 20, -20, 0],
-            y: [0, -10, 10, 0],
-            rotate: [0, 15, -15, 0]
-          }}
-          transition={{
-            duration: 6 + i,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: i * 0.3
-          }}
-          className="absolute w-8 h-8 bg-red-500/20 rounded-sm blur-sm"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`
-          }}
-        />
-      ))}
+      {/* Background Glows */}
+      <div className="absolute inset-0">
+        <div className="absolute top-32 left-1/4 w-[500px] h-[500px] bg-red-600/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-24 right-1/4 w-[400px] h-[400px] bg-pink-500/20 rounded-full blur-3xl animate-pulse delay-200" />
+      </div>
 
       {/* Glassy Container */}
       <motion.div
@@ -58,7 +41,7 @@ export default function Error500Page() {
         </motion.p>
         <motion.p
           initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0 }}
+          animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
           className="mt-1 text-sm text-gray-400"
         >
@@ -79,7 +62,7 @@ export default function Error500Page() {
               repeat: Infinity,
               repeatType: 'loop',
               ease: 'linear',
-              duration: 2.5
+              duration: 2.5,
             }}
             className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-red-400 via-pink-500 to-indigo-500 blur-sm"
           />
