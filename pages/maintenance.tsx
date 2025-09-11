@@ -1,16 +1,79 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 
 export default function MaintenancePage() {
+  const [progress, setProgress] = useState(0)
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  })
+
+  // set timer
+  const targetDate = new Date()
+  targetDate.setDate(targetDate.getDate() + 10)
+
+  // Loading bar animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => Math.min(prev + 1, 100))
+    }, 50) // 50ms per increment
+    return () => clearInterval(interval)
+  }, [])
+
+  // Countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date().getTime()
+      const distance = targetDate.getTime() - now
+
+      if (distance < 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+      } else {
+        setTimeLeft({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((distance / 1000 / 60) % 60),
+          seconds: Math.floor((distance / 1000) % 60),
+        })
+      }
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-black via-neutral-950 to-black flex items-center justify-center px-6 overflow-hidden text-white">
-      {/* 🔵 Background Glows */}
-      <div className="absolute inset-0">
-        <div className="absolute top-32 left-1/4 w-[500px] h-[500px] bg-blue-700/30 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-24 right-1/4 w-[400px] h-[400px] bg-sky-500/20 rounded-full blur-3xl animate-pulse delay-200" />
+      {/* 🌌 Floating Particles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-4 h-4 bg-blue-500/30 rounded-full blur-xl"
+            initial={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+              scale: Math.random() * 1.5 + 0.5,
+              opacity: Math.random() * 0.5 + 0.3,
+            }}
+            animate={{
+              y: [0, window.innerHeight],
+              x: [0, window.innerWidth],
+              opacity: [0.3, 0.7, 0.3],
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 15 + Math.random() * 10,
+              ease: 'linear',
+              delay: Math.random() * 5,
+            }}
+          />
+        ))}
       </div>
 
       {/* ✨ Glassy Container */}
@@ -22,9 +85,8 @@ export default function MaintenancePage() {
       >
         {/* Logo */}
         <motion.h1
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
+          whileHover={{ scale: 1.05, rotate: [0, 2, -2, 0] }}
+          transition={{ type: 'spring', stiffness: 300 }}
           className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]"
         >
           Aichiow
@@ -48,21 +110,39 @@ export default function MaintenancePage() {
           The site will be back online very soon.
         </motion.p>
 
+        {/* Countdown */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="mt-6 flex justify-center gap-4 text-gray-300 font-mono"
+        >
+          <div className="flex flex-col items-center">
+            <span className="text-xl md:text-2xl font-bold">{timeLeft.days}</span>
+            <span className="text-xs md:text-sm">Days</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xl md:text-2xl font-bold">{timeLeft.hours}</span>
+            <span className="text-xs md:text-sm">Hours</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xl md:text-2xl font-bold">{timeLeft.minutes}</span>
+            <span className="text-xs md:text-sm">Minutes</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xl md:text-2xl font-bold">{timeLeft.seconds}</span>
+            <span className="text-xs md:text-sm">Seconds</span>
+          </div>
+        </motion.div>
+
         {/* Animated Loading Bar */}
         <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 0.7, duration: 1.2 }}
-          className="mt-6 h-2 w-48 mx-auto bg-neutral-700 rounded-full overflow-hidden"
+          className="mt-6 h-2 w-full bg-neutral-700 rounded-full overflow-hidden"
         >
           <motion.div
-            animate={{ x: ['-100%', '100%'] }}
-            transition={{
-              repeat: Infinity,
-              duration: 1.5,
-              ease: 'easeInOut',
-            }}
-            className="w-1/2 h-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600"
+            style={{ scaleX: progress / 100, originX: 0 }}
+            transition={{ ease: 'easeInOut', duration: 0.1 }}
+            className="h-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 rounded-full"
           />
         </motion.div>
 
@@ -76,16 +156,16 @@ export default function MaintenancePage() {
           <p className="text-sm text-gray-400">Follow us for updates:</p>
           <div className="flex justify-center gap-6 mt-4">
             <Link href="https://discord.gg/aichinime" target="_blank" className="group">
-              <FaDiscord className="text-3xl text-gray-400 group-hover:text-sky-400 transition-colors duration-300" />
+              <FaDiscord className="text-3xl text-gray-400 group-hover:text-sky-400 transition-transform duration-300 hover:scale-125" />
             </Link>
             <Link href="https://youtube.com/@Takadevelopment" target="_blank" className="group">
-              <FaYoutube className="text-3xl text-gray-400 group-hover:text-red-500 transition-colors duration-300" />
+              <FaYoutube className="text-3xl text-gray-400 group-hover:text-red-500 transition-transform duration-300 hover:scale-125" />
             </Link>
             <Link href="https://tiktok.com/@putrawangyyy" target="_blank" className="group">
-              <FaTiktok className="text-3xl text-gray-400 group-hover:text-pink-400 transition-colors duration-300" />
+              <FaTiktok className="text-3xl text-gray-400 group-hover:text-pink-400 transition-transform duration-300 hover:scale-125" />
             </Link>
             <Link href="https://instagram.com/putrasenpaiii" target="_blank" className="group">
-              <FaInstagram className="text-3xl text-gray-400 group-hover:text-purple-400 transition-colors duration-300" />
+              <FaInstagram className="text-3xl text-gray-400 group-hover:text-purple-400 transition-transform duration-300 hover:scale-125" />
             </Link>
           </div>
         </motion.div>
