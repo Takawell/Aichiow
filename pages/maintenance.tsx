@@ -8,69 +8,44 @@ import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 export default function MaintenancePage() {
   const [progress, setProgress] = useState(0)
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
 
-  const targetDate = new Date('2025-09-20T12:00:00') // Fixed date, jangan ganti setiap reload
+  // countdown
+  const targetDate = new Date('2025-09-20T12:00:00')
 
-  useEffect(() => {
-    setWindowSize({ width: window.innerWidth, height: window.innerHeight })
-    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight })
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  // Loading bar
+  // Loading bar effect
   useEffect(() => {
     const interval = setInterval(() => setProgress(prev => Math.min(prev + 1, 100)), 50)
     return () => clearInterval(interval)
   }, [])
 
-  // Countdown timer
+  // Countdown timer effect
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date().getTime()
       const distance = targetDate.getTime() - now
-      if (distance < 0) setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-      else setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((distance / 1000 / 60) % 60),
-        seconds: Math.floor((distance / 1000) % 60)
-      })
+      if (distance < 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+      } else {
+        setTimeLeft({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((distance / 1000 / 60) % 60),
+          seconds: Math.floor((distance / 1000) % 60),
+        })
+      }
     }, 1000)
     return () => clearInterval(timer)
   }, [targetDate])
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-black via-neutral-950 to-black flex items-center justify-center px-6 overflow-hidden text-white">
+      {/* 🔵 Background Glows */}
+      <div className="absolute inset-0">
+        <div className="absolute top-32 left-1/4 w-[500px] h-[500px] bg-blue-700/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-24 right-1/4 w-[400px] h-[400px] bg-sky-500/20 rounded-full blur-3xl animate-pulse delay-200" />
+      </div>
 
-      {/* Floating Particles */}
-      {windowSize.width > 0 &&
-        Array.from({ length: 15 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-4 h-4 bg-blue-500/30 rounded-full blur-xl pointer-events-none"
-            initial={{
-              x: Math.random() * windowSize.width,
-              y: Math.random() * windowSize.height,
-              scale: Math.random() * 1.5 + 0.5,
-              opacity: Math.random() * 0.5 + 0.3,
-            }}
-            animate={{
-              y: [0, windowSize.height],
-              x: [0, windowSize.width],
-              opacity: [0.3, 0.7, 0.3],
-            }}
-            transition={{
-              repeat: Infinity,
-              duration: 15 + Math.random() * 10,
-              ease: 'linear',
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-
-      {/* Glassy Container Overlay */}
+      {/* ✨ Glassy Container */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -79,11 +54,12 @@ export default function MaintenancePage() {
       >
         {/* Logo */}
         <motion.h1
-          whileHover={{ scale: 1.05, rotate: [0, 2, -2, 0] }}
-          transition={{ type: 'spring', stiffness: 300 }}
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
           className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]"
         >
-          MAINTENANCE
+          Aichiow
         </motion.h1>
 
         {/* Status Text */}
@@ -104,7 +80,7 @@ export default function MaintenancePage() {
           The site will be back online very soon.
         </motion.p>
 
-        {/* Countdown */}
+        {/* Countdown Timer */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -130,11 +106,20 @@ export default function MaintenancePage() {
         </motion.div>
 
         {/* Animated Loading Bar */}
-        <motion.div className="mt-6 h-2 w-full bg-neutral-700 rounded-full overflow-hidden">
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: progress / 100 }}
+          transition={{ ease: 'easeInOut', duration: 0.1 }}
+          className="mt-6 h-2 w-48 mx-auto bg-neutral-700 rounded-full overflow-hidden"
+        >
           <motion.div
-            style={{ scaleX: progress / 100, originX: 0 }}
-            transition={{ ease: 'easeInOut', duration: 0.1 }}
-            className="h-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 rounded-full"
+            animate={{ x: ['-100%', '100%'] }}
+            transition={{
+              repeat: Infinity,
+              duration: 1.5,
+              ease: 'easeInOut',
+            }}
+            className="w-1/2 h-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600"
           />
         </motion.div>
 
@@ -148,16 +133,16 @@ export default function MaintenancePage() {
           <p className="text-sm text-gray-400">Follow us for updates:</p>
           <div className="flex justify-center gap-6 mt-4">
             <Link href="https://discord.gg/aichinime" target="_blank" className="group">
-              <FaDiscord className="text-3xl text-gray-400 group-hover:text-sky-400 transition-transform duration-300 hover:scale-125" />
+              <FaDiscord className="text-3xl text-gray-400 group-hover:text-sky-400 transition-colors duration-300" />
             </Link>
             <Link href="https://youtube.com/@Takadevelopment" target="_blank" className="group">
-              <FaYoutube className="text-3xl text-gray-400 group-hover:text-red-500 transition-transform duration-300 hover:scale-125" />
+              <FaYoutube className="text-3xl text-gray-400 group-hover:text-red-500 transition-colors duration-300" />
             </Link>
             <Link href="https://tiktok.com/@putrawangyyy" target="_blank" className="group">
-              <FaTiktok className="text-3xl text-gray-400 group-hover:text-pink-400 transition-transform duration-300 hover:scale-125" />
+              <FaTiktok className="text-3xl text-gray-400 group-hover:text-pink-400 transition-colors duration-300" />
             </Link>
             <Link href="https://instagram.com/putrasenpaiii" target="_blank" className="group">
-              <FaInstagram className="text-3xl text-gray-400 group-hover:text-purple-400 transition-transform duration-300 hover:scale-125" />
+              <FaInstagram className="text-3xl text-gray-400 group-hover:text-purple-400 transition-colors duration-300" />
             </Link>
           </div>
         </motion.div>
