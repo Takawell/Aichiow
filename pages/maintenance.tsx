@@ -2,27 +2,30 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 
 export default function MaintenancePage() {
   const [progress, setProgress] = useState(0)
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  })
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
 
-  // set timer
   const targetDate = new Date()
-  targetDate.setDate(targetDate.getDate() + 10)
+  targetDate.setDate(targetDate.getDate() + 10) 
+  
+  useEffect(() => {
+    setWindowSize({ width: window.innerWidth, height: window.innerHeight })
 
-  // Loading bar animation
+    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight })
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Loading bar
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => Math.min(prev + 1, 100))
-    }, 50) // 50ms per increment
+    }, 50)
     return () => clearInterval(interval)
   }, [])
 
@@ -31,7 +34,6 @@ export default function MaintenancePage() {
     const timer = setInterval(() => {
       const now = new Date().getTime()
       const distance = targetDate.getTime() - now
-
       if (distance < 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
       } else {
@@ -43,27 +45,26 @@ export default function MaintenancePage() {
         })
       }
     }, 1000)
-
     return () => clearInterval(timer)
   }, [])
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-black via-neutral-950 to-black flex items-center justify-center px-6 overflow-hidden text-white">
-      {/* 🌌 Floating Particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {Array.from({ length: 15 }).map((_, i) => (
+      {/* Floating Particles */}
+      {windowSize.width > 0 &&
+        Array.from({ length: 15 }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-4 h-4 bg-blue-500/30 rounded-full blur-xl"
+            className="absolute w-4 h-4 bg-blue-500/30 rounded-full blur-xl pointer-events-none"
             initial={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
+              x: Math.random() * windowSize.width,
+              y: Math.random() * windowSize.height,
               scale: Math.random() * 1.5 + 0.5,
               opacity: Math.random() * 0.5 + 0.3,
             }}
             animate={{
-              y: [0, window.innerHeight],
-              x: [0, window.innerWidth],
+              y: [0, windowSize.height],
+              x: [0, windowSize.width],
               opacity: [0.3, 0.7, 0.3],
             }}
             transition={{
@@ -74,9 +75,8 @@ export default function MaintenancePage() {
             }}
           />
         ))}
-      </div>
 
-      {/* ✨ Glassy Container */}
+      {/* Glassy Container */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -136,9 +136,7 @@ export default function MaintenancePage() {
         </motion.div>
 
         {/* Animated Loading Bar */}
-        <motion.div
-          className="mt-6 h-2 w-full bg-neutral-700 rounded-full overflow-hidden"
-        >
+        <motion.div className="mt-6 h-2 w-full bg-neutral-700 rounded-full overflow-hidden">
           <motion.div
             style={{ scaleX: progress / 100, originX: 0 }}
             transition={{ ease: 'easeInOut', duration: 0.1 }}
