@@ -76,7 +76,12 @@ export default function ManhwaHeroSection({ manhwa, loading }: HeroProps) {
           {manhwa.genres?.slice(0, 3).map((genre) => (
             <span
               key={genre}
-              className="px-3 py-1 text-xs font-medium text-white bg-white/10 border border-white/20 rounded-full backdrop-blur-md"
+              onClick={() =>
+                router.push(
+                  `/manhwa/genre/${genre.toLowerCase().replace(/\s+/g, '-')}`
+                )
+              }
+              className="px-3 py-1 text-xs font-medium text-white bg-white/10 border border-white/20 rounded-full backdrop-blur-md cursor-pointer hover:bg-white/20 transition"
             >
               {genre}
             </span>
