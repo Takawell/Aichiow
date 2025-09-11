@@ -1,14 +1,13 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
-
-import { FaFilm, FaBookOpen, FaTabletAlt, FaBook } from "react-icons/fa";
+import { FaTv, FaBookOpen, FaBook, FaFeatherAlt } from "react-icons/fa";
 
 export default function Custom404() {
   const widgets = [
-    { name: "Anime", href: "/anime", icon: <FaFilm size={28} /> },
+    { name: "Anime", href: "/anime", icon: <FaTv size={28} /> },
     { name: "Manga", href: "/manga", icon: <FaBookOpen size={28} /> },
-    { name: "Manhwa", href: "/manhwa", icon: <FaTabletAlt size={28} /> },
-    { name: "Light Novel", href: "/light-novel", icon: <FaBook size={28} /> },
+    { name: "Manhwa", href: "/manhwa", icon: <FaBook size={28} /> },
+    { name: "Light Novel", href: "/light-novel", icon: <FaFeatherAlt size={28} /> },
   ];
 
   return (
@@ -23,7 +22,7 @@ export default function Custom404() {
           key={i}
           animate={{ y: [0, -20, 0], rotate: [0, 15, 0] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: b.delay }}
-          className={`absolute rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20`}
+          className="absolute rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20"
           style={{ top: b.top, left: b.left, width: b.size, height: b.size }}
         />
       ))}
