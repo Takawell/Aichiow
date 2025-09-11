@@ -10,8 +10,7 @@ export default function MaintenancePage() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
 
-  // Tetapkan targetDate statis supaya countdown tetap walau refresh
-  const targetDate = new Date('2025-09-20T12:00:00') // <--- ganti sesuai kebutuhan
+  const targetDate = new Date('2025-09-20T12:00:00') // Fixed date, jangan ganti setiap reload
 
   useEffect(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight })
@@ -44,10 +43,10 @@ export default function MaintenancePage() {
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-black via-neutral-950 to-black flex items-center justify-center px-6 overflow-hidden text-white">
-      
+
       {/* Floating Particles */}
       {windowSize.width > 0 &&
-        Array.from({ length: 20 }).map((_, i) => (
+        Array.from({ length: 15 }).map((_, i) => (
           <motion.div
             key={i}
             className="absolute w-4 h-4 bg-blue-500/30 rounded-full blur-xl pointer-events-none"
@@ -64,14 +63,14 @@ export default function MaintenancePage() {
             }}
             transition={{
               repeat: Infinity,
-              duration: 20 + Math.random() * 10,
+              duration: 15 + Math.random() * 10,
               ease: 'linear',
               delay: Math.random() * 5,
             }}
           />
         ))}
 
-      {/* Glassy Container */}
+      {/* Glassy Container Overlay */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -84,7 +83,7 @@ export default function MaintenancePage() {
           transition={{ type: 'spring', stiffness: 300 }}
           className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]"
         >
-          Aichiow
+          MAINTENANCE
         </motion.h1>
 
         {/* Status Text */}
@@ -112,15 +111,25 @@ export default function MaintenancePage() {
           transition={{ delay: 0.7 }}
           className="mt-6 flex justify-center gap-4 text-gray-300 font-mono"
         >
-          {['Days', 'Hours', 'Minutes', 'Seconds'].map((label, idx) => (
-            <div key={idx} className="flex flex-col items-center">
-              <span className="text-xl md:text-2xl font-bold">{Object.values(timeLeft)[idx]}</span>
-              <span className="text-xs md:text-sm">{label}</span>
-            </div>
-          ))}
+          <div className="flex flex-col items-center">
+            <span className="text-xl md:text-2xl font-bold">{timeLeft.days}</span>
+            <span className="text-xs md:text-sm">Days</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xl md:text-2xl font-bold">{timeLeft.hours}</span>
+            <span className="text-xs md:text-sm">Hours</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xl md:text-2xl font-bold">{timeLeft.minutes}</span>
+            <span className="text-xs md:text-sm">Minutes</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xl md:text-2xl font-bold">{timeLeft.seconds}</span>
+            <span className="text-xs md:text-sm">Seconds</span>
+          </div>
         </motion.div>
 
-        {/* Loading bar */}
+        {/* Animated Loading Bar */}
         <motion.div className="mt-6 h-2 w-full bg-neutral-700 rounded-full overflow-hidden">
           <motion.div
             style={{ scaleX: progress / 100, originX: 0 }}
@@ -138,16 +147,18 @@ export default function MaintenancePage() {
         >
           <p className="text-sm text-gray-400">Follow us for updates:</p>
           <div className="flex justify-center gap-6 mt-4">
-            {[
-              { icon: FaDiscord, link: 'https://discord.gg/aichinime', color: 'text-sky-400' },
-              { icon: FaYoutube, link: 'https://youtube.com/@Takadevelopment', color: 'text-red-500' },
-              { icon: FaTiktok, link: 'https://tiktok.com/@putrawangyyy', color: 'text-pink-400' },
-              { icon: FaInstagram, link: 'https://instagram.com/putrasenpaiii', color: 'text-purple-400' },
-            ].map(({ icon: Icon, link, color }, idx) => (
-              <Link key={idx} href={link} target="_blank" className="group">
-                <Icon className={`text-3xl text-gray-400 group-hover:${color} transition-transform duration-300 hover:scale-125`} />
-              </Link>
-            ))}
+            <Link href="https://discord.gg/aichinime" target="_blank" className="group">
+              <FaDiscord className="text-3xl text-gray-400 group-hover:text-sky-400 transition-transform duration-300 hover:scale-125" />
+            </Link>
+            <Link href="https://youtube.com/@Takadevelopment" target="_blank" className="group">
+              <FaYoutube className="text-3xl text-gray-400 group-hover:text-red-500 transition-transform duration-300 hover:scale-125" />
+            </Link>
+            <Link href="https://tiktok.com/@putrawangyyy" target="_blank" className="group">
+              <FaTiktok className="text-3xl text-gray-400 group-hover:text-pink-400 transition-transform duration-300 hover:scale-125" />
+            </Link>
+            <Link href="https://instagram.com/putrasenpaiii" target="_blank" className="group">
+              <FaInstagram className="text-3xl text-gray-400 group-hover:text-purple-400 transition-transform duration-300 hover:scale-125" />
+            </Link>
           </div>
         </motion.div>
       </motion.div>
