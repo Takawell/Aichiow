@@ -40,7 +40,7 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ---
 
 ## 🛠 Tech Stack
-- **Next.js 13**  
+- **Next.js 14**  
 - **TypeScript**  
 - **Tailwind CSS**  
 - **Framer Motion**  
