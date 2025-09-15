@@ -96,16 +96,21 @@ export default function MangaDetailPage() {
             <h1 className="text-3xl font-bold text-white mb-3">{title}</h1>
 
             {/* Genre Tags */}
-            <div className="flex flex-wrap gap-2 mb-3">
-              {tags.slice(0, 6).map((tag: any) => (
-                <span
-                  key={tag.attributes.name?.en}
-                  className="text-xs bg-white/10 text-white/80 px-2 py-0.5 rounded-full backdrop-blur-sm"
-                >
-                  {tag.attributes.name?.en}
-                </span>
-              ))}
-            </div>
+           <div className="flex flex-wrap gap-2 mb-3">
+            {tags.slice(0, 6).map((tag: any) => {
+             const genreName = tag.attributes.name?.en;
+
+            return (
+             <Link
+               key={genreName}
+                 href={`/manga/genre/${encodeURIComponent(genreName)}`}
+                 className="text-xs bg-white/10 text-white/80 px-2 py-0.5 rounded-full backdrop-blur-sm hover:bg-white/20 transition"
+              >
+                 {genreName}
+               </Link>
+               );
+             })}
+           </div>
 
             {/* Favorite & Share */}
             <div className="flex gap-3 mb-4">
