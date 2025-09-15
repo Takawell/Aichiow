@@ -1,9 +1,10 @@
-'use client'
+"use client"
 
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import { fetchGenres, getMangaByFilter } from '@/lib/mangadex'
-import MangaGrid from '@/components/manga/MangaGrid'
+import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
+import { fetchGenres, getMangaByFilter } from "@/lib/mangadex"
+import MangaGrid from "@/components/manga/MangaGrid"
+import { motion } from "framer-motion"
 
 export default function MangaByGenrePage() {
   const router = useRouter()
@@ -20,14 +21,13 @@ export default function MangaByGenrePage() {
       setLoading(true)
       try {
         const genres = await fetchGenres()
-
-        // Cari genre berdasarkan slug
-        const matched = genres.find((tag: any) =>
-          tag.attributes.name.en.toLowerCase() === String(name).toLowerCase()
+        const matched = genres.find(
+          (tag: any) =>
+            tag.attributes.name.en.toLowerCase() === String(name).toLowerCase()
         )
 
         if (!matched) {
-          console.warn('Genre not found:', name)
+          console.warn("Genre not found:", name)
           setMangaList([])
           setGenreName(null)
           return
@@ -38,7 +38,7 @@ export default function MangaByGenrePage() {
         const result = await getMangaByFilter({ includedTags: [matched.id] })
         setMangaList(result)
       } catch (err) {
-        console.error('Failed to load manga by genre:', err)
+        console.error("Failed to load manga by genre:", err)
         setMangaList([])
       } finally {
         setLoading(false)
@@ -49,17 +49,66 @@ export default function MangaByGenrePage() {
   }, [name])
 
   return (
-    <main className="px-4 md:px-8 py-8 text-white">
-      <h1 className="text-3xl md:text-4xl font-bold mb-6 capitalize">
-        📚 Genre: {genreName || 'Not Found'}
-      </h1>
+    <main className="px-4 md:px-8 py-8 text-white min-h-screen">
+      {/* Hero Section */}
+      <section className="mb-10">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-lg"
+        >
+          <h1 className="text-3xl md:text-4xl font-extrabold capitalize flex items-center gap-2">
+            <span className="text-pink-400">📚</span> Genre:{" "}
+            {genreName || "Not Found"}
+          </h1>
+          <p className="mt-2 text-zinc-300 text-sm md:text-base">
+            {genreName
+              ? `Explore the best manga tagged under ${genreName}.`
+              : "We couldn’t find this genre, try exploring others!"}
+          </p>
+        </motion.div>
+      </section>
 
+      {/* Content Section */}
       {loading ? (
-        <p className="text-zinc-300">Loading manga...</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 animate-pulse">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-48 bg-zinc-800/50 rounded-xl shadow-md"
+            ></div>
+          ))}
+        </div>
       ) : mangaList.length === 0 ? (
-        <p className="text-zinc-300">No manga found for this genre.</p>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-20"
+        >
+          <p className="text-zinc-400 text-lg">
+            😢 No manga found for this genre.
+          </p>
+          <button
+            onClick={() => router.push("/manga")}
+            className="mt-4 px-4 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 transition"
+          >
+            Browse All Manga
+          </button>
+        </motion.div>
       ) : (
-        <MangaGrid mangaList={mangaList} />
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: { staggerChildren: 0.05 },
+            },
+          }}
+        >
+          <MangaGrid mangaList={mangaList} />
+        </motion.div>
       )}
     </main>
   )
