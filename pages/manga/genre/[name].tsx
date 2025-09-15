@@ -59,7 +59,7 @@ export default function MangaByGenrePage() {
         >
           <h1 className="text-3xl md:text-4xl font-extrabold capitalize flex items-center gap-2">
             <span className="text-pink-400">📚</span> Genre:{" "}
-            {genreName || "Not Found"}
+            {loading ? "Loading..." : genreName || "Not Found"}
           </h1>
           <p className="mt-2 text-zinc-300 text-sm md:text-base">
             {genreName
