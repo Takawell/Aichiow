@@ -62,10 +62,12 @@ export default function MangaByGenrePage() {
             {loading ? "Loading..." : genreName || "Not Found"}
           </h1>
           <p className="mt-2 text-zinc-300 text-sm md:text-base">
-            {genreName
-              ? `Explore the best manga tagged under ${genreName}.`
-              : "We couldn’t find this genre, try exploring others!"}
-          </p>
+            {loading
+               ? "Fetching the best manga for you..."
+               : genreName
+               ? `Explore the best manga tagged under ${genreName}.`
+               : "We couldn’t find this genre, try exploring others!"}
+            </p>
         </motion.div>
       </section>
 
