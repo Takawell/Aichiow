@@ -17,7 +17,7 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ## 📸 Screenshots
 
 ### Landing Page
-![Landing Page](https://i.ibb.co/XxdXmjkn/landing.png)
+![Landing Page](https://i.ibb.co/RRy8K35/1757911056885.jpg)
 
 ### Anime (Home)
 ![Anime Home](https://i.ibb.co/mrmZ8Vsr/home-anime.png)
