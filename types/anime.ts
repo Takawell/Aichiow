@@ -7,8 +7,8 @@ export interface Anime {
     native?: string
   }
   coverImage: {
-    extraLarge: string   
-    large?: string
+    extraLarge?: string
+    large: string
     medium?: string
     color?: string
   }
@@ -53,8 +53,8 @@ export interface CharacterEdge {
       full: string
     }
     image: {
-      extraLarge: string   
-      large?: string
+      extraLarge?: string
+      large: string
     }
   }
   voiceActors: {
@@ -62,8 +62,8 @@ export interface CharacterEdge {
       full: string
     }
     image: {
-      extraLarge: string   
-      large?: string
+      extraLarge?: string
+      large: string
     }
   }[]
 }
@@ -74,8 +74,8 @@ export interface Character {
     full: string
   }
   image: {
-    extraLarge: string   
-    large?: string
+    extraLarge?: string
+    large: string
   }
   media: {
     id: number
@@ -83,8 +83,8 @@ export interface Character {
       romaji: string
     }
     coverImage: {
-      extraLarge: string   
-      large?: string
+      extraLarge?: string
+      large: string
     }
   }
 }
