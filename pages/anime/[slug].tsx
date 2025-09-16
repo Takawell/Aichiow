@@ -8,12 +8,13 @@ import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
 import { format, fromUnixTime } from 'date-fns'
+import { getIdFromSlug } from '@/utils/slug' // 🔥 import helper slug
 
 export default function AnimeDetailPage() {
   const router = useRouter()
   const { slug } = router.query
+  const id = slug ? parseInt(getIdFromSlug(slug as string) || "0") : 0
 
-  const id = parseInt(slug as string)
   const { anime, isLoading, isError } = useAnimeDetail(id)
 
   // Fetch Similar Anime
