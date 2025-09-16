@@ -59,7 +59,7 @@ export default function MaintenancePage() {
           transition={{ delay: 0.2 }}
           className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]"
         >
-          Server update
+          AICHIOW
         </motion.h1>
 
         {/* Status Text */}
