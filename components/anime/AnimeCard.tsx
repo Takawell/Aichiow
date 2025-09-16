@@ -16,11 +16,10 @@ export default function AnimeCard({ anime }: Props) {
         {/* IMAGE */}
         <div className="relative w-full h-[200px] overflow-hidden rounded-t-xl">
           <Image
-          src={anime.coverImage.extraLarge || anime.coverImage.large || "/default.png"}
+          src={anime.coverImage.large}
           alt={anime.title.english || anime.title.romaji}
           fill
           loading="lazy"
-          className="object-cover"
          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10" />
         </div>
