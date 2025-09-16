@@ -28,7 +28,7 @@ export async function fetchTrendingAnime(): Promise<Anime[]> {
             english
           }
           coverImage {
-            large
+            extraLarge
           }
           bannerImage
           genres
@@ -56,7 +56,7 @@ export async function fetchOngoingAnime(): Promise<Anime[]> {
             english
           }
           coverImage {
-            large
+            extraLarge
           }
           bannerImage
           genres
@@ -84,7 +84,7 @@ export async function fetchSeasonalAnime(): Promise<Anime[]> {
             english
           }
           coverImage {
-            large
+            extraLarge
           }
           bannerImage
           genres
@@ -112,7 +112,7 @@ export async function fetchTopRatedAnime(): Promise<Anime[]> {
             english
           }
           coverImage {
-            large
+            extraLarge
           }
           bannerImage
           genres
@@ -142,7 +142,7 @@ export async function fetchMangaCharacters(title: string) {
                 full
               }
               image {
-                large
+                extraLarge
               }
             }
             voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
@@ -151,7 +151,7 @@ export async function fetchMangaCharacters(title: string) {
                 full
               }
               image {
-                large
+                extraLarge
               }
             }
           }
@@ -166,7 +166,6 @@ export async function fetchMangaCharacters(title: string) {
   return data?.Media?.characters?.edges || []
 }
 
-// ✅ Upcoming Anime
 export async function fetchUpcomingAnime(): Promise<Anime[]> {
   const query = `
     query {
@@ -178,7 +177,7 @@ export async function fetchUpcomingAnime(): Promise<Anime[]> {
             english
           }
           coverImage {
-            large
+            extraLarge
           }
         }
       }
@@ -188,7 +187,6 @@ export async function fetchUpcomingAnime(): Promise<Anime[]> {
   return data.Page.media
 }
 
-// ✅ Schedule Anime Mingguan
 export async function fetchScheduleAnime(): Promise<Anime[]> {
   const query = `
     query {
@@ -200,7 +198,7 @@ export async function fetchScheduleAnime(): Promise<Anime[]> {
             english
           }
           coverImage {
-            large
+            extraLarge
           }
           nextAiringEpisode {
             airingAt
@@ -214,7 +212,6 @@ export async function fetchScheduleAnime(): Promise<Anime[]> {
   return data.Page.media.filter((m: any) => m.nextAiringEpisode)
 }
 
-// ✅ Detail Anime
 export async function fetchAnimeDetail(id: number): Promise<any> {
   const query = `
     query ($id: Int) {
@@ -226,8 +223,7 @@ export async function fetchAnimeDetail(id: number): Promise<any> {
           native
         }
         coverImage {
-          large
-          medium
+          extraLarge
           color
         }
         bannerImage
@@ -262,7 +258,7 @@ export async function fetchAnimeDetail(id: number): Promise<any> {
                 full
               }
               image {
-                large
+                extraLarge
               }
             }
             voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
@@ -270,7 +266,7 @@ export async function fetchAnimeDetail(id: number): Promise<any> {
                 full
               }
               image {
-                large
+                extraLarge
               }
             }
           }
@@ -284,7 +280,6 @@ export async function fetchAnimeDetail(id: number): Promise<any> {
   return data?.Media
 }
 
-// ✅ Anime News (untuk landing)
 export async function fetchNewsAnime(): Promise<Anime[]> {
   const query = `
     query {
@@ -295,7 +290,7 @@ export async function fetchNewsAnime(): Promise<Anime[]> {
             romaji
           }
           coverImage {
-            large
+            extraLarge
           }
         }
       }
@@ -305,7 +300,6 @@ export async function fetchNewsAnime(): Promise<Anime[]> {
   return data.Page.media
 }
 
-// ✅ Trending Anime (Paginated)
 export async function fetchTrendingAnimePaginated(page = 1, perPage = 20): Promise<Anime[]> {
   const query = `
     query ($page: Int, $perPage: Int) {
@@ -318,7 +312,7 @@ export async function fetchTrendingAnimePaginated(page = 1, perPage = 20): Promi
             native
           }
           coverImage {
-            large
+            extraLarge
             color
           }
           bannerImage
@@ -339,7 +333,6 @@ export async function fetchTrendingAnimePaginated(page = 1, perPage = 20): Promi
   return data.Page.media
 }
 
-// ✅ Similar Anime
 export async function fetchSimilarAnime(id: number): Promise<Anime[]> {
   const query = `
     query ($id: Int) {
@@ -354,7 +347,7 @@ export async function fetchSimilarAnime(id: number): Promise<Anime[]> {
                   english
                 }
                 coverImage {
-                  large
+                  extraLarge
                 }
                 genres
                 averageScore
