@@ -59,7 +59,7 @@ export default function MaintenancePage() {
           transition={{ delay: 0.2 }}
           className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]"
         >
-          Aichiow
+          Server update
         </motion.h1>
 
         {/* Status Text */}
@@ -69,7 +69,7 @@ export default function MaintenancePage() {
           transition={{ delay: 0.4 }}
           className="mt-4 text-gray-300 text-lg md:text-xl"
         >
-          We’re performing a quick maintenance check.
+          We’re making some improvements to enhance your experience.
         </motion.p>
         <motion.p
           initial={{ y: 20, opacity: 0 }}
@@ -77,7 +77,7 @@ export default function MaintenancePage() {
           transition={{ delay: 0.5 }}
           className="mt-1 text-sm text-gray-400"
         >
-          The site will be back online very soon.
+          The site is currently under maintenance. If you’re coming from GitHub, please check the preview available in our README.md.
         </motion.p>
 
         {/* Countdown Timer */}
