@@ -8,26 +8,20 @@ import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
 import { format, fromUnixTime } from 'date-fns'
+import { getIdFromSlug } from '@/utils/slug'
 
 export default function AnimeDetailPage() {
   const router = useRouter()
   const { slug } = router.query
-
-  const id = slug ? parseInt(slug as string, 10) : NaN
+  const idStr = slug ? getIdFromSlug(slug as string) : null
+  const id = idStr ? parseInt(idStr, 10) : NaN
   const isValidId = !isNaN(id)
-
   const { anime, isLoading, isError } = useAnimeDetail(isValidId ? id : 0)
-
-  // Fetch Similar Anime
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
     queryKey: ['similarAnime', id],
     queryFn: () => fetchSimilarAnime(id),
     enabled: isValidId,
   })
-
-  if (!isValidId) {
-    return <p className="text-center text-red-500 mt-10">Invalid anime ID.</p>
-  }
 
   if (isLoading) {
     return <p className="text-center text-white mt-10">Loading...</p>
@@ -88,9 +82,7 @@ export default function AnimeDetailPage() {
               ? `Total Episodes: ${totalEpisodes}`
               : 'Total Episodes: ?'}{' '}
             |{' '}
-            {duration
-              ? `Duration: ${duration} min/ep`
-              : 'Duration: ?'}
+            {duration ? `Duration: ${duration} min/ep` : 'Duration: ?'}
           </p>
 
           {/* Next Airing Info */}
@@ -129,9 +121,7 @@ export default function AnimeDetailPage() {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">
-              No recommendations found.
-            </p>
+            <p className="text-center text-gray-500">No recommendations found.</p>
           )}
         </section>
       </main>
