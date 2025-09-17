@@ -7,7 +7,6 @@ import { useState } from "react"
 import { useFavorites } from "@/hooks/useFavorites"
 import { Heart, Share2 } from "lucide-react"
 import ShareModal from "@/components/shared/ShareModal"
-import { motion } from "framer-motion"
 
 interface Props {
   anime: AnimeDetail
@@ -28,15 +27,6 @@ export default function AnimeDetailHeader({ anime }: Props) {
   const shareUrl =
     typeof window !== "undefined" ? window.location.href : ""
   const coverSrc = anime.coverImage.extraLarge || anime.coverImage.large
-
-  const infoStats = [
-    { label: "🎞️ Format", value: anime.format || "-" },
-    { label: "📅 Season", value: `${anime.season || "-"} ${anime.seasonYear || ""}` },
-    { label: "⭐ Score", value: anime.averageScore || "-" },
-    { label: "🎬 Studio", value: anime.studios.nodes[0]?.name || "-" },
-    { label: "📈 Popularity", value: anime.popularity || "-" },
-    { label: "📺 Status", value: anime.status || "-" },
-  ]
 
   return (
     <section className="relative w-full bg-neutral-900 text-white">
@@ -91,9 +81,7 @@ export default function AnimeDetailHeader({ anime }: Props) {
 
             {/* FAVORITE + SHARE BUTTONS */}
             <div className="flex items-center gap-3">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.05 }}
+              <button
                 onClick={toggleFavorite}
                 disabled={loading}
                 className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl border transition text-sm md:text-base ${
@@ -113,17 +101,15 @@ export default function AnimeDetailHeader({ anime }: Props) {
                 <span className="hidden sm:inline">
                   {isFavorite ? "Favorited" : "Favorite"}
                 </span>
-              </motion.button>
+              </button>
 
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.05 }}
+              <button
                 onClick={() => setShareOpen(true)}
                 className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-blue-500/80 transition text-sm md:text-base"
               >
                 <Share2 size={18} />
                 <span className="hidden sm:inline">Share</span>
-              </motion.button>
+              </button>
             </div>
           </div>
 
@@ -136,12 +122,13 @@ export default function AnimeDetailHeader({ anime }: Props) {
                   genre.toLowerCase().replace(/\s+/g, "-")
                 )}`}
               >
-                <motion.span
-                  whileHover={{ scale: 1.1 }}
-                  className="cursor-pointer text-[11px] uppercase tracking-wide font-medium px-3 py-1 rounded-full bg-white/10 text-white/80 hover:bg-blue-500/80 hover:text-white transition"
+                <span
+                  className="cursor-pointer text-[11px] uppercase tracking-wide font-medium px-3 py-1 
+                           rounded-full bg-white/10 text-white/80 hover:bg-blue-500/80 hover:text-white 
+                           transition"
                 >
                   {genre}
-                </motion.span>
+                </span>
               </Link>
             ))}
           </div>
@@ -161,19 +148,32 @@ export default function AnimeDetailHeader({ anime }: Props) {
             )}
           </div>
 
-          {/* INFO GRID (interactive cards) */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 mt-6 text-sm">
-            {infoStats.map((stat, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.97 }}
-                className="p-3 rounded-xl bg-white/5 border border-white/10 shadow hover:bg-white/10 cursor-pointer"
-              >
-                <p className="font-medium text-white">{stat.label}</p>
-                <p className="text-neutral-300">{stat.value}</p>
-              </motion.div>
-            ))}
+          {/* INFO GRID */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 mt-6 text-sm text-neutral-400">
+            <p>
+              <span className="font-medium text-white">🎞️ Format:</span>{" "}
+              {anime.format || "-"}
+            </p>
+            <p>
+              <span className="font-medium text-white">📅 Season:</span>{" "}
+              {anime.season} {anime.seasonYear}
+            </p>
+            <p>
+              <span className="font-medium text-white">⭐ Score:</span>{" "}
+              {anime.averageScore || "-"}
+            </p>
+            <p>
+              <span className="font-medium text-white">🎬 Studio:</span>{" "}
+              {anime.studios.nodes[0]?.name || "-"}
+            </p>
+            <p>
+              <span className="font-medium text-white">📈 Popularity:</span>{" "}
+              {anime.popularity || "-"}
+            </p>
+            <p>
+              <span className="font-medium text-white">📺 Status:</span>{" "}
+              {anime.status || "-"}
+            </p>
           </div>
         </div>
       </div>
