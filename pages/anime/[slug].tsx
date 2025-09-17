@@ -13,18 +13,29 @@ export default function AnimeDetailPage() {
   const router = useRouter()
   const { slug } = router.query
 
-  const id = parseInt(slug as string)
-  const { anime, isLoading, isError } = useAnimeDetail(id)
+  const id = slug ? parseInt(slug as string, 10) : NaN
+  const isValidId = !isNaN(id)
+
+  const { anime, isLoading, isError } = useAnimeDetail(isValidId ? id : 0)
 
   // Fetch Similar Anime
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
     queryKey: ['similarAnime', id],
     queryFn: () => fetchSimilarAnime(id),
-    enabled: !!id,
+    enabled: isValidId,
   })
 
-  if (isLoading) return <p className="text-center text-white mt-10">Loading...</p>
-  if (isError || !anime) return <p className="text-center text-red-500 mt-10">Anime not found.</p>
+  if (!isValidId) {
+    return <p className="text-center text-red-500 mt-10">Invalid anime ID.</p>
+  }
+
+  if (isLoading) {
+    return <p className="text-center text-white mt-10">Loading...</p>
+  }
+
+  if (isError || !anime) {
+    return <p className="text-center text-red-500 mt-10">Anime not found.</p>
+  }
 
   const statusBadgeColor =
     anime.status === 'RELEASING'
@@ -51,9 +62,10 @@ export default function AnimeDetailPage() {
         )}
 
         {/* Characters */}
-        {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
-          <CharacterList characters={anime.characters.edges} />
-        )}
+        {Array.isArray(anime.characters?.edges) &&
+          anime.characters.edges.length > 0 && (
+            <CharacterList characters={anime.characters.edges} />
+          )}
 
         {/* Episode Mapping Section */}
         <section className="mt-10 px-4 text-center">
@@ -107,7 +119,9 @@ export default function AnimeDetailPage() {
         <section className="mt-10 px-4">
           <h2 className="text-xl font-semibold mb-4">Recommendations</h2>
           {loadingSimilar ? (
-            <p className="text-center text-gray-400">Looking for recommendations...</p>
+            <p className="text-center text-gray-400">
+              Looking for recommendations...
+            </p>
           ) : similarAnime.length > 0 ? (
             <div className="flex gap-4 overflow-x-auto">
               {similarAnime.map((anime) => (
@@ -115,7 +129,9 @@ export default function AnimeDetailPage() {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">No recommendations found.</p>
+            <p className="text-center text-gray-500">
+              No recommendations found.
+            </p>
           )}
         </section>
       </main>
