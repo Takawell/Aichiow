@@ -15,7 +15,7 @@ export default function MangaLandingPage() {
   useEffect(() => {
     async function load() {
       try {
-        setLog({ type: 'loading', message: 'Fetching manga list...' })
+        setLog({ type: 'loading', message: 'Loading manga list...' })
         const popularRes = await fetchPopularManga()
         setPopular(popularRes)
         setLog({ type: 'success', message: 'Popular manga loaded successfully!' })
@@ -31,6 +31,15 @@ export default function MangaLandingPage() {
   }, [])
 
   return (
+    <>
+      <Head>
+        <title>Manga | Aichiow</title>
+        <meta
+          name="description"
+          content="Discover the hottest manga with a full-featured reader — right at your fingertips."
+        />
+      </Head>
+      
     <main className="px-4 md:px-8 py-10 text-white">
       {/* Hero Section */}
       <section className="mb-16 text-center">
