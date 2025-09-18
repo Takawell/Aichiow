@@ -37,10 +37,30 @@ export default function MangaLandingPage() {
         <title>Manga | Aichiow</title>
         <meta
           name="description"
-          content="Discover the hottest manga with a full-featured reader — right at your fingertips."
+          content="Discover the hottest manga with a full-featured reader."
+        />
+
+        <meta property="og:title" content="Manga | Aichiow" />
+        <meta
+          property="og:description"
+          content="Discover the hottest manga with a full-featured reader."
+        />
+        <meta property="og:image" content="https://aichiow.vercel.app/logo.png" />
+        <meta property="og:url" content="https://aichiow.vercel.app/manga" />
+        <meta property="og:type" content="website" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Manga | Aichiow" />
+        <meta
+          name="twitter:description"
+          content="Discover the hottest manga with a full-featured reader."
+        />
+        <meta
+          name="twitter:image"
+          content="https://aichiow.vercel.app/logo.png"
         />
       </Head>
-
+      
       <main className="px-4 md:px-8 py-10 text-white">
         {/* Hero Section */}
         <section className="mb-16 text-center">
