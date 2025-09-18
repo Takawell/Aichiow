@@ -45,14 +45,14 @@ export default function LandingPage() {
         <title>AICHIOW – Anime & Manga Portal</title>
         <meta
           name="description"
-          content="Aichiow is your Isekai portal to the world of anime and manga – trending anime, trailers, schedules, and manga reader, all in one."
+          content="Aichiow — Discover anime, manga, manhwa, and light novels on Aichiow — modern design, fast navigation, and rich details in one place."
         />
         <meta name="keywords" content="anime, manga, manhwa, light novel, portal, Aichiow" />
         <meta name="author" content="Aichiow Developer Team" />
         <meta property="og:title" content="AICHIOW – Anime & Manga Portal" />
         <meta
           property="og:description"
-          content="Your ultimate portal to the world of trending anime and manga. Start your Isekai journey now!"
+          content="Your ultimate portal to the world of trending anime, manga, manhwa, light novel. Start your Isekai journey now!"
         />
         <meta property="og:image" content="https://aichiow.vercel.app/logo.png" />
         <meta property="og:url" content="https://aichiow.vercel.app" />
