@@ -45,7 +45,7 @@ export default function LandingPage() {
         <title>AICHIOW – Anime & Manga Portal</title>
         <meta
           name="description"
-          content="Aichiow — Discover anime, manga, manhwa, and light novels on Aichiow — modern design, fast navigation, and rich details in one place."
+          content="Discover anime, manga, manhwa, and light novels on Aichiow — modern design, fast navigation, and rich details in one place."
         />
         <meta name="keywords" content="anime, manga, manhwa, light novel, portal, Aichiow" />
         <meta name="author" content="Aichiow Developer Team" />
