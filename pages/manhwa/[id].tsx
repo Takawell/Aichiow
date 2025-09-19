@@ -54,7 +54,7 @@ export default function ManhwaDetailPage() {
       const title =
         manhwa.title.english || manhwa.title.romaji || manhwa.title.native || ''
 
-      if (!title) return // cegah kalau kosong
+      if (!title) return 
 
       setLoadingChapters(true)
       searchManga(title).then((results) => {
@@ -115,8 +115,8 @@ export default function ManhwaDetailPage() {
               </h2>
               <p className="text-gray-200 mb-4 text-sm md:text-base">
                 {lang === 'en'
-                  ? 'Now you can read this manhwa directly from MangaDex chapters below.'
-                  : 'Sekarang kamu bisa membaca manhwa ini langsung dari daftar chapter MangaDex di bawah.'}
+                  ? 'Now the reading feature is available, happy reading :)'
+                  : 'Sekarang fitur membaca sudah hadir, selamat membaca :)'}
               </p>
               <div className="flex justify-center gap-3 mt-4">
                 <button
@@ -289,7 +289,7 @@ export default function ManhwaDetailPage() {
             ))}
           </div>
         ) : (
-          <p className="text-gray-400">No chapters found on MangaDex.</p>
+          <p className="text-gray-400">No chapters found.</p>
         )}
       </section>
 
