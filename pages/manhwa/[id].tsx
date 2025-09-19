@@ -12,6 +12,14 @@ import { Heart, Share2 } from 'lucide-react'
 import { FaArrowLeft } from 'react-icons/fa'
 import ShareModal from '@/components/shared/ShareModal'
 
+// MangaDex helpers
+import {
+  searchManga,
+  fetchChapters,
+  sortChapters,
+  getLocalizedTitle,
+} from '@/lib/mangadex'
+
 export default function ManhwaDetailPage() {
   const router = useRouter()
   const { id } = router.query
@@ -21,11 +29,17 @@ export default function ManhwaDetailPage() {
   const [lang, setLang] = useState<'en' | 'id'>('en')
   const [showShare, setShowShare] = useState(false)
 
+  // MangaDex integration
+  const [mangaDexId, setMangaDexId] = useState<string | null>(null)
+  const [chapters, setChapters] = useState<any[]>([])
+  const [loadingChapters, setLoadingChapters] = useState(false)
+
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: id ? Number(id) : undefined,
     mediaType: 'manhwa',
   })
 
+  // Fetch AniList Manhwa detail
   useEffect(() => {
     if (id) {
       setLoading(true)
@@ -34,6 +48,29 @@ export default function ManhwaDetailPage() {
         .finally(() => setLoading(false))
     }
   }, [id])
+
+  // Fetch MangaDex ID + chapters
+  useEffect(() => {
+    if (manhwa) {
+      const title =
+        manhwa.title.english || manhwa.title.romaji || manhwa.title.native
+      setLoadingChapters(true)
+      searchManga(title).then((results) => {
+        if (results.length > 0) {
+          const md = results[0]
+          setMangaDexId(md.id)
+
+          fetchChapters(md.id)
+            .then((chs) => {
+              setChapters(sortChapters(chs))
+            })
+            .finally(() => setLoadingChapters(false))
+        } else {
+          setLoadingChapters(false)
+        }
+      })
+    }
+  }, [manhwa])
 
   if (loading) {
     return (
@@ -78,16 +115,10 @@ export default function ManhwaDetailPage() {
               </h2>
               <p className="text-gray-200 mb-4 text-sm md:text-base">
                 {lang === 'en'
-                  ? 'Just a reminder, this manhwa can only be read on the manga page. Press close if you want to continue viewing the details.'
-                  : 'Sekadar mengingatkan, manhwa ini hanya bisa dibaca di halaman manga. Tekan tutup jika kamu ingin melanjutkan melihat detailnya.'}
+                  ? 'Now you can read this manhwa directly from MangaDex chapters below.'
+                  : 'Sekarang kamu bisa membaca manhwa ini langsung dari daftar chapter MangaDex di bawah.'}
               </p>
               <div className="flex justify-center gap-3 mt-4">
-                <Link
-                  href="/manga/explore"
-                  className="px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-medium shadow-lg transition"
-                >
-                  {lang === 'en' ? 'Go to Manga' : 'Buka Manga'}
-                </Link>
                 <button
                   onClick={() => setShowCard(false)}
                   className="px-5 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium shadow-lg border border-white/20 transition"
@@ -233,6 +264,34 @@ export default function ManhwaDetailPage() {
           {manhwa.description?.replace(/<[^>]+>/g, '')}
         </p>
       </div>
+
+      {/* Chapters from MangaDex */}
+      <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10">
+        <h2 className="text-2xl font-bold mb-4">Chapters</h2>
+        {loadingChapters ? (
+          <p className="text-gray-400">Loading chapters...</p>
+        ) : chapters.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            {chapters.map((ch) => (
+              <Link
+                key={ch.id}
+                href={`/read/${ch.id}`}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white flex justify-between items-center"
+              >
+                <span>
+                  Chapter {ch.attributes.chapter || '?'}{' '}
+                  {ch.attributes.title && `- ${ch.attributes.title}`}
+                </span>
+                <span className="text-sm text-gray-300">
+                  {new Date(ch.attributes.publishAt).toLocaleDateString()}
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-400">No chapters found on MangaDex.</p>
+        )}
+      </section>
 
       {/* Characters */}
       <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10">
