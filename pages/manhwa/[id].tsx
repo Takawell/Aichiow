@@ -29,6 +29,7 @@ export default function ManhwaDetailPage() {
   const [showShare, setShowShare] = useState(false)
 
   // MangaDex integration
+  const [mangaDexId, setMangaDexId] = useState<string | null>(null)
   const [chapters, setChapters] = useState<any[]>([])
   const [loadingChapters, setLoadingChapters] = useState(false)
 
@@ -47,15 +48,21 @@ export default function ManhwaDetailPage() {
     }
   }, [id])
 
-  // Fetch MangaDex chapters
+  // Fetch MangaDex ID + chapters
   useEffect(() => {
     if (manhwa) {
       const title =
-        manhwa.title.english || manhwa.title.romaji || manhwa.title.native
+        manhwa.title.english || manhwa.title.romaji || manhwa.title.native || ''
+
+      if (!title) return // cegah kalau kosong
+
       setLoadingChapters(true)
       searchManga(title).then((results) => {
         if (results.length > 0) {
-          fetchChapters(results[0].id)
+          const md = results[0]
+          setMangaDexId(md.id)
+
+          fetchChapters(md.id)
             .then((chs) => setChapters(sortChapters(chs)))
             .finally(() => setLoadingChapters(false))
         } else {
@@ -81,12 +88,13 @@ export default function ManhwaDetailPage() {
     )
   }
 
+  // share 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
-  const shareTitle = manhwa.title.english || manhwa.title.romaji
+  const shareTitle = manhwa.title.english || manhwa.title.romaji || 'Manhwa'
 
   return (
     <div className="bg-neutral-950 min-h-screen text-white relative overflow-hidden">
-      {/* Notification Overlay */}
+      {/* --- NOTIFICATION MODAL --- */}
       <AnimatePresence>
         {showCard && (
           <motion.div
@@ -143,12 +151,12 @@ export default function ManhwaDetailPage() {
         )}
       </AnimatePresence>
 
-      {/* Hero Banner */}
+      {/* --- HERO BANNER --- */}
       <div className="relative w-full h-[360px] md:h-[480px] overflow-hidden">
         {manhwa.bannerImage ? (
           <Image
             src={manhwa.bannerImage}
-            alt={manhwa.title.english || manhwa.title.romaji}
+            alt={manhwa.title.english || manhwa.title.romaji || 'banner'}
             fill
             priority
             className="object-cover brightness-50"
@@ -163,7 +171,7 @@ export default function ManhwaDetailPage() {
           <div className="w-[120px] md:w-[180px] aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg shrink-0">
             <Image
               src={manhwa.coverImage.extraLarge || manhwa.coverImage.large}
-              alt={manhwa.title.english || manhwa.title.romaji}
+              alt={manhwa.title.english || manhwa.title.romaji || 'cover'}
               fill
               className="object-cover"
             />
@@ -236,6 +244,7 @@ export default function ManhwaDetailPage() {
 
       {/* Description + Genres (Mobile) */}
       <div className="max-w-5xl mx-auto px-4 md:px-8 mt-6">
+        {/* Genres (Mobile only) */}
         {manhwa.genres && manhwa.genres.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4 md:hidden">
             {manhwa.genres.map((genre) => (
@@ -250,12 +259,13 @@ export default function ManhwaDetailPage() {
           </div>
         )}
 
+        {/* Description */}
         <p className="text-gray-300 leading-relaxed whitespace-pre-line">
           {manhwa.description?.replace(/<[^>]+>/g, '')}
         </p>
       </div>
 
-      {/* Chapters */}
+      {/* Chapters from MangaDex */}
       <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10">
         <h2 className="text-2xl font-bold mb-4">Chapters</h2>
         {loadingChapters ? (
@@ -357,4 +367,4 @@ export default function ManhwaDetailPage() {
       </div>
     </div>
   )
-}         
+}
