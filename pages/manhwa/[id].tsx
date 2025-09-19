@@ -17,7 +17,6 @@ import {
   searchManga,
   fetchChapters,
   sortChapters,
-  getLocalizedTitle,
 } from '@/lib/mangadex'
 
 export default function ManhwaDetailPage() {
@@ -30,7 +29,6 @@ export default function ManhwaDetailPage() {
   const [showShare, setShowShare] = useState(false)
 
   // MangaDex integration
-  const [mangaDexId, setMangaDexId] = useState<string | null>(null)
   const [chapters, setChapters] = useState<any[]>([])
   const [loadingChapters, setLoadingChapters] = useState(false)
 
@@ -49,7 +47,7 @@ export default function ManhwaDetailPage() {
     }
   }, [id])
 
-  // Fetch MangaDex ID + chapters
+  // Fetch MangaDex chapters
   useEffect(() => {
     if (manhwa) {
       const title =
@@ -57,13 +55,8 @@ export default function ManhwaDetailPage() {
       setLoadingChapters(true)
       searchManga(title).then((results) => {
         if (results.length > 0) {
-          const md = results[0]
-          setMangaDexId(md.id)
-
-          fetchChapters(md.id)
-            .then((chs) => {
-              setChapters(sortChapters(chs))
-            })
+          fetchChapters(results[0].id)
+            .then((chs) => setChapters(sortChapters(chs)))
             .finally(() => setLoadingChapters(false))
         } else {
           setLoadingChapters(false)
@@ -88,7 +81,6 @@ export default function ManhwaDetailPage() {
     )
   }
 
-  // share 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const shareTitle = manhwa.title.english || manhwa.title.romaji
 
@@ -244,7 +236,6 @@ export default function ManhwaDetailPage() {
 
       {/* Description + Genres (Mobile) */}
       <div className="max-w-5xl mx-auto px-4 md:px-8 mt-6">
-        {/* Genres (Mobile only) */}
         {manhwa.genres && manhwa.genres.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4 md:hidden">
             {manhwa.genres.map((genre) => (
@@ -259,13 +250,12 @@ export default function ManhwaDetailPage() {
           </div>
         )}
 
-        {/* Description */}
         <p className="text-gray-300 leading-relaxed whitespace-pre-line">
           {manhwa.description?.replace(/<[^>]+>/g, '')}
         </p>
       </div>
 
-      {/* Chapters from MangaDex */}
+      {/* Chapters */}
       <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10">
         <h2 className="text-2xl font-bold mb-4">Chapters</h2>
         {loadingChapters ? (
@@ -367,4 +357,4 @@ export default function ManhwaDetailPage() {
       </div>
     </div>
   )
-}
+}         
