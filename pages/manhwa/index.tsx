@@ -60,7 +60,7 @@ export default function ManhwaPage() {
     <>
       <Head>
         <title>Manhwa | Aichiow</title>
-        <meta name="description" content="Koleksi Manhwa dari AniList." />
+        <meta name="description" content="Your ultimate destination for the best manhwa online! Discover thousands of titles across all genres, Find your next favorite story right here." />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
