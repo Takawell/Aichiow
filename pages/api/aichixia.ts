@@ -5,7 +5,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     let targetUrl = "";
-    let fetchOptions: RequestInit = {
+    const fetchOptions: RequestInit = {
       method: req.method,
       headers: { "Content-Type": "application/json" },
     };
@@ -17,9 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       targetUrl = "https://aichixia.vercel.app/api/chat";
       fetchOptions.body = JSON.stringify(req.body);
-    } else {
-      targetUrl = new URL("https://aichixia.vercel.app/api/aichixia").toString();
-      const url = new URL(targetUrl);
+    } 
+    else {
+      const url = new URL("https://aichixia.vercel.app/api/aichixia");
 
       if (category) url.searchParams.append("category", String(category));
       if (action) url.searchParams.append("action", String(action));
@@ -36,6 +36,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(response.status).json(data);
   } catch (err: any) {
     console.error("Aichiow -> Aichixia API error:", err);
-    return res.status(500).json({ error: "Internal Server Error", details: err.message });
+    return res.status(500).json({
+      error: "Internal Server Error",
+      details: err.message,
+    });
   }
 }
