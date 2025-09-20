@@ -12,7 +12,7 @@ export default function AichixiaPage() {
     {
       role: "assistant",
       content:
-        "Hai 🌸 Aku **Aichixia**, asisten AI untuk anime, manga, manhwa, manhua, dan light novel. Mau cari info apa hari ini?",
+        "Hai 🌸 Aku **Aichixia**, asisten AI untuk anime, manga, manhwa, manhua, dan light novel.\n\nKamu bisa tanya apa saja, atau gunakan command seperti:\n- `/trending`\n- `/airing`\n- `/search Naruto`\n- `/top-genre action`",
     },
   ]);
   const [input, setInput] = useState("");
@@ -24,66 +24,6 @@ export default function AichixiaPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 🔧 Format handler biar semua jenis response bisa dibaca
-  const formatReply = (data: any): string => {
-    if (!data) return "⚠️ Tidak ada jawaban dari server.";
-    if (data.reply) return data.reply;
-    if (data.results && Array.isArray(data.results)) {
-      return (
-        "✨ Hasil:\n" +
-        data.results
-          .slice(0, 5)
-          .map(
-            (r: any, i: number) =>
-              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
-          )
-          .join("\n")
-      );
-    }
-
-    if (data.media && Array.isArray(data.media)) {
-      return (
-        "✨ Hasil:\n" +
-        data.media
-          .slice(0, 5)
-          .map(
-            (r: any, i: number) =>
-              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
-          )
-          .join("\n")
-      );
-    }
-
-    if (data.trending && Array.isArray(data.trending)) {
-      return (
-        "🔥 Trending:\n" +
-        data.trending
-          .slice(0, 5)
-          .map(
-            (r: any, i: number) =>
-              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
-          )
-          .join("\n")
-      );
-    }
-
-    if (Array.isArray(data)) {
-      return (
-        "✨ Hasil:\n" +
-        data
-          .slice(0, 5)
-          .map(
-            (r: any, i: number) =>
-              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
-          )
-          .join("\n")
-      );
-    }
-
-    // Fallback → tampilkan JSON mentah
-    return "📦 Response:\n```json\n" + JSON.stringify(data, null, 2) + "\n```";
-  };
-
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -93,19 +33,61 @@ export default function AichixiaPage() {
     setLoading(true);
 
     try {
-      // Kirim ke api/aichixia
-      const res = await fetch("/api/aichixia?action=chat", {
+      let endpoint = "/api/aichixia";
+      let fetchOptions: RequestInit = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
-      });
+      };
 
+      if (input.startsWith("/")) {
+        const parts = input.slice(1).split(" ");
+        const command = parts[0].toLowerCase();
+        const arg = parts.slice(1).join(" ");
+
+        let url = new URL(endpoint, window.location.origin);
+
+        if (command === "trending") {
+          url.searchParams.set("action", "trending");
+        } else if (command === "airing") {
+          url.searchParams.set("action", "airing");
+        } else if (command === "search" && arg) {
+          url.searchParams.set("action", "search");
+          url.searchParams.set("query", arg);
+        } else if (command === "top-genre" && arg) {
+          url.searchParams.set("action", "top-genre");
+          url.searchParams.set("genre", arg);
+        } else {
+          url.searchParams.set("action", "chat");
+          fetchOptions.body = JSON.stringify({ message: input });
+        }
+
+        endpoint = url.toString();
+        fetchOptions.method = "GET"; // command selain chat = GET
+        fetchOptions.body = undefined;
+      } else {
+        endpoint += "?action=chat";
+        fetchOptions.body = JSON.stringify({ message: input });
+      }
+
+      const res = await fetch(endpoint, fetchOptions);
       const data = await res.json();
-      console.log("API Response:", data);
+
+      // 🔹 Format reply
+      let reply = data.reply;
+
+      if (!reply && data.results) {
+        reply = `✨ Hasil:\n${data.results
+          .slice(0, 5)
+          .map(
+            (r: any, i: number) =>
+              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
+          )
+          .join("\n")}`;
+      }
 
       const aiMessage: Message = {
         role: "assistant",
-        content: formatReply(data),
+        content: reply || "⚠️ Tidak ada jawaban dari server.",
       };
 
       setMessages((prev) => [...prev, aiMessage]);
@@ -166,7 +148,7 @@ export default function AichixiaPage() {
                 />
               )}
               <div
-                className={`px-4 py-3 rounded-2xl max-w-[75%] text-sm sm:text-base leading-relaxed shadow-md whitespace-pre-wrap ${
+                className={`px-4 py-3 rounded-2xl max-w-[75%] text-sm sm:text-base leading-relaxed shadow-md whitespace-pre-line ${
                   msg.role === "user"
                     ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded-br-none"
                     : "bg-slate-800 text-sky-100 border border-sky-700 rounded-bl-none"
@@ -175,9 +157,13 @@ export default function AichixiaPage() {
                 {msg.content}
               </div>
               {msg.role === "user" && (
-                <div className="w-10 h-10 flex items-center justify-center bg-sky-500 text-white rounded-full shadow">
-                  <FaUser />
-                </div>
+                <Image
+                  src="/default.png"
+                  alt="User Avatar"
+                  width={40}
+                  height={40}
+                  className="rounded-full border border-sky-400 shadow"
+                />
               )}
             </div>
           ))}
@@ -193,7 +179,7 @@ export default function AichixiaPage() {
         <footer className="p-4 border-t border-sky-700 bg-[#0f172a] flex items-center gap-3">
           <input
             type="text"
-            placeholder="Tanya apapun tentang anime, manga, manhwa, atau LN..."
+            placeholder="Ketik pesan atau command seperti /trending, /search Naruto..."
             className="flex-1 p-3 bg-slate-900 text-sky-100 border border-sky-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
             value={input}
             onChange={(e) => setInput(e.target.value)}
