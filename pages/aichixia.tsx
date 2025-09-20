@@ -12,23 +12,22 @@ export default function AichixiaPage() {
     {
       role: "assistant",
       content:
-        "Hai 🌸 Aku **Aichixia**, asisten AI untuk anime, manga, manhwa, manhua, dan light novel.\n\nMau tanya info apa hari ini?",
+        "Hai 🌸 Aku **Aichixia**, asisten AI untuk anime, manga, manhwa, manhua, dan light novel. Mau cari info apa hari ini?",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto scroll to latest
+  // Auto scroll ke bawah
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // 🔧 Format handler biar semua jenis response bisa dibaca
   const formatReply = (data: any): string => {
-    // 1) Chat response
+    if (!data) return "⚠️ Tidak ada jawaban dari server.";
     if (data.reply) return data.reply;
-
-    // 2) results array
     if (data.results && Array.isArray(data.results)) {
       return (
         "✨ Hasil:\n" +
@@ -42,11 +41,10 @@ export default function AichixiaPage() {
       );
     }
 
-    // 3) direct array
-    if (Array.isArray(data)) {
+    if (data.media && Array.isArray(data.media)) {
       return (
         "✨ Hasil:\n" +
-        data
+        data.media
           .slice(0, 5)
           .map(
             (r: any, i: number) =>
@@ -56,21 +54,6 @@ export default function AichixiaPage() {
       );
     }
 
-    // 4) nested data
-    if (data.data && Array.isArray(data.data)) {
-      return (
-        "✨ Hasil:\n" +
-        data.data
-          .slice(0, 5)
-          .map(
-            (r: any, i: number) =>
-              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
-          )
-          .join("\n")
-      );
-    }
-
-    // 5) trending
     if (data.trending && Array.isArray(data.trending)) {
       return (
         "🔥 Trending:\n" +
@@ -84,7 +67,21 @@ export default function AichixiaPage() {
       );
     }
 
-    return "⚠️ Tidak ada jawaban dari server (format tidak dikenali).";
+    if (Array.isArray(data)) {
+      return (
+        "✨ Hasil:\n" +
+        data
+          .slice(0, 5)
+          .map(
+            (r: any, i: number) =>
+              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
+          )
+          .join("\n")
+      );
+    }
+
+    // Fallback → tampilkan JSON mentah
+    return "📦 Response:\n```json\n" + JSON.stringify(data, null, 2) + "\n```";
   };
 
   const sendMessage = async () => {
@@ -96,6 +93,7 @@ export default function AichixiaPage() {
     setLoading(true);
 
     try {
+      // Kirim ke api/aichixia
       const res = await fetch("/api/aichixia?action=chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -103,17 +101,22 @@ export default function AichixiaPage() {
       });
 
       const data = await res.json();
-      console.log("Aichixia API response:", data);
+      console.log("API Response:", data);
 
-      const reply = formatReply(data);
+      const aiMessage: Message = {
+        role: "assistant",
+        content: formatReply(data),
+      };
 
-      const aiMessage: Message = { role: "assistant", content: reply };
       setMessages((prev) => [...prev, aiMessage]);
     } catch (err) {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "❌ Terjadi kesalahan saat memproses pesan." },
+        {
+          role: "assistant",
+          content: "❌ Terjadi kesalahan saat memproses pesan.",
+        },
       ]);
     } finally {
       setLoading(false);
@@ -163,7 +166,7 @@ export default function AichixiaPage() {
                 />
               )}
               <div
-                className={`px-4 py-3 rounded-2xl max-w-[75%] text-sm sm:text-base leading-relaxed shadow-md whitespace-pre-line ${
+                className={`px-4 py-3 rounded-2xl max-w-[75%] text-sm sm:text-base leading-relaxed shadow-md whitespace-pre-wrap ${
                   msg.role === "user"
                     ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded-br-none"
                     : "bg-slate-800 text-sky-100 border border-sky-700 rounded-bl-none"
@@ -172,13 +175,9 @@ export default function AichixiaPage() {
                 {msg.content}
               </div>
               {msg.role === "user" && (
-                <Image
-                  src="/default.png"
-                  alt="User Avatar"
-                  width={40}
-                  height={40}
-                  className="rounded-full border border-sky-500 shadow"
-                />
+                <div className="w-10 h-10 flex items-center justify-center bg-sky-500 text-white rounded-full shadow">
+                  <FaUser />
+                </div>
               )}
             </div>
           ))}
