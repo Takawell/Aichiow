@@ -12,17 +12,80 @@ export default function AichixiaPage() {
     {
       role: "assistant",
       content:
-        "Hai 🌸 Aku **Aichixia**, asisten AI untuk anime, manga, manhwa, manhua, dan light novel.\n\nKamu bisa tanya apa saja, atau gunakan command seperti:\n- `/trending`\n- `/airing`\n- `/search Naruto`\n- `/top-genre action`",
+        "Hai 🌸 Aku **Aichixia**, asisten AI untuk anime, manga, manhwa, manhua, dan light novel. Mau cari info apa hari ini?",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto scroll ke bawah
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const formatReply = (data: any): string => {
+    if (!data) return "⚠️ Tidak ada jawaban dari server.";
+
+    if (data.reply) return data.reply;
+
+    if (data.results && Array.isArray(data.results)) {
+      return (
+        "✨ Hasil:\n" +
+        data.results
+          .slice(0, 5)
+          .map(
+            (r: any, i: number) =>
+              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
+          )
+          .join("\n")
+      );
+    }
+
+    // Kalau ada media
+    if (data.media && Array.isArray(data.media)) {
+      return (
+        "✨ Hasil:\n" +
+        data.media
+          .slice(0, 5)
+          .map(
+            (r: any, i: number) =>
+              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
+          )
+          .join("\n")
+      );
+    }
+
+    // Kalau ada trending
+    if (data.trending && Array.isArray(data.trending)) {
+      return (
+        "🔥 Trending:\n" +
+        data.trending
+          .slice(0, 5)
+          .map(
+            (r: any, i: number) =>
+              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
+          )
+          .join("\n")
+      );
+    }
+
+    // Kalau langsung array
+    if (Array.isArray(data)) {
+      return (
+        "✨ Hasil:\n" +
+        data
+          .slice(0, 5)
+          .map(
+            (r: any, i: number) =>
+              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
+          )
+          .join("\n")
+      );
+    }
+
+    // Fallback → tampilkan JSON mentah
+    return "📦 Response:\n```json\n" + JSON.stringify(data, null, 2) + "\n```";
+  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -33,61 +96,18 @@ export default function AichixiaPage() {
     setLoading(true);
 
     try {
-      let endpoint = "/api/aichixia";
-      let fetchOptions: RequestInit = {
+      const res = await fetch("/api/aichixia?action=chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-      };
+        body: JSON.stringify({ message: input }),
+      });
 
-      if (input.startsWith("/")) {
-        const parts = input.slice(1).split(" ");
-        const command = parts[0].toLowerCase();
-        const arg = parts.slice(1).join(" ");
-
-        let url = new URL(endpoint, window.location.origin);
-
-        if (command === "trending") {
-          url.searchParams.set("action", "trending");
-        } else if (command === "airing") {
-          url.searchParams.set("action", "airing");
-        } else if (command === "search" && arg) {
-          url.searchParams.set("action", "search");
-          url.searchParams.set("query", arg);
-        } else if (command === "top-genre" && arg) {
-          url.searchParams.set("action", "top-genre");
-          url.searchParams.set("genre", arg);
-        } else {
-          url.searchParams.set("action", "chat");
-          fetchOptions.body = JSON.stringify({ message: input });
-        }
-
-        endpoint = url.toString();
-        fetchOptions.method = "GET"; // command selain chat = GET
-        fetchOptions.body = undefined;
-      } else {
-        endpoint += "?action=chat";
-        fetchOptions.body = JSON.stringify({ message: input });
-      }
-
-      const res = await fetch(endpoint, fetchOptions);
       const data = await res.json();
-
-      // 🔹 Format reply
-      let reply = data.reply;
-
-      if (!reply && data.results) {
-        reply = `✨ Hasil:\n${data.results
-          .slice(0, 5)
-          .map(
-            (r: any, i: number) =>
-              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
-          )
-          .join("\n")}`;
-      }
+      console.log("API Response:", data);
 
       const aiMessage: Message = {
         role: "assistant",
-        content: reply || "⚠️ Tidak ada jawaban dari server.",
+        content: formatReply(data),
       };
 
       setMessages((prev) => [...prev, aiMessage]);
@@ -128,7 +148,7 @@ export default function AichixiaPage() {
             Aichixia Assistant
           </h1>
         </header>
-
+       
         {/* Chat Area */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {messages.map((msg, i) => (
@@ -162,7 +182,7 @@ export default function AichixiaPage() {
                   alt="User Avatar"
                   width={40}
                   height={40}
-                  className="rounded-full border border-sky-400 shadow"
+                  className="rounded-full border border-sky-500 shadow"
                 />
               )}
             </div>
@@ -174,12 +194,12 @@ export default function AichixiaPage() {
           )}
           <div ref={messagesEndRef} />
         </div>
-
+        
         {/* Input Area */}
         <footer className="p-4 border-t border-sky-700 bg-[#0f172a] flex items-center gap-3">
           <input
             type="text"
-            placeholder="Ketik pesan atau command seperti /trending, /search Naruto..."
+            placeholder="Tanya apapun tentang anime, manga, manhwa, atau LN..."
             className="flex-1 p-3 bg-slate-900 text-sky-100 border border-sky-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
             value={input}
             onChange={(e) => setInput(e.target.value)}
