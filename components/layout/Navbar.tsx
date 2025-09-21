@@ -7,6 +7,7 @@ import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import BottomNav from './BottomNav'
+import { FaRobot } from 'react-icons/fa' 
 
 const navItems = [
   { href: '/home', label: 'HOME' },
@@ -108,14 +109,14 @@ export default function Navbar() {
           <div className="md:hidden flex items-center gap-3">
             {/* Tombol AI mobile */}
             {!isAIPage && (
-              <Link href="/aichixia" title="Talk with Aichixia 💖">
-               <img
-                  src="/aichixia.png"
-                  alt="Aichixia Assistant"
-                  className="w-9 h-9 rounded-full border-2 border-pink-400 hover:scale-110 transition-transform shadow-lg object-cover"
-                />
+              <Link
+                href="/aichixia"
+                className="p-2 rounded-lg bg-sky-500 text-white shadow-md hover:bg-sky-600 active:scale-95 transition"
+                title="AI Assistant"
+              >
+                <FaRobot className="text-lg" />
               </Link>
-             )}
+            )}
             <Link href="/profile">
               <img
                 src={avatarUrl}
