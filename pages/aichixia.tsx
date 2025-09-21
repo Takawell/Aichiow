@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { FaUser, FaPaperPlane, FaSpinner } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner } from "react-icons/fa";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -13,77 +13,19 @@ export default function AichixiaPage() {
     {
       role: "assistant",
       content:
-        "Hai 🌸 Aku **Aichixia**, asisten AI untuk anime, manga, manhwa, manhua, dan light novel. Mau cari info apa hari ini?",
+        "Hi 🌸 I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. What would you like to explore today?",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  // auto scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const formatReply = (data: any): string => {
-    if (!data) return "⚠️ Tidak ada jawaban dari server.";
-
-    if (data.reply) return data.reply;
-
-    if (data.results && Array.isArray(data.results)) {
-      return (
-        "✨ Hasil:\n" +
-        data.results
-          .slice(0, 5)
-          .map(
-            (r: any, i: number) =>
-              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
-          )
-          .join("\n")
-      );
-    }
-
-    if (data.media && Array.isArray(data.media)) {
-      return (
-        "✨ Hasil:\n" +
-        data.media
-          .slice(0, 5)
-          .map(
-            (r: any, i: number) =>
-              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
-          )
-          .join("\n")
-      );
-    }
-
-    if (data.trending && Array.isArray(data.trending)) {
-      return (
-        "🔥 Trending:\n" +
-        data.trending
-          .slice(0, 5)
-          .map(
-            (r: any, i: number) =>
-              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
-          )
-          .join("\n")
-      );
-    }
-
-    if (Array.isArray(data)) {
-      return (
-        "✨ Hasil:\n" +
-        data
-          .slice(0, 5)
-          .map(
-            (r: any, i: number) =>
-              `${i + 1}. ${r.title?.romaji || r.title?.english || r.title}`
-          )
-          .join("\n")
-      );
-    }
-
-    return "📦 Response:\n```json\n" + JSON.stringify(data, null, 2) + "\n```";
-  };
-
+  // send message
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -93,29 +35,25 @@ export default function AichixiaPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/aichixia?action=chat", {
+      const res = await fetch("/api/aichixia", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: userMessage.content }),
       });
 
       const data = await res.json();
-      console.log("API Response:", data);
 
-      const aiMessage: Message = {
-        role: "assistant",
-        content: formatReply(data),
-      };
+      const reply =
+        typeof data.reply === "string"
+          ? data.reply
+          : "⚠️ No valid response from server.";
 
-      setMessages((prev) => [...prev, aiMessage]);
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch (err) {
-      console.error(err);
+      console.error("Chat error:", err);
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content: "❌ Terjadi kesalahan saat memproses pesan.",
-        },
+        { role: "assistant", content: "❌ An error occurred while processing your request." },
       ]);
     } finally {
       setLoading(false);
@@ -123,96 +61,100 @@ export default function AichixiaPage() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
 
   return (
-    <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white">
-      <div className="w-full max-w-4xl flex flex-col h-screen">
+    <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-[#071029] via-[#0f172a] to-[#071026] text-sky-100">
+      <div className="w-full max-w-5xl flex flex-col h-screen mx-4 sm:mx-6 lg:mx-8">
         {/* Header */}
-        <header className="p-4 border-b border-sky-700 bg-[#0f172a]/80 backdrop-blur-lg shadow-md flex items-center gap-3 sticky top-0 z-10">
-          <Image
-            src="/aichixia.png"
-            alt="Aichixia"
-            width={45}
-            height={45}
-            className="rounded-full border-2 border-sky-400 shadow-md"
-          />
-          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-sky-400 to-blue-500 text-transparent bg-clip-text">
-            Aichixia Assistant
-          </h1>
+        <header className="p-4 border-b border-sky-800 bg-black/20 backdrop-blur-md rounded-b-xl shadow-md flex items-center gap-4 sticky top-4 z-20 mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="relative w-12 h-12 rounded-full ring-2 ring-sky-500 overflow-hidden shadow-lg">
+              <Image src="/aichixia.png" alt="Aichixia" fill style={{ objectFit: "cover" }} />
+            </div>
+            <div>
+              <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-300 to-blue-500">
+                Aichixia Assistant
+              </h1>
+              <p className="text-xs sm:text-sm text-sky-300/80 mt-0.5">
+                Your AI guide for anime, manga, manhwa & light novels
+              </p>
+            </div>
+          </div>
         </header>
 
-        {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5 scrollbar-thin scrollbar-thumb-sky-700/50 scrollbar-track-transparent">
+        {/* Chat area */}
+        <section className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-4" style={{ WebkitOverflowScrolling: "touch" }}>
           {messages.map((msg, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className={`flex items-end gap-3 ${
-                msg.role === "user" ? "justify-end" : "justify-start"
-              }`}
+              transition={{ duration: 0.25 }}
+              className={`flex items-end gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               {msg.role === "assistant" && (
-                <Image
-                  src="/aichixia.png"
-                  alt="Bot Avatar"
-                  width={40}
-                  height={40}
-                  className="rounded-full border border-sky-500 shadow"
-                />
+                <div className="flex-shrink-0">
+                  <div className="relative w-10 h-10 rounded-full ring-2 ring-sky-600 overflow-hidden shadow-lg">
+                    <Image src="/aichixia.png" alt="bot" fill style={{ objectFit: "cover" }} />
+                  </div>
+                </div>
               )}
+
               <div
-                className={`px-4 py-3 rounded-2xl max-w-[75%] sm:max-w-[70%] md:max-w-[60%] text-sm sm:text-base leading-relaxed shadow-md whitespace-pre-line ${
-                  msg.role === "user"
-                    ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded-br-none"
-                    : "bg-slate-800/80 backdrop-blur-md text-sky-100 border border-sky-700 rounded-bl-none"
-                }`}
+                className={`px-4 py-3 rounded-2xl max-w-[78%] sm:max-w-[72%] md:max-w-[60%] text-sm sm:text-base leading-relaxed shadow-md whitespace-pre-line
+                  ${msg.role === "user"
+                    ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded-br-2xl rounded-tl-2xl"
+                    : "bg-gradient-to-br from-[#081122]/80 to-[#0b1724]/60 text-sky-100 border border-sky-700/40 backdrop-blur-sm"}
+                `}
               >
                 {msg.content}
               </div>
+
               {msg.role === "user" && (
-                <Image
-                  src="/default.png"
-                  alt="User Avatar"
-                  width={40}
-                  height={40}
-                  className="rounded-full border border-sky-500 shadow"
-                />
+                <div className="flex-shrink-0">
+                  <div className="relative w-10 h-10 rounded-full ring-2 ring-sky-500 overflow-hidden shadow">
+                    <Image src="/default.png" alt="user" fill style={{ objectFit: "cover" }} />
+                  </div>
+                </div>
               )}
             </motion.div>
           ))}
+
           {loading && (
-            <div className="flex items-center gap-2 text-sky-400 text-sm">
-              <FaSpinner className="animate-spin" /> Aichixia mengetik...
+            <div className="flex items-center gap-2 text-sky-300">
+              <FaSpinner className="animate-spin" /> <span>Aichixia is typing...</span>
             </div>
           )}
           <div ref={messagesEndRef} />
-        </div>
+        </section>
 
-        {/* Input Area */}
-        <footer className="p-4 border-t border-sky-700 bg-[#0f172a]/80 backdrop-blur-lg flex items-center gap-3 sticky bottom-0">
-          <input
-            type="text"
-            placeholder="Tanya apapun tentang anime, manga, manhwa, atau LN..."
-            className="flex-1 p-3 bg-slate-900/80 text-sky-100 border border-sky-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm sm:text-base placeholder-slate-400"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={loading}
-          />
-          <button
-            onClick={sendMessage}
-            disabled={loading}
-            className="p-3 bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded-xl shadow hover:scale-105 active:scale-95 transition disabled:opacity-50"
-          >
-            <FaPaperPlane />
-          </button>
+        {/* Input */}
+        <footer className="p-4 bg-gradient-to-t from-[#071026]/60 via-transparent backdrop-blur-sm sticky bottom-4 mx-4 sm:mx-6 lg:mx-8 rounded-xl">
+          <div className="flex gap-3 items-center">
+            <input
+              type="text"
+              placeholder="Type your message here..."
+              className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={loading}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={loading || !input.trim()}
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-[1.02] active:scale-95 transition shadow-lg disabled:opacity-60"
+              title="Send"
+            >
+              {loading ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
+              <span className="hidden sm:inline">Send</span>
+            </button>
+          </div>
         </footer>
       </div>
     </main>
