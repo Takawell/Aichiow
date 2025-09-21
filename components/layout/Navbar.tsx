@@ -7,6 +7,7 @@ import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import BottomNav from './BottomNav'
+import { FaRobot } from 'react-icons/fa' // 🔥 Icon AI
 
 const navItems = [
   { href: '/home', label: 'HOME' },
@@ -15,6 +16,7 @@ const navItems = [
   { href: '/manga', label: 'MANGA' },
   { href: '/manhwa', label: 'MANHWA' },
   { href: '/light-novel', label: 'LIGHT NOVEL' },
+  { href: '/aichixia', label: 'AI' }, // AI tetap ada di desktop nav
 ]
 
 export default function Navbar() {
@@ -51,6 +53,7 @@ export default function Navbar() {
   }, [])
 
   const isReadPage = router.pathname.startsWith('/read/')
+  const isAIPage = router.pathname.startsWith('/aichixia')
 
   return (
     <>
@@ -102,8 +105,18 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Avatar only*/}
+          {/* Mobile kanan */}
           <div className="md:hidden flex items-center gap-3">
+            {/* Tombol AI mobile */}
+            {!isAIPage && (
+              <Link
+                href="/aichixia"
+                className="p-2 rounded-lg bg-sky-500 text-white shadow-md hover:bg-sky-600 active:scale-95 transition"
+                title="AI Assistant"
+              >
+                <FaRobot className="text-lg" />
+              </Link>
+            )}
             <Link href="/profile">
               <img
                 src={avatarUrl}
