@@ -7,7 +7,6 @@ import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import BottomNav from './BottomNav'
-import { FaRobot } from 'react-icons/fa' // 🔥 Icon AI
 
 const navItems = [
   { href: '/home', label: 'HOME' },
@@ -16,7 +15,7 @@ const navItems = [
   { href: '/manga', label: 'MANGA' },
   { href: '/manhwa', label: 'MANHWA' },
   { href: '/light-novel', label: 'LIGHT NOVEL' },
-  { href: '/aichixia', label: 'AI' }, // AI tetap ada di desktop nav
+  { href: '/aichixia', label: 'AI' }, 
 ]
 
 export default function Navbar() {
@@ -109,14 +108,14 @@ export default function Navbar() {
           <div className="md:hidden flex items-center gap-3">
             {/* Tombol AI mobile */}
             {!isAIPage && (
-              <Link
-                href="/aichixia"
-                className="p-2 rounded-lg bg-sky-500 text-white shadow-md hover:bg-sky-600 active:scale-95 transition"
-                title="AI Assistant"
-              >
-                <FaRobot className="text-lg" />
+              <Link href="/aichixia" title="Talk with Aichixia 💖">
+               <img
+                  src="/aichixia.png"
+                  alt="Aichixia Assistant"
+                  className="w-9 h-9 rounded-full border-2 border-pink-400 hover:scale-110 transition-transform shadow-lg object-cover"
+                />
               </Link>
-            )}
+             )}
             <Link href="/profile">
               <img
                 src={avatarUrl}
@@ -129,7 +128,7 @@ export default function Navbar() {
       </header>
 
       {/* Navbar mobile */}
-      {!isReadPage && <BottomNav />}
+      {!isReadPage && !isAIPage && <BottomNav />}
     </>
   )
 }
