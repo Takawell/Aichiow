@@ -159,11 +159,10 @@ export default function AichixiaPage() {
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                      img: ({ node, ...props }) => (
+                      img: ({ src, alt }) => (
                         <Image
-                          {...props}
-                          src={props.src || "/default.png"}
-                          alt={props.alt || "image"}
+                          src={typeof src === "string" ? src : "/default.png"}
+                          alt={alt || "image"}
                           width={400}
                           height={300}
                           className="rounded-lg my-2"
