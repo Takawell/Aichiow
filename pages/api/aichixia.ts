@@ -15,7 +15,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     const data = await response.json();
-    return res.status(response.status).json(data);
+
+     if (Array.isArray(data.anime)) {
+      return res.status(200).json({
+        type: "anime",
+        anime: data.anime.map((a: any) => ({
+          id: a.id ?? Math.random(),
+          title: a.title ?? "Untitled",
+          coverImage: a.coverImage ?? "/default.png",
+          score: a.averageScore ?? 0,
+          popularity: a.popularity ?? 0,
+          url: a.url ?? "#",
+        })),
+      });
+    }
+
+    // fallback → pure text reply
+    return res.status(response.status).json({
+      type: "text",
+      reply: data.reply ?? "⚠️ No valid response.",
+    });
   } catch (err: any) {
     console.error("Aichiow -> Aichixia API error:", err);
     return res.status(500).json({
