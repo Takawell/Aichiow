@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { FaPaperPlane, FaSpinner } from "react-icons/fa";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -159,23 +160,72 @@ export default function AichixiaPage() {
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                      img: ({ src, alt }) => (
-                        <Image
-                          src={typeof src === "string" ? src : "/default.png"}
-                          alt={alt || "image"}
-                          width={400}
-                          height={300}
-                          className="rounded-lg my-2"
-                        />
-                      ),
-                      a: ({ node, ...props }) => (
-                        <a
-                          {...props}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sky-400 underline hover:text-sky-300"
-                        />
-                      ),
+                      img: ({ src, alt }) => {
+                        if (src?.startsWith("https://s4.anilist.co/")) {
+                          // ambil ID dari alt kalau dikirim AI
+                          const animeId = alt?.match(/^\d+$/) ? alt : null;
+                          return animeId ? (
+                            <Link href={`/anime/${animeId}`}>
+                              <Image
+                                src={src}
+                                alt={alt || "anime"}
+                                width={400}
+                                height={300}
+                                className="rounded-lg my-2 cursor-pointer hover:opacity-90 transition"
+                              />
+                            </Link>
+                          ) : (
+                            <Image
+                              src={src}
+                              alt={alt || "image"}
+                              width={400}
+                              height={300}
+                              className="rounded-lg my-2"
+                            />
+                          );
+                        }
+                        return (
+                          <Image
+                            src={src || "/default.png"}
+                            alt={alt || "image"}
+                            width={400}
+                            height={300}
+                            className="rounded-lg my-2"
+                          />
+                        );
+                      },
+                      a: ({ href, children }) => {
+                        if (href?.startsWith("https://anilist.co/anime/")) {
+                          const idMatch = href.match(/anime\/(\d+)/);
+                          const animeId = idMatch ? idMatch[1] : null;
+                          return animeId ? (
+                            <Link href={`/anime/${animeId}`}>
+                              <span className="text-sky-400 underline hover:text-sky-300 cursor-pointer">
+                                {children}
+                              </span>
+                            </Link>
+                          ) : (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sky-400 underline hover:text-sky-300"
+                            >
+                              {children}
+                            </a>
+                          );
+                        }
+                        return (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sky-400 underline hover:text-sky-300"
+                          >
+                            {children}
+                          </a>
+                        );
+                      },
                     }}
                   >
                     {msg.content as string}
@@ -186,8 +236,9 @@ export default function AichixiaPage() {
               {msg.type === "anime" && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full">
                   {(msg.content as AnimeData[]).map((anime) => (
-                    <div
+                    <Link
                       key={anime.id}
+                      href={`/anime/${anime.id}`}
                       className="bg-[#0b1724]/70 border border-sky-700/40 rounded-xl overflow-hidden shadow-lg hover:scale-[1.02] transition"
                     >
                       <Image
@@ -204,16 +255,11 @@ export default function AichixiaPage() {
                         <p className="text-xs text-sky-400 mt-1">
                           ⭐ {anime.score} | 👥 {anime.popularity}
                         </p>
-                        <a
-                          href={anime.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-sky-300 underline mt-2 block"
-                        >
+                        <span className="text-xs text-sky-300 underline mt-2 block">
                           See more
-                        </a>
+                        </span>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
