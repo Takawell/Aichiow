@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { motion } from 'framer-motion'
 import { Session } from '@supabase/supabase-js'
 import { Loader2 } from 'lucide-react'
-import { FaGithub } from 'react-icons/fa'
+import { FaGithub, FaDiscord } from 'react-icons/fa'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -50,6 +50,18 @@ export default function LoginPage() {
     setLoading(true)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      },
+    })
+    if (error) setErr(error.message)
+    setLoading(false)
+  }
+
+  const handleDiscordLogin = async () => {
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'discord',
       options: {
         redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
       },
@@ -136,6 +148,19 @@ export default function LoginPage() {
         >
           <FaGithub className="w-5 h-5" />
           {loading ? 'Connecting...' : 'Login with GitHub'}
+        </motion.button>
+
+        {/* Discord Login Button */}
+        <motion.button
+          type="button"
+          onClick={handleDiscordLogin}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 rounded-xl p-3 bg-indigo-600 text-white font-semibold shadow-lg hover:bg-indigo-500 transition disabled:opacity-50"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <FaDiscord className="w-5 h-5" />
+          {loading ? 'Connecting...' : 'Login with Discord'}
         </motion.button>
 
         {err && <p className="text-red-400 text-sm text-center">{err}</p>}
