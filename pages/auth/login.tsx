@@ -16,8 +16,6 @@ export default function LoginPage() {
   const [err, setErr] = useState<string | null>(null)
   const [session, setSession] = useState<Session | null>(null)
 
-  const redirectTo = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession()
@@ -37,7 +35,6 @@ export default function LoginPage() {
     }
   }, [router])
 
-  // 🔑 Email login
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -49,11 +46,25 @@ export default function LoginPage() {
     setLoading(false)
   }
 
-  const handleOAuthLogin = async (provider: 'github' | 'discord') => {
+  const handleGitHubLogin = async () => {
     setLoading(true)
     const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo },
+      provider: 'github',
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      },
+    })
+    if (error) setErr(error.message)
+    setLoading(false)
+  }
+
+  const handleDiscordLogin = async () => {
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'discord',
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      },
     })
     if (error) setErr(error.message)
     setLoading(false)
@@ -61,7 +72,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black p-6 text-white relative overflow-hidden">
-      {/* 🔮 Animated Glow Background */}
       <div className="absolute inset-0 -z-10">
         <motion.div
           className="absolute -top-40 -left-40 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl"
@@ -129,7 +139,7 @@ export default function LoginPage() {
         {/* GitHub Login Button */}
         <motion.button
           type="button"
-          onClick={() => handleOAuthLogin('github')}
+          onClick={handleGitHubLogin}
           disabled={loading}
           className="w-full flex items-center justify-center gap-3 rounded-xl p-3 bg-gray-900 text-white font-semibold shadow-lg hover:bg-gray-800 transition disabled:opacity-50"
           whileHover={{ scale: 1.02 }}
@@ -142,7 +152,7 @@ export default function LoginPage() {
         {/* Discord Login Button */}
         <motion.button
           type="button"
-          onClick={() => handleOAuthLogin('discord')}
+          onClick={handleDiscordLogin}
           disabled={loading}
           className="w-full flex items-center justify-center gap-3 rounded-xl p-3 bg-indigo-600 text-white font-semibold shadow-lg hover:bg-indigo-500 transition disabled:opacity-50"
           whileHover={{ scale: 1.02 }}
