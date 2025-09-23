@@ -16,6 +16,8 @@ export default function LoginPage() {
   const [err, setErr] = useState<string | null>(null)
   const [session, setSession] = useState<Session | null>(null)
 
+  const redirectTo = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession()
@@ -35,6 +37,7 @@ export default function LoginPage() {
     }
   }, [router])
 
+  // 🔑 Email login
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -46,25 +49,11 @@ export default function LoginPage() {
     setLoading(false)
   }
 
-  const handleGitHubLogin = async () => {
+  const handleOAuthLogin = async (provider: 'github' | 'discord') => {
     setLoading(true)
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      },
-    })
-    if (error) setErr(error.message)
-    setLoading(false)
-  }
-
-  const handleDiscordLogin = async () => {
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'discord',
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      },
+      provider,
+      options: { redirectTo },
     })
     if (error) setErr(error.message)
     setLoading(false)
@@ -140,7 +129,7 @@ export default function LoginPage() {
         {/* GitHub Login Button */}
         <motion.button
           type="button"
-          onClick={handleGitHubLogin}
+          onClick={() => handleOAuthLogin('github')}
           disabled={loading}
           className="w-full flex items-center justify-center gap-3 rounded-xl p-3 bg-gray-900 text-white font-semibold shadow-lg hover:bg-gray-800 transition disabled:opacity-50"
           whileHover={{ scale: 1.02 }}
@@ -153,7 +142,7 @@ export default function LoginPage() {
         {/* Discord Login Button */}
         <motion.button
           type="button"
-          onClick={handleDiscordLogin}
+          onClick={() => handleOAuthLogin('discord')}
           disabled={loading}
           className="w-full flex items-center justify-center gap-3 rounded-xl p-3 bg-indigo-600 text-white font-semibold shadow-lg hover:bg-indigo-500 transition disabled:opacity-50"
           whileHover={{ scale: 1.02 }}
