@@ -45,7 +45,7 @@ export default function LandingPage() {
         <title>AICHIOW – Anime & Manga Portal</title>
         <meta
           name="description"
-          content="Discover anime, manga, manhwa, and light novels on Aichiow — modern design, fast navigation, and rich details in one place."
+          content="Aichiow is your Isekai portal to the world of anime and manga – trending anime, trailers, schedules, and manga reader, all in one."
         />
         <meta name="keywords" content="anime, manga, manhwa, light novel, portal, Aichiow" />
         <meta name="author" content="Aichiow Developer Team" />
@@ -60,7 +60,6 @@ export default function LandingPage() {
       </Head>
 
       <main className="relative min-h-screen bg-gradient-to-b from-black via-[#0a0a1a] to-[#02010a] text-white overflow-hidden">
-        {/* Glow Background */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_70%)] pointer-events-none"></div>
 
         {/* Hero Section */}
