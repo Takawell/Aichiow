@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
+import Hls from "hls.js";
 
 interface Source {
   url: string;
@@ -18,6 +19,7 @@ export default function WatchPage() {
   const router = useRouter();
   const { id } = router.query;
 
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [sources, setSources] = useState<Source[]>([]);
   const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,6 +46,22 @@ export default function WatchPage() {
     fetchStream();
   }, [id]);
 
+  useEffect(() => {
+    if (!sources.length || !videoRef.current) return;
+
+    const video = videoRef.current;
+    const source = sources[0];
+
+    if (source.isM3U8 && Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(source.url);
+      hls.attachMedia(video);
+      return () => hls.destroy();
+    } else {
+      video.src = source.url;
+    }
+  }, [sources]);
+
   if (loading) {
     return <p className="text-center mt-10 text-white">Loading player...</p>;
   }
@@ -55,9 +73,9 @@ export default function WatchPage() {
   return (
     <div className="flex flex-col items-center p-4 bg-dark min-h-screen">
       <video
+        ref={videoRef}
         controls
         className="w-full max-w-5xl rounded-2xl shadow-lg"
-        src={sources[0].url}
         poster="/default.png"
       >
         {subtitles.map((s, i) => (
