@@ -74,6 +74,12 @@ export const ANIME_DETAIL_QUERY = `
               large
             }
           }
+          streamingEpisodes {
+            title
+            url
+            site
+            thumbnail
+          }
         }
       }
     }
