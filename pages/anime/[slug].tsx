@@ -123,7 +123,7 @@ export default function AnimeDetailPage() {
 
         {/* Similar Anime Section */}
         <section className="mt-10 px-4">
-          <h2 className="text-xl font-semibold mb-4">Recommendations</h2>
+          <h2 className="text-xl font-semibold mb-4">Maybe you like it</h2>
           {loadingSimilar ? (
             <p className="text-center text-gray-400">Looking for recommendations...</p>
           ) : similarAnime.length > 0 ? (
