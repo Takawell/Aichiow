@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { useAnimeDetail } from "@/hooks/useAnimeDetail";
-import { useAnimeWithEpisodes } from "@/hooks/anime/useAnimeWithEpisodes"; // ✅ tambah ini
+import { useAnimeWithEpisodes, ZoroEpisode } from "@/hooks/anime/useAnimeWithEpisodes"; 
 import { useQuery } from "@tanstack/react-query";
 import { fetchSimilarAnime } from "@/lib/anilist";
 import AnimeDetailHeader from "@/components/anime/AnimeDetailHeader";
@@ -17,7 +17,7 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string);
 
   const { anime, isLoading, isError } = useAnimeDetail(id);
-  const { episodes, isLoading: loadingEpisodes } = useAnimeWithEpisodes(id); // ✅ hook baru
+  const { episodes, isLoading: loadingEpisodes } = useAnimeWithEpisodes(id); 
 
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
     queryKey: ["similarAnime", id],
@@ -92,10 +92,10 @@ export default function AnimeDetailPage() {
             <p className="text-gray-400">Loading episodes...</p>
           ) : episodes && episodes.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {episodes.map((ep, idx) => (
+              {episodes.map((ep: ZoroEpisode) => (
                 <a
-                  key={idx}
-                  href={`/watch/${animeSlug}-episode-${ep.number}`} // ✅ link ke watch
+                  key={ep.id}
+                  href={`/watch/${ep.id}`} 
                   className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow text-center transition"
                 >
                   {ep.title || `Episode ${ep.number}`}
