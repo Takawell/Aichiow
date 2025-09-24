@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { useAnimeDetail } from "./useAnimeDetail";
+import { useAnimeDetail } from '@/hooks/useAnimeDetail';
 import { searchZoro, getZoroEpisodes } from "@/lib/consumet";
 
 export function useAnimeWithEpisodes(id: number) {
