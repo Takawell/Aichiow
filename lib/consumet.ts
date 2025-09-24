@@ -1,4 +1,4 @@
-const BASE = "https://apiconsumetorg-three-orcin.vercel.app/anime/zoro";
+const BASE = "https://api-aichixia.vercel.app/anime/zoro";
 
 export async function searchZoro(query: string) {
   const res = await fetch(`${BASE}/${encodeURIComponent(query)}`);
