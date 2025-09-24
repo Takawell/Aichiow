@@ -17,7 +17,7 @@ interface Subtitle {
 
 export default function WatchPage() {
   const router = useRouter();
-  const { id } = router.query;
+  const { id } = router.query; // id sekarang adalah Zoro episode ID
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [sources, setSources] = useState<Source[]>([]);
@@ -30,7 +30,7 @@ export default function WatchPage() {
     const fetchStream = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/zoro/watch/${episodeId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/zoro/watch/${id}`
         );
         const data = await res.json();
 
