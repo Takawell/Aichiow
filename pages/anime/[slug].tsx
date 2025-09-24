@@ -8,6 +8,7 @@ import AnimeTrailer from '@/components/anime/AnimeTrailer'
 import CharacterList from '@/components/character/CharacterList'
 import AnimeCard from '@/components/anime/AnimeCard'
 import { format, fromUnixTime } from 'date-fns'
+import slugify from 'slugify'
 
 export default function AnimeDetailPage() {
   const router = useRouter()
@@ -19,6 +20,7 @@ export default function AnimeDetailPage() {
     queryFn: () => fetchSimilarAnime(id),
     enabled: !!id,
   })
+
   if (isLoading) return <p className="text-center text-white mt-10">Loading...</p>
   if (isError || !anime) return <p className="text-center text-red-500 mt-10">Anime not found.</p>
 
@@ -31,6 +33,7 @@ export default function AnimeDetailPage() {
 
   const totalEpisodes = anime.episodes || null
   const duration = anime.duration || null
+  const animeSlug = slugify(anime.title.romaji || anime.title.english || '', { lower: true })
 
   return (
     <>
@@ -87,16 +90,41 @@ export default function AnimeDetailPage() {
 
           <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
 
-          {/* Tombol Lihat Episode */}
-          <div className="flex justify-center">
-            <a
-              href="/soon"
-              className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 
-                         text-white font-medium transition shadow-lg hover:shadow-xl"
-            >
-              List Episode
-            </a>
-          </div>
+          {/* Episode List */}
+          {anime.streamingEpisodes && anime.streamingEpisodes.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {anime.streamingEpisodes.map((ep, idx) => (
+                <a
+                  key={idx}
+                  href={ep.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow 
+                             text-center transition"
+                >
+                  {ep.title || `Episode ${idx + 1}`}
+                </a>
+              ))}
+            </div>
+          ) : totalEpisodes ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {Array.from({ length: totalEpisodes }).map((_, idx) => {
+                const ep = idx + 1
+                return (
+                  <a
+                    key={ep}
+                    href={`/watch/${animeSlug}-episode-${ep}`}
+                    className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow 
+                               text-center transition"
+                  >
+                    Episode {ep}
+                  </a>
+                )
+              })}
+            </div>
+          ) : (
+            <p className="text-gray-400">Episode list not available</p>
+          )}
         </section>
 
         {/* Similar Anime Section */}
