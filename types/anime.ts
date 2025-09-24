@@ -28,6 +28,13 @@ export interface Anime {
   duration?: number
 }
 
+export interface ZoroEpisode {
+  id: string
+  number: number
+  title?: string
+  url?: string
+}
+
 export interface StreamingEpisode {
   title: string
   url: string
