@@ -275,6 +275,12 @@ export async function fetchAnimeDetail(id: number): Promise<any> {
             }
           }
         }
+        streamingEpisodes {
+          title
+          url
+          site
+          thumbnail
+        }
       }
     }
   `
@@ -339,7 +345,6 @@ export async function fetchTrendingAnimePaginated(page = 1, perPage = 20): Promi
   return data.Page.media
 }
 
-// ✅ Similar Anime
 export async function fetchSimilarAnime(id: number): Promise<Anime[]> {
   const query = `
     query ($id: Int) {
