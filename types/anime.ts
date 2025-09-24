@@ -28,6 +28,13 @@ export interface Anime {
   duration?: number 
 }
 
+export interface StreamingEpisode {
+  title: string
+  url: string
+  site: string
+  thumbnail: string
+}
+
 export interface AnimeDetail extends Anime {
   format?: string
   source?: string
