@@ -25,7 +25,7 @@ export interface Anime {
     episode: number
   }
   episodes?: number
-  duration?: number 
+  duration?: number
 }
 
 export interface StreamingEpisode {
@@ -50,7 +50,7 @@ export interface AnimeDetail extends Anime {
   characters?: {
     edges: CharacterEdge[]
   }
-  duration?: number
+  streamingEpisodes?: StreamingEpisode[] // ✅ tambahin ini
 }
 
 export interface CharacterEdge {
