@@ -1,39 +1,43 @@
-import { useRouter } from 'next/router'
-import Head from 'next/head'
-import { useAnimeDetail } from '@/hooks/useAnimeDetail'
-import { useQuery } from '@tanstack/react-query'
-import { fetchSimilarAnime } from '@/lib/anilist'
-import AnimeDetailHeader from '@/components/anime/AnimeDetailHeader'
-import AnimeTrailer from '@/components/anime/AnimeTrailer'
-import CharacterList from '@/components/character/CharacterList'
-import AnimeCard from '@/components/anime/AnimeCard'
-import { format, fromUnixTime } from 'date-fns'
-import slugify from 'slugify'
+import { useRouter } from "next/router";
+import Head from "next/head";
+import { useAnimeDetail } from "@/hooks/useAnimeDetail";
+import { useAnimeWithEpisodes } from "@/hooks/anime/useAnimeWithEpisodes"; // ✅ tambah ini
+import { useQuery } from "@tanstack/react-query";
+import { fetchSimilarAnime } from "@/lib/anilist";
+import AnimeDetailHeader from "@/components/anime/AnimeDetailHeader";
+import AnimeTrailer from "@/components/anime/AnimeTrailer";
+import CharacterList from "@/components/character/CharacterList";
+import AnimeCard from "@/components/anime/AnimeCard";
+import { format, fromUnixTime } from "date-fns";
+import slugify from "slugify";
 
 export default function AnimeDetailPage() {
-  const router = useRouter()
-  const { slug } = router.query
-  const id = parseInt(slug as string)
-  const { anime, isLoading, isError } = useAnimeDetail(id)
+  const router = useRouter();
+  const { slug } = router.query;
+  const id = parseInt(slug as string);
+
+  const { anime, isLoading, isError } = useAnimeDetail(id);
+  const { episodes, isLoading: loadingEpisodes } = useAnimeWithEpisodes(id); // ✅ hook baru
+
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
-    queryKey: ['similarAnime', id],
+    queryKey: ["similarAnime", id],
     queryFn: () => fetchSimilarAnime(id),
     enabled: !!id,
-  })
+  });
 
-  if (isLoading) return <p className="text-center text-white mt-10">Loading...</p>
-  if (isError || !anime) return <p className="text-center text-red-500 mt-10">Anime not found.</p>
+  if (isLoading) return <p className="text-center text-white mt-10">Loading...</p>;
+  if (isError || !anime) return <p className="text-center text-red-500 mt-10">Anime not found.</p>;
 
   const statusBadgeColor =
-    anime.status === 'RELEASING'
-      ? 'bg-green-500'
-      : anime.status === 'FINISHED'
-      ? 'bg-blue-500'
-      : 'bg-gray-500'
+    anime.status === "RELEASING"
+      ? "bg-green-500"
+      : anime.status === "FINISHED"
+      ? "bg-blue-500"
+      : "bg-gray-500";
 
-  const totalEpisodes = anime.episodes || null
-  const duration = anime.duration || null
-  const animeSlug = slugify(anime.title.romaji || anime.title.english || '', { lower: true })
+  const totalEpisodes = anime.episodes || null;
+  const duration = anime.duration || null;
+  const animeSlug = slugify(anime.title.romaji || anime.title.english || "", { lower: true });
 
   return (
     <>
@@ -45,9 +49,7 @@ export default function AnimeDetailPage() {
         <AnimeDetailHeader anime={anime} />
 
         {/* Trailer */}
-        {anime.trailer?.site === 'youtube' && (
-          <AnimeTrailer trailer={anime.trailer} />
-        )}
+        {anime.trailer?.site === "youtube" && <AnimeTrailer trailer={anime.trailer} />}
 
         {/* Characters */}
         {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
@@ -61,65 +63,58 @@ export default function AnimeDetailPage() {
             <span
               className={`inline-block px-4 py-1 text-sm font-semibold rounded-full ${statusBadgeColor}`}
             >
-              {anime.status === 'RELEASING'
-                ? 'Ongoing'
-                : anime.status === 'FINISHED'
-                ? 'Completed'
-                : 'Upcoming'}
+              {anime.status === "RELEASING"
+                ? "Ongoing"
+                : anime.status === "FINISHED"
+                ? "Completed"
+                : "Upcoming"}
             </span>
           </div>
 
           {/* Info Total Episode + Durasi */}
           <p className="text-gray-300 text-sm mb-2">
-            {totalEpisodes
-              ? `Total Episodes: ${totalEpisodes}`
-              : 'Total Episodes: ?'}{' '}
-            |{' '}
-            {duration
-              ? `Duration: ${duration} min/ep`
-              : 'Duration: ?'}
+            {totalEpisodes ? `Total Episodes: ${totalEpisodes}` : "Total Episodes: ?"} |{" "}
+            {duration ? `Duration: ${duration} min/ep` : "Duration: ?"}
           </p>
 
           {/* Next Airing Info */}
           {anime.nextAiringEpisode && (
             <p className="text-blue-400 text-sm mb-6">
-              Next Episode {anime.nextAiringEpisode.episode} airs on{' '}
-              {format(fromUnixTime(anime.nextAiringEpisode.airingAt), 'PPpp')}
+              Next Episode {anime.nextAiringEpisode.episode} airs on{" "}
+              {format(fromUnixTime(anime.nextAiringEpisode.airingAt), "PPpp")}
             </p>
           )}
 
           <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
 
-          {/* Episode List */}
-          {anime.streamingEpisodes && anime.streamingEpisodes.length > 0 ? (
+          {/* Episode List dari Zoro */}
+          {loadingEpisodes ? (
+            <p className="text-gray-400">Loading episodes...</p>
+          ) : episodes && episodes.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {anime.streamingEpisodes.map((ep, idx) => (
+              {episodes.map((ep, idx) => (
                 <a
                   key={idx}
-                  href={ep.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow 
-                             text-center transition"
+                  href={`/watch/${animeSlug}-episode-${ep.number}`} // ✅ link ke watch
+                  className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow text-center transition"
                 >
-                  {ep.title || `Episode ${idx + 1}`}
+                  {ep.title || `Episode ${ep.number}`}
                 </a>
               ))}
             </div>
           ) : totalEpisodes ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {Array.from({ length: totalEpisodes }).map((_, idx) => {
-                const ep = idx + 1
+                const ep = idx + 1;
                 return (
                   <a
                     key={ep}
                     href={`/watch/${animeSlug}-episode-${ep}`}
-                    className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow 
-                               text-center transition"
+                    className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow text-center transition"
                   >
                     Episode {ep}
                   </a>
-                )
+                );
               })}
             </div>
           ) : (
@@ -144,5 +139,5 @@ export default function AnimeDetailPage() {
         </section>
       </main>
     </>
-  )
+  );
 }
