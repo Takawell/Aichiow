@@ -40,9 +40,9 @@ export const ANIME_DETAIL_QUERY = `
       averageScore
       popularity
       genres
-      episodes        
-      duration        
-      nextAiringEpisode {   
+      episodes
+      duration
+      nextAiringEpisode {
         airingAt
         episode
       }
@@ -74,13 +74,13 @@ export const ANIME_DETAIL_QUERY = `
               large
             }
           }
-          streamingEpisodes {
-            title
-            url
-            site
-            thumbnail
-          }
         }
+      }
+      streamingEpisodes {
+        title
+        url
+        site
+        thumbnail
       }
     }
   }
