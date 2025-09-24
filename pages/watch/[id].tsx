@@ -30,7 +30,7 @@ export default function WatchPage() {
     const fetchStream = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/zoro/watch/${id}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/zoro/watch/${episodeId}`
         );
         const data = await res.json();
 
