@@ -12,6 +12,10 @@ import {
   FaSignOutAlt,
   FaHistory,
   FaStar,
+  FaTv,
+  FaBook,
+  FaBookOpen,
+  FaDragon,
 } from 'react-icons/fa'
 
 type TrailerHistoryRow = {
@@ -56,20 +60,29 @@ export default function ProfileDashboard() {
           .eq('id', userId)
           .single()
 
-        if (profileData) {
-          setUser(profileData)
-        } else {
-          setUser({
+        let baseUser: UserRow =
+          profileData ?? {
             id: userId,
             username: 'Otaku Explorer ✨',
             bio: 'Lover of anime, manga, manhwa & light novels.',
             avatar_url: '/default.png',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-          } as UserRow)
+          }
+
+        const localUsername = localStorage.getItem('username')
+        const localBio = localStorage.getItem('bio')
+        if (localUsername || localBio) {
+          baseUser = {
+            ...baseUser,
+            username: localUsername || baseUser.username,
+            bio: localBio || baseUser.bio,
+          }
         }
 
-        // history
+        setUser(baseUser)
+
+        // load history
         const { data: rawHistoryData } = await supabase
           .from('trailer_watch_history')
           .select(`
@@ -104,7 +117,10 @@ export default function ProfileDashboard() {
               trailer_site: it.trailer_site,
               trailer_thumbnail: it.trailer_thumbnail ?? null,
               watched_at: it.watched_at,
-              watch_count: typeof it.watch_count === 'number' ? it.watch_count : Number(it.watch_count) || 1,
+              watch_count:
+                typeof it.watch_count === 'number'
+                  ? it.watch_count
+                  : Number(it.watch_count) || 1,
               anime: animeObj
                 ? {
                     title_romaji: animeObj.title_romaji ?? 'Unknown',
@@ -116,7 +132,7 @@ export default function ProfileDashboard() {
           setHistory(normalized)
         }
 
-        // favorites
+        // load favorites
         const { data: favoritesData } = await supabase
           .from('favorites')
           .select('*')
@@ -138,43 +154,29 @@ export default function ProfileDashboard() {
     router.replace('/auth/login')
   }
 
-  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!user || !session) return
+    if (!user) return
 
     const formData = new FormData(e.currentTarget)
     const newUsername = (formData.get('username') as string) || ''
     const newBio = (formData.get('bio') as string) || ''
+    localStorage.setItem('username', newUsername)
+    localStorage.setItem('bio', newBio)
 
-    try {
-      const { error } = await supabase.from('users').upsert({
-        id: user.id,
-        username: newUsername || user.username,
-        bio: newBio || user.bio,
-        avatar_url: user.avatar_url || '/default.png',
-        updated_at: new Date().toISOString(),
-      })
-
-      if (error) {
-        console.error('Error saving profile:', error)
-      } else {
-        setUser({
-          ...user,
-          username: newUsername || user.username,
-          bio: newBio || user.bio,
-        })
-        setOpenEdit(false)
-      }
-    } catch (err) {
-      console.error('handleSave error:', err)
-    }
+    setUser({
+      ...user,
+      username: newUsername || user.username,
+      bio: newBio || user.bio,
+    })
+    setOpenEdit(false)
   }
 
   if (!session || !user) return null
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#121026] to-[#0f172a] p-4 md:p-8 text-white">
-      {/* Header */}
+    <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#121026] to-[#0f172a] p-4 md:p-8 text-white">
+      {/* Profile Header */}
       <motion.div
         className="relative overflow-hidden rounded-3xl p-6 md:p-10 backdrop-blur-2xl border border-white/15 shadow-[0_0_35px_rgba(99,102,241,0.45)] mb-10"
         initial={{ opacity: 0, y: -20 }}
@@ -183,7 +185,7 @@ export default function ProfileDashboard() {
         <div className="absolute inset-0">
           <Image src="/background.png" alt="bg" fill className="object-cover opacity-25 blur-sm" />
         </div>
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-blue-500/25 via-purple-500/25 to-pink-500/25 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/25 via-purple-500/25 to-pink-500/25 mix-blend-overlay" />
 
         <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-6">
           {/* Avatar */}
@@ -198,13 +200,13 @@ export default function ProfileDashboard() {
             />
           </motion.div>
 
-          {/* Info */}
+          {/* User Info */}
           <div className="text-center md:text-left max-w-xl">
             <h2 className="text-2xl md:text-4xl font-extrabold tracking-wide drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
-              {user.username ?? 'Otaku Explorer ✨'}
+              {user.username || 'Otaku Explorer ✨'}
             </h2>
             <p className="text-gray-300 text-sm md:text-base italic">
-              {user.bio ?? 'Lover of anime, manga, manhwa & light novels.'}
+              {user.bio || 'Lover of anime, manga, manhwa & light novels.'}
             </p>
             <p className="text-xs md:text-sm text-gray-400 mt-1">{session.user.email}</p>
 
@@ -251,7 +253,7 @@ export default function ProfileDashboard() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#101827]/95 text-white p-6 rounded-2xl max-w-md w-full mx-4 border border-white/10 shadow-2xl"
+              className="bg-[#101827]/95 text-white p-6 rounded-2xl max-w-sm w-full mx-4 border border-white/10 shadow-xl"
             >
               <h3 className="text-lg font-bold mb-4">Edit Profile</h3>
               <form onSubmit={handleSave} className="space-y-4">
@@ -259,7 +261,7 @@ export default function ProfileDashboard() {
                   <label className="block mb-1 text-sm font-semibold">Username</label>
                   <input
                     name="username"
-                    defaultValue={user.username ?? ""}
+                    defaultValue={user.username || ''}
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
@@ -267,33 +269,12 @@ export default function ProfileDashboard() {
                   <label className="block mb-1 text-sm font-semibold">Bio</label>
                   <textarea
                     name="bio"
-                    defaultValue={user.bio ?? ""}
+                    defaultValue={user.bio || ''}
                     rows={3}
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
-
-                {/* Live Preview */}
-                <div className="mt-6">
-                  <p className="text-sm font-semibold mb-2">Preview</p>
-                  <div className="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
-                    <Image
-                      src={user.avatar_url || '/default.png'}
-                      alt="preview"
-                      width={50}
-                      height={50}
-                      className="rounded-full border-2 border-blue-500"
-                    />
-                    <div>
-                      <p className="font-bold">{user.username ?? "Otaku Explorer ✨"}</p>
-                      <p className="text-xs text-gray-300 italic">
-                        {user.bio ?? "Lover of anime, manga, manhwa & light novels."}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 mt-4">
+                <div className="flex gap-3 mt-2">
                   <button
                     type="button"
                     onClick={() => setOpenEdit(false)}
@@ -314,72 +295,126 @@ export default function ProfileDashboard() {
         )}
       </AnimatePresence>
 
-      {/* History Section */}
+      {/* Watch History */}
       <section className="mb-12">
-        <h3 className="flex items-center gap-2 text-xl font-bold mb-4">
-          <FaHistory className="text-blue-400" /> Watch History
-        </h3>
-        {history.length === 0 ? (
-          <p className="text-gray-400 italic">No history yet.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {history.map((h) => (
-              <motion.div
-                key={h.id}
-                whileHover={{ scale: 1.02 }}
-                className="bg-white/5 p-4 rounded-xl border border-white/10 shadow-lg"
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="flex items-center gap-2 text-2xl font-bold mb-6"
+        >
+          <FaHistory /> Watch History
+        </motion.h3>
+
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div
+                key={i}
+                className="relative overflow-hidden rounded-2xl h-36 md:h-52 bg-white/10 border border-white/10"
               >
-                <div className="flex gap-4">
-                  <Image
-                    src={h.anime?.cover_image || '/default.png'}
-                    alt={h.anime?.title_romaji || 'Anime'}
-                    width={80}
-                    height={100}
-                    className="rounded-lg object-cover"
-                  />
-                  <div>
-                    <p className="font-semibold">{h.anime?.title_romaji}</p>
-                    <p className="text-xs text-gray-400">Watched {h.watch_count}x</p>
-                    <p className="text-xs text-gray-500">{new Date(h.watched_at).toLocaleString()}</p>
-                  </div>
+                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {history.map((item) => (
+              <motion.div
+                key={item.id}
+                whileHover={{ scale: 1.05 }}
+                className="group relative overflow-hidden rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
+              >
+                <Image
+                  src={item.anime?.cover_image || item.trailer_thumbnail || '/default.png'}
+                  alt={item.anime?.title_romaji || 'Trailer'}
+                  width={400}
+                  height={500}
+                  className="object-cover w-full h-36 md:h-52"
+                />
+                <span className="absolute left-2 top-2 z-10 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide bg-black/60 border border-white/10">
+                  {item.watch_count}x
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
+                  <button className="w-full py-1.5 rounded-lg bg-white/90 text-black text-xs font-bold shadow">
+                    ▶ Continue
+                  </button>
                 </div>
               </motion.div>
             ))}
           </div>
         )}
+
+        {!loading && history.length === 0 && (
+          <div className="mt-6 text-center text-sm text-gray-400">
+            Belum ada riwayat tontonan.
+          </div>
+        )}
       </section>
 
-      {/* Favorites Section */}
+      {/* Favorites */}
       <section>
-        <h3 className="flex items-center gap-2 text-xl font-bold mb-4">
-          <FaStar className="text-yellow-400" /> Favorites
-        </h3>
-        {favorites.length === 0 ? (
-          <p className="text-gray-400 italic">No favorites yet.</p>
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="flex items-center gap-2 text-2xl font-bold mb-6"
+        >
+          <FaStar /> Favorites
+        </motion.h3>
+
+        {loading ? (
+          <div className="text-sm text-gray-400">Loading favorites...</div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-            {favorites.map((f) => (
-              <motion.div
-                key={f.id}
-                whileHover={{ scale: 1.05 }}
-                className="relative group rounded-xl overflow-hidden shadow-lg border border-white/10"
-              >
-                <Image
-                  src={f.cover_image || '/default.png'}
-                  alt={f.title || 'Favorite'}
-                  width={300}
-                  height={400}
-                  className="object-cover w-full h-48 group-hover:scale-110 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute bottom-2 left-2 text-white text-sm font-semibold drop-shadow-lg">
-                  {f.title}
-                </div>
-              </motion.div>
-            ))}
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              { key: 'anime', icon: <FaTv /> },
+              { key: 'manga', icon: <FaBook /> },
+              { key: 'manhwa', icon: <FaDragon /> },
+              { key: 'light_novel', icon: <FaBookOpen /> },
+            ].map(({ key, icon }) => {
+              const list = favorites.filter((f: any) => f.media_type === key)
+              return (
+                <motion.div
+                  key={key}
+                  whileHover={{ scale: 1.02 }}
+                  className="relative overflow-hidden rounded-2xl p-6 border border-white/10 shadow-lg bg-gradient-to-br from-slate-800/60 to-slate-900/80 backdrop-blur-xl"
+                >
+                  <div className="relative flex items-center justify-between mb-4">
+                    <h4 className="flex items-center gap-2 text-lg font-semibold capitalize">
+                      <span className="text-xl">{icon}</span> {key.replace('_', ' ')}
+                    </h4>
+                    <span className="px-2 py-0.5 rounded-full text-xs bg-white/10 border border-white/10">
+                      {list.length}
+                    </span>
+                  </div>
+
+                  <div className="relative flex flex-wrap gap-2 z-10">
+                    {list.length > 0 ? (
+                      list.map((fav: any) => (
+                        <span
+                          key={fav.id}
+                          title={String(fav.media_id)}
+                          className="px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-xs md:text-sm font-medium shadow-md hover:scale-105 transition border border-white/10"
+                        >
+                          {fav?.media_title ?? fav?.title ?? fav?.media_id}
+                        </span>
+                      ))
+                    ) : (
+                      <div className="w-full text-xs text-gray-400 italic">
+                        No favorites yet
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
         )}
       </section>
     </div>
   )
-}   
+}
