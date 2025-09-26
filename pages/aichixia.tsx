@@ -258,7 +258,7 @@ export default function AichixiaPage() {
                     <Link
                       key={anime.id}
                       href={`/anime/${anime.id}`}
-                      className="bg-[#0b1724]/70 border border-sky-700/40 rounded-xl overflow-hidden shadow-lg hover:scale-[1.02] transition"
+                      className="bg-[#0b1724]/70 border border-sky-700/40 rounded-xl overflow-hidden shadow-lg hover:scale-[1.02] hover:ring-2 hover:ring-sky-500 transition"
                     >
                       <Image
                         src={anime.coverImage}
@@ -308,7 +308,7 @@ export default function AichixiaPage() {
           <div ref={messagesEndRef} />
         </section>
 
-        {/* ✅ Input / Login Button */}
+        {/* Input / Login Button */}
         <footer className="p-4 bg-gradient-to-t from-[#071026]/60 via-transparent backdrop-blur-sm sticky bottom-4 mx-4 sm:mx-6 lg:mx-8 rounded-xl">
           {session ? (
             <div className="flex gap-3 items-center">
@@ -324,7 +324,7 @@ export default function AichixiaPage() {
               <button
                 onClick={sendMessage}
                 disabled={loading || !input.trim()}
-                className="inline-flex items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-[1.02] active:scale-95 transition shadow-lg disabled:opacity-60"
+                className="inline-flex items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 hover:shadow-lg hover:ring-2 hover:ring-sky-400 active:scale-95 transition font-semibold text-white disabled:opacity-60"
                 title="Send"
               >
                 {loading ? (
@@ -339,7 +339,7 @@ export default function AichixiaPage() {
             <div className="flex justify-center">
               <Link
                 href="/auth/login"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 hover:scale-[1.02] active:scale-95 transition shadow-lg text-white font-semibold"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 hover:shadow-lg hover:ring-2 hover:ring-sky-400 active:scale-95 transition font-semibold text-white"
               >
                 🚀 Login to use Aichixia
               </Link>
