@@ -40,6 +40,9 @@ export default function ProfileDashboard() {
   const [favorites, setFavorites] = useState<FavoriteRow[]>([])
   const [openEdit, setOpenEdit] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [previewName, setPreviewName] = useState('')
+  const [previewBio, setPreviewBio] = useState('')
+
   const router = useRouter()
 
   useEffect(() => {
@@ -82,7 +85,7 @@ export default function ProfileDashboard() {
 
         setUser(baseUser)
 
-        // load history
+        // history
         const { data: rawHistoryData } = await supabase
           .from('trailer_watch_history')
           .select(`
@@ -132,7 +135,7 @@ export default function ProfileDashboard() {
           setHistory(normalized)
         }
 
-        // load favorites
+        // favorites
         const { data: favoritesData } = await supabase
           .from('favorites')
           .select('*')
@@ -158,16 +161,13 @@ export default function ProfileDashboard() {
     e.preventDefault()
     if (!user) return
 
-    const formData = new FormData(e.currentTarget)
-    const newUsername = (formData.get('username') as string) || ''
-    const newBio = (formData.get('bio') as string) || ''
-    localStorage.setItem('username', newUsername)
-    localStorage.setItem('bio', newBio)
+    localStorage.setItem('username', previewName)
+    localStorage.setItem('bio', previewBio)
 
     setUser({
       ...user,
-      username: newUsername || user.username,
-      bio: newBio || user.bio,
+      username: previewName || user.username,
+      bio: previewBio || user.bio,
     })
     setOpenEdit(false)
   }
@@ -223,7 +223,11 @@ export default function ProfileDashboard() {
           {/* Buttons */}
           <div className="flex gap-3">
             <motion.button
-              onClick={() => setOpenEdit(true)}
+              onClick={() => {
+                setPreviewName(user.username)
+                setPreviewBio(user.bio || '')
+                setOpenEdit(true)
+              }}
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 font-semibold shadow-lg"
             >
@@ -261,7 +265,8 @@ export default function ProfileDashboard() {
                   <label className="block mb-1 text-sm font-semibold">Username</label>
                   <input
                     name="username"
-                    defaultValue={user.username || ''}
+                    value={previewName}
+                    onChange={(e) => setPreviewName(e.target.value)}
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
@@ -269,12 +274,31 @@ export default function ProfileDashboard() {
                   <label className="block mb-1 text-sm font-semibold">Bio</label>
                   <textarea
                     name="bio"
-                    defaultValue={user.bio || ''}
+                    value={previewBio}
+                    onChange={(e) => setPreviewBio(e.target.value)}
                     rows={3}
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
-                <div className="flex gap-3 mt-2">
+
+                {/* Live Preview Card */}
+                <div className="mt-6 p-4 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/60 to-slate-900/80 shadow-lg">
+                  <div className="flex items-center gap-4">
+                    <Image
+                      src={user.avatar_url || '/default.png'}
+                      alt="Preview Avatar"
+                      width={60}
+                      height={60}
+                      className="rounded-full border-2 border-blue-500/70"
+                    />
+                    <div>
+                      <h4 className="text-lg font-bold">{previewName || 'Preview Username'}</h4>
+                      <p className="text-sm text-gray-300">{previewBio || 'Preview Bio'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-4">
                   <button
                     type="button"
                     onClick={() => setOpenEdit(false)}
@@ -294,8 +318,10 @@ export default function ProfileDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+              
 
-      {/* Watch History */}
+
+    {/* Watch History */}
       <section className="mb-12">
         <motion.h3
           initial={{ opacity: 0, y: 20 }}
