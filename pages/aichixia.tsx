@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { supabase } from "@/lib/supabaseClient";
 
 interface AnimeData {
   id: number;
@@ -32,7 +33,26 @@ export default function AichixiaPage() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [session, setSession] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session);
+    };
+    checkSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -162,7 +182,6 @@ export default function AichixiaPage() {
                     components={{
                       img: ({ src, alt }) => {
                         if (src?.startsWith("https://s4.anilist.co/")) {
-                          // ambil ID dari alt kalau dikirim AI
                           const animeId = alt?.match(/^\d+$/) ? alt : null;
                           return animeId ? (
                             <Link href={`/anime/${animeId}`}>
@@ -289,28 +308,43 @@ export default function AichixiaPage() {
           <div ref={messagesEndRef} />
         </section>
 
-        {/* Input */}
+        {/* ✅ Input / Login Button */}
         <footer className="p-4 bg-gradient-to-t from-[#071026]/60 via-transparent backdrop-blur-sm sticky bottom-4 mx-4 sm:mx-6 lg:mx-8 rounded-xl">
-          <div className="flex gap-3 items-center">
-            <input
-              type="text"
-              placeholder="Type your message here..."
-              className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={loading}
-            />
-            <button
-              onClick={sendMessage}
-              disabled={loading || !input.trim()}
-              className="inline-flex items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-[1.02] active:scale-95 transition shadow-lg disabled:opacity-60"
-              title="Send"
-            >
-              {loading ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
-              <span className="hidden sm:inline">Send</span>
-            </button>
-          </div>
+          {session ? (
+            <div className="flex gap-3 items-center">
+              <input
+                type="text"
+                placeholder="Type your message here..."
+                className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={loading || !input.trim()}
+                className="inline-flex items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-[1.02] active:scale-95 transition shadow-lg disabled:opacity-60"
+                title="Send"
+              >
+                {loading ? (
+                  <FaSpinner className="animate-spin" />
+                ) : (
+                  <FaPaperPlane />
+                )}
+                <span className="hidden sm:inline">Send</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <Link
+                href="/auth/login"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 hover:scale-[1.02] active:scale-95 transition shadow-lg text-white font-semibold"
+              >
+                🚀 Login to use Aichixia
+              </Link>
+            </div>
+          )}
         </footer>
       </div>
     </main>
