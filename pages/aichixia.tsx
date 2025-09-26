@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { supabase } from "@/lib/supabaseClient";
 
 interface AnimeData {
   id: number;
@@ -32,7 +33,26 @@ export default function AichixiaPage() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [session, setSession] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session);
+    };
+    checkSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -238,7 +258,7 @@ export default function AichixiaPage() {
                     <Link
                       key={anime.id}
                       href={`/anime/${anime.id}`}
-                      className="bg-[#0b1724]/70 border border-sky-700/40 rounded-xl overflow-hidden shadow-lg hover:scale-[1.02] transition"
+                      className="bg-[#0b1724]/70 border border-sky-700/40 rounded-xl overflow-hidden shadow-lg hover:scale-[1.02] hover:ring-2 hover:ring-sky-500 transition"
                     >
                       <Image
                         src={anime.coverImage}
@@ -288,30 +308,63 @@ export default function AichixiaPage() {
           <div ref={messagesEndRef} />
         </section>
 
-        {/* Input */}
+        {/* Input / Login Button */}
         <footer className="p-4 bg-gradient-to-t from-[#071026]/60 via-transparent backdrop-blur-sm sticky bottom-4 mx-4 sm:mx-6 lg:mx-8 rounded-xl">
-          <div className="flex gap-3 items-center">
-            <input
-              type="text"
-              placeholder="Type your message here..."
-              className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={loading}
-            />
-            <button
-              onClick={sendMessage}
-              disabled={loading || !input.trim()}
-              className="inline-flex items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-[1.02] active:scale-95 transition shadow-lg disabled:opacity-60"
-              title="Send"
-            >
-              {loading ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
-              <span className="hidden sm:inline">Send</span>
-            </button>
-          </div>
+          {session ? (
+            <div className="flex gap-3 items-center">
+              <input
+                type="text"
+                placeholder="Type your message here..."
+                className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={loading || !input.trim()}
+                className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 hover:shadow-lg hover:ring-2 hover:ring-sky-400 active:scale-95 transition font-semibold text-white disabled:opacity-60"
+                title="Send"
+              >
+                {loading ? (
+                  <FaSpinner className="animate-spin" />
+                ) : (
+                  <FaPaperPlane />
+                )}
+                <span className="hidden sm:inline">Send</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              >
+                <Link href="/auth/login">
+                  <motion.button
+                    whileHover={{ scale: 1.08, boxShadow: "0 0 25px rgba(56,189,248,0.7)" }}
+                    whileTap={{ scale: 0.95 }}
+                    animate={{ 
+                      y: [0, -5, 0],
+                      transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } 
+                    }}
+                    className="relative inline-flex items-center justify-center px-8 py-3 rounded-full 
+                               bg-gradient-to-r from-sky-500 via-blue-500 to-sky-600
+                               text-white font-bold shadow-lg overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      🚀 Login to use Aichixia
+                    </span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-sky-400/40 to-blue-400/40 blur-xl animate-pulse"></span>
+                  </motion.button>
+                </Link>
+              </motion.div>
+            </div>
+          )}
         </footer>
       </div>
     </main>
   );
-}
+} 
