@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { useAnimeDetail } from "@/hooks/useAnimeDetail";
-import { useAnimeWithEpisodes, ZoroEpisode } from "@/hooks/anime/useAnimeWithEpisodes"; 
 import { useQuery } from "@tanstack/react-query";
 import { fetchSimilarAnime } from "@/lib/anilist";
 import AnimeDetailHeader from "@/components/anime/AnimeDetailHeader";
@@ -17,7 +16,6 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string);
 
   const { anime, isLoading, isError } = useAnimeDetail(id);
-  const { episodes, isLoading: loadingEpisodes } = useAnimeWithEpisodes(id); 
 
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
     queryKey: ["similarAnime", id],
@@ -56,7 +54,7 @@ export default function AnimeDetailPage() {
           <CharacterList characters={anime.characters.edges} />
         )}
 
-        {/* Episode Mapping Section */}
+        {/* Episode Section */}
         <section className="mt-10 px-4 text-center">
           <div className="mb-4">
             <span
@@ -86,29 +84,15 @@ export default function AnimeDetailPage() {
 
           <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
 
-          {/* Episode List dari Zoro */}
-          {loadingEpisodes ? (
-            <p className="text-gray-400">Loading episodes...</p>
-          ) : episodes && episodes.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {episodes.map((ep: ZoroEpisode) => (
-                <a
-                  key={ep.id}
-                  href={`/watch/${ep.id}`} // ✅ pakai Zoro episode ID
-                  className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow text-center transition"
-                >
-                  {ep.title || `Episode ${ep.number}`}
-                </a>
-              ))}
-            </div>
-          ) : totalEpisodes ? (
+          {/* Episode List */}
+          {totalEpisodes ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {Array.from({ length: totalEpisodes }).map((_, idx) => {
                 const ep = idx + 1;
                 return (
                   <a
                     key={ep}
-                    href={`/watch/${animeSlug}-episode-${ep}`}
+                    href={`/soon`}
                     className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow text-center transition"
                   >
                     Episode {ep}
