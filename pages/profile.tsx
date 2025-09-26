@@ -16,6 +16,7 @@ import {
   FaBook,
   FaBookOpen,
   FaDragon,
+  FaCamera,
 } from 'react-icons/fa'
 
 type TrailerHistoryRow = {
@@ -60,21 +61,26 @@ export default function ProfileDashboard() {
           .eq('id', userId)
           .single()
 
-        if (profileData) {
-          setUser(profileData)
-        } else {
-          setUser({
-            id: userId,
-            username: 'Otaku Explorer ✨',
-            bio: 'Lover of anime, manga, manhwa & light novels.',
-            avatar_url: '/default.png',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          } as UserRow)
+        let finalProfile: UserRow = profileData || {
+          id: userId,
+          username: 'Otaku Explorer ✨',
+          bio: 'Lover of anime, manga, manhwa & light novels.',
+          avatar_url: '/default.png',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         }
 
+        // cek localStorage
+        const stored = localStorage.getItem('localProfile')
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          finalProfile = { ...finalProfile, ...parsed }
+        }
+
+        setUser(finalProfile)
+
         // load history
-        const { data: rawHistoryData, error: histErr } = await supabase
+        const { data: rawHistoryData } = await supabase
           .from('trailer_watch_history')
           .select(`
             id,
@@ -93,16 +99,13 @@ export default function ProfileDashboard() {
           .eq('user_id', userId)
           .order('watched_at', { ascending: false })
 
-        if (histErr) {
-          console.error('Error fetching trailer history:', histErr)
-        } else if (rawHistoryData && Array.isArray(rawHistoryData)) {
+        if (rawHistoryData && Array.isArray(rawHistoryData)) {
           const normalized: TrailerHistoryRow[] = rawHistoryData.map((it: any) => {
             let animeObj: any = null
             if (it.anime) {
               if (Array.isArray(it.anime)) animeObj = it.anime[0] ?? null
               else animeObj = it.anime
             }
-
             return {
               id: it.id,
               user_id: it.user_id,
@@ -111,10 +114,7 @@ export default function ProfileDashboard() {
               trailer_site: it.trailer_site,
               trailer_thumbnail: it.trailer_thumbnail ?? null,
               watched_at: it.watched_at,
-              watch_count:
-                typeof it.watch_count === 'number'
-                  ? it.watch_count
-                  : Number(it.watch_count) || 1,
+              watch_count: Number(it.watch_count) || 1,
               anime: animeObj
                 ? {
                     title_romaji: animeObj.title_romaji ?? 'Unknown',
@@ -123,7 +123,6 @@ export default function ProfileDashboard() {
                 : null,
             }
           })
-
           setHistory(normalized)
         }
 
@@ -149,36 +148,30 @@ export default function ProfileDashboard() {
     router.replace('/auth/login')
   }
 
-  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!user || !session) return
-
+    if (!user) return
     const formData = new FormData(e.currentTarget)
-    const newUsername = (formData.get('username') as string) || ''
-    const newBio = (formData.get('bio') as string) || ''
+    const newUsername = (formData.get('username') as string) || user.username
+    const newBio = (formData.get('bio') as string) || user.bio
 
-    try {
-      const { data, error } = await supabase.from('users').upsert({
-        id: user.id,
-        username: newUsername || user.username,
-        bio: newBio || user.bio,
-        avatar_url: user.avatar_url || '/default.png',
-        updated_at: new Date().toISOString(),
-      })
+    const updated = { ...user, username: newUsername, bio: newBio }
+    setUser(updated)
+    localStorage.setItem('localProfile', JSON.stringify(updated))
+    setOpenEdit(false)
+  }
 
-      if (error) {
-        console.error('Error saving profile:', error)
-      } else {
-        setUser({
-          ...user,
-          username: newUsername || user.username,
-          bio: newBio || user.bio,
-        })
-        setOpenEdit(false)
-      }
-    } catch (err) {
-      console.error('handleSave error:', err)
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) return
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const updated = { ...user, avatar_url: reader.result as string }
+      setUser(updated)
+      localStorage.setItem('localProfile', JSON.stringify(updated))
     }
+    reader.readAsDataURL(file)
   }
 
   if (!session || !user) return null
@@ -203,27 +196,22 @@ export default function ProfileDashboard() {
               alt="Avatar"
               width={120}
               height={120}
-              className="relative rounded-full border-4 border-blue-500/80 shadow-[0_10px_30px_rgba(59,130,246,0.6)]"
+              className="relative rounded-full border-4 border-blue-500/80 shadow-[0_10px_30px_rgba(59,130,246,0.6)] object-cover"
             />
+            <label className="absolute bottom-2 right-2 bg-blue-600 p-2 rounded-full cursor-pointer hover:bg-blue-500 transition">
+              <FaCamera className="text-white text-sm" />
+              <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+            </label>
           </motion.div>
 
           <div className="text-center md:text-left max-w-xl">
             <h2 className="text-2xl md:text-4xl font-extrabold tracking-wide drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
-              {user.username || 'Otaku Explorer ✨'}
+              {user.username}
             </h2>
             <p className="text-gray-300 text-sm md:text-base italic">
-              {user.bio || 'Lover of anime, manga, manhwa & light novels.'}
+              {user.bio}
             </p>
             <p className="text-xs md:text-sm text-gray-400 mt-1">{session.user.email}</p>
-
-            <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
-              <span className="px-3 py-1 rounded-full text-xs bg-white/10 border border-white/10">
-                History: <b>{history.length}</b>
-              </span>
-              <span className="px-3 py-1 rounded-full text-xs bg-white/10 border border-white/10">
-                Favorites: <b>{favorites.length}</b>
-              </span>
-            </div>
           </div>
 
           <div className="flex gap-3">
@@ -245,7 +233,7 @@ export default function ProfileDashboard() {
         </div>
       </motion.div>
 
-      {/* Edit Profile Modal */}
+      {/* Edit Modal */}
       <AnimatePresence>
         {openEdit && (
           <motion.div
@@ -266,7 +254,7 @@ export default function ProfileDashboard() {
                   <label className="block mb-1 text-sm font-semibold">Username</label>
                   <input
                     name="username"
-                    defaultValue={user.username || ''}
+                    defaultValue={user.username}
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
@@ -274,7 +262,7 @@ export default function ProfileDashboard() {
                   <label className="block mb-1 text-sm font-semibold">Bio</label>
                   <textarea
                     name="bio"
-                    defaultValue={user.bio || ''}
+                    defaultValue={user.bio}
                     rows={3}
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
@@ -299,127 +287,6 @@ export default function ProfileDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Watch History */}
-      <section className="mb-12">
-        <motion.h3
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="flex items-center gap-2 text-2xl font-bold mb-6"
-        >
-          <FaHistory /> Watch History
-        </motion.h3>
-
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <div
-                key={i}
-                className="relative overflow-hidden rounded-2xl h-36 md:h-52 bg-white/10 border border-white/10"
-              >
-                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {history.map((item) => (
-              <motion.div
-                key={item.id}
-                whileHover={{ scale: 1.05 }}
-                className="group relative overflow-hidden rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
-              >
-                <Image
-                  src={item.anime?.cover_image || item.trailer_thumbnail || '/default.png'}
-                  alt={item.anime?.title_romaji || 'Trailer'}
-                  width={400}
-                  height={500}
-                  className="object-cover w-full h-36 md:h-52"
-                />
-                <span className="absolute left-2 top-2 z-10 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide bg-black/60 border border-white/10">
-                  {item.watch_count}x
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
-                  <button className="w-full py-1.5 rounded-lg bg-white/90 text-black text-xs font-bold shadow">
-                    ▶ Continue
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-        {!loading && history.length === 0 && (
-          <div className="mt-6 text-center text-sm text-gray-400">
-            Belum ada riwayat tontonan.
-          </div>
-        )}
-      </section>
-
-      {/* Favorites */}
-      <section>
-        <motion.h3
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="flex items-center gap-2 text-2xl font-bold mb-6"
-        >
-          <FaStar /> Favorites
-        </motion.h3>
-
-        {loading ? (
-          <div className="text-sm text-gray-400">Loading favorites...</div>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { key: 'anime', icon: <FaTv /> },
-              { key: 'manga', icon: <FaBook /> },
-              { key: 'manhwa', icon: <FaDragon /> },
-              { key: 'light_novel', icon: <FaBookOpen /> },
-            ].map(({ key, icon }) => {
-              const list = favorites.filter((f: any) => f.media_type === key)
-              return (
-                <motion.div
-                  key={key}
-                  whileHover={{ scale: 1.02 }}
-                  className="relative overflow-hidden rounded-2xl p-6 border border-white/10 shadow-lg bg-gradient-to-br from-slate-800/60 to-slate-900/80 backdrop-blur-xl"
-                >
-                  <div className="relative flex items-center justify-between mb-4">
-                    <h4 className="flex items-center gap-2 text-lg font-semibold capitalize">
-                      <span className="text-xl">{icon}</span> {key.replace('_', ' ')}
-                    </h4>
-                    <span className="px-2 py-0.5 rounded-full text-xs bg-white/10 border border-white/10">
-                      {list.length}
-                    </span>
-                  </div>
-
-                  <div className="relative flex flex-wrap gap-2 z-10">
-                    {list.length > 0 ? (
-                      list.map((fav: any) => (
-                        <span
-                          key={fav.id}
-                          title={String(fav.media_id)}
-                          className="px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-xs md:text-sm font-medium shadow-md hover:scale-105 transition border border-white/10"
-                        >
-                          {fav?.media_title ?? fav?.title ?? fav?.media_id}
-                        </span>
-                      ))
-                    ) : (
-                      <div className="w-full text-xs text-gray-400 italic">
-                        No favorites yet
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )
-            })}
-          </div>
-        )}
-      </section>
     </div>
   )
 }
