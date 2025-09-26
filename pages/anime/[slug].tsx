@@ -92,7 +92,7 @@ export default function AnimeDetailPage() {
                 return (
                   <a
                     key={ep}
-                    href={`/soon`}
+                    href={`/watch/soon`}
                     className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow text-center transition"
                   >
                     Episode {ep}
