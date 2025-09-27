@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { motion } from 'framer-motion'
 import { Session } from '@supabase/supabase-js'
 import { Loader2 } from 'lucide-react'
-import { FaGithub, FaDiscord } from 'react-icons/fa'
+import { FaGithub, FaDiscord, FaGoogle } from 'react-icons/fa'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -50,9 +50,7 @@ export default function LoginPage() {
     setLoading(true)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      },
+      options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
     })
     if (error) setErr(error.message)
     setLoading(false)
@@ -62,9 +60,17 @@ export default function LoginPage() {
     setLoading(true)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'discord',
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      },
+      options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
+    })
+    if (error) setErr(error.message)
+    setLoading(false)
+  }
+
+  const handleGoogleLogin = async () => {
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
     })
     if (error) setErr(error.message)
     setLoading(false)
@@ -85,7 +91,6 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* 🔒 Login Card */}
       <motion.form
         onSubmit={onSubmit}
         className="relative w-full max-w-md space-y-6 p-8 rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/10"
@@ -96,7 +101,6 @@ export default function LoginPage() {
         <h1 className="text-3xl font-semibold text-center text-white">Welcome back</h1>
         <p className="text-center text-white/60 text-sm">Login to continue your journey 🚀</p>
 
-        {/* Email Input */}
         <motion.input
           className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
           type="email"
@@ -107,7 +111,6 @@ export default function LoginPage() {
           whileFocus={{ scale: 1.02 }}
         />
 
-        {/* Password Input */}
         <motion.input
           className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           type="password"
@@ -118,7 +121,6 @@ export default function LoginPage() {
           whileFocus={{ scale: 1.02 }}
         />
 
-        {/* Email Login Button */}
         <motion.button
           disabled={loading}
           className="w-full flex items-center justify-center rounded-xl p-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50"
@@ -129,14 +131,12 @@ export default function LoginPage() {
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Login'}
         </motion.button>
 
-        {/* Divider */}
         <div className="flex items-center gap-4">
           <div className="flex-1 h-px bg-white/20" />
           <span className="text-white/40 text-sm">or</span>
           <div className="flex-1 h-px bg-white/20" />
         </div>
 
-        {/* GitHub Login Button */}
         <motion.button
           type="button"
           onClick={handleGitHubLogin}
@@ -149,7 +149,6 @@ export default function LoginPage() {
           {loading ? 'Connecting...' : 'Login with GitHub'}
         </motion.button>
 
-        {/* Discord Login Button */}
         <motion.button
           type="button"
           onClick={handleDiscordLogin}
@@ -160,6 +159,18 @@ export default function LoginPage() {
         >
           <FaDiscord className="w-5 h-5" />
           {loading ? 'Connecting...' : 'Login with Discord'}
+        </motion.button>
+
+        <motion.button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 rounded-xl p-3 bg-red-600 text-white font-semibold shadow-lg hover:bg-red-500 transition disabled:opacity-50"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <FaGoogle className="w-5 h-5" />
+          {loading ? 'Connecting...' : 'Login with Google'}
         </motion.button>
 
         {err && <p className="text-red-400 text-sm text-center">{err}</p>}
