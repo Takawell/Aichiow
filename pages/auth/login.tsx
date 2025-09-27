@@ -46,30 +46,10 @@ export default function LoginPage() {
     setLoading(false)
   }
 
-  const handleGitHubLogin = async () => {
+  const handleOAuthLogin = async (provider: 'github' | 'discord' | 'google') => {
     setLoading(true)
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
-    })
-    if (error) setErr(error.message)
-    setLoading(false)
-  }
-
-  const handleDiscordLogin = async () => {
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'discord',
-      options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
-    })
-    if (error) setErr(error.message)
-    setLoading(false)
-  }
-
-  const handleGoogleLogin = async () => {
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider,
       options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
     })
     if (error) setErr(error.message)
@@ -78,6 +58,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black p-6 text-white relative overflow-hidden">
+      {/* Background efek blur */}
       <div className="absolute inset-0 -z-10">
         <motion.div
           className="absolute -top-40 -left-40 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl"
@@ -91,6 +72,7 @@ export default function LoginPage() {
         />
       </div>
 
+      {/* Card */}
       <motion.form
         onSubmit={onSubmit}
         className="relative w-full max-w-md space-y-6 p-8 rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/10"
@@ -101,6 +83,7 @@ export default function LoginPage() {
         <h1 className="text-3xl font-semibold text-center text-white">Welcome back</h1>
         <p className="text-center text-white/60 text-sm">Login to continue your journey 🚀</p>
 
+        {/* Email input */}
         <motion.input
           className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
           type="email"
@@ -111,6 +94,7 @@ export default function LoginPage() {
           whileFocus={{ scale: 1.02 }}
         />
 
+        {/* Password input */}
         <motion.input
           className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           type="password"
@@ -121,6 +105,7 @@ export default function LoginPage() {
           whileFocus={{ scale: 1.02 }}
         />
 
+        {/* Button login */}
         <motion.button
           disabled={loading}
           className="w-full flex items-center justify-center rounded-xl p-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50"
@@ -131,48 +116,48 @@ export default function LoginPage() {
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Login'}
         </motion.button>
 
+        {/* Divider */}
         <div className="flex items-center gap-4">
           <div className="flex-1 h-px bg-white/20" />
-          <span className="text-white/40 text-sm">or</span>
+          <span className="text-white/40 text-sm">or continue with</span>
           <div className="flex-1 h-px bg-white/20" />
         </div>
 
-        <motion.button
-          type="button"
-          onClick={handleGitHubLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 rounded-xl p-3 bg-gray-900 text-white font-semibold shadow-lg hover:bg-gray-800 transition disabled:opacity-50"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <FaGithub className="w-5 h-5" />
-          {loading ? 'Connecting...' : 'Login with GitHub'}
-        </motion.button>
+        {/* Social Login grid */}
+        <div className="grid grid-cols-3 gap-4">
+          <motion.button
+            type="button"
+            onClick={() => handleOAuthLogin('github')}
+            disabled={loading}
+            className="flex items-center justify-center rounded-xl p-4 bg-gradient-to-br from-gray-800 to-gray-900 text-white shadow-lg hover:from-gray-700 hover:to-gray-800 transition disabled:opacity-50"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <FaGithub className="w-6 h-6" />
+          </motion.button>
 
-        <motion.button
-          type="button"
-          onClick={handleDiscordLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 rounded-xl p-3 bg-indigo-600 text-white font-semibold shadow-lg hover:bg-indigo-500 transition disabled:opacity-50"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <FaDiscord className="w-5 h-5" />
-          {loading ? 'Connecting...' : 'Login with Discord'}
-        </motion.button>
+          <motion.button
+            type="button"
+            onClick={() => handleOAuthLogin('discord')}
+            disabled={loading}
+            className="flex items-center justify-center rounded-xl p-4 bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-lg hover:from-indigo-400 hover:to-indigo-600 transition disabled:opacity-50"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <FaDiscord className="w-6 h-6" />
+          </motion.button>
 
-        <motion.button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 rounded-xl p-3 bg-red-600 text-white font-semibold shadow-lg hover:bg-red-500 transition disabled:opacity-50"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <FaGoogle className="w-5 h-5" />
-          {loading ? 'Connecting...' : 'Login with Google'}
-        </motion.button>
-
+          <motion.button
+            type="button"
+            onClick={() => handleOAuthLogin('google')}
+            disabled={loading}
+            className="flex items-center justify-center rounded-xl p-4 bg-gradient-to-br from-red-500 to-orange-500 text-white shadow-lg hover:from-red-400 hover:to-orange-400 transition disabled:opacity-50"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <FaGoogle className="w-6 h-6" />
+          </motion.button>
+        </div>
         {err && <p className="text-red-400 text-sm text-center">{err}</p>}
 
         <p className="text-sm text-center text-white/70">
