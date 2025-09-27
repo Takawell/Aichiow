@@ -58,7 +58,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black p-6 text-white relative overflow-hidden">
-      {/* Background blur */}
+      {/* Background efek blur */}
       <div className="absolute inset-0 -z-10">
         <motion.div
           className="absolute -top-40 -left-40 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl"
@@ -154,12 +154,17 @@ export default function LoginPage() {
             type="button"
             onClick={() => handleOAuthLogin('google')}
             disabled={loading}
-            className="flex items-center justify-center rounded-xl p-4 bg-white text-gray-800 shadow-md border border-gray-200 hover:shadow-lg hover:scale-105 transition disabled:opacity-50"
+            className="relative flex items-center justify-center rounded-xl p-4 bg-white text-gray-800 shadow-lg border border-gray-200 overflow-hidden disabled:opacity-50"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <FaGoogle className="w-6 h-6 mr-2 text-red-500" />
-            <span className="text-sm font-medium">Google</span>
+            {/* Animated background */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-red-400 via-yellow-300 to-blue-500 opacity-30 blur-2xl"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 8, ease: 'linear' }}
+            />
+            <FaGoogle className="w-6 h-6 relative z-10 text-red-500" />
           </motion.button>
         </div>
 
