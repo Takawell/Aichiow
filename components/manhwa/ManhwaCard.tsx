@@ -19,36 +19,34 @@ interface ManhwaCardProps {
 export default function ManhwaCard({ manhwa }: ManhwaCardProps) {
   return (
     <motion.div
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ scale: 1.07 }}
       transition={{ type: "spring", stiffness: 300 }}
       className="group"
     >
       <Link
         href={`/manhwa/${manhwa.id}`}
-        className="block relative w-full aspect-[2/3] rounded-xl overflow-hidden bg-white/5 backdrop-blur-sm border border-white/10 shadow-md group-hover:shadow-emerald-500/30 group-hover:border-emerald-500/30 transition-all duration-300"
+        className="block relative w-full aspect-[2/3] rounded-xl overflow-hidden bg-white/5 backdrop-blur-sm border border-white/10 shadow-md 
+        group-hover:shadow-[0_0_20px_rgba(56,189,248,0.6)] group-hover:border-sky-400 transition-all duration-500"
       >
-        {/* Cover */}
         <Image
           src={manhwa.coverImage.large}
           alt={manhwa.title.english || manhwa.title.romaji || "Manhwa"}
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
-          className="object-cover group-hover:brightness-110 group-hover:saturate-150 transition duration-300"
+          className="object-cover group-hover:brightness-110 group-hover:saturate-150 transition duration-500"
         />
 
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-70 group-hover:opacity-60 transition"></div>
-
-        {/* Score badge */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-80 group-hover:opacity-60 transition duration-500"></div>
+        <div className="absolute inset-0 rounded-xl pointer-events-none group-hover:ring-2 group-hover:ring-sky-400 group-hover:ring-offset-2 group-hover:ring-offset-black/50 transition"></div>
+        
         {manhwa.averageScore && (
-          <span className="absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-bold bg-emerald-600/80 text-white shadow-md">
+          <span className="absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-bold bg-sky-600/80 text-white shadow-[0_0_10px_rgba(56,189,248,0.8)]">
             ⭐ {manhwa.averageScore}
           </span>
         )}
       </Link>
 
-      {/* Title */}
-      <p className="mt-2 text-sm font-semibold text-center line-clamp-2 text-white group-hover:text-emerald-400 transition">
+      <p className="mt-2 text-sm font-semibold text-center line-clamp-2 text-white group-hover:text-sky-400 transition duration-300">
         {manhwa.title.english || manhwa.title.romaji}
       </p>
     </motion.div>
