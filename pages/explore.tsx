@@ -21,7 +21,7 @@ export default function ExplorePage() {
   const animeData = query ? searchAnime : exploreAnime
 
   const filtered = selectedGenre
-    ? animeData.filter((a) => a.genres?.includes(selectedGenre))
+    ? animeData.filter((a) => a.genres.includes(selectedGenre))
     : animeData
 
   function handleSubmit(e: React.FormEvent) {
@@ -39,27 +39,29 @@ export default function ExplorePage() {
         />
       </Head>
 
-      <main className="bg-gradient-to-b from-[#0d0d0f] via-[#111] to-[#0a0a0a] min-h-screen text-white px-4 md:px-10 py-12">
+      <main className="bg-gradient-to-b from-[#0f0f10] via-[#111215] to-[#0a0a0a] min-h-screen text-white px-4 md:px-10 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
         >
-          <SectionTitle title="✨ Explore Anime" />
+          <SectionTitle title="💫 Explore Anime" />
         </motion.div>
 
         <motion.form
           onSubmit={handleSubmit}
           className="mt-8 mb-6 flex flex-col sm:flex-row items-stretch gap-3"
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
+          viewport={{ once: true }}
         >
           <div className="relative w-full">
             <input
               type="text"
-              placeholder="Search for anime..."
-              className="w-full pl-11 pr-4 py-3 bg-neutral-900/70 text-white rounded-xl border border-neutral-700/60 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600/70 backdrop-blur-sm transition-all duration-300"
+              placeholder="Search for anime title..."
+              className="w-full pl-11 pr-4 py-3 bg-neutral-900 text-white rounded-lg border border-neutral-700 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all duration-300"
               value={input}
               onChange={(e) => setInput(e.target.value)}
             />
@@ -67,7 +69,7 @@ export default function ExplorePage() {
           </div>
           <button
             type="submit"
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl text-white font-semibold transition-all duration-300 shadow-lg"
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold transition-all duration-300"
           >
             Search
           </button>
@@ -76,24 +78,26 @@ export default function ExplorePage() {
         {!query && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
+            viewport={{ once: true }}
           >
             <GenreFilter selected={selectedGenre} onSelect={setSelectedGenre} />
           </motion.div>
         )}
 
         <motion.div
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-8"
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 mt-8"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          whileInView={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.6 }}
+          viewport={{ once: true }}
         >
           {(isLoading || searchLoading) && animeData.length === 0
             ? [...Array(15)].map((_, i) => (
                 <motion.div
                   key={i}
-                  className="h-[240px] bg-neutral-800/70 rounded-xl animate-pulse"
+                  className="h-[240px] bg-neutral-800 rounded-xl animate-pulse"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.03 }}
@@ -106,7 +110,6 @@ export default function ExplorePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                   viewport={{ once: true }}
-                  className="hover:scale-105 transition-transform duration-300"
                 >
                   <AnimeCard anime={a} />
                 </motion.div>
@@ -120,7 +123,7 @@ export default function ExplorePage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            No results found for{" "}
+            No results found for{' '}
             <span className="text-white font-semibold">"{query}"</span>.
           </motion.p>
         )}
@@ -129,13 +132,14 @@ export default function ExplorePage() {
           <motion.div
             className="mt-12 flex justify-center"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
+            viewport={{ once: true }}
           >
             <button
               onClick={loadMore}
               disabled={isLoading}
-              className="flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 transition-all duration-300 shadow-lg"
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all duration-300 shadow-lg"
             >
               <FaArrowDown className="text-white" />
               {isLoading ? 'Loading...' : 'Load More'}
@@ -150,7 +154,7 @@ export default function ExplorePage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            You&apos;ve reached the end of the list.
+            You've reached the end of the list.
           </motion.p>
         )}
       </main>
