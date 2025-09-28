@@ -1,4 +1,3 @@
-// pages/anime/genre/[name].tsx
 import Head from 'next/head'
 import { useAnimeByGenre } from '@/hooks/useAnimeByGenre'
 import Link from 'next/link'
