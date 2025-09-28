@@ -1,169 +1,175 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import Head from 'next/head'
-import { useExploreAnime } from '@/hooks/useExploreAnime'
-import { useSearchAnime } from '@/hooks/useSearchAnime'
-import AnimeCard from '@/components/anime/AnimeCard'
-import SectionTitle from '@/components/shared/SectionTitle'
-import GenreFilter from '@/components/shared/GenreFilter'
-import { motion } from 'framer-motion'
-import { FaSearch, FaArrowDown } from 'react-icons/fa'
+import Link from "next/link"
+import Image from "next/image"
+import { AnimeDetail } from "@/types/anime"
+import { useState } from "react"
+import { useFavorites } from "@/hooks/useFavorites"
+import { Heart, Share2 } from "lucide-react"
+import ShareModal from "@/components/shared/ShareModal"
 
-export default function ExplorePage() {
-  const [selectedGenre, setSelectedGenre] = useState<string | null>(null)
-  const [query, setQuery] = useState('')
-  const [input, setInput] = useState('')
+interface Props {
+  anime: AnimeDetail
+}
 
-  const { anime: exploreAnime, isLoading, loadMore, hasMore } = useExploreAnime()
-  const { anime: searchAnime, isLoading: searchLoading } = useSearchAnime(query)
+export default function AnimeDetailHeader({ anime }: Props) {
+  const [showFullDesc, setShowFullDesc] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
+  const cleanDesc = anime.description?.replace(/<[^>]+>/g, "") || ""
 
-  const animeData = query ? searchAnime : exploreAnime
+  const { isFavorite, toggleFavorite, loading } = useFavorites({
+    mediaId: anime.id,
+    mediaType: "anime",
+  })
 
-  const filtered = selectedGenre
-    ? animeData.filter((a) => a.genres.includes(selectedGenre))
-    : animeData
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setQuery(input.trim())
-  }
+  const toggleDesc = () => setShowFullDesc((prev) => !prev)
+  const shareUrl = typeof window !== "undefined" ? window.location.href : ""
+  const coverSrc = anime.coverImage.extraLarge || anime.coverImage.large
 
   return (
-    <>
-      <Head>
-        <title>Explore Anime | Aichiow</title>
-        <meta
-          name="description"
-          content="Discover and search for anime by genre, popularity, and more."
+    <section className="relative w-full bg-neutral-950 text-white">
+      <div className="absolute inset-0">
+        <Image
+          src={
+            anime.bannerImage ??
+            anime.coverImage.extraLarge ??
+            "/default-banner.jpg"
+          }
+          alt={anime.title.romaji || "Anime Banner"}
+          fill
+          priority
+          className="object-cover opacity-40 blur-md"
         />
-      </Head>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-black" />
+      </div>
 
-      <main className="bg-gradient-to-b from-[#0f0f10] via-[#111215] to-[#0a0a0a] min-h-screen text-white px-4 md:px-10 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
-          <SectionTitle title="🚀 Explore Anime" />
-        </motion.div>
+      <div className="relative z-10 flex flex-col md:flex-row items-start gap-6 p-6 md:p-10">
+        <div className="min-w-[200px] max-w-[220px]">
+          <Image
+            src={coverSrc}
+            alt={anime.title.romaji}
+            width={200}
+            height={300}
+            className="rounded-2xl shadow-xl border border-white/10 object-cover transition-transform hover:scale-105 duration-500"
+          />
+        </div>
 
-        {/* Search */}
-        <motion.form
-          onSubmit={handleSubmit}
-          className="mt-8 mb-6 flex flex-col sm:flex-row items-stretch gap-3"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          viewport={{ once: true }}
-        >
-          <div className="relative w-full">
-            <input
-              type="text"
-              placeholder="Search for anime title..."
-              className="w-full pl-11 pr-4 py-3 bg-neutral-900 text-white rounded-lg border border-neutral-700 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all duration-300"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-            />
-            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500" />
-          </div>
-          <button
-            type="submit"
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold transition-all duration-300"
-          >
-            Search
-          </button>
-        </motion.form>
+        <div className="max-w-4xl w-full">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-5xl font-extrabold text-white drop-shadow-md">
+                {anime.title.english || anime.title.romaji}
+              </h1>
+              {anime.title.romaji && (
+                <p className="text-lg text-neutral-400 italic">
+                  {anime.title.romaji}
+                </p>
+              )}
+              {anime.title.native && (
+                <p className="text-md text-neutral-500">
+                  {anime.title.native}
+                </p>
+              )}
+            </div>
 
-        {/* Genre Filter */}
-        {!query && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <GenreFilter selected={selectedGenre} onSelect={setSelectedGenre} />
-          </motion.div>
-        )}
-
-        {/* Anime Grid */}
-        <motion.div
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 mt-8"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          viewport={{ once: true }}
-        >
-          {(isLoading || searchLoading) && animeData.length === 0
-            ? [...Array(15)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="h-[240px] bg-neutral-800 rounded-xl animate-pulse"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.03 }}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={toggleFavorite}
+                disabled={loading}
+                className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl border text-sm md:text-base font-medium shadow-lg transition ${
+                  isFavorite
+                    ? "bg-red-500 border-red-500 text-white hover:bg-red-600"
+                    : "bg-white/10 border-white/20 text-white hover:bg-white/20"
+                }`}
+              >
+                <Heart
+                  size={18}
+                  className={
+                    isFavorite
+                      ? "fill-current text-white"
+                      : "text-white"
+                  }
                 />
-              ))
-            : filtered.map((a) => (
-                <motion.div
-                  key={a.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  viewport={{ once: true }}
-                >
-                  <AnimeCard anime={a} />
-                </motion.div>
-              ))}
-        </motion.div>
+                <span className="hidden sm:inline">
+                  {isFavorite ? "Favorited" : "Favorite"}
+                </span>
+              </button>
 
-        {/* No Results */}
-        {query && !searchLoading && filtered.length === 0 && (
-          <motion.p
-            className="text-center text-zinc-400 mt-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            No results found for{' '}
-            <span className="text-white font-semibold">"{query}"</span>.
-          </motion.p>
-        )}
+              <button
+                onClick={() => setShareOpen(true)}
+                className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-blue-500/80 hover:shadow-lg transition text-sm md:text-base font-medium"
+              >
+                <Share2 size={18} />
+                <span className="hidden sm:inline">Share</span>
+              </button>
+            </div>
+          </div>
 
-        {/* Load More */}
-        {!query && hasMore && (
-          <motion.div
-            className="mt-12 flex justify-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            viewport={{ once: true }}
-          >
-            <button
-              onClick={loadMore}
-              disabled={isLoading}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all duration-300 shadow-lg"
-            >
-              <FaArrowDown className="text-white" />
-              {isLoading ? 'Loading...' : 'Load More'}
-            </button>
-          </motion.div>
-        )}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {anime.genres.slice(0, 6).map((genre) => (
+              <Link
+                key={genre}
+                href={`/anime/genre/${encodeURIComponent(
+                  genre.toLowerCase().replace(/\s+/g, "-")
+                )}`}
+              >
+                <span className="cursor-pointer text-[11px] uppercase tracking-wide font-medium px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white/90 hover:from-blue-500 hover:to-purple-500 hover:text-white transition shadow-md">
+                  {genre}
+                </span>
+              </Link>
+            ))}
+          </div>
 
-        {/* End of List */}
-        {!query && !hasMore && exploreAnime.length > 0 && (
-          <motion.p
-            className="text-center text-sm text-neutral-400 mt-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            You've reached the end of the list.
-          </motion.p>
-        )}
-      </main>
-    </>
+          <div className="mt-5 max-w-2xl text-sm text-neutral-300 leading-relaxed">
+            <p className={showFullDesc ? "" : "line-clamp-5"}>
+              {cleanDesc}
+            </p>
+            {cleanDesc.length > 300 && (
+              <button
+                onClick={toggleDesc}
+                className="mt-2 text-blue-400 hover:underline text-sm font-medium"
+              >
+                {showFullDesc ? "Show Less" : "Show More"}
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 mt-6 text-sm text-neutral-400">
+            <p>
+              <span className="font-medium text-white">🎞️ Format:</span>{" "}
+              {anime.format || "-"}
+            </p>
+            <p>
+              <span className="font-medium text-white">📅 Season:</span>{" "}
+              {anime.season} {anime.seasonYear}
+            </p>
+            <p>
+              <span className="font-medium text-white">⭐ Score:</span>{" "}
+              {anime.averageScore || "-"}
+            </p>
+            <p>
+              <span className="font-medium text-white">🎬 Studio:</span>{" "}
+              {anime.studios.nodes[0]?.name || "-"}
+            </p>
+            <p>
+              <span className="font-medium text-white">📈 Popularity:</span>{" "}
+              {anime.popularity || "-"}
+            </p>
+            <p>
+              <span className="font-medium text-white">📺 Status:</span>{" "}
+              {anime.status || "-"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <ShareModal
+        open={shareOpen}
+        setOpen={setShareOpen}
+        title={anime.title.english || anime.title.romaji}
+        url={shareUrl}
+        thumbnail={coverSrc}
+      />
+    </section>
   )
 }
