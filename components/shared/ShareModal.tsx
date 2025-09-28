@@ -24,11 +24,10 @@ export default function ShareModal({ open, setOpen, title, url, thumbnail }: Sha
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(url)
-    setToast("Link copied")
+    setToast("Link copied to clipboard!")
     setTimeout(() => setToast(null), 2000)
   }
 
-  // Tutup modal dengan ESC
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false)
@@ -42,47 +41,43 @@ export default function ShareModal({ open, setOpen, title, url, thumbnail }: Sha
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {/* Konten Modal */}
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="bg-gray-900 text-white rounded-2xl shadow-2xl w-[90%] max-w-md p-6 relative"
+              initial={{ y: 80, scale: 0.9, opacity: 0 }}
+              animate={{ y: 0, scale: 1, opacity: 1 }}
+              exit={{ y: 80, scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="relative w-[90%] max-w-md rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl p-6 text-white"
             >
-              {/* Tombol close */}
               <button
                 onClick={() => setOpen(false)}
-                className="absolute top-3 right-3 text-gray-400 hover:text-white text-lg"
+                className="absolute top-4 right-4 text-gray-300 hover:text-white transition text-xl"
               >
                 ✕
               </button>
 
-              {/* Preview Thumbnail */}
               <div className="flex items-center gap-4">
                 <img
                   src={thumbnail}
                   alt={title}
-                  className="w-20 h-28 object-cover rounded-lg shadow-md"
+                  className="w-20 h-28 object-cover rounded-2xl shadow-lg"
                 />
                 <div>
-                  <h2 className="font-bold text-lg line-clamp-2">{title}</h2>
-                  <p className="text-sm text-gray-400 truncate max-w-[180px]">{url}</p>
+                  <h2 className="font-semibold text-lg line-clamp-2">{title}</h2>
+                  <p className="text-sm text-gray-300 truncate max-w-[180px]">{url}</p>
                 </div>
               </div>
 
-              {/* Tombol share */}
-              <div className="flex justify-center gap-4 mt-6">
+              <div className="flex justify-center gap-6 mt-8">
                 <a
                   href={shareData.whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-3 rounded-full bg-green-600 hover:bg-green-700 transition"
+                  className="p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition transform hover:scale-110 hover:shadow-[0_0_15px_rgba(37,211,102,0.6)]"
                 >
                   <FaWhatsapp size={22} />
                 </a>
@@ -90,7 +85,7 @@ export default function ShareModal({ open, setOpen, title, url, thumbnail }: Sha
                   href={shareData.telegram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-3 rounded-full bg-sky-500 hover:bg-sky-600 transition"
+                  className="p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition transform hover:scale-110 hover:shadow-[0_0_15px_rgba(0,136,204,0.6)]"
                 >
                   <FaTelegramPlane size={22} />
                 </a>
@@ -98,13 +93,13 @@ export default function ShareModal({ open, setOpen, title, url, thumbnail }: Sha
                   href={shareData.x}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-3 rounded-full bg-black hover:bg-gray-900 transition"
+                  className="p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition transform hover:scale-110 hover:shadow-[0_0_15px_rgba(255,255,255,0.6)]"
                 >
                   <FaXTwitter size={22} />
                 </a>
                 <button
                   onClick={copyToClipboard}
-                  className="p-3 rounded-full bg-gray-700 hover:bg-gray-800 transition"
+                  className="p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition transform hover:scale-110 hover:shadow-[0_0_15px_rgba(180,180,180,0.6)]"
                 >
                   <FaLink size={22} />
                 </button>
@@ -114,15 +109,14 @@ export default function ShareModal({ open, setOpen, title, url, thumbnail }: Sha
         )}
       </AnimatePresence>
 
-      {/* Toast Notification */}
       <AnimatePresence>
         {toast && (
           <motion.div
-            initial={{ y: 50, opacity: 0 }}
+            initial={{ y: 60, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
+            exit={{ y: 60, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-white/10 backdrop-blur-md border border-white/20 text-white px-5 py-2 rounded-xl shadow-lg"
           >
             {toast}
           </motion.div>
