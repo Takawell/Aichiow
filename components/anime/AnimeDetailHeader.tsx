@@ -23,11 +23,13 @@ export default function AnimeDetailHeader({ anime }: Props) {
   })
 
   const toggleDesc = () => setShowFullDesc((prev) => !prev)
-  const shareUrl = typeof window !== "undefined" ? window.location.href : ""
+
+  const shareUrl =
+    typeof window !== "undefined" ? window.location.href : ""
   const coverSrc = anime.coverImage.extraLarge || anime.coverImage.large
 
   return (
-    <section className="relative w-full bg-neutral-950 text-white">
+    <section className="relative w-full bg-neutral-900 text-white">
       <div className="absolute inset-0">
         <Image
           src={
@@ -38,9 +40,9 @@ export default function AnimeDetailHeader({ anime }: Props) {
           alt={anime.title.romaji || "Anime Banner"}
           fill
           priority
-          className="object-cover opacity-40 blur-md"
+          className="object-cover opacity-30 blur-sm"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black" />
       </div>
 
       <div className="relative z-10 flex flex-col md:flex-row items-start gap-6 p-6 md:p-10">
@@ -50,18 +52,18 @@ export default function AnimeDetailHeader({ anime }: Props) {
             alt={anime.title.romaji}
             width={200}
             height={300}
-            className="rounded-2xl shadow-xl border border-white/10 object-cover transition-transform hover:scale-105 duration-500"
+            className="rounded-xl shadow-2xl border-2 border-white/10 object-cover"
           />
         </div>
 
         <div className="max-w-4xl w-full">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-5xl font-extrabold text-white drop-shadow-md">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white">
                 {anime.title.english || anime.title.romaji}
               </h1>
               {anime.title.romaji && (
-                <p className="text-lg text-neutral-400 italic">
+                <p className="text-md text-neutral-400 italic">
                   {anime.title.romaji}
                 </p>
               )}
@@ -76,7 +78,7 @@ export default function AnimeDetailHeader({ anime }: Props) {
               <button
                 onClick={toggleFavorite}
                 disabled={loading}
-                className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl border text-sm md:text-base font-medium shadow-lg transition ${
+                className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl border transition text-sm md:text-base ${
                   isFavorite
                     ? "bg-red-500 border-red-500 text-white hover:bg-red-600"
                     : "bg-white/10 border-white/20 text-white hover:bg-white/20"
@@ -97,7 +99,7 @@ export default function AnimeDetailHeader({ anime }: Props) {
 
               <button
                 onClick={() => setShareOpen(true)}
-                className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-blue-500/80 hover:shadow-lg transition text-sm md:text-base font-medium"
+                className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-blue-500/80 transition text-sm md:text-base"
               >
                 <Share2 size={18} />
                 <span className="hidden sm:inline">Share</span>
@@ -105,7 +107,7 @@ export default function AnimeDetailHeader({ anime }: Props) {
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             {anime.genres.slice(0, 6).map((genre) => (
               <Link
                 key={genre}
@@ -113,21 +115,25 @@ export default function AnimeDetailHeader({ anime }: Props) {
                   genre.toLowerCase().replace(/\s+/g, "-")
                 )}`}
               >
-                <span className="cursor-pointer text-[11px] uppercase tracking-wide font-medium px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white/90 hover:from-blue-500 hover:to-purple-500 hover:text-white transition shadow-md">
+                <span
+                  className="cursor-pointer text-[11px] uppercase tracking-wide font-medium px-3 py-1 
+                           rounded-full bg-white/10 text-white/80 hover:bg-blue-500/80 hover:text-white 
+                           transition"
+                >
                   {genre}
                 </span>
               </Link>
             ))}
           </div>
 
-          <div className="mt-5 max-w-2xl text-sm text-neutral-300 leading-relaxed">
+          <div className="mt-4 max-w-2xl text-sm text-neutral-300 leading-relaxed">
             <p className={showFullDesc ? "" : "line-clamp-5"}>
               {cleanDesc}
             </p>
             {cleanDesc.length > 300 && (
               <button
                 onClick={toggleDesc}
-                className="mt-2 text-blue-400 hover:underline text-sm font-medium"
+                className="mt-2 text-blue-400 hover:underline text-sm"
               >
                 {showFullDesc ? "Show Less" : "Show More"}
               </button>
