@@ -258,14 +258,65 @@ export default function LandingPage() {
 
           <section className="mt-20">
             <h3 className="text-2xl font-bold text-center mb-6">
-              {lang === 'EN' ? 'Frequently Asked Questions' : 'Pertanyaan yang Sering Diajukan'}
+              {lang === 'EN'
+                ? 'Meet Aichixia – Your AI Assistant'
+                : 'Kenalan dengan Aichixia – Asisten AI Kamu'}
+            </h3>
+            <div className="max-w-2xl mx-auto bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm shadow-lg">
+              <div className="space-y-4 text-sm">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-start gap-3"
+                >
+                  <div className="px-4 py-2 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow">
+                    {lang === 'EN'
+                      ? 'Hi Aichixia, recommend me a new anime this season!'
+                      : 'Hai Aichixia, rekomendasiin anime baru musim ini dong!'}
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="flex items-start gap-3 justify-end"
+                >
+                  <div className="px-4 py-2 rounded-2xl bg-white/10 text-gray-200 shadow">
+                    {lang === 'EN'
+                      ? 'Sure! How about *Sousou no Frieren*? It’s trending this season with amazing reviews.'
+                      : 'Tentu! Gimana kalau *Sousou no Frieren*? Lagi trending musim ini dengan ulasan keren.'}
+                  </div>
+                </motion.div>
+              </div>
+
+              <div className="mt-6 flex justify-center">
+                <Link
+                  href="/aichixia"
+                  className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-pink-500 shadow-lg hover:scale-105 transform transition font-semibold"
+                >
+                  {lang === 'EN' ? 'Chat with Aichixia' : 'Ngobrol dengan Aichixia'}
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-20">
+            <h3 className="text-2xl font-bold text-center mb-6">
+              {lang === 'EN'
+                ? 'Frequently Asked Questions'
+                : 'Pertanyaan yang Sering Diajukan'}
             </h3>
             <div className="max-w-3xl mx-auto space-y-4">
               {faqs.map((f, i) => (
                 <motion.div
                   key={i}
                   initial={false}
-                  animate={{ backgroundColor: openFAQ === i ? 'rgba(255,255,255,0.05)' : 'transparent' }}
+                  animate={{
+                    backgroundColor:
+                      openFAQ === i ? 'rgba(255,255,255,0.05)' : 'transparent'
+                  }}
                   className="rounded-lg border border-white/10 overflow-hidden"
                 >
                   <button
