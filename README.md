@@ -17,12 +17,12 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ## 📸 Screenshots
 
 ### Landing Page
-![Landing Page](https://i.ibb.co/RRy8K35/1757911056885.jpg)
+![Landing Page](https://i.ibb.co/213z6wMp/download-14.png)
 
 ### Anime (Home)
 ![Anime Home](https://i.ibb.co/mrmZ8Vsr/home-anime.png)
 
-### Schulde & Upcoming
+### Schedule & Upcoming
 ![preview](https://i.ibb.co/p6HQJm0p/1757298018286.jpg)
 
 ### Manga
@@ -52,6 +52,17 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ## 🌐 Live Demo
 [**Visit Aichiow**](https://aichiow.vercel.app/)
 
+---
+
+## 💫 Author
+- **Author** [Takawell](https://github.com/Takawell/)
+
+---
+
+## 📄 License
+This project is licensed under the **MIT License**
+- see the [LICENSE](https://github.com/Takawell/Aichiow/blob/main/LICENSE)
+ file for details.
 ---
 
 ## 📦 Installation
