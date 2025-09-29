@@ -6,20 +6,19 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  FaFilm,
   FaBookOpen,
   FaBook,
-  FaBolt,
-  FaStar,
   FaUsers,
   FaPlayCircle,
   FaTv,
-  FaFeatherAlt
+  FaFeatherAlt,
+  FaChevronDown
 } from 'react-icons/fa'
 
 export default function LandingPage() {
   const [heroTextIndex, setHeroTextIndex] = useState(0)
   const [lang, setLang] = useState<'EN' | 'ID'>('EN')
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null)
 
   const heroTexts = {
     EN: [
@@ -101,6 +100,27 @@ export default function LandingPage() {
     }
   ]
 
+  const faqs = [
+    {
+      q: lang === 'EN' ? 'Is Aichiow free to use?' : 'Apakah Aichiow gratis digunakan?',
+      a: lang === 'EN'
+        ? 'Yes, Aichiow is completely free. Some advanced features may require login.'
+        : 'Ya, Aichiow sepenuhnya gratis. Beberapa fitur lanjutan mungkin memerlukan login.'
+    },
+    {
+      q: lang === 'EN' ? 'Do I need an account?' : 'Apakah saya perlu akun?',
+      a: lang === 'EN'
+        ? 'You can explore most content without an account, but login unlocks favorites, history, and community features.'
+        : 'Kamu bisa menjelajah sebagian besar konten tanpa akun, tapi login membuka fitur favorit, riwayat, dan komunitas.'
+    },
+    {
+      q: lang === 'EN' ? 'What sources are used?' : 'Sumber apa yang digunakan?',
+      a: lang === 'EN'
+        ? 'We integrate AniList for anime data and MangaDex for manga. More sources will be added soon.'
+        : 'Kami mengintegrasikan AniList untuk data anime dan MangaDex untuk manga. Sumber lain segera ditambahkan.'
+    }
+  ]
+
   return (
     <>
       <Head>
@@ -114,7 +134,7 @@ export default function LandingPage() {
       <main className="relative min-h-screen bg-black text-white overflow-hidden">
         <BackgroundDots />
 
-        <div className="relative z-20 max-w-[90rem] mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-16 lg:py-20">
+        <div className="relative z-20 w-full max-w-[100rem] mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-16 lg:py-20">
           <div className="flex items-center justify-between gap-4 mb-10">
             <Link href="/home" className="flex items-center gap-3">
               <Image
@@ -129,7 +149,7 @@ export default function LandingPage() {
                   AICHIOW
                 </div>
                 <div className="text-xs sm:text-sm text-gray-400 -mt-1">
-                  Anime • Manga • Manhwa • LN
+                  The number one platform all in one.
                 </div>
               </div>
             </Link>
@@ -141,7 +161,6 @@ export default function LandingPage() {
                 <Link href="/manhwa" className="hover:text-white">Manhwa</Link>
                 <Link href="/light-novel" className="hover:text-white">Light Novel</Link>
                 <Link href="/explore" className="hover:text-white">Explore</Link>
-                <Link href="/aichixia" className="hover:text-white">Aichixia</Link>
                 <Link href="/profile" className="hover:text-white">Profile</Link>
               </nav>
 
@@ -232,6 +251,48 @@ export default function LandingPage() {
                       <div className="text-sm text-gray-300 mt-1">{f.desc}</div>
                     </div>
                   </div>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-20">
+            <h3 className="text-2xl font-bold text-center mb-6">
+              {lang === 'EN' ? 'Frequently Asked Questions' : 'Pertanyaan yang Sering Diajukan'}
+            </h3>
+            <div className="max-w-3xl mx-auto space-y-4">
+              {faqs.map((f, i) => (
+                <motion.div
+                  key={i}
+                  initial={false}
+                  animate={{ backgroundColor: openFAQ === i ? 'rgba(255,255,255,0.05)' : 'transparent' }}
+                  className="rounded-lg border border-white/10 overflow-hidden"
+                >
+                  <button
+                    onClick={() => setOpenFAQ(openFAQ === i ? null : i)}
+                    className="w-full flex items-center justify-between px-4 py-4 text-left"
+                  >
+                    <span className="font-medium">{f.q}</span>
+                    <motion.span
+                      animate={{ rotate: openFAQ === i ? 180 : 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <FaChevronDown />
+                    </motion.span>
+                  </button>
+                  <AnimatePresence>
+                    {openFAQ === i && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="px-4 pb-4 text-gray-300 text-sm leading-relaxed"
+                      >
+                        {f.a}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               ))}
             </div>
