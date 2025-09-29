@@ -285,8 +285,8 @@ export default function LandingPage() {
                 >
                   <div className="px-4 py-2 rounded-2xl bg-white/10 text-gray-200 shadow">
                     {lang === 'EN'
-                      ? 'Sure! How about *Sousou no Frieren*? It’s trending this season with amazing reviews.'
-                      : 'Tentu! Gimana kalau *Sousou no Frieren*? Lagi trending musim ini dengan ulasan keren.'}
+                      ? 'Sure! How about Sousou no Frieren? It’s trending this season with amazing reviews.'
+                      : 'Tentu! Gimana kalau Sousou no Frieren? Lagi trending musim ini dengan ulasan keren.'}
                   </div>
                 </motion.div>
               </div>
