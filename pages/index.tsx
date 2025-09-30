@@ -127,7 +127,7 @@ export default function LandingPage() {
         <title>Aichiow – Anime, Manga, Manhwa & Light Novel Hub</title>
         <meta
           name="description"
-          content="Aichiow — your gateway to anime, manga, manhwa, and light novels."
+          content="Aichiow your gateway to anime, manga, manhwa, and light novels."
         />
       </Head>
 
@@ -352,7 +352,7 @@ export default function LandingPage() {
           <footer className="mt-20 text-sm text-gray-400">
             <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent mb-6" />
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div>© {new Date().getFullYear()} Aichiow. All rights reserved.</div>
+              <div>© {new Date().getFullYear()} Aichiow Plus. All rights reserved.</div>
               <div className="flex items-center gap-4">
                 <Link href="/terms" className="hover:text-white">
                   Terms
