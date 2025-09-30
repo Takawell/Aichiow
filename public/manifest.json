@@ -3,14 +3,18 @@
   "short_name": "Aichiow",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "background_color": "#1a1a1a",
   "theme_color": "#1a1a1a",
   "description": "Aichiow: Watch anime easily anywhere, anytime.",
+  "lang": "en-US",
+  "scope": "/",
   "icons": [
     {
       "src": "/logo.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/logo.png",
