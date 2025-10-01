@@ -95,10 +95,10 @@ export default function CTACommunityFooter() {
             <h3 className="font-semibold mb-2">Explore</h3>
             <ul className="space-y-1">
               <li><Link href="/explore" className="hover:text-primary transition">All Anime</Link></li>
-              <li><Link href="/upcoming" className="hover:text-primary transition">Timetable</Link></li>
+              <li><Link href="/upcoming" className="hover:text-primary transition">Schedule</Link></li>
               <li><Link href="/manga" className="hover:text-primary transition">Manga</Link></li>
               <li><Link href="/light-novel" className="hover:text-primary transition">Light Novel</Link></li>
-              </ul>
+            </ul>
           </motion.div>
 
           <motion.div
@@ -157,14 +157,9 @@ export default function CTACommunityFooter() {
           whileInView="visible"
           custom={3}
           viewport={{ once: true }}
-          className="mt-12 text-center text-neutral-500 text-xs border-t border-white/5 pt-6 flex flex-col md:flex-row justify-center gap-4"
+          className="mt-12 text-center text-neutral-500 text-xs border-t border-white/5 pt-6"
         >
-          <span>© {new Date().getFullYear()} Aichiow Plus. All rights reserved.</span>
-          <div className="flex gap-4">
-            <Link href="/about" className="hover:text-primary transition">About</Link>
-            <Link href="/terms" className="hover:text-primary transition">Terms</Link>
-            <Link href="/privacy" className="hover:text-primary transition">Privacy</Link>
-          </div>
+          © {new Date().getFullYear()} Aichiow Plus. All rights reserved.
         </motion.div>
       </footer>
     </section>
