@@ -28,7 +28,7 @@ export default function AichixiaPage() {
       role: "assistant",
       type: "text",
       content:
-        "Hi 🌸 I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. What would you like to explore today?",
+        "Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. What would you like to explore today?",
     },
   ]);
   const [input, setInput] = useState("");
