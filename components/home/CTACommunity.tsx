@@ -70,7 +70,6 @@ export default function CTACommunityFooter() {
 
       <footer className="w-full px-6 md:px-12 pb-16 relative z-10">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-white">
-          {/* Logo / Brand */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
@@ -79,13 +78,12 @@ export default function CTACommunityFooter() {
             viewport={{ once: true }}
             className="space-y-4"
           >
-            <h2 className="text-2xl font-bold tracking-wide">Aichiow</h2>
+            <h2 className="text-2xl font-bold tracking-wide">Aichiow Plus</h2>
             <p className="text-sm text-neutral-400">
               Uniting otakus worldwide — anime & beyond.
             </p>
           </motion.div>
 
-          {/* Navigation */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
@@ -100,10 +98,9 @@ export default function CTACommunityFooter() {
               <li><Link href="/upcoming" className="hover:text-primary transition">Timetable</Link></li>
               <li><Link href="/manga" className="hover:text-primary transition">Manga</Link></li>
               <li><Link href="/light-novel" className="hover:text-primary transition">Light Novel</Link></li>
-            </ul>
+              </ul>
           </motion.div>
 
-          {/* Social Icons */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
@@ -154,16 +151,20 @@ export default function CTACommunityFooter() {
           </motion.div>
         </div>
 
-        {/* Bottom Footer */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           custom={3}
           viewport={{ once: true }}
-          className="mt-12 text-center text-neutral-500 text-xs border-t border-white/5 pt-6"
+          className="mt-12 text-center text-neutral-500 text-xs border-t border-white/5 pt-6 flex flex-col md:flex-row justify-center gap-4"
         >
-          © {new Date().getFullYear()} Aichiow Plus. All rights reserved.
+          <span>© {new Date().getFullYear()} Aichiow Plus. All rights reserved.</span>
+          <div className="flex gap-4">
+            <Link href="/about" className="hover:text-primary transition">About</Link>
+            <Link href="/terms" className="hover:text-primary transition">Terms</Link>
+            <Link href="/privacy" className="hover:text-primary transition">Privacy</Link>
+          </div>
         </motion.div>
       </footer>
     </section>
