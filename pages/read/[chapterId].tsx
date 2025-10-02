@@ -33,7 +33,7 @@ export default function ReadPage() {
     }
     checkUser()
   }, [router])
-  
+
   useEffect(() => {
     if (!router.isReady || !user) return
     const raw = router.query.chapterId
@@ -65,23 +65,10 @@ export default function ReadPage() {
         const full = fileList.map(
           (file: string) => `${chapter.baseUrl}/${modeStr}/${chapter.hash}/${file}`
         )
+
         setImages(full)
-
-        const mangaId = chapter?.relationships?.find((r: any) => r.type === 'manga')?.id
-        if (mangaId) {
-          const res = await fetch(`/api/manga/chapters?id=${mangaId}`)
-          const chapters = await res.json()
-
-          const sorted = chapters.sort((a: any, b: any) =>
-            parseFloat(a.attributes.chapter || 0) - parseFloat(b.attributes.chapter || 0)
-          )
-
-          const ids = sorted.map((c: any) => c.id)
-          const idx = ids.indexOf(chapterIdStr)
-
-          setPrevId(idx > 0 ? ids[idx - 1] : null)
-          setNextId(idx < ids.length - 1 ? ids[idx + 1] : null)
-        }
+        setNextId(chapter.next ?? null)
+        setPrevId(chapter.prev ?? null)
       } catch (err: any) {
         console.error(err)
         setError('Failed to load chapter.')
