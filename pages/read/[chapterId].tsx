@@ -4,8 +4,8 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { fetchChapterImages } from '@/lib/mangadex'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
-import { MdArrowBack } from 'react-icons/md'
-import { motion } from 'framer-motion'
+import { MdArrowBack, MdFullscreen, MdFullscreenExit, MdArrowUpward } from 'react-icons/md'
+import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabaseClient'
 
 export default function ReadPage() {
@@ -20,26 +20,22 @@ export default function ReadPage() {
   const [mode, setMode] = useState<'scroll' | 'swipe'>('scroll')
   const [currentPage, setCurrentPage] = useState(0)
   const [user, setUser] = useState<any>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   useEffect(() => {
     const checkUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
+      const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         router.push('/auth/login')
       } else {
         setUser(user)
       }
     }
-
     checkUser()
   }, [router])
 
   useEffect(() => {
     if (!router.isReady || !user) return
-
     const raw = router.query.chapterId
     const chapterIdStr =
       typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] : ''
@@ -53,7 +49,6 @@ export default function ReadPage() {
     const loadImages = async () => {
       try {
         setLoading(true)
-
         const chapter = await fetchChapterImages(chapterIdStr)
 
         if (!chapter || !chapter.hash || !chapter.baseUrl) {
@@ -88,6 +83,7 @@ export default function ReadPage() {
   const handleNavigation = (targetId: string | null) => {
     if (targetId) {
       router.push(`/read/${targetId}`)
+      setCurrentPage(0)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
@@ -101,6 +97,28 @@ export default function ReadPage() {
     }
   }
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen()
+      setIsFullscreen(true)
+    } else {
+      document.exitFullscreen()
+      setIsFullscreen(false)
+    }
+  }
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (mode === 'swipe') {
+        if (e.key === 'ArrowRight') handleSwipe('left')
+        if (e.key === 'ArrowLeft') handleSwipe('right')
+      }
+      if (e.key === 'f') toggleFullscreen()
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [mode, currentPage])
+
   if (!user || loading) {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
@@ -111,7 +129,16 @@ export default function ReadPage() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white flex flex-col">
-      {/* Header */}
+      {mode === 'swipe' && (
+        <motion.div
+          className="fixed top-0 left-0 h-1 bg-blue-500 z-50"
+          style={{ width: `${((currentPage + 1) / images.length) * 100}%` }}
+          initial={{ width: 0 }}
+          animate={{ width: `${((currentPage + 1) / images.length) * 100}%` }}
+          transition={{ ease: 'easeOut', duration: 0.3 }}
+        />
+      )}
+
       <header className="sticky top-0 z-40 flex items-center justify-between bg-neutral-900/80 backdrop-blur px-4 py-3 border-b border-neutral-800 shadow-md">
         <button
           onClick={() => router.back()}
@@ -123,8 +150,6 @@ export default function ReadPage() {
         <span className="text-sm tracking-wide text-neutral-400">
           📖 Chapter Reader
         </span>
-
-        {/* Mode Toggle */}
         <div className="flex gap-2">
           <button
             onClick={() => setMode('scroll')}
@@ -149,7 +174,6 @@ export default function ReadPage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 max-w-5xl mx-auto px-4 py-6 w-full">
         {error && (
           <div className="text-center py-16 text-red-500 font-semibold text-lg">
@@ -159,7 +183,6 @@ export default function ReadPage() {
 
         {images.length > 0 && (
           <>
-            {/* Scroll Mode */}
             {mode === 'scroll' && (
               <div className="space-y-6">
                 {images.map((src, idx) => (
@@ -177,47 +200,40 @@ export default function ReadPage() {
               </div>
             )}
 
-            {/* Swipe Mode */}
             {mode === 'swipe' && (
               <div
                 className="relative w-full flex items-center justify-center overflow-hidden"
                 style={{ perspective: '2000px' }}
               >
-                <motion.div
-                  key={currentPage}
-                  className="relative w-full max-w-4xl"
-                  initial={{ rotateY: 90, opacity: 0 }}
-                  animate={{ rotateY: 0, opacity: 1 }}
-                  exit={{ rotateY: -90, opacity: 0 }}
-                  transition={{ duration: 0.6, ease: 'easeInOut' }}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  onDragEnd={(_, info) => {
-                    if (info.offset.x < -100) handleSwipe('left')
-                    if (info.offset.x > 100) handleSwipe('right')
-                  }}
-                  style={{
-                    transformOrigin: 'center left',
-                    boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <img
-                    src={images[currentPage]}
-                    alt={`Page ${currentPage + 1}`}
-                    className="w-full h-auto object-contain"
-                  />
-
+                <AnimatePresence mode="wait">
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"
-                    initial={{ opacity: 0.3 }}
-                    animate={{ opacity: [0.3, 0.1, 0.3] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                  />
-                </motion.div>
+                    key={currentPage}
+                    className="relative w-full max-w-4xl"
+                    initial={{ rotateY: 90, opacity: 0 }}
+                    animate={{ rotateY: 0, opacity: 1 }}
+                    exit={{ rotateY: -90, opacity: 0 }}
+                    transition={{ duration: 0.6, ease: 'easeInOut' }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    onDragEnd={(_, info) => {
+                      if (info.offset.x < -100) handleSwipe('left')
+                      if (info.offset.x > 100) handleSwipe('right')
+                    }}
+                    style={{
+                      transformOrigin: 'center left',
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <img
+                      src={images[currentPage]}
+                      alt={`Page ${currentPage + 1}`}
+                      className="w-full h-auto object-contain"
+                    />
+                  </motion.div>
+                </AnimatePresence>
 
-                {/* Page Counter */}
                 <div className="absolute bottom-4 right-4 bg-black/60 text-xs px-3 py-1 rounded-full">
                   {currentPage + 1} / {images.length}
                 </div>
@@ -226,7 +242,6 @@ export default function ReadPage() {
           </>
         )}
 
-        {/* Chapter Navigation */}
         <div className="flex justify-between items-center gap-4 mt-12">
           <button
             onClick={() => handleNavigation(prevId)}
@@ -240,7 +255,6 @@ export default function ReadPage() {
             <FiChevronLeft size={18} />
             Previous Chapter
           </button>
-
           <button
             onClick={() => handleNavigation(nextId)}
             disabled={!nextId}
@@ -256,7 +270,21 @@ export default function ReadPage() {
         </div>
       </main>
 
-      {/* Footer */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+        <button
+          onClick={toggleFullscreen}
+          className="p-3 rounded-full bg-neutral-800 hover:bg-neutral-700 shadow-lg"
+        >
+          {isFullscreen ? <MdFullscreenExit size={20} /> : <MdFullscreen size={20} />}
+        </button>
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="p-3 rounded-full bg-neutral-800 hover:bg-neutral-700 shadow-lg"
+        >
+          <MdArrowUpward size={20} />
+        </button>
+      </div>
+
       <footer className="text-center text-xs text-neutral-600 py-6 border-t border-neutral-800">
         ✨ End of Chapter ✨
       </footer>
