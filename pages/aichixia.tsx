@@ -70,15 +70,24 @@ export default function AichixiaPage() {
       const res = await fetch("/api/aichixia", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage.content }),
+        body: JSON.stringify({
+          message: userMessage.content,
+          history: messages.map((m) => ({
+            role: m.role,
+            content:
+              typeof m.content === "string"
+                ? m.content
+                : JSON.stringify(m.content),
+          })),
+        }),
       });
 
       const data = await res.json();
 
-      if (data.anime && Array.isArray(data.anime)) {
+      if (data.data && Array.isArray(data.data)) {
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", type: "anime", content: data.anime },
+          { role: "assistant", type: "anime", content: data.data },
         ]);
       } else {
         setMessages((prev) => [
