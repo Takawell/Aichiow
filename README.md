@@ -19,6 +19,9 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ### Landing Page
 ![Landing Page](https://i.ibb.co/213z6wMp/download-14.png)
 
+<details>
+<summary>More Screenshot</summary>
+
 ### Anime (Home)
 ![Anime Home](https://i.ibb.co/mrmZ8Vsr/home-anime.png)
 
@@ -37,6 +40,8 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 
 ### AND MUCH MORE
 
+</details>
+
 ---
 
 ## 🛠 Tech Stack
@@ -54,16 +59,29 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 
 ---
 
-## 💫 Author
-- **Author** [Takawell](https://github.com/Takawell/)
-
----
-
 ## 📄 License
 This project is licensed under the **MIT License**
 - see the [LICENSE](https://github.com/Takawell/Aichiow/blob/main/LICENSE)
  file for details.
 ---
+
+## .env.locale
+```bash
+# Supabase Project
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+# Feature flags
+MAINTENANCE_MODE=false
+
+# Example (optional if needed for other providers):
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+DISCORD_CLIENT_ID=
+DISCORD_CLIENT_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
 
 ## 📦 Installation
 ```bash
