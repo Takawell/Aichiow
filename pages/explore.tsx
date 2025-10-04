@@ -8,7 +8,8 @@ import AnimeCard from '@/components/anime/AnimeCard'
 import SectionTitle from '@/components/shared/SectionTitle'
 import GenreFilter from '@/components/shared/GenreFilter'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaSearch, FaArrowDown, FaCamera, FaSpinner, FaVideo } from 'react-icons/fa'
+import { FaSearch, FaArrowDown, FaSpinner } from 'react-icons/fa'
+import { LuScanLine } from 'react-icons/lu'
 import { searchAnimeByFile } from '@/lib/traceMoe'
 
 export default function ExplorePage() {
@@ -87,10 +88,10 @@ export default function ExplorePage() {
             <button
               type="button"
               onClick={() => setScanOpen(true)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-400 transition"
-              title="Cari anime dari gambar"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-400 hover:text-blue-300 transition"
+              title="Scan anime from image"
             >
-              <FaCamera size={18} />
+              <LuScanLine className="text-2xl animate-pulse" />
             </button>
           </div>
 
@@ -206,11 +207,11 @@ export default function ExplorePage() {
                 >
                   ✕
                 </button>
-                <h2 className="text-xl font-bold mb-3">🔍 Cari Anime dari Gambar</h2>
-                <p className="text-sm text-gray-400 mb-4">Upload screenshot untuk mendeteksi anime-nya.</p>
+                <h2 className="text-xl font-bold mb-3">🔍 Search Anime from Image</h2>
+                <p className="text-sm text-gray-400 mb-4">Upload a screenshot to detect the anime.</p>
 
                 <label className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl cursor-pointer transition">
-                  <FaCamera />
+                  <LuScanLine className="text-lg" />
                   <span>Pilih Gambar</span>
                   <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
                 </label>
@@ -222,22 +223,21 @@ export default function ExplorePage() {
                 )}
 
                 {!scanLoading && scanResults.length > 0 && (
-                  <div className="mt-5 grid gap-3 max-h-[60vh] overflow-y-auto">
+                  <div className="mt-5 grid gap-4 max-h-[60vh] overflow-y-auto">
                     {scanResults.map((r, i) => (
                       <div key={i} className="p-3 bg-gray-800/40 rounded-xl text-left">
-                        <img src={r.image} alt="scene" className="rounded-lg mb-2 w-full" />
+                        <video
+                          src={r.video}
+                          className="rounded-lg w-full mb-2"
+                          controls
+                          autoPlay
+                          muted
+                          loop
+                        />
                         <p className="font-semibold">{r.title?.romaji || r.title?.english}</p>
                         <p className="text-sm text-gray-400">
-                          Episode: {r.episode || '?'} | Akurasi: {(r.similarity * 100).toFixed(1)}%
+                          Episode: {r.episode || '?'} | Accuracy: {(r.similarity * 100).toFixed(1)}%
                         </p>
-                        <a
-                          href={r.video}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-blue-400 mt-1 hover:text-blue-300 transition"
-                        >
-                          <FaVideo /> Lihat Cuplikan
-                        </a>
                       </div>
                     ))}
                   </div>
