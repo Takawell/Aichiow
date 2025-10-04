@@ -1,3 +1,5 @@
+import { fetchAnimeDetail } from "@/lib/anilist" 
+
 export interface TraceMoeResult {
   anilist: number;
   filename: string;
@@ -12,6 +14,8 @@ export interface TraceMoeResult {
     romaji?: string;
     english?: string;
   };
+  coverImage?: string;
+  averageScore?: number;
 }
 
 export interface TraceMoeResponse {
@@ -25,7 +29,24 @@ export async function searchAnimeByImage(imageUrl: string): Promise<TraceMoeResu
     if (!res.ok) throw new Error("Failed to fetch trace.moe data");
 
     const data: TraceMoeResponse = await res.json();
-    return data.result || [];
+
+    const enriched = await Promise.all(
+      (data.result || []).map(async (r) => {
+        try {
+          const detail = await fetchAnimeDetail(r.anilist);
+          return {
+            ...r,
+            title: detail.title || r.title,
+            coverImage: detail.coverImage?.large,
+            averageScore: detail.averageScore,
+          };
+        } catch {
+          return r;
+        }
+      })
+    );
+
+    return enriched;
   } catch (err) {
     console.error("[trace.moe] searchAnimeByImage error:", err);
     return [];
@@ -45,7 +66,24 @@ export async function searchAnimeByFile(file: File): Promise<TraceMoeResult[]> {
     if (!res.ok) throw new Error("Failed to upload file to trace.moe");
 
     const data: TraceMoeResponse = await res.json();
-    return data.result || [];
+
+    const enriched = await Promise.all(
+      (data.result || []).map(async (r) => {
+        try {
+          const detail = await fetchAnimeDetail(r.anilist);
+          return {
+            ...r,
+            title: detail.title || r.title,
+            coverImage: detail.coverImage?.large,
+            averageScore: detail.averageScore,
+          };
+        } catch {
+          return r;
+        }
+      })
+    );
+
+    return enriched;
   } catch (err) {
     console.error("[trace.moe] searchAnimeByFile error:", err);
     return [];
