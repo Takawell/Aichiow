@@ -7,13 +7,17 @@ import { useSearchAnime } from '@/hooks/useSearchAnime'
 import AnimeCard from '@/components/anime/AnimeCard'
 import SectionTitle from '@/components/shared/SectionTitle'
 import GenreFilter from '@/components/shared/GenreFilter'
-import { motion } from 'framer-motion'
-import { FaSearch, FaArrowDown } from 'react-icons/fa'
+import { motion, AnimatePresence } from 'framer-motion'
+import { FaSearch, FaArrowDown, FaCamera, FaSpinner, FaVideo } from 'react-icons/fa'
+import { searchAnimeByFile } from '@/lib/traceMoe'
 
 export default function ExplorePage() {
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [input, setInput] = useState('')
+  const [scanOpen, setScanOpen] = useState(false)
+  const [scanResults, setScanResults] = useState<any[]>([])
+  const [scanLoading, setScanLoading] = useState(false)
 
   const { anime: exploreAnime, isLoading, loadMore, hasMore } = useExploreAnime()
   const { anime: searchAnime, isLoading: searchLoading } = useSearchAnime(query)
@@ -29,14 +33,27 @@ export default function ExplorePage() {
     setQuery(input.trim())
   }
 
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setScanLoading(true)
+    setScanResults([])
+
+    try {
+      const res = await searchAnimeByFile(file)
+      setScanResults(res)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setScanLoading(false)
+    }
+  }
+
   return (
     <>
       <Head>
         <title>Explore Anime | Aichiow</title>
-        <meta
-          name="description"
-          content="Discover and search for anime by genre, popularity, and more."
-        />
+        <meta name="description" content="Discover and search for anime by genre, popularity, and more." />
       </Head>
 
       <main className="bg-gradient-to-b from-[#0f0f10] via-[#111215] to-[#0a0a0a] min-h-screen text-white px-4 md:px-10 py-12">
@@ -57,16 +74,26 @@ export default function ExplorePage() {
           transition={{ delay: 0.2, duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <div className="relative w-full">
+          <div className="relative w-full flex-1">
             <input
               type="text"
               placeholder="Search for anime title..."
-              className="w-full pl-11 pr-4 py-3 bg-neutral-900 text-white rounded-lg border border-neutral-700 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all duration-300"
+              className="w-full pl-11 pr-12 py-3 bg-neutral-900 text-white rounded-lg border border-neutral-700 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all duration-300"
               value={input}
               onChange={(e) => setInput(e.target.value)}
             />
             <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500" />
+
+            <button
+              type="button"
+              onClick={() => setScanOpen(true)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-400 transition"
+              title="Cari anime dari gambar"
+            >
+              <FaCamera size={18} />
+            </button>
           </div>
+
           <button
             type="submit"
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold transition-all duration-300"
@@ -157,6 +184,68 @@ export default function ExplorePage() {
             You've reached the end of the list.
           </motion.p>
         )}
+
+        <AnimatePresence>
+          {scanOpen && (
+            <motion.div
+              className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="bg-neutral-900 rounded-2xl p-6 w-[90%] max-w-lg text-center relative"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <button
+                  onClick={() => setScanOpen(false)}
+                  className="absolute right-4 top-4 text-gray-400 hover:text-white transition"
+                >
+                  ✕
+                </button>
+                <h2 className="text-xl font-bold mb-3">🔍 Cari Anime dari Gambar</h2>
+                <p className="text-sm text-gray-400 mb-4">Upload screenshot untuk mendeteksi anime-nya.</p>
+
+                <label className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl cursor-pointer transition">
+                  <FaCamera />
+                  <span>Pilih Gambar</span>
+                  <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+                </label>
+
+                {scanLoading && (
+                  <div className="flex justify-center mt-6">
+                    <FaSpinner className="animate-spin text-blue-400 text-2xl" />
+                  </div>
+                )}
+
+                {!scanLoading && scanResults.length > 0 && (
+                  <div className="mt-5 grid gap-3 max-h-[60vh] overflow-y-auto">
+                    {scanResults.map((r, i) => (
+                      <div key={i} className="p-3 bg-gray-800/40 rounded-xl text-left">
+                        <img src={r.image} alt="scene" className="rounded-lg mb-2 w-full" />
+                        <p className="font-semibold">{r.title?.romaji || r.title?.english}</p>
+                        <p className="text-sm text-gray-400">
+                          Episode: {r.episode || '?'} | Akurasi: {(r.similarity * 100).toFixed(1)}%
+                        </p>
+                        <a
+                          href={r.video}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-blue-400 mt-1 hover:text-blue-300 transition"
+                        >
+                          <FaVideo /> Lihat Cuplikan
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </>
   )
