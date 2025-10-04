@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Head from 'next/head'
+import Link from 'next/link'
 import { useExploreAnime } from '@/hooks/useExploreAnime'
 import { useSearchAnime } from '@/hooks/useSearchAnime'
 import AnimeCard from '@/components/anime/AnimeCard'
@@ -143,7 +144,7 @@ export default function ExplorePage() {
                 </motion.div>
               ))}
         </motion.div>
-
+        
         {query && !searchLoading && filtered.length === 0 && (
           <motion.p
             className="text-center text-zinc-400 mt-10"
@@ -212,7 +213,7 @@ export default function ExplorePage() {
 
                 <label className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl cursor-pointer transition">
                   <LuScanLine className="text-lg" />
-                  <span>Pilih Gambar</span>
+                  <span>Select Image</span>
                   <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
                 </label>
 
@@ -225,7 +226,13 @@ export default function ExplorePage() {
                 {!scanLoading && scanResults.length > 0 && (
                   <div className="mt-5 grid gap-4 max-h-[60vh] overflow-y-auto">
                     {scanResults.map((r, i) => (
-                      <div key={i} className="p-3 bg-gray-800/40 rounded-xl text-left">
+                      <motion.div
+                        key={i}
+                        className="p-3 bg-gray-800/40 rounded-xl text-left"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
                         <video
                           src={r.video}
                           className="rounded-lg w-full mb-2"
@@ -238,7 +245,17 @@ export default function ExplorePage() {
                         <p className="text-sm text-gray-400">
                           Episode: {r.episode || '?'} | Accuracy: {(r.similarity * 100).toFixed(1)}%
                         </p>
-                      </div>
+
+                        {r.anilist && (
+                          <Link
+                            href={`/anime/${r.anilist}`}
+                            className="mt-3 inline-block text-blue-400 hover:text-blue-300 font-medium transition"
+                            onClick={() => setScanOpen(false)}
+                          >
+                            ➜ View Anime Details
+                          </Link>
+                        )}
+                      </motion.div>
                     ))}
                   </div>
                 )}
