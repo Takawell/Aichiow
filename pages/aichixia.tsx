@@ -1,11 +1,15 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner, FaImage } from "react-icons/fa";
+import { LuScanLine } from "react-icons/lu";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { supabase } from "@/lib/supabaseClient";
+import { searchAnimeByFile } from "@/lib/traceMoe";
 
 interface AnimeData {
   id: number;
@@ -18,8 +22,8 @@ interface AnimeData {
 
 interface Message {
   role: "user" | "assistant";
-  type?: "text" | "anime";
-  content: string | AnimeData[];
+  type?: "text" | "anime" | "scan";
+  content: string | AnimeData[] | any[];
 }
 
 export default function AichixiaPage() {
@@ -28,12 +32,16 @@ export default function AichixiaPage() {
       role: "assistant",
       type: "text",
       content:
-        "Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. What would you like to explore today?",
+        "👋 Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat, or scan an anime screenshot to identify it instantly!",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<any>(null);
+  const [scanOpen, setScanOpen] = useState(false);
+  const [scanLoading, setScanLoading] = useState(false);
+  const [scanResults, setScanResults] = useState<any[]>([]);
+
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -57,6 +65,37 @@ export default function AichixiaPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setScanLoading(true);
+    setScanResults([]);
+    setScanOpen(false);
+
+    try {
+      const res = await searchAnimeByFile(file);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          type: "scan",
+          content: res,
+        },
+      ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          type: "text",
+          content: "❌ Failed to detect anime from the image.",
+        },
+      ]);
+    } finally {
+      setScanLoading(false);
+    }
+  }
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -99,14 +138,13 @@ export default function AichixiaPage() {
           },
         ]);
       }
-    } catch (err) {
-      console.error("Chat error:", err);
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
           type: "text",
-          content: "❌ An error occurred while processing your request.",
+          content: "❌ Error while connecting to Aichixia.",
         },
       ]);
     } finally {
@@ -122,33 +160,33 @@ export default function AichixiaPage() {
   };
 
   return (
-    <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-[#071029] via-[#0f172a] to-[#071026] text-sky-100">
+    <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-[#050b1b] via-[#0a1228] to-[#050b1b] text-sky-100">
       <div className="w-full max-w-5xl flex flex-col h-screen mx-4 sm:mx-6 lg:mx-8">
-        <header className="p-4 border-b border-sky-800 bg-black/20 backdrop-blur-md rounded-b-xl shadow-md flex items-center gap-4 sticky top-4 z-20 mx-auto">
+        <header className="p-4 border-b border-sky-800 bg-black/20 backdrop-blur-md rounded-b-xl shadow-md flex items-center justify-between sticky top-4 z-20 mx-auto">
           <div className="flex items-center gap-3">
             <div className="relative w-12 h-12 rounded-full ring-2 ring-sky-500 overflow-hidden shadow-lg">
-              <Image
-                src="/aichixia.png"
-                alt="Aichixia"
-                fill
-                style={{ objectFit: "cover" }}
-              />
+              <Image src="/aichixia.png" alt="Aichixia" fill className="object-cover" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-300 to-blue-500">
+              <h1 className="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-sky-300 to-blue-500 bg-clip-text text-transparent">
                 Aichixia Assistant
               </h1>
               <p className="text-xs sm:text-sm text-sky-300/80 mt-0.5">
-                Your AI guide for anime, manga, manhwa & light novels
+                Chat, Explore, or Identify Anime from Screenshot
               </p>
             </div>
           </div>
+
+          <button
+            onClick={() => setScanOpen(true)}
+            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-sky-500 px-4 py-2 rounded-full font-semibold hover:from-blue-500 hover:to-sky-400 transition-all duration-300 shadow-lg hover:shadow-sky-500/40"
+          >
+            <LuScanLine className="text-xl" />
+            <span className="hidden sm:inline">Scan Image</span>
+          </button>
         </header>
 
-        <section
-          className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-4"
-          style={{ WebkitOverflowScrolling: "touch" }}
-        >
+        <section className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-4">
           {messages.map((msg, i) => (
             <motion.div
               key={i}
@@ -159,99 +197,15 @@ export default function AichixiaPage() {
                 msg.role === "user" ? "items-end" : "items-start"
               }`}
             >
-              {msg.role === "assistant" && (
-                <div className="flex-shrink-0 mb-1">
-                  <div className="relative w-10 h-10 rounded-full ring-2 ring-sky-600 overflow-hidden shadow-lg">
-                    <Image
-                      src="/aichixia.png"
-                      alt="bot"
-                      fill
-                      style={{ objectFit: "cover" }}
-                    />
-                  </div>
-                </div>
-              )}
-
               {msg.type === "text" && (
                 <div
-                  className={`px-4 py-3 rounded-2xl max-w-[78%] sm:max-w-[72%] md:max-w-[60%] text-sm sm:text-base leading-relaxed shadow-md
-                    ${
-                      msg.role === "user"
-                        ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded-br-2xl rounded-tl-2xl"
-                        : "bg-gradient-to-br from-[#081122]/80 to-[#0b1724]/60 text-sky-100 border border-sky-700/40 backdrop-blur-sm"
-                    }
-                  `}
+                  className={`px-4 py-3 rounded-2xl max-w-[80%] text-sm sm:text-base shadow-md ${
+                    msg.role === "user"
+                      ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white"
+                      : "bg-[#0b152e]/80 border border-sky-700/40 backdrop-blur-sm"
+                  }`}
                 >
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      img: ({ src, alt }) => {
-                        if (src?.startsWith("https://s4.anilist.co/")) {
-                          const animeId = alt?.match(/^\d+$/) ? alt : null;
-                          return animeId ? (
-                            <Link href={`/anime/${animeId}`}>
-                              <Image
-                                src={src}
-                                alt={alt || "anime"}
-                                width={400}
-                                height={300}
-                                className="rounded-lg my-2 cursor-pointer hover:opacity-90 transition"
-                              />
-                            </Link>
-                          ) : (
-                            <Image
-                              src={src}
-                              alt={alt || "image"}
-                              width={400}
-                              height={300}
-                              className="rounded-lg my-2"
-                            />
-                          );
-                        }
-                        return (
-                          <Image
-                            src={src || "/default.png"}
-                            alt={alt || "image"}
-                            width={400}
-                            height={300}
-                            className="rounded-lg my-2"
-                          />
-                        );
-                      },
-                      a: ({ href, children }) => {
-                        if (href?.startsWith("https://anilist.co/anime/")) {
-                          const idMatch = href.match(/anime\/(\d+)/);
-                          const animeId = idMatch ? idMatch[1] : null;
-                          return animeId ? (
-                            <Link href={`/anime/${animeId}`}>
-                              <span className="text-sky-400 underline hover:text-sky-300 cursor-pointer">
-                                {children}
-                              </span>
-                            </Link>
-                          ) : (
-                            <a
-                              href={href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sky-400 underline hover:text-sky-300"
-                            >
-                              {children}
-                            </a>
-                          );
-                        }
-                        return (
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sky-400 underline hover:text-sky-300"
-                          >
-                            {children}
-                          </a>
-                        );
-                      },
-                    }}
-                  >
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {msg.content as string}
                   </ReactMarkdown>
                 </div>
@@ -279,25 +233,46 @@ export default function AichixiaPage() {
                         <p className="text-xs text-sky-400 mt-1">
                           ⭐ {anime.score} | 👥 {anime.popularity}
                         </p>
-                        <span className="text-xs text-sky-300 underline mt-2 block">
-                          See more
-                        </span>
                       </div>
                     </Link>
                   ))}
                 </div>
               )}
 
-              {msg.role === "user" && (
-                <div className="flex-shrink-0 mt-1">
-                  <div className="relative w-10 h-10 rounded-full ring-2 ring-sky-500 overflow-hidden shadow">
-                    <Image
-                      src="/default.png"
-                      alt="user"
-                      fill
-                      style={{ objectFit: "cover" }}
-                    />
-                  </div>
+              {msg.type === "scan" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                  {(msg.content as any[]).map((r, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="bg-white/5 border border-sky-700/30 rounded-xl overflow-hidden shadow-lg hover:border-sky-500/50 transition-all duration-300"
+                    >
+                      <video
+                        src={r.video}
+                        className="rounded-t-xl w-full h-40 object-cover"
+                        controls
+                        muted
+                      />
+                      <div className="p-3">
+                        <h3 className="font-semibold text-sky-200">
+                          {r.title?.romaji || r.title?.english || "Unknown Title"}
+                        </h3>
+                        <p className="text-xs text-sky-400 mt-1">
+                          Episode {r.episode || "?"} · {(r.similarity * 100).toFixed(1)}%
+                        </p>
+                        {r.anilist && (
+                          <Link
+                            href={`/anime/${r.anilist}`}
+                            className="text-xs text-sky-400 hover:text-sky-300 underline mt-2 block"
+                          >
+                            → View Anime Detail
+                          </Link>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               )}
             </motion.div>
@@ -305,69 +280,75 @@ export default function AichixiaPage() {
 
           {loading && (
             <div className="flex items-center gap-2 text-sky-300">
-              <FaSpinner className="animate-spin" />{" "}
-              <span>Aichixia is typing...</span>
+              <FaSpinner className="animate-spin" />
+              <span>Aichixia is thinking...</span>
             </div>
           )}
           <div ref={messagesEndRef} />
         </section>
 
         <footer className="p-4 bg-gradient-to-t from-[#071026]/60 via-transparent backdrop-blur-sm sticky bottom-4 mx-4 sm:mx-6 lg:mx-8 rounded-xl">
-          {session ? (
-            <div className="flex gap-3 items-center">
-              <input
-                type="text"
-                placeholder="Type your message here..."
-                className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={loading}
-              />
-              <button
-                onClick={sendMessage}
-                disabled={loading || !input.trim()}
-                className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 hover:shadow-lg hover:ring-2 hover:ring-sky-400 active:scale-95 transition font-semibold text-white disabled:opacity-60"
-                title="Send"
-              >
-                {loading ? (
-                  <FaSpinner className="animate-spin" />
-                ) : (
-                  <FaPaperPlane />
-                )}
-                <span className="hidden sm:inline">Send</span>
-              </button>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-              >
-                <Link href="/auth/login">
-                  <motion.button
-                    whileHover={{ scale: 1.08, boxShadow: "0 0 25px rgba(56,189,248,0.7)" }}
-                    whileTap={{ scale: 0.95 }}
-                    animate={{ 
-                      y: [0, -5, 0],
-                      transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } 
-                    }}
-                    className="relative inline-flex items-center justify-center px-8 py-3 rounded-full 
-                               bg-gradient-to-r from-sky-500 via-blue-500 to-sky-600
-                               text-white font-bold shadow-lg overflow-hidden"
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      🚀 Sign in to use Aichixia
-                    </span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-sky-400/40 to-blue-400/40 blur-xl animate-pulse"></span>
-                  </motion.button>
-                </Link>
-              </motion.div>
-            </div>
-          )}
+          <div className="flex gap-3 items-center">
+            <input
+              type="text"
+              placeholder="Type your message..."
+              className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={loading}
+            />
+            <label className="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 p-3 rounded-full cursor-pointer shadow-lg hover:shadow-sky-500/40 transition">
+              <FaImage className="text-white text-lg" />
+              <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+            </label>
+            <button
+              onClick={sendMessage}
+              disabled={loading || !input.trim()}
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 hover:shadow-lg hover:ring-2 hover:ring-sky-400 active:scale-95 transition font-semibold text-white disabled:opacity-60"
+            >
+              {loading ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
+            </button>
+          </div>
         </footer>
       </div>
+
+      <AnimatePresence>
+        {scanOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/70 backdrop-blur-xl flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-gradient-to-b from-[#151518]/90 to-[#0f0f10]/90 rounded-3xl p-8 w-[90%] max-w-md text-center shadow-2xl border border-white/10"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <h2 className="text-2xl font-bold text-sky-300 mb-3">
+                Upload Screenshot
+              </h2>
+              <p className="text-sky-400 text-sm mb-6">
+                Aichixia will detect which anime it's from!
+              </p>
+              <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-500 hover:to-sky-500 text-white rounded-xl font-semibold transition-all duration-300 hover:scale-[1.03]">
+                <LuScanLine className="text-lg" />
+                <span>Choose Image</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+              </label>
+              <button
+                onClick={() => setScanOpen(false)}
+                className="mt-6 text-sky-400 hover:text-sky-200 transition text-sm"
+              >
+                Cancel
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
