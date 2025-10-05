@@ -70,7 +70,7 @@ export default function AichixiaPage() {
     if (pendingImage) {
       newMessages.push({
         role: "user",
-        type: "scan",
+        type: "text",
         content: pendingImage,
       });
     }
@@ -170,21 +170,12 @@ export default function AichixiaPage() {
               </p>
             </div>
           </div>
-          {session ? (
-            <button
-              onClick={() => setScanOpen(true)}
-              className="bg-gradient-to-r from-blue-600 to-sky-500 p-2 rounded-full hover:scale-105 shadow-md transition"
-            >
-              <LuScanLine className="text-lg" />
-            </button>
-          ) : (
-            <Link
-              href="/auth/login"
-              className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-500 rounded-xl text-white text-sm hover:scale-105 transition shadow-md"
-            >
-              Login to access Aichixia
-            </Link>
-          )}
+          <button
+            onClick={() => setScanOpen(true)}
+            className="bg-gradient-to-r from-blue-600 to-sky-500 p-2 rounded-full hover:scale-105 shadow-md transition"
+          >
+            <LuScanLine className="text-lg" />
+          </button>
         </header>
 
         <section className="flex-1 overflow-y-auto py-4 space-y-4 scrollbar-thin scrollbar-thumb-sky-700/50 scrollbar-track-transparent">
@@ -213,19 +204,6 @@ export default function AichixiaPage() {
               )}
 
               {msg.type === "scan" && (
-                <div className="flex justify-center">
-                  <div className="relative w-48 h-48 border border-sky-700/50 rounded-xl overflow-hidden shadow-md">
-                    <Image
-                      src={msg.content as string}
-                      alt="Uploaded scan"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {msg.type === "anime" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                   {(msg.content as any[]).map((r, idx) => (
                     <div
@@ -300,7 +278,7 @@ export default function AichixiaPage() {
       </div>
 
       <AnimatePresence>
-        {scanOpen && session && (
+        {scanOpen && (
           <motion.div
             className="fixed inset-0 bg-black/70 backdrop-blur-xl flex items-center justify-center z-50"
             initial={{ opacity: 0 }}
