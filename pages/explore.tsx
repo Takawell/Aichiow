@@ -25,10 +25,7 @@ export default function ExplorePage() {
   const { anime: searchAnime, isLoading: searchLoading } = useSearchAnime(query)
 
   const animeData = query ? searchAnime : exploreAnime
-
-  const filtered = selectedGenre
-    ? animeData.filter((a) => a.genres.includes(selectedGenre))
-    : animeData
+  const filtered = selectedGenre ? animeData.filter((a) => a.genres.includes(selectedGenre)) : animeData
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -58,13 +55,8 @@ export default function ExplorePage() {
         <meta name="description" content="Discover and search for anime by genre, popularity, and more." />
       </Head>
 
-      <main className="bg-gradient-to-b from-[#0f0f10] via-[#111215] to-[#0a0a0a] min-h-screen text-white px-4 md:px-10 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
+      <main className="bg-gradient-to-b from-[#0d0d10] via-[#111215] to-[#0a0a0a] min-h-screen text-white px-4 md:px-10 py-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <SectionTitle title="💫 Explore Anime" />
         </motion.div>
 
@@ -72,15 +64,14 @@ export default function ExplorePage() {
           onSubmit={handleSubmit}
           className="mt-8 mb-6 flex flex-col sm:flex-row items-stretch gap-3"
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          viewport={{ once: true }}
         >
           <div className="relative w-full flex-1">
             <input
               type="text"
               placeholder="Search for anime title..."
-              className="w-full pl-11 pr-12 py-3 bg-neutral-900 text-white rounded-lg border border-neutral-700 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all duration-300"
+              className="w-full pl-11 pr-12 py-3 bg-neutral-900/80 text-white rounded-lg border border-neutral-700 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all duration-300 backdrop-blur-sm"
               value={input}
               onChange={(e) => setInput(e.target.value)}
             />
@@ -98,19 +89,14 @@ export default function ExplorePage() {
 
           <button
             type="submit"
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold transition-all duration-300"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-lg text-white font-semibold transition-all duration-300 shadow-lg shadow-blue-700/30"
           >
             Search
           </button>
         </motion.form>
 
         {!query && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            viewport={{ once: true }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <GenreFilter selected={selectedGenre} onSelect={setSelectedGenre} />
           </motion.div>
         )}
@@ -118,9 +104,8 @@ export default function ExplorePage() {
         <motion.div
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 mt-8"
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          viewport={{ once: true }}
         >
           {(isLoading || searchLoading) && animeData.length === 0
             ? [...Array(15)].map((_, i) => (
@@ -144,7 +129,7 @@ export default function ExplorePage() {
                 </motion.div>
               ))}
         </motion.div>
-        
+
         {query && !searchLoading && filtered.length === 0 && (
           <motion.p
             className="text-center text-zinc-400 mt-10"
@@ -152,8 +137,7 @@ export default function ExplorePage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            No results found for{' '}
-            <span className="text-white font-semibold">"{query}"</span>.
+            No results found for <span className="text-white font-semibold">"{query}"</span>.
           </motion.p>
         )}
 
@@ -161,14 +145,13 @@ export default function ExplorePage() {
           <motion.div
             className="mt-12 flex justify-center"
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            viewport={{ once: true }}
           >
             <button
               onClick={loadMore}
               disabled={isLoading}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all duration-300 shadow-lg"
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 transition-all duration-300 shadow-lg shadow-blue-700/30"
             >
               <FaArrowDown className="text-white" />
               {isLoading ? 'Loading...' : 'Load More'}
@@ -190,74 +173,113 @@ export default function ExplorePage() {
         <AnimatePresence>
           {scanOpen && (
             <motion.div
-              className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50"
+              className="fixed inset-0 bg-black/70 backdrop-blur-xl flex items-center justify-center z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
               <motion.div
-                className="bg-neutral-900 rounded-2xl p-6 w-[90%] max-w-lg text-center relative"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                transition={{ duration: 0.2 }}
+                className="relative w-[90%] max-w-2xl bg-gradient-to-b from-[#151518]/80 to-[#0f0f10]/90 rounded-3xl shadow-2xl border border-white/10 p-8 backdrop-blur-lg overflow-hidden"
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ duration: 0.25 }}
               >
                 <button
                   onClick={() => setScanOpen(false)}
-                  className="absolute right-4 top-4 text-gray-400 hover:text-white transition"
+                  className="absolute right-5 top-5 text-neutral-400 hover:text-white transition text-2xl"
                 >
                   ✕
                 </button>
-                <h2 className="text-xl font-bold mb-3">🔍 Search Anime from Image</h2>
-                <p className="text-sm text-gray-400 mb-4">Upload a screenshot to detect the anime.</p>
 
-                <label className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl cursor-pointer transition">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+                    🔍 Search Anime from Image
+                  </h2>
+                  <p className="text-sm text-neutral-400 mt-1">
+                    Upload a screenshot to detect the anime instantly
+                  </p>
+                </div>
+
+                <label className="relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-blue-700/30">
                   <LuScanLine className="text-lg" />
-                  <span>Select Image</span>
-                  <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+                  <span>Choose Image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
                 </label>
 
                 {scanLoading && (
-                  <div className="flex justify-center mt-6">
-                    <FaSpinner className="animate-spin text-blue-400 text-2xl" />
-                  </div>
+                  <motion.div
+                    className="flex flex-col items-center justify-center mt-8"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <FaSpinner className="animate-spin text-blue-400 text-3xl mb-2" />
+                    <p className="text-neutral-400 text-sm">Analyzing your image...</p>
+                  </motion.div>
                 )}
 
                 {!scanLoading && scanResults.length > 0 && (
-                  <div className="mt-5 grid gap-4 max-h-[60vh] overflow-y-auto">
+                  <motion.div
+                    className="mt-6 grid gap-5 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-600/50 scrollbar-track-transparent"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                  >
                     {scanResults.map((r, i) => (
                       <motion.div
                         key={i}
-                        className="p-3 bg-gray-800/40 rounded-xl text-left"
+                        className="relative p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/40 transition-all duration-300 hover:shadow-[0_0_20px_-5px_rgba(59,130,246,0.3)] group"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
+                        transition={{ delay: i * 0.1 }}
                       >
-                        <video
-                          src={r.video}
-                          className="rounded-lg w-full mb-2"
-                          controls
-                          autoPlay
-                          muted
-                          loop
-                        />
-                        <p className="font-semibold">{r.title?.romaji || r.title?.english}</p>
-                        <p className="text-sm text-gray-400">
-                          Episode: {r.episode || '?'} | Accuracy: {(r.similarity * 100).toFixed(1)}%
-                        </p>
+                        <div className="overflow-hidden rounded-xl">
+                          <video
+                            src={r.video}
+                            className="rounded-xl w-full group-hover:scale-[1.02] transition-all duration-300"
+                            controls
+                            autoPlay
+                            muted
+                            loop
+                          />
+                        </div>
 
-                        {r.anilist && (
-                          <Link
-                            href={`/anime/${r.anilist}`}
-                            className="mt-3 inline-block text-blue-400 hover:text-blue-300 font-medium transition"
-                            onClick={() => setScanOpen(false)}
-                          >
-                            ➜ View Anime Details
-                          </Link>
-                        )}
+                        <div className="mt-3">
+                          <p className="font-semibold text-white">
+                            {r.title?.romaji || r.title?.english || 'Unknown Title'}
+                          </p>
+                          <p className="text-sm text-neutral-400">
+                            Episode {r.episode || '?'} · Accuracy {(r.similarity * 100).toFixed(1)}%
+                          </p>
+
+                          {r.anilist && (
+                            <Link
+                              href={`/anime/${r.anilist}`}
+                              onClick={() => setScanOpen(false)}
+                              className="inline-block mt-3 text-blue-400 hover:text-blue-300 font-medium transition-all"
+                            >
+                              → View on AniList
+                            </Link>
+                          )}
+                        </div>
                       </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
+                )}
+
+                {!scanLoading && scanResults.length === 0 && (
+                  <motion.p
+                    className="text-neutral-400 mt-6 text-sm text-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    No results yet. Try uploading an image!
+                  </motion.p>
                 )}
               </motion.div>
             </motion.div>
