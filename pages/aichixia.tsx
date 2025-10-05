@@ -32,7 +32,7 @@ export default function AichixiaPage() {
       role: "assistant",
       type: "text",
       content:
-        "👋 Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot via Scan button to identify an anime instantly!",
+        "Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot via Scan button to identify an anime instantly!",
     },
   ]);
   const [input, setInput] = useState("");
@@ -43,14 +43,12 @@ export default function AichixiaPage() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // 🔹 Check user login session
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
     };
     checkSession();
-
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_event, session) => setSession(session)
     );
@@ -72,15 +70,14 @@ export default function AichixiaPage() {
     if (pendingImage) {
       newMessages.push({
         role: "user",
-        type: "text",
-        content: "📸 Uploaded an image for scan...",
+        type: "scan",
+        content: pendingImage,
       });
     }
 
     setMessages(newMessages);
     setInput("");
     setLoading(true);
-    setScanOpen(false);
 
     try {
       if (pendingImage) {
@@ -162,12 +159,7 @@ export default function AichixiaPage() {
         <header className="p-4 border-b border-sky-800 bg-black/20 backdrop-blur-md rounded-b-xl shadow-md flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-full ring-2 ring-sky-500 overflow-hidden shadow-lg">
-              <Image
-                src="/aichixia.png"
-                alt="Aichixia"
-                fill
-                className="object-cover"
-              />
+              <Image src="/aichixia.png" alt="Aichixia" fill className="object-cover" />
             </div>
             <div>
               <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-sky-300 to-blue-500 bg-clip-text text-transparent">
@@ -178,16 +170,21 @@ export default function AichixiaPage() {
               </p>
             </div>
           </div>
-
-          <button
-            onClick={() =>
-              session ? setScanOpen(true) : (window.location.href = "/auth/login")
-            }
-            className="bg-gradient-to-r from-blue-600 to-sky-500 p-2 rounded-full hover:scale-105 shadow-md transition"
-            title="Scan Anime from Image"
-          >
-            <LuScanLine className="text-lg" />
-          </button>
+          {session ? (
+            <button
+              onClick={() => setScanOpen(true)}
+              className="bg-gradient-to-r from-blue-600 to-sky-500 p-2 rounded-full hover:scale-105 shadow-md transition"
+            >
+              <LuScanLine className="text-lg" />
+            </button>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-500 rounded-xl text-white text-sm hover:scale-105 transition shadow-md"
+            >
+              Login to access Aichixia
+            </Link>
+          )}
         </header>
 
         <section className="flex-1 overflow-y-auto py-4 space-y-4 scrollbar-thin scrollbar-thumb-sky-700/50 scrollbar-track-transparent">
@@ -216,6 +213,19 @@ export default function AichixiaPage() {
               )}
 
               {msg.type === "scan" && (
+                <div className="flex justify-center">
+                  <div className="relative w-48 h-48 border border-sky-700/50 rounded-xl overflow-hidden shadow-md">
+                    <Image
+                      src={msg.content as string}
+                      alt="Uploaded scan"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {msg.type === "anime" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                   {(msg.content as any[]).map((r, idx) => (
                     <div
@@ -234,8 +244,7 @@ export default function AichixiaPage() {
                             {r.title?.romaji || r.title?.english || "Unknown"}
                           </h3>
                           <p className="text-xs text-sky-400 mt-1">
-                            Episode {r.episode || "?"} ·{" "}
-                            {(r.similarity * 100).toFixed(1)}%
+                            Episode {r.episode || "?"} · {(r.similarity * 100).toFixed(1)}%
                           </p>
                         </div>
                         {r.anilist && (
@@ -265,44 +274,33 @@ export default function AichixiaPage() {
         </section>
 
         <footer className="p-3 bg-[#071026]/60 backdrop-blur-sm sticky bottom-0 rounded-t-xl border-t border-sky-800/30">
-          {session ? (
-            <div className="flex gap-2 items-center">
-              <input
-                type="text"
-                placeholder="Type your message..."
-                className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={loading}
-              />
-              <button
-                onClick={sendMessage}
-                disabled={loading}
-                className="p-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-105 transition shadow-lg disabled:opacity-50"
-              >
-                {loading ? (
-                  <FaSpinner className="animate-spin text-white" />
-                ) : (
-                  <FaPaperPlane className="text-white" />
-                )}
-              </button>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <Link
-                href="/auth/login"
-                className="px-6 py-3 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-xl shadow-md hover:scale-105 transition font-semibold"
-              >
-                Login to Chat or Scan
-              </Link>
-            </div>
-          )}
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              placeholder="Type your message..."
+              className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={loading}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={loading}
+              className="p-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-105 transition shadow-lg disabled:opacity-50"
+            >
+              {loading ? (
+                <FaSpinner className="animate-spin text-white" />
+              ) : (
+                <FaPaperPlane className="text-white" />
+              )}
+            </button>
+          </div>
         </footer>
       </div>
 
       <AnimatePresence>
-        {scanOpen && (
+        {scanOpen && session && (
           <motion.div
             className="fixed inset-0 bg-black/70 backdrop-blur-xl flex items-center justify-center z-50"
             initial={{ opacity: 0 }}
@@ -322,25 +320,34 @@ export default function AichixiaPage() {
                 Aichixia will detect which anime it's from!
               </p>
 
-              {session ? (
-                <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300">
-                  <LuScanLine className="text-lg" />
-                  <span>Choose Image</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileSelect}
-                  />
-                </label>
-              ) : (
-                <Link
-                  href="/auth/login"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-sky-800/60 text-sky-400 rounded-xl font-semibold cursor-not-allowed"
-                >
-                  <LuScanLine className="text-lg" />
-                  <span>Login Required</span>
-                </Link>
+              <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300">
+                <LuScanLine className="text-lg" />
+                <span>Choose Image</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+              </label>
+
+              {pendingImage && (
+                <div className="mt-5 relative w-full flex justify-center">
+                  <div className="relative w-48 h-48 border border-sky-700/50 rounded-xl overflow-hidden shadow-md">
+                    <Image
+                      src={pendingImage}
+                      alt="preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <button
+                      onClick={() => setPendingImage(null)}
+                      className="absolute top-1 right-1 bg-black/50 rounded-full p-1 hover:bg-black/70 transition"
+                    >
+                      <FaTimes className="text-white text-sm" />
+                    </button>
+                  </div>
+                </div>
               )}
 
               <div className="mt-6 flex justify-center gap-3">
