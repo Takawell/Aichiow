@@ -71,7 +71,7 @@ export default function AichixiaPage() {
       newMessages.push({
         role: "user",
         type: "text",
-        content: pendingImage,
+        content: "Detecting for this image...",
       });
     }
 
