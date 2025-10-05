@@ -263,7 +263,7 @@ export default function ExplorePage() {
                               onClick={() => setScanOpen(false)}
                               className="inline-block mt-3 text-blue-400 hover:text-blue-300 font-medium transition-all"
                             >
-                              → View on AniList
+                              → View anime detail
                             </Link>
                           )}
                         </div>
