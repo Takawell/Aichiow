@@ -43,12 +43,14 @@ export default function AichixiaPage() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  // 🔹 Check user login session
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
     };
     checkSession();
+
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_event, session) => setSession(session)
     );
@@ -78,6 +80,7 @@ export default function AichixiaPage() {
     setMessages(newMessages);
     setInput("");
     setLoading(true);
+    setScanOpen(false);
 
     try {
       if (pendingImage) {
@@ -159,7 +162,12 @@ export default function AichixiaPage() {
         <header className="p-4 border-b border-sky-800 bg-black/20 backdrop-blur-md rounded-b-xl shadow-md flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-full ring-2 ring-sky-500 overflow-hidden shadow-lg">
-              <Image src="/aichixia.png" alt="Aichixia" fill className="object-cover" />
+              <Image
+                src="/aichixia.png"
+                alt="Aichixia"
+                fill
+                className="object-cover"
+              />
             </div>
             <div>
               <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-sky-300 to-blue-500 bg-clip-text text-transparent">
@@ -170,9 +178,13 @@ export default function AichixiaPage() {
               </p>
             </div>
           </div>
+
           <button
-            onClick={() => setScanOpen(true)}
+            onClick={() =>
+              session ? setScanOpen(true) : (window.location.href = "/auth/login")
+            }
             className="bg-gradient-to-r from-blue-600 to-sky-500 p-2 rounded-full hover:scale-105 shadow-md transition"
+            title="Scan Anime from Image"
           >
             <LuScanLine className="text-lg" />
           </button>
@@ -222,7 +234,8 @@ export default function AichixiaPage() {
                             {r.title?.romaji || r.title?.english || "Unknown"}
                           </h3>
                           <p className="text-xs text-sky-400 mt-1">
-                            Episode {r.episode || "?"} · {(r.similarity * 100).toFixed(1)}%
+                            Episode {r.episode || "?"} ·{" "}
+                            {(r.similarity * 100).toFixed(1)}%
                           </p>
                         </div>
                         {r.anilist && (
@@ -252,28 +265,39 @@ export default function AichixiaPage() {
         </section>
 
         <footer className="p-3 bg-[#071026]/60 backdrop-blur-sm sticky bottom-0 rounded-t-xl border-t border-sky-800/30">
-          <div className="flex gap-2 items-center">
-            <input
-              type="text"
-              placeholder="Type your message..."
-              className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={loading}
-            />
-            <button
-              onClick={sendMessage}
-              disabled={loading}
-              className="p-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-105 transition shadow-lg disabled:opacity-50"
-            >
-              {loading ? (
-                <FaSpinner className="animate-spin text-white" />
-              ) : (
-                <FaPaperPlane className="text-white" />
-              )}
-            </button>
-          </div>
+          {session ? (
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                placeholder="Type your message..."
+                className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={loading}
+                className="p-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-105 transition shadow-lg disabled:opacity-50"
+              >
+                {loading ? (
+                  <FaSpinner className="animate-spin text-white" />
+                ) : (
+                  <FaPaperPlane className="text-white" />
+                )}
+              </button>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <Link
+                href="/auth/login"
+                className="px-6 py-3 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-xl shadow-md hover:scale-105 transition font-semibold"
+              >
+                Login to Chat or Scan
+              </Link>
+            </div>
+          )}
         </footer>
       </div>
 
@@ -298,34 +322,25 @@ export default function AichixiaPage() {
                 Aichixia will detect which anime it's from!
               </p>
 
-              <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300">
-                <LuScanLine className="text-lg" />
-                <span>Choose Image</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-              </label>
-
-              {pendingImage && (
-                <div className="mt-5 relative w-full flex justify-center">
-                  <div className="relative w-48 h-48 border border-sky-700/50 rounded-xl overflow-hidden shadow-md">
-                    <Image
-                      src={pendingImage}
-                      alt="preview"
-                      fill
-                      className="object-cover"
-                    />
-                    <button
-                      onClick={() => setPendingImage(null)}
-                      className="absolute top-1 right-1 bg-black/50 rounded-full p-1 hover:bg-black/70 transition"
-                    >
-                      <FaTimes className="text-white text-sm" />
-                    </button>
-                  </div>
-                </div>
+              {session ? (
+                <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300">
+                  <LuScanLine className="text-lg" />
+                  <span>Choose Image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                </label>
+              ) : (
+                <Link
+                  href="/auth/login"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-sky-800/60 text-sky-400 rounded-xl font-semibold cursor-not-allowed"
+                >
+                  <LuScanLine className="text-lg" />
+                  <span>Login Required</span>
+                </Link>
               )}
 
               <div className="mt-6 flex justify-center gap-3">
