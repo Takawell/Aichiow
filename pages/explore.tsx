@@ -76,7 +76,6 @@ export default function ExplorePage() {
               onChange={(e) => setInput(e.target.value)}
             />
             <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500" />
-
             <button
               type="button"
               onClick={() => setScanOpen(true)}
@@ -179,7 +178,7 @@ export default function ExplorePage() {
               exit={{ opacity: 0 }}
             >
               <motion.div
-                className="relative w-[90%] max-w-2xl bg-gradient-to-b from-[#151518]/80 to-[#0f0f10]/90 rounded-3xl shadow-2xl border border-white/10 p-8 backdrop-blur-lg overflow-hidden"
+                className="relative w-[90%] max-w-2xl bg-gradient-to-b from-[#151518]/80 to-[#0f0f10]/90 rounded-3xl shadow-2xl border border-white/10 p-8 backdrop-blur-lg overflow-hidden flex flex-col items-center"
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -201,16 +200,18 @@ export default function ExplorePage() {
                   </p>
                 </div>
 
-                <label className="relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-blue-700/30">
-                  <LuScanLine className="text-lg" />
-                  <span>Choose Image</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
-                </label>
+                <div className="flex justify-center w-full">
+                  <label className="relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-blue-700/30">
+                    <LuScanLine className="text-lg" />
+                    <span>Choose Image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                  </label>
+                </div>
 
                 {scanLoading && (
                   <motion.div
@@ -225,7 +226,7 @@ export default function ExplorePage() {
 
                 {!scanLoading && scanResults.length > 0 && (
                   <motion.div
-                    className="mt-6 grid gap-5 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-600/50 scrollbar-track-transparent"
+                    className="mt-6 grid gap-5 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-600/50 scrollbar-track-transparent w-full"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25 }}
