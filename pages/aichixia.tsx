@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner, FaImage, FaTimes } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner, FaTimes } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,7 +22,7 @@ interface AnimeData {
 
 interface Message {
   role: "user" | "assistant";
-  type?: "text" | "anime" | "scan" | "image";
+  type?: "text" | "anime" | "scan";
   content: string | AnimeData[] | any[];
 }
 
@@ -32,14 +32,13 @@ export default function AichixiaPage() {
       role: "assistant",
       type: "text",
       content:
-        "👋 Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot to identify an anime instantly!",
+        "👋 Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot via Scan button to identify an anime instantly!",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [scanOpen, setScanOpen] = useState(false);
-  const [scanLoading, setScanLoading] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -67,17 +66,17 @@ export default function AichixiaPage() {
     if (input.trim()) {
       newMessages.push({ role: "user", type: "text", content: input });
     }
+
     if (pendingImage) {
       newMessages.push({
         role: "user",
-        type: "image",
-        content: pendingImage,
+        type: "text",
+        content: "📸 Uploaded an image for scan...",
       });
     }
 
     setMessages(newMessages);
     setInput("");
-    setPendingImage(null);
     setLoading(true);
 
     try {
@@ -135,6 +134,7 @@ export default function AichixiaPage() {
       ]);
     } finally {
       setLoading(false);
+      setPendingImage(null);
     }
   };
 
@@ -203,42 +203,32 @@ export default function AichixiaPage() {
                 </div>
               )}
 
-              {msg.type === "image" && typeof msg.content === "string" && (
-                <div className="max-w-[60%] rounded-xl overflow-hidden border border-sky-700/50 shadow-lg">
-                  <Image
-                    src={msg.content}
-                    alt="uploaded"
-                    width={300}
-                    height={300}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              )}
-
               {msg.type === "scan" && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                   {(msg.content as any[]).map((r, idx) => (
                     <div
                       key={idx}
-                      className="bg-[#0b1724]/70 border border-sky-700/40 rounded-xl overflow-hidden shadow-lg hover:border-sky-500/50 transition"
+                      className="bg-[#0b1724]/80 border border-sky-700/40 rounded-xl overflow-hidden shadow-lg hover:border-sky-500/50 transition flex flex-col"
                     >
                       <video
                         src={r.video}
-                        className="rounded-t-xl w-full h-36 object-cover"
+                        className="w-full aspect-video object-cover"
                         controls
                         muted
                       />
-                      <div className="p-3">
-                        <h3 className="font-semibold text-sky-200 line-clamp-2">
-                          {r.title?.romaji || r.title?.english || "Unknown"}
-                        </h3>
-                        <p className="text-xs text-sky-400 mt-1">
-                          Episode {r.episode || "?"} · {(r.similarity * 100).toFixed(1)}%
-                        </p>
+                      <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                          <h3 className="font-semibold text-sky-200 text-sm line-clamp-2">
+                            {r.title?.romaji || r.title?.english || "Unknown"}
+                          </h3>
+                          <p className="text-xs text-sky-400 mt-1">
+                            Episode {r.episode || "?"} · {(r.similarity * 100).toFixed(1)}%
+                          </p>
+                        </div>
                         {r.anilist && (
                           <Link
                             href={`/anime/${r.anilist}`}
-                            className="text-xs text-sky-400 hover:text-sky-200 underline mt-1 block"
+                            className="text-xs text-sky-400 hover:text-sky-200 underline mt-2 block"
                           >
                             → View Anime Detail
                           </Link>
@@ -272,17 +262,6 @@ export default function AichixiaPage() {
               onKeyDown={handleKeyDown}
               disabled={loading}
             />
-
-            <label className="bg-gradient-to-r from-sky-600 to-blue-600 hover:scale-105 p-3 rounded-full cursor-pointer shadow-lg transition">
-              <FaImage className="text-white text-lg" />
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileSelect}
-              />
-            </label>
-
             <button
               onClick={sendMessage}
               disabled={loading}
@@ -295,25 +274,6 @@ export default function AichixiaPage() {
               )}
             </button>
           </div>
-
-          {pendingImage && (
-            <div className="relative mt-3 w-full flex justify-center">
-              <div className="relative w-48 h-48 border border-sky-700/50 rounded-xl overflow-hidden shadow-md">
-                <Image
-                  src={pendingImage}
-                  alt="preview"
-                  fill
-                  className="object-cover"
-                />
-                <button
-                  onClick={() => setPendingImage(null)}
-                  className="absolute top-1 right-1 bg-black/50 rounded-full p-1 hover:bg-black/70 transition"
-                >
-                  <FaTimes className="text-white text-sm" />
-                </button>
-              </div>
-            </div>
-          )}
         </footer>
       </div>
 
@@ -326,7 +286,7 @@ export default function AichixiaPage() {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-[#0d111a]/95 rounded-3xl p-8 w-[90%] max-w-md text-center shadow-2xl border border-sky-800/50"
+              className="bg-[#0d111a]/95 rounded-3xl p-8 w-[90%] max-w-md text-center shadow-2xl border border-sky-800/50 relative"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -337,11 +297,54 @@ export default function AichixiaPage() {
               <p className="text-sky-400 text-sm mb-6">
                 Aichixia will detect which anime it's from!
               </p>
+
               <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300">
                 <LuScanLine className="text-lg" />
                 <span>Choose Image</span>
-                <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
               </label>
+
+              {pendingImage && (
+                <div className="mt-5 relative w-full flex justify-center">
+                  <div className="relative w-48 h-48 border border-sky-700/50 rounded-xl overflow-hidden shadow-md">
+                    <Image
+                      src={pendingImage}
+                      alt="preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <button
+                      onClick={() => setPendingImage(null)}
+                      className="absolute top-1 right-1 bg-black/50 rounded-full p-1 hover:bg-black/70 transition"
+                    >
+                      <FaTimes className="text-white text-sm" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-6 flex justify-center gap-3">
+                <button
+                  onClick={() => setScanOpen(false)}
+                  className="px-4 py-2 bg-sky-800/60 hover:bg-sky-700/70 rounded-xl text-sky-200 transition"
+                >
+                  Cancel
+                </button>
+                {pendingImage && (
+                  <button
+                    onClick={sendMessage}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 text-white rounded-xl hover:scale-105 transition"
+                  >
+                    Scan
+                  </button>
+                )}
+              </div>
+
               <button
                 onClick={() => setScanOpen(false)}
                 className="absolute top-3 right-3 text-sky-300 hover:text-white transition"
