@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
+import anime from "animejs";
 import {
   FaHome,
   FaCalendarAlt,
@@ -23,18 +25,17 @@ const navItems = [
   { href: "/light-novel", label: "Light Novel", icon: <GiBookshelf size={22} /> },
 ];
 
-const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-
 export default function BottomNav() {
   const router = useRouter();
   const [open, setOpen] = useState(true);
   const [activeIndex, setActiveIndex] = useState<number>(() =>
     navItems.findIndex((it) => router.pathname === it.href || router.pathname.startsWith(it.href + "/"))
   );
-  const [pressing, setPressing] = useState(false);
-  const controls = useAnimation();
   const navRef = useRef<HTMLDivElement | null>(null);
+  const controls = useAnimation();
+  const [pressing, setPressing] = useState(false);
   const [sparkSeed] = useState(() => Math.random());
+  const startDrag = useRef<number | null>(null);
 
   useEffect(() => {
     const idx = navItems.findIndex(
@@ -46,95 +47,87 @@ export default function BottomNav() {
   const handleNavClick = (index: number, href: string) => {
     setActiveIndex(index);
     controls.start({
-      scale: [1, 1.16, 1],
-      rotate: [0, -3, 0],
-      transition: { duration: 0.4, ease: "easeOut" },
+      scale: [1, 1.18, 1],
+      rotate: [0, -4, 0],
+      transition: { duration: 0.45, ease: "circOut" },
     });
     setPressing(true);
-    setTimeout(() => setPressing(false), 280);
-    setTimeout(() => {
-      router.push(href);
-    }, 180);
+    setTimeout(() => setPressing(false), 260);
+    setTimeout(() => router.push(href), 190);
   };
 
   const FloatingGlow = () => (
     <motion.div
       aria-hidden
-      className="absolute inset-[-25%] pointer-events-none rounded-3xl"
+      className="absolute inset-[-20%] pointer-events-none rounded-3xl"
       initial={{ opacity: 0.18, scale: 1 }}
       animate={{
-        opacity: [0.18, 0.4, 0.18],
-        scale: [1, 1.05, 1],
-        rotate: [0, 4, 0],
+        opacity: [0.18, 0.45, 0.18],
+        scale: [1, 1.06, 1],
+        rotate: [0, 3, 0],
       }}
-      transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+      transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
       style={{
         background:
-          "radial-gradient(50% 50% at 30% 30%, rgba(56,189,248,0.08), transparent 25%), radial-gradient(60% 60% at 80% 70%, rgba(99,102,241,0.04), transparent 35%)",
+          "radial-gradient(60% 60% at 30% 30%, rgba(56,189,248,0.08), transparent 18%), radial-gradient(40% 40% at 75% 65%, rgba(99,102,241,0.04), transparent 25%)",
         filter: "blur(18px)",
       }}
     />
   );
 
-  const Sparks = ({ count = 6 }: { count?: number }) => {
-    return (
-      <div aria-hidden className="absolute inset-0 pointer-events-none">
-        {Array.from({ length: count }).map((_, i) => {
-          const seed = (sparkSeed * 999 + i * 33) % 1;
-          const left = `${Math.floor(seed * 90) + 5}%`;
-          const top = `${Math.floor((1 - seed) * 60) + 10}%`;
-          const size = Math.floor(3 + seed * 8);
-          const delay = (seed * 2.8).toFixed(2);
-          return (
-            <motion.div
-              key={i}
-              style={{
-                left,
-                top,
-                width: size,
-                height: size,
-                borderRadius: 999,
-                position: "absolute",
-                background: "linear-gradient(90deg,#60a5fa,#38bdf8)",
-                boxShadow: "0 0 8px rgba(56,189,248,0.7)",
-              }}
-              initial={{ opacity: 0, scale: 0.4 }}
-              animate={{ opacity: [0.1, 0.9, 0.3], scale: [0.6, 1.15, 0.7] }}
-              transition={{ duration: 3.2, delay: Number(delay), repeat: Infinity, ease: "easeInOut" }}
-            />
-          );
-        })}
-      </div>
-    );
-  };
+  const Sparks = ({ count = 6 }: { count?: number }) => (
+    <div aria-hidden className="absolute inset-0 pointer-events-none">
+      {Array.from({ length: count }).map((_, i) => {
+        const seed = (sparkSeed * 1000 + i * 37) % 1;
+        const left = `${Math.floor(seed * 92) + 4}%`;
+        const top = `${Math.floor((1 - seed) * 60) + 8}%`;
+        const size = Math.floor(4 + seed * 8);
+        const delay = (seed * 3).toFixed(2);
+        return (
+          <motion.div
+            key={i}
+            style={{
+              left,
+              top,
+              width: size,
+              height: size,
+              borderRadius: 999,
+              position: "absolute",
+              boxShadow: "0 0 10px rgba(56,189,248,0.7)",
+              background: "linear-gradient(90deg,#60a5fa,#38bdf8)",
+              opacity: 0.9,
+            }}
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: [0.1, 0.9, 0.2], scale: [0.6, 1.15, 0.7] }}
+            transition={{ duration: 3.6, delay: Number(delay), repeat: Infinity, ease: "easeInOut" }}
+          />
+        );
+      })}
+    </div>
+  );
 
-  const computeBubbleX = (index: number | null) => {
-    if (!navRef.current || index === null || index === undefined || index < 0) return 0;
-    const container = navRef.current;
-    const children = Array.from(container.querySelectorAll("[data-nav-item]")) as HTMLElement[];
-    const item = children[index];
-    if (!item) return 0;
-    const containerRect = container.getBoundingClientRect();
-    const itemRect = item.getBoundingClientRect();
-    const x = itemRect.left - containerRect.left + itemRect.width / 2 - 25;
-    return clamp(Math.round(x), 0, Math.max(0, containerRect.width - 50));
-  };
-
-  const startDrag = useRef<number | null>(null);
   const onDragStart = (e: React.PointerEvent) => {
     startDrag.current = e.clientX;
   };
   const onDragEnd = () => {
     startDrag.current = null;
+    if (!navRef.current) return;
+    Array.from(navRef.current.querySelectorAll("[data-nav-item]")).forEach((el) => {
+      anime({
+        targets: el,
+        translateX: 0,
+        translateY: 0,
+        duration: 550,
+        easing: "easeOutElastic(1, .6)",
+      });
+    });
   };
   const onDrag = (e: React.PointerEvent) => {
     if (!navRef.current || startDrag.current === null) return;
     const dx = e.clientX - startDrag.current;
-    const children = navRef.current.querySelectorAll("[data-nav-item]");
-    children.forEach((c, i) => {
-      const n = c as HTMLElement;
-      const offset = clamp((dx / 40) * (i - (children.length - 1) / 2), -6, 6);
-      n.style.transform = `translateX(${offset}px)`;
+    Array.from(navRef.current.querySelectorAll("[data-nav-item]")).forEach((el, i) => {
+      const offset = Math.max(-8, Math.min(8, (dx / 40) * (i - (navItems.length - 1) / 2)));
+      (el as HTMLElement).style.transform = `translateY(0px) translateX(${offset}px)`;
     });
   };
 
@@ -142,107 +135,73 @@ export default function BottomNav() {
     <>
       <AnimatePresence>
         {open && (
-          <>
-            <motion.button
-              key="close"
-              aria-label="Close navigation"
-              initial={{ opacity: 0, y: 26, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 26, scale: 0.8 }}
-              transition={{ type: "spring", stiffness: 320, damping: 28 }}
-              onClick={() => setOpen(false)}
-              className="fixed bottom-[110px] right-5 z-[60] w-11 h-11 flex items-center justify-center rounded-xl bg-neutral-900/90 border border-sky-500/20 hover:bg-neutral-800/90 text-sky-300 shadow-[0_6px_24px_rgba(56,189,248,0.25)] backdrop-blur-md transition-all duration-220"
+          <motion.nav
+            key="nav"
+            initial={{ y: 160, opacity: 0, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 160, opacity: 0, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 220, damping: 22 }}
+            className="md:hidden fixed bottom-6 inset-x-0 flex justify-center z-50"
+          >
+            <div
+              ref={navRef}
+              onPointerDown={onDragStart}
+              onPointerMove={onDrag}
+              onPointerUp={onDragEnd}
+              onPointerCancel={onDragEnd}
+              className="relative w-[94%] sm:w-[86%] max-w-[480px] bg-gradient-to-b from-neutral-900/72 to-neutral-900/60 backdrop-blur-xl border border-sky-500/14 rounded-3xl overflow-visible flex items-center justify-between px-4 py-3 shadow-[0_10px_50px_rgba(2,6,23,0.6)]"
+              style={{ WebkitTapHighlightColor: "transparent" }}
             >
-              <IoClose size={18} />
-            </motion.button>
-
-            <motion.nav
-              key="nav"
-              initial={{ y: 160, opacity: 0, scale: 0.96 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 160, opacity: 0, scale: 0.96 }}
-              transition={{ type: "spring", stiffness: 220, damping: 22 }}
-              className="md:hidden fixed bottom-6 inset-x-0 flex justify-center z-50"
-            >
-              <div
-                ref={navRef}
-                onPointerDown={onDragStart}
-                onPointerMove={onDrag}
-                onPointerUp={onDragEnd}
-                onPointerCancel={onDragEnd}
-                className="relative w-[94%] sm:w-[86%] max-w-[480px] bg-gradient-to-b from-neutral-900/80 to-neutral-900/60 backdrop-blur-2xl border border-sky-500/14 rounded-3xl flex items-center justify-between px-4 py-3 shadow-[0_10px_40px_rgba(2,6,23,0.6)]"
-                style={{ WebkitTapHighlightColor: "transparent" }}
-              >
-                <FloatingGlow />
-                <Sparks count={6} />
-                <motion.div
-                  aria-hidden
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{
-                    x: computeBubbleX(activeIndex),
-                    scale: [1, 1.1, 1],
-                    opacity: activeIndex === null ? 0 : 1,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 260,
-                    damping: 24,
-                  }}
-                  className="absolute -top-4 w-[50px] h-[50px] rounded-full bg-gradient-to-br from-sky-500/25 to-blue-400/25 blur-md shadow-[0_0_20px_rgba(56,189,248,0.4)]"
-                />
-                <div className="relative z-10 flex gap-1 items-center justify-between w-full">
-                  {navItems.map((item, index) => {
-                    const isActive =
-                      router.pathname === item.href ||
-                      router.pathname.startsWith(item.href + "/");
-                    return (
-                      <div
-                        key={item.href}
-                        data-nav-item
-                        className="relative flex-0 w-[56px] flex flex-col items-center justify-center"
+              <FloatingGlow />
+              <Sparks count={6} />
+              <div className="relative z-10 flex gap-1 items-center justify-between w-full">
+                {navItems.map((item, index) => {
+                  const isActive = router.pathname === item.href || router.pathname.startsWith(item.href + "/");
+                  return (
+                    <div
+                      key={item.href}
+                      data-nav-item
+                      className="relative flex-0 w-[56px] flex flex-col items-center justify-center"
+                    >
+                      <motion.button
+                        aria-label={item.label}
+                        whileHover={{ scale: 1.12 }}
+                        whileTap={{ scale: 0.96 }}
+                        onPointerDown={() => {
+                          controls.start({ scale: [1, 0.96, 1], transition: { duration: 0.24 } });
+                        }}
+                        onClick={() => handleNavClick(index, item.href)}
+                        className={`relative z-20 w-full flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-1 transition-all duration-220 ${isActive ? "text-sky-300" : "text-gray-400 hover:text-sky-300"}`}
                       >
-                        <motion.button
-                          aria-label={item.label}
-                          whileHover={{ scale: 1.12 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleNavClick(index, item.href)}
-                          className={`relative z-20 w-full flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-1 transition-all duration-220 ${
-                            isActive ? "text-sky-300" : "text-gray-400 hover:text-sky-300"
-                          }`}
+                        <motion.span
+                          initial={false}
+                          animate={{
+                            y: isActive ? -6 : 0,
+                            scale: isActive ? 1.14 : 1,
+                          }}
+                          transition={{ type: "spring", stiffness: 320, damping: 26 }}
+                          className="relative z-30"
                         >
+                          {item.icon}
+                        </motion.span>
+                        {isActive && (
                           <motion.span
-                            initial={false}
-                            animate={{
-                              y: isActive ? -8 : 0,
-                              scale: isActive ? 1.14 : 1,
-                              rotate: isActive ? 0 : 0,
-                            }}
-                            transition={{ type: "spring", stiffness: 320, damping: 26 }}
-                            className="relative z-30"
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 6 }}
+                            transition={{ duration: 0.26 }}
+                            className="text-[11px] font-medium text-sky-300 z-30"
                           >
-                            {item.icon}
+                            {item.label}
                           </motion.span>
-                          <AnimatePresence>
-                            {isActive && (
-                              <motion.span
-                                initial={{ opacity: 0, y: 6 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 6 }}
-                                transition={{ duration: 0.25 }}
-                                className="text-[11px] font-medium text-sky-300 z-30"
-                              >
-                                {item.label}
-                              </motion.span>
-                            )}
-                          </AnimatePresence>
-                        </motion.button>
-                      </div>
-                    );
-                  })}
-                </div>
+                        )}
+                      </motion.button>
+                    </div>
+                  );
+                })}
               </div>
-            </motion.nav>
-          </>
+            </div>
+          </motion.nav>
         )}
       </AnimatePresence>
 
@@ -263,11 +222,8 @@ export default function BottomNav() {
               className="absolute inset-0"
               initial={{ opacity: 0.15 }}
               animate={{ opacity: [0.15, 0.32, 0.15], scale: [1, 1.08, 1] }}
-              transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background: "linear-gradient(135deg, rgba(56,189,248,0.06), rgba(99,102,241,0.04))",
-                filter: "blur(10px)",
-              }}
+              transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+              style={{ background: "linear-gradient(135deg, rgba(56,189,248,0.06), rgba(99,102,241,0.04))", filter: "blur(10px)" }}
             />
             <motion.div
               initial={{ rotate: -12, y: -2, opacity: 0.8 }}
@@ -281,7 +237,7 @@ export default function BottomNav() {
               aria-hidden
               className="absolute -top-1 right-1 z-10"
               animate={{ y: [0, -4, 0], opacity: [0.6, 1, 0.6] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
             >
               <BsStars size={12} className="text-sky-300/90" />
             </motion.div>
