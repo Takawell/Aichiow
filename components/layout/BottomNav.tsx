@@ -15,7 +15,7 @@ const navItems = [
   { href: "/explore", label: "Explore", icon: <FaCompass size={22} /> },
   { href: "/manga", label: "Manga", icon: <FaBookOpen size={22} /> },
   { href: "/manhwa", label: "Manhwa", icon: <MdMenuBook size={22} /> },
-  { href: "/light-novel", label: "Light Novel", icon: <GiBookshelf size={22} /> },
+  { href: "/light-novel", label: "Novels", icon: <GiBookshelf size={22} /> },
 ];
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
