@@ -24,6 +24,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
       {!isLanding && !isMaintenance && <Navbar />}
 
+      <main>
         <Component {...pageProps} />
       </main>
     </QueryClientProvider>
