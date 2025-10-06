@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -9,7 +10,6 @@ import {
   FaCalendarAlt,
   FaCompass,
   FaBookOpen,
-  FaRobot,
 } from "react-icons/fa";
 import { GiBookshelf } from "react-icons/gi";
 import { MdMenuBook } from "react-icons/md";
@@ -35,26 +35,26 @@ export default function BottomNav() {
           <>
             <motion.button
               key="close"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              transition={{ type: "spring", stiffness: 280, damping: 22 }}
+              initial={{ opacity: 0, rotate: -90, y: 30 }}
+              animate={{ opacity: 1, rotate: 0, y: 0 }}
+              exit={{ opacity: 0, rotate: 90, y: 30 }}
+              transition={{ type: "spring", stiffness: 260, damping: 22 }}
               onClick={() => setOpen(false)}
-              className="fixed bottom-[110px] right-6 z-[60]
-              w-9 h-9 flex items-center justify-center
+              className="fixed bottom-[108px] right-6 z-[60]
+              w-8 h-8 flex items-center justify-center
               rounded-full bg-neutral-900/90 border border-gray-700
               hover:bg-neutral-800/90 text-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.4)]
               backdrop-blur-lg transition-all duration-300"
             >
-              <IoClose size={20} />
+              <IoClose size={18} />
             </motion.button>
 
             <motion.nav
               key="nav"
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 240, damping: 22 }}
+              initial={{ y: 120, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 120, opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 220, damping: 20 }}
               className="md:hidden fixed bottom-5 inset-x-0 flex justify-center z-50"
             >
               <div
@@ -118,17 +118,34 @@ export default function BottomNav() {
         {!open && (
           <motion.button
             key="toggle"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 250, damping: 18 }}
+            initial={{ scale: 0, opacity: 0, rotate: -180 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            exit={{ scale: 0, opacity: 0, rotate: 180 }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 20,
+              mass: 0.8,
+            }}
             onClick={() => setOpen(true)}
             className="fixed bottom-6 right-6 z-50 flex items-center justify-center
-              w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-blue-600
-              border border-sky-400 shadow-[0_0_18px_rgba(56,189,248,0.6)]
-              hover:scale-105 transition-transform backdrop-blur-lg overflow-hidden"
+              w-12 h-12 rounded-full bg-neutral-900/80 border border-sky-400/70
+              shadow-[0_0_18px_rgba(56,189,248,0.5)] hover:scale-105
+              backdrop-blur-xl overflow-hidden transition-transform"
           >
-            <FaRobot size={22} className="text-white drop-shadow-md" />
+            <motion.div
+              initial={{ rotate: -15, opacity: 0.6 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={26}
+                height={26}
+                className="drop-shadow-[0_0_6px_rgba(56,189,248,0.8)]"
+              />
+            </motion.div>
           </motion.button>
         )}
       </AnimatePresence>
