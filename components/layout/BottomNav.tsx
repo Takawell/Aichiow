@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import { GiBookshelf } from "react-icons/gi";
 import { MdMenuBook } from "react-icons/md";
+import { IoClose, IoMenu } from "react-icons/io5";
 
 const navItems = [
   { href: "/home", label: "Home", icon: <FaHome size={22} /> },
@@ -88,47 +89,49 @@ export default function BottomNav() {
         )}
       </AnimatePresence>
 
-      {!open && (
-        <motion.button
-          key="logo"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 250, damping: 18 }}
-          onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50
-          w-14 h-14 rounded-full bg-neutral-900/80 border border-gray-800 
-          backdrop-blur-lg shadow-lg flex items-center justify-center
-          hover:scale-105 transition"
+      <motion.button
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setOpen(!open)}
+        className={`fixed bottom-6 right-6 z-50 transition-all duration-500
+          ${open ? "rotate-0" : "rotate-180"}
+        `}
+      >
+        <motion.div
+          initial={false}
+          animate={{
+            scale: open ? 1 : [1, 1.2, 1],
+            rotate: open ? 0 : 360,
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 200,
+            damping: 15,
+          }}
+          className={`relative flex items-center justify-center w-14 h-14 rounded-full shadow-xl border
+            ${open
+              ? "bg-neutral-900/80 border-gray-800 hover:bg-neutral-800/90"
+              : "bg-gradient-to-br from-sky-500 to-blue-600 border-sky-400 shadow-sky-500/40 hover:scale-105"
+            } backdrop-blur-lg`}
         >
-          <Image
-            src="/logo.png"
-            alt="Logo"
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
-        </motion.button>
-      )}
-
-      {open && (
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setOpen(false)}
-          className="fixed bottom-24 right-6
-          bg-neutral-900/80 border border-gray-800 rounded-full 
-          text-sky-400 shadow-md p-2.5 z-50 backdrop-blur-lg
-          hover:text-sky-300 hover:scale-105 transition"
-        >
-          <Image
-            src="/logo.png"
-            alt="Close Logo"
-            width={20}
-            height={20}
-            className="opacity-70"
-          />
-        </motion.button>
-      )}
+          {open ? (
+            <IoClose className="text-sky-400 text-2xl" />
+          ) : (
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="relative w-9 h-9"
+            >
+              <Image
+                src="/logo.png"
+                alt="Aichiow"
+                fill
+                className="object-contain rounded-full drop-shadow-lg"
+              />
+            </motion.div>
+          )}
+        </motion.div>
+      </motion.button>
     </>
   );
 }
