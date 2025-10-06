@@ -154,7 +154,7 @@ export default function BottomNav() {
                 style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 <FloatingGlow />
-                <Sparks count={4} />
+                <Sparks count={0} />
                 <div className="relative z-10 flex gap-2 items-center justify-between w-full">
                   {navItems.map((item, index) => {
                     const isActive = router.pathname === item.href || router.pathname.startsWith(item.href + "/");
