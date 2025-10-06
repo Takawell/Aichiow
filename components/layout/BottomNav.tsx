@@ -66,7 +66,7 @@ export default function BottomNav() {
     />
   );
 
-  const Sparks = ({ count = 4 }: { count?: number }) => (
+  const Sparks = ({ count = 0 }: { count?: number }) => (
     <div aria-hidden className="absolute inset-0 pointer-events-none">
       {Array.from({ length: count }).map((_, i) => {
         const seed = (sparkSeed * 1000 + i * 37) % 1;
