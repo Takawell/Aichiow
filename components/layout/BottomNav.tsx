@@ -32,68 +32,78 @@ export default function BottomNav() {
     <>
       <AnimatePresence>
         {open && (
-          <motion.nav
-            key="nav"
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 22 }}
-            className="md:hidden fixed bottom-0 left-0 w-full
-            bg-neutral-900/90 backdrop-blur-xl border-t border-gray-800 
-            rounded-t-2xl flex justify-around items-center py-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]"
-          >
-            {navItems.map((item) => {
-              const isActive =
-                router.pathname === item.href ||
-                router.pathname.startsWith(item.href + "/");
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex flex-col items-center relative"
-                >
-                  <motion.div
-                    animate={{
-                      y: isActive ? -6 : 0,
-                      color: isActive ? "#38bdf8" : "#9ca3af",
-                      scale: isActive ? 1.15 : 1,
-                    }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    className={`p-2 rounded-full transition-all duration-300 ${
-                      isActive
-                        ? "bg-sky-500/20 shadow-[0_0_12px_rgba(56,189,248,0.5)] text-sky-400"
-                        : "hover:bg-white/5"
-                    }`}
-                  >
-                    {item.icon}
-                  </motion.div>
-
-                  <AnimatePresence>
-                    {isActive && (
-                      <motion.span
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 4 }}
-                        transition={{ duration: 0.25 }}
-                        className="text-[11px] font-medium mt-1 text-sky-400"
-                      >
-                        {item.label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Link>
-              );
-            })}
-
+          <>
             <motion.button
-              whileTap={{ scale: 0.9 }}
+              key="close"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ type: "spring", stiffness: 280, damping: 22 }}
               onClick={() => setOpen(false)}
-              className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300"
+              className="fixed bottom-[85px] right-6 z-[60]
+              w-11 h-11 flex items-center justify-center
+              rounded-full bg-neutral-900/90 border border-gray-700
+              hover:bg-neutral-800/90 text-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.4)]
+              backdrop-blur-lg transition-all duration-300"
             >
-              <IoClose size={20} />
+              <IoClose size={22} />
             </motion.button>
-          </motion.nav>
+
+            <motion.nav
+              key="nav"
+              initial={{ y: 100 }}
+              animate={{ y: 0 }}
+              exit={{ y: 100 }}
+              transition={{ type: "spring", stiffness: 260, damping: 22 }}
+              className="md:hidden fixed bottom-0 left-0 w-full
+              bg-neutral-900/90 backdrop-blur-xl border-t border-gray-800 
+              rounded-t-2xl flex justify-around items-center py-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]"
+            >
+              {navItems.map((item) => {
+                const isActive =
+                  router.pathname === item.href ||
+                  router.pathname.startsWith(item.href + "/");
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex flex-col items-center relative"
+                  >
+                    <motion.div
+                      animate={{
+                        y: isActive ? -6 : 0,
+                        color: isActive ? "#38bdf8" : "#9ca3af",
+                        scale: isActive ? 1.15 : 1,
+                      }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className={`p-2 rounded-full transition-all duration-300 ${
+                        isActive
+                          ? "bg-sky-500/20 shadow-[0_0_12px_rgba(56,189,248,0.5)] text-sky-400"
+                          : "hover:bg-white/5"
+                      }`}
+                    >
+                      {item.icon}
+                    </motion.div>
+
+                    <AnimatePresence>
+                      {isActive && (
+                        <motion.span
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 4 }}
+                          transition={{ duration: 0.25 }}
+                          className="text-[11px] font-medium mt-1 text-sky-400"
+                        >
+                          {item.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Link>
+                );
+              })}
+            </motion.nav>
+          </>
         )}
       </AnimatePresence>
 
