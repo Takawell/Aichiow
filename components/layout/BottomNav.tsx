@@ -1,11 +1,19 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useRouter } from "next/router"
-import { motion, AnimatePresence } from "framer-motion"
-import { FaHome, FaCalendarAlt, FaCompass, FaBookOpen } from "react-icons/fa"
-import { GiBookshelf } from "react-icons/gi"
-import { MdMenuBook } from "react-icons/md"
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FaHome,
+  FaCalendarAlt,
+  FaCompass,
+  FaBookOpen,
+  FaChevronUp,
+  FaChevronDown,
+} from "react-icons/fa";
+import { GiBookshelf } from "react-icons/gi";
+import { MdMenuBook } from "react-icons/md";
 
 const navItems = [
   { href: "/home", label: "Home", icon: <FaHome size={22} /> },
@@ -14,59 +22,87 @@ const navItems = [
   { href: "/manga", label: "Manga", icon: <FaBookOpen size={22} /> },
   { href: "/manhwa", label: "Manhwa", icon: <MdMenuBook size={22} /> },
   { href: "/light-novel", label: "Light Novel", icon: <GiBookshelf size={22} /> },
-]
+];
 
 export default function BottomNav() {
-  const router = useRouter()
+  const router = useRouter();
+  const [open, setOpen] = useState(true);
 
   return (
-    <nav
-      className="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 w-[95%] max-w-lg
-      bg-neutral-900/80 backdrop-blur-lg border border-gray-800 
-      rounded-2xl flex justify-around items-center py-2.5 z-50 shadow-lg"
-    >
-      {navItems.map((item) => {
-        const isActive =
-          router.pathname === item.href || router.pathname.startsWith(item.href + "/")
-
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex flex-col items-center relative"
+    <>
+      <AnimatePresence>
+        {open && (
+          <motion.nav
+            key="nav"
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 220, damping: 22 }}
+            className="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 w-[95%] max-w-lg
+            bg-neutral-900/80 backdrop-blur-lg border border-gray-800 
+            rounded-2xl flex justify-around items-center py-2.5 z-50 shadow-lg"
           >
-            <motion.div
-              animate={{
-                y: isActive ? -6 : 0,
-                color: isActive ? "#38bdf8" : "#9ca3af",
-                scale: isActive ? 1.15 : 1,
-              }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className={`p-2 rounded-full transition-all duration-300 ${
-                isActive
-                  ? "bg-sky-500/20 shadow-[0_0_12px_rgba(56,189,248,0.5)] text-sky-400"
-                  : "hover:bg-white/5"
-              }`}
-            >
-              {item.icon}
-            </motion.div>
+            {navItems.map((item) => {
+              const isActive =
+                router.pathname === item.href ||
+                router.pathname.startsWith(item.href + "/");
 
-            <AnimatePresence>
-              {isActive && (
-                <motion.span
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  transition={{ duration: 0.25 }}
-                  className="text-[11px] font-medium mt-1 text-sky-400"
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex flex-col items-center relative"
                 >
-                  {item.label}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </Link>
-        )
-      })}
-    </nav>
-  )
+                  <motion.div
+                    animate={{
+                      y: isActive ? -6 : 0,
+                      color: isActive ? "#38bdf8" : "#9ca3af",
+                      scale: isActive ? 1.15 : 1,
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className={`p-2 rounded-full transition-all duration-300 ${
+                      isActive
+                        ? "bg-sky-500/20 shadow-[0_0_12px_rgba(56,189,248,0.5)] text-sky-400"
+                        : "hover:bg-white/5"
+                    }`}
+                  >
+                    {item.icon}
+                  </motion.div>
+
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.span
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 4 }}
+                        transition={{ duration: 0.25 }}
+                        className="text-[11px] font-medium mt-1 text-sky-400"
+                      >
+                        {item.label}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Link>
+              );
+            })}
+          </motion.nav>
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setOpen(!open)}
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 mb-1
+        bg-neutral-900/90 border border-gray-800 rounded-full 
+        text-sky-400 shadow-md p-2.5 z-50 backdrop-blur-lg
+        hover:text-sky-300 hover:scale-105 transition"
+      >
+        {open ? (
+          <FaChevronDown className="text-lg" />
+        ) : (
+          <FaChevronUp className="text-lg" />
+        )}
+      </motion.button>
+    </>
+  );
 }
