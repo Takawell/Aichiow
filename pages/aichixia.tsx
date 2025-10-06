@@ -22,7 +22,7 @@ interface AnimeData {
 
 interface Message {
   role: "user" | "assistant";
-  type?: "text" | "anime" | "scan";
+  type?: "text" | "anime" | "scan" | "image";
   content: string | AnimeData[] | any[];
 }
 
@@ -68,6 +68,11 @@ export default function AichixiaPage() {
     }
 
     if (pendingImage) {
+      newMessages.push({
+        role: "user",
+        type: "image",
+        content: pendingImage,
+      });
       newMessages.push({
         role: "user",
         type: "text",
@@ -203,6 +208,17 @@ export default function AichixiaPage() {
                 </div>
               )}
 
+              {msg.type === "image" && typeof msg.content === "string" && (
+                <div className="relative w-40 h-40 rounded-xl overflow-hidden border border-sky-700/50 shadow-md">
+                  <Image
+                    src={msg.content}
+                    alt="preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+
               {msg.type === "scan" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                   {(msg.content as any[]).map((r, idx) => (
@@ -298,16 +314,26 @@ export default function AichixiaPage() {
                 Aichixia will detect which anime it's from!
               </p>
 
-              <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300">
-                <LuScanLine className="text-lg" />
-                <span>Choose Image</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-              </label>
+              {!session ? (
+                <Link
+                  href="/auth/login"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-sky-600 to-blue-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300"
+                >
+                  <LuScanLine className="text-lg" />
+                  <span>Login to access Aichixia</span>
+                </Link>
+              ) : (
+                <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300">
+                  <LuScanLine className="text-lg" />
+                  <span>Choose Image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                </label>
+              )}
 
               {pendingImage && (
                 <div className="mt-5 relative w-full flex justify-center">
@@ -335,7 +361,7 @@ export default function AichixiaPage() {
                 >
                   Cancel
                 </button>
-                {pendingImage && (
+                {session && pendingImage && (
                   <button
                     onClick={sendMessage}
                     className="px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 text-white rounded-xl hover:scale-105 transition"
