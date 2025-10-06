@@ -35,10 +35,10 @@ export default function BottomNav() {
           <>
             <motion.button
               key="close"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ type: "spring", stiffness: 250, damping: 20 }}
+              exit={{ opacity: 0, y: 30 }}
+              transition={{ type: "spring", stiffness: 280, damping: 22 }}
               onClick={() => setOpen(false)}
               className="fixed bottom-[90px] right-6 z-[60]
               w-11 h-11 flex items-center justify-center
@@ -51,14 +51,13 @@ export default function BottomNav() {
 
             <motion.nav
               key="nav"
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
+              initial={{ y: 100 }}
+              animate={{ y: 0 }}
+              exit={{ y: 100 }}
               transition={{ type: "spring", stiffness: 260, damping: 22 }}
               className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[94%] max-w-lg
-              bg-neutral-900/85 backdrop-blur-lg border border-gray-800 
-              rounded-2xl flex justify-around items-center py-3 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.5)]
-              px-1 sm:px-2"
+              bg-neutral-900/90 backdrop-blur-xl border border-gray-800 
+              rounded-2xl flex justify-around items-center py-3 z-50 shadow-[0_0_25px_rgba(0,0,0,0.5)]"
             >
               {navItems.map((item) => {
                 const isActive =
