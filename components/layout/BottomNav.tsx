@@ -35,31 +35,30 @@ export default function BottomNav() {
           <>
             <motion.button
               key="close"
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 30 }}
+              exit={{ opacity: 0, y: 20 }}
               transition={{ type: "spring", stiffness: 250, damping: 20 }}
               onClick={() => setOpen(false)}
-              className="fixed bottom-[110px] right-8 z-[60]
-              w-11 h-11 flex items-center justify-center rounded-full
-              bg-neutral-900/90 border border-gray-700 text-sky-400
-              hover:bg-neutral-800/90 hover:scale-105
-              shadow-[0_0_15px_rgba(56,189,248,0.4)] backdrop-blur-lg
-              transition-all duration-300"
+              className="fixed bottom-[90px] right-6 z-[60]
+              w-11 h-11 flex items-center justify-center
+              rounded-full bg-neutral-900/90 border border-gray-700
+              hover:bg-neutral-800/90 text-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.4)]
+              backdrop-blur-lg transition-all duration-300"
             >
               <IoClose size={22} />
             </motion.button>
 
             <motion.nav
               key="nav"
-              initial={{ y: 100 }}
-              animate={{ y: 0 }}
-              exit={{ y: 100 }}
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
               transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 w-[92%] max-w-lg
-              bg-neutral-900/80 backdrop-blur-xl border border-gray-800 
-              rounded-2xl flex justify-around items-center py-2.5 z-50 
-              shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+              className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[94%] max-w-lg
+              bg-neutral-900/85 backdrop-blur-lg border border-gray-800 
+              rounded-2xl flex justify-around items-center py-3 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.5)]
+              px-1 sm:px-2"
             >
               {navItems.map((item) => {
                 const isActive =
