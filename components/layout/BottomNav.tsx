@@ -5,10 +5,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaHome, FaCalendarAlt, FaCompass, FaBookOpen } from "react-icons/fa";
+import {
+  FaHome,
+  FaCalendarAlt,
+  FaCompass,
+  FaBookOpen,
+} from "react-icons/fa";
 import { GiBookshelf } from "react-icons/gi";
 import { MdMenuBook } from "react-icons/md";
-import { FaTimes } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 
 const navItems = [
   { href: "/home", label: "Home", icon: <FaHome size={22} /> },
@@ -21,26 +26,27 @@ const navItems = [
 
 export default function BottomNav() {
   const router = useRouter();
-  const [collapsed, setCollapsed] = useState(false);
+  const [open, setOpen] = useState(true);
 
   return (
     <>
       <AnimatePresence>
-        {!collapsed && (
+        {open && (
           <motion.nav
-            key="nav-expanded"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: 0.35 }}
-            className="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 w-[95%] max-w-lg
-              bg-neutral-900/80 backdrop-blur-lg border border-gray-800 
-              rounded-2xl flex justify-around items-center py-2.5 z-50 shadow-lg"
+            key="nav"
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 22 }}
+            className="md:hidden fixed bottom-0 left-0 w-full
+            bg-neutral-900/90 backdrop-blur-xl border-t border-gray-800 
+            rounded-t-2xl flex justify-around items-center py-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]"
           >
             {navItems.map((item) => {
               const isActive =
                 router.pathname === item.href ||
                 router.pathname.startsWith(item.href + "/");
+
               return (
                 <Link
                   key={item.href}
@@ -82,41 +88,37 @@ export default function BottomNav() {
 
             <motion.button
               whileTap={{ scale: 0.9 }}
-              onClick={() => setCollapsed(true)}
+              onClick={() => setOpen(false)}
               className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300"
             >
-              <FaTimes size={18} />
+              <IoClose size={20} />
             </motion.button>
           </motion.nav>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
-        {collapsed && (
-          <motion.div
-            key="nav-collapsed"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className="fixed bottom-5 right-5 z-50"
+        {!open && (
+          <motion.button
+            key="toggle"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 250, damping: 18 }}
+            onClick={() => setOpen(true)}
+            className="fixed bottom-6 right-6 z-50 flex items-center justify-center
+              w-14 h-14 rounded-full bg-gradient-to-br from-sky-500 to-blue-600
+              border border-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.6)]
+              hover:scale-105 transition-transform backdrop-blur-lg overflow-hidden"
           >
-            <motion.button
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setCollapsed(false)}
-              className="w-14 h-14 rounded-full bg-neutral-900 border border-gray-700
-                backdrop-blur-md flex items-center justify-center shadow-lg overflow-hidden"
-            >
-              <Image
-                src="/logo.png"
-                alt="logo"
-                width={36}
-                height={36}
-                className="rounded-full object-cover"
-              />
-            </motion.button>
-          </motion.div>
+            <Image
+              src="/logo.png"
+              alt="Aichiow"
+              width={36}
+              height={36}
+              className="object-contain rounded-full"
+            />
+          </motion.button>
         )}
       </AnimatePresence>
     </>
