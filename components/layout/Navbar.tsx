@@ -7,7 +7,7 @@ import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import BottomNav from './BottomNav'
-import { FaRobot } from 'react-icons/fa' 
+import { FaRobot } from 'react-icons/fa'
 
 const navItems = [
   { href: '/home', label: 'HOME' },
@@ -16,7 +16,7 @@ const navItems = [
   { href: '/manga', label: 'MANGA' },
   { href: '/manhwa', label: 'MANHWA' },
   { href: '/light-novel', label: 'LIGHT NOVEL' },
-  { href: '/aichixia', label: 'AI' }, 
+  { href: '/aichixia', label: 'AI' },
 ]
 
 export default function Navbar() {
@@ -65,7 +65,6 @@ export default function Navbar() {
         )}
       >
         <div className="w-full px-4 md:px-10 py-3 flex items-center justify-between">
-          {/* Logo kiri */}
           <Link
             href="/"
             className="logo-gradient text-2xl font-extrabold tracking-wide hover:scale-105 transition-transform"
@@ -73,19 +72,19 @@ export default function Navbar() {
             AICHIOW
           </Link>
 
-          {/* Nav desktop kanan */}
           <div className="hidden md:flex items-center gap-6 ml-auto">
             <nav className="flex gap-6 text-sm md:text-base font-medium">
               {navItems.map((item) => {
                 const isActive =
-                  router.pathname === item.href || router.pathname.startsWith(item.href + '/')
+                  router.pathname === item.href ||
+                  router.pathname.startsWith(item.href + '/')
 
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={classNames(
-                      'nav-link hover:text-sky-400',
+                      'nav-link hover:text-sky-400 transition-colors duration-200',
                       isActive ? 'text-sky-400' : 'text-white'
                     )}
                   >
@@ -95,7 +94,7 @@ export default function Navbar() {
               })}
             </nav>
             <ThemeToggle />
-            {/* Avatar Profile */}
+
             <Link href="/profile">
               <img
                 src={avatarUrl}
@@ -105,9 +104,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile kanan */}
           <div className="md:hidden flex items-center gap-3">
-            {/* Tombol AI mobile */}
             {!isAIPage && (
               <Link
                 href="/aichixia"
@@ -117,6 +114,7 @@ export default function Navbar() {
                 <FaRobot className="text-lg" />
               </Link>
             )}
+
             <Link href="/profile">
               <img
                 src={avatarUrl}
@@ -128,8 +126,11 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Navbar mobile */}
-      {!isReadPage && !isAIPage && <BottomNav />}
+      {!isReadPage && !isAIPage && (
+        <div className="md:hidden">
+          <BottomNav />
+        </div>
+      )}
     </>
   )
 }
