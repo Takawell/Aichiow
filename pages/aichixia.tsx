@@ -268,28 +268,38 @@ export default function AichixiaPage() {
         </section>
 
         <footer className="p-3 bg-[#071026]/60 backdrop-blur-sm sticky bottom-0 rounded-t-xl border-t border-sky-800/30">
-          <div className="flex gap-2 items-center">
-            <input
-              type="text"
-              placeholder="Type your message..."
-              className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={loading}
-            />
-            <button
-              onClick={sendMessage}
-              disabled={loading}
-              className="p-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-105 transition shadow-lg disabled:opacity-50"
+          {!session ? (
+            <Link
+              href="/auth/login"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-sky-600 to-blue-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300"
             >
-              {loading ? (
-                <FaSpinner className="animate-spin text-white" />
-              ) : (
-                <FaPaperPlane className="text-white" />
-              )}
-            </button>
-          </div>
+              <FaPaperPlane className="text-white" />
+              <span>Login to access Aichixia</span>
+            </Link>
+          ) : (
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                placeholder="Type your message..."
+                className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={loading}
+                className="p-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-105 transition shadow-lg disabled:opacity-50"
+              >
+                {loading ? (
+                  <FaSpinner className="animate-spin text-white" />
+                ) : (
+                  <FaPaperPlane className="text-white" />
+                )}
+              </button>
+            </div>
+          )}
         </footer>
       </div>
 
