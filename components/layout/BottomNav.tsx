@@ -40,7 +40,7 @@ export default function BottomNav() {
               exit={{ opacity: 0, y: 40 }}
               transition={{ type: "spring", stiffness: 280, damping: 22 }}
               onClick={() => setOpen(false)}
-              className="fixed bottom-[85px] right-6 z-[60]
+              className="fixed bottom-[110px] right-6 z-[60]
               w-11 h-11 flex items-center justify-center
               rounded-full bg-neutral-900/90 border border-gray-700
               hover:bg-neutral-800/90 text-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.4)]
@@ -51,13 +51,14 @@ export default function BottomNav() {
 
             <motion.nav
               key="nav"
-              initial={{ y: 100 }}
-              animate={{ y: 0 }}
-              exit={{ y: 100 }}
-              transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              className="md:hidden fixed bottom-0 left-0 w-full
-              bg-neutral-900/90 backdrop-blur-xl border-t border-gray-800 
-              rounded-t-2xl flex justify-around items-center py-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]"
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 240, damping: 22 }}
+              className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2
+              w-[90%] max-w-[440px] bg-neutral-900/80 backdrop-blur-xl
+              border border-gray-800 rounded-3xl flex justify-around items-center
+              py-3 px-4 z-50 shadow-[0_4px_25px_rgba(0,0,0,0.5)]"
             >
               {navItems.map((item) => {
                 const isActive =
@@ -74,12 +75,12 @@ export default function BottomNav() {
                       animate={{
                         y: isActive ? -6 : 0,
                         color: isActive ? "#38bdf8" : "#9ca3af",
-                        scale: isActive ? 1.15 : 1,
+                        scale: isActive ? 1.2 : 1,
                       }}
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                       className={`p-2 rounded-full transition-all duration-300 ${
                         isActive
-                          ? "bg-sky-500/20 shadow-[0_0_12px_rgba(56,189,248,0.5)] text-sky-400"
+                          ? "bg-sky-500/20 shadow-[0_0_14px_rgba(56,189,248,0.6)] text-sky-400"
                           : "hover:bg-white/5"
                       }`}
                     >
