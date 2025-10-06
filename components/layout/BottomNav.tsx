@@ -61,7 +61,7 @@ export default function BottomNav() {
       style={{
         background:
           "radial-gradient(60% 60% at 30% 30%, rgba(56,189,248,0.08), transparent 18%), radial-gradient(40% 40% at 75% 65%, rgba(99,102,241,0.04), transparent 25%)",
-        filter: "blur(18px)",
+        filter: "blur(12px)",
       }}
     />
   );
@@ -150,7 +150,7 @@ export default function BottomNav() {
                 onPointerMove={dragHandler}
                 onPointerUp={endDragHandler}
                 onPointerCancel={endDragHandler}
-                className="relative w-[94%] sm:w-[86%] max-w-[480px] bg-gradient-to-b from-neutral-900/72 to-neutral-900/60 backdrop-blur-xl border border-sky-500/14 rounded-3xl overflow-visible flex items-center justify-between px-4 py-3 shadow-[0_10px_50px_rgba(2,6,23,0.6)]"
+                className="relative w-[94%] sm:w-[86%] max-w-[480px] bg-neutral-900/80 backdrop-blur-sm border border-sky-500/10 rounded-3xl overflow-visible flex items-center justify-between px-4 py-3 shadow-[0_10px_50px_rgba(2,6,23,0.6)]"
                 style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 <FloatingGlow />
@@ -170,7 +170,7 @@ export default function BottomNav() {
                         >
                           <motion.span
                             initial={false}
-                            animate={{ y: isActive ? -8 : 0, scale: isActive ? 1.14 : 1 }}
+                            animate={{ y: isActive ? -6 : 0, scale: isActive ? 1.12 : 1 }}
                             transition={{ type: "spring", stiffness: 320, damping: 26 }}
                             className="relative z-30"
                           >
@@ -210,7 +210,7 @@ export default function BottomNav() {
             exit={{ scale: 0.6, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, mass: 0.9 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-900/92 to-neutral-800/84 border border-sky-400/30 shadow-[0_8px_40px_rgba(56,189,248,0.18)] hover:scale-105 active:scale-95 transition-transform duration-200 backdrop-blur-md overflow-hidden"
+            className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-900/92 to-neutral-800/84 border border-sky-400/30 shadow-[0_8px_40px_rgba(56,189,248,0.18)] hover:scale-105 active:scale-95 transition-transform duration-200 backdrop-blur-sm overflow-hidden"
           >
             <motion.div
               aria-hidden
@@ -218,7 +218,7 @@ export default function BottomNav() {
               initial={{ opacity: 0.15 }}
               animate={{ opacity: [0.15, 0.32, 0.15], scale: [1, 1.08, 1] }}
               transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
-              style={{ background: "linear-gradient(135deg, rgba(56,189,248,0.06), rgba(99,102,241,0.04))", filter: "blur(10px)" }}
+              style={{ background: "linear-gradient(135deg, rgba(56,189,248,0.06), rgba(99,102,241,0.04))" }}
             />
             <motion.div
               initial={{ rotate: -12, y: -2, opacity: 0.8 }}
