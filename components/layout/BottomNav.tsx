@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -9,8 +10,6 @@ import {
   FaCalendarAlt,
   FaCompass,
   FaBookOpen,
-  FaChevronUp,
-  FaChevronDown,
 } from "react-icons/fa";
 import { GiBookshelf } from "react-icons/gi";
 import { MdMenuBook } from "react-icons/md";
@@ -37,7 +36,7 @@ export default function BottomNav() {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 220, damping: 22 }}
+            transition={{ type: "spring", stiffness: 260, damping: 22 }}
             className="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 w-[95%] max-w-lg
             bg-neutral-900/80 backdrop-blur-lg border border-gray-800 
             rounded-2xl flex justify-around items-center py-2.5 z-50 shadow-lg"
@@ -89,20 +88,47 @@ export default function BottomNav() {
         )}
       </AnimatePresence>
 
-      <motion.button
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setOpen(!open)}
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 mb-1
-        bg-neutral-900/90 border border-gray-800 rounded-full 
-        text-sky-400 shadow-md p-2.5 z-50 backdrop-blur-lg
-        hover:text-sky-300 hover:scale-105 transition"
-      >
-        {open ? (
-          <FaChevronDown className="text-lg" />
-        ) : (
-          <FaChevronUp className="text-lg" />
-        )}
-      </motion.button>
+      {!open && (
+        <motion.button
+          key="logo"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 250, damping: 18 }}
+          onClick={() => setOpen(true)}
+          className="fixed bottom-6 right-6 z-50
+          w-14 h-14 rounded-full bg-neutral-900/80 border border-gray-800 
+          backdrop-blur-lg shadow-lg flex items-center justify-center
+          hover:scale-105 transition"
+        >
+          <Image
+            src="/logo.png"
+            alt="Logo"
+            width={32}
+            height={32}
+            className="rounded-full"
+          />
+        </motion.button>
+      )}
+
+      {open && (
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setOpen(false)}
+          className="fixed bottom-24 right-6
+          bg-neutral-900/80 border border-gray-800 rounded-full 
+          text-sky-400 shadow-md p-2.5 z-50 backdrop-blur-lg
+          hover:text-sky-300 hover:scale-105 transition"
+        >
+          <Image
+            src="/logo.png"
+            alt="Close Logo"
+            width={20}
+            height={20}
+            className="opacity-70"
+          />
+        </motion.button>
+      )}
     </>
   );
 }
