@@ -1,16 +1,22 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
+import { motion, AnimatePresence, useAnimation, Variants } from "framer-motion";
 import { FaHome, FaCalendarAlt, FaCompass, FaBookOpen } from "react-icons/fa";
 import { GiBookshelf } from "react-icons/gi";
 import { MdMenuBook, MdMenuOpen } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import { BsStars } from "react-icons/bs";
 
-const navItems = [
+type NavItem = {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+};
+
+const navItems: NavItem[] = [
   { href: "/home", label: "Home", icon: <FaHome size={22} /> },
   { href: "/upcoming", label: "Schedule", icon: <FaCalendarAlt size={22} /> },
   { href: "/explore", label: "Explore", icon: <FaCompass size={22} /> },
@@ -19,272 +25,406 @@ const navItems = [
   { href: "/light-novel", label: "Light Novel", icon: <GiBookshelf size={22} /> },
 ];
 
-const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+function clamp(v: number, a: number, b: number) {
+  return Math.max(a, Math.min(b, v));
+}
 
-export default function BottomNav() {
+function useWindowSize() {
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    function onResize() {
+      setSize({ w: window.innerWidth, h: window.innerHeight });
+    }
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return size;
+}
+
+export default function BottomNavSuper() {
   const router = useRouter();
-  const [open, setOpen] = useState(true);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const size = useWindowSize();
   const navRef = useRef<HTMLDivElement | null>(null);
+  const highlightRef = useRef<HTMLDivElement | null>(null);
+  const highlightGhostRef = useRef<HTMLDivElement | null>(null);
+  const [open, setOpen] = useState(true);
+  const [activeIndex, setActiveIndex] = useState<number | null>(() => {
+    const idx = navItems.findIndex(
+      (it) => router.pathname === it.href || router.pathname.startsWith(it.href + "/")
+    );
+    return idx >= 0 ? idx : 0;
+  });
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number; size: number }[]>([]);
+  const rippleCounter = useRef(0);
   const controls = useAnimation();
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
-  const rippleId = useRef(0);
+  const openControls = useAnimation();
+  const highlightControls = useAnimation();
+  const [dragOffset, setDragOffset] = useState(0);
+  const dragStart = useRef<number | null>(null);
+  const particleSeed = useMemo(() => Math.random(), []);
 
   useEffect(() => {
     const idx = navItems.findIndex(
       (it) => router.pathname === it.href || router.pathname.startsWith(it.href + "/")
     );
-    setActiveIndex(idx >= 0 ? idx : null);
+    setActiveIndex(idx >= 0 ? idx : 0);
   }, [router.pathname]);
 
-  const handleNavClick = async (index: number, href: string, e: React.MouseEvent) => {
-    setActiveIndex(index);
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const id = rippleId.current++;
-    setRipples((prev) => [...prev, { id, x, y }]);
-    setTimeout(() => {
-      setRipples((prev) => prev.filter((r) => r.id !== id));
-    }, 600);
-    await controls.start({
-      scale: [1, 1.18, 1],
-      transition: { duration: 0.4, ease: "easeOut" },
-    });
-    setTimeout(() => router.push(href), 200);
-  };
+  useEffect(() => {
+    openControls.start(open ? "open" : "closed");
+  }, [open, openControls]);
 
-  const computeHighlightX = (index: number | null) => {
-    if (!navRef.current || index === null || index < 0) return 0;
+  function computeHighlight(index: number | null) {
+    if (!navRef.current || index === null || index < 0) return { x: 0, w: 36 };
     const container = navRef.current;
     const items = Array.from(container.querySelectorAll("[data-nav-item]")) as HTMLElement[];
+    if (!items || items.length === 0) return { x: 0, w: 36 };
     const item = items[index];
-    if (!item) return 0;
-    const containerRect = container.getBoundingClientRect();
-    const itemRect = item.getBoundingClientRect();
-    const x = itemRect.left - containerRect.left + itemRect.width / 2 - 20;
-    return clamp(Math.round(x), 0, containerRect.width);
+    if (!item) return { x: 0, w: 36 };
+    const cRect = container.getBoundingClientRect();
+    const iRect = item.getBoundingClientRect();
+    const center = iRect.left - cRect.left + iRect.width / 2;
+    const width = clamp(Math.round(iRect.width * 0.62), 28, 70);
+    const x = clamp(Math.round(center - width / 2), 6, Math.max(6, cRect.width - width - 6));
+    return { x, w: width };
+  }
+
+  function handleRipple(e: React.MouseEvent, idPrefix = "") {
+    const el = e.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const size = Math.max(rect.width, rect.height) * 1.6;
+    const id = rippleCounter.current++;
+    setRipples((s) => [...s, { id, x, y, size }]);
+    setTimeout(() => {
+      setRipples((s) => s.filter((r) => r.id !== id));
+    }, 650);
+  }
+
+  async function onNavClick(index: number, href: string, e: React.MouseEvent) {
+    handleRipple(e);
+    setActiveIndex(index);
+    await controls.start({
+      scale: [1, 1.14, 1],
+      rotate: [0, -6, 0],
+      transition: { duration: 0.44, ease: "easeOut" },
+    });
+    const { x, w } = computeHighlight(index);
+    if (highlightRef.current) {
+      highlightControls.start({ x, width: w, opacity: 1, transition: { type: "spring", stiffness: 420, damping: 30 } });
+      if (highlightGhostRef.current) {
+        highlightControls.start({
+          boxShadow: "0 0 22px rgba(56,189,248,0.52)",
+          transition: { duration: 0.34, ease: "easeOut" },
+        });
+      }
+    }
+    setTimeout(() => router.push(href), 180);
+  }
+
+  function onPointerDown(e: React.PointerEvent) {
+    dragStart.current = e.clientX;
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    if (dragStart.current === null || !navRef.current) return;
+    const dx = e.clientX - dragStart.current;
+    const damped = clamp(dx / 12, -12, 12);
+    setDragOffset(damped);
+    const items = Array.from(navRef.current.querySelectorAll("[data-nav-item]")) as HTMLElement[];
+    items.forEach((c, i) => {
+      const n = c as HTMLElement;
+      const offset = clamp((damped / 2) * (i - (items.length - 1) / 2), -10, 10);
+      n.style.transform = `translateY(0px) translateX(${offset}px)`;
+    });
+  }
+
+  function onPointerUp() {
+    dragStart.current = null;
+    setDragOffset(0);
+    if (!navRef.current) return;
+    const items = Array.from(navRef.current.querySelectorAll("[data-nav-item]")) as HTMLElement[];
+    items.forEach((c) => {
+      const n = c as HTMLElement;
+      n.style.transform = "";
+    });
+  }
+
+  const navVariant: Variants = {
+    open: { y: 0, opacity: 1, scale: 1, transition: { type: "spring", stiffness: 220, damping: 22 } },
+    closed: { y: 48, opacity: 0, scale: 0.98, transition: { duration: 0.28 } },
   };
 
-  const FloatingGlow = () => (
-    <motion.div
-      aria-hidden
-      className="absolute inset-[-25%] pointer-events-none rounded-3xl"
-      animate={{
-        opacity: [0.15, 0.35, 0.15],
-        scale: [1, 1.05, 1],
-        rotate: [0, 2, 0],
-      }}
-      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      style={{
-        background:
-          "radial-gradient(40% 50% at 25% 25%, rgba(56,189,248,0.08), transparent 60%), radial-gradient(30% 40% at 70% 70%, rgba(147,197,253,0.06), transparent 80%)",
-        filter: "blur(24px)",
-      }}
-    />
-  );
-
-  const Sparks = () => {
-    const sparks = Array.from({ length: 8 });
-    return (
-      <div className="absolute inset-0 pointer-events-none">
-        {sparks.map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-[6px] h-[6px] rounded-full bg-sky-400/70"
-            style={{
-              left: `${10 + i * 12}%`,
-              top: `${Math.random() * 80}%`,
-              filter: "blur(1px)",
-            }}
-            animate={{
-              opacity: [0.2, 1, 0.2],
-              scale: [0.8, 1.2, 0.8],
-              y: [0, -8, 0],
-            }}
-            transition={{
-              duration: 2 + Math.random() * 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.3,
-            }}
-          />
-        ))}
-      </div>
-    );
+  const toggleVariant: Variants = {
+    idle: { rotate: 0, scale: 1 },
+    jiggle: { rotate: [0, 6, -6, 0], transition: { duration: 0.8 } },
   };
+
+  const glowGradient = "linear-gradient(90deg,#38bdf8,#0ea5e9,#60a5fa)";
+
+  useEffect(() => {
+    const handleResize = () => {
+      const idx = activeIndex;
+      if (idx !== null && idx !== undefined) {
+        const { x, w } = computeHighlight(idx);
+        highlightControls.set({ x, width: w });
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [activeIndex, highlightControls, size.w]);
+
+  useEffect(() => {
+    const initial = activeIndex ?? 0;
+    const { x, w } = computeHighlight(initial);
+    highlightControls.set({ x, width: w, opacity: 1 });
+  }, []);
 
   return (
     <>
       <AnimatePresence>
         {open && (
-          <>
-            <motion.button
-              key="close"
-              aria-label="Close navigation"
-              initial={{ opacity: 0, scale: 0.7, y: 25 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.7, y: 25 }}
-              transition={{ type: "spring", stiffness: 300, damping: 24 }}
-              onClick={() => setOpen(false)}
-              className="fixed bottom-[115px] right-5 z-[60] w-12 h-12 flex items-center justify-center rounded-xl bg-neutral-900/95 border border-sky-500/30 hover:bg-neutral-800/90 text-sky-300 shadow-[0_0_25px_rgba(56,189,248,0.35)] backdrop-blur-xl transition-all duration-300"
-            >
-              <IoClose size={20} />
-            </motion.button>
-
+          <motion.div
+            initial="closed"
+            animate="open"
+            exit="closed"
+            variants={navVariant}
+            className="fixed inset-x-0 bottom-6 md:hidden flex justify-center z-50"
+            style={{ pointerEvents: "auto" }}
+          >
             <motion.div
-              key="nav"
-              initial={{ opacity: 0, scale: 0.85, y: 120 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 120 }}
-              transition={{ type: "spring", stiffness: 180, damping: 22 }}
-              className="fixed md:hidden bottom-6 inset-x-0 flex justify-center z-50"
+              ref={navRef}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              onPointerCancel={onPointerUp}
+              className="relative w-[94%] sm:w-[86%] max-w-[520px] bg-gradient-to-b from-neutral-900/80 to-neutral-900/68 rounded-[28px] px-4 py-3 flex items-center justify-between shadow-[0_12px_60px_rgba(0,0,0,0.55)] border border-white/6 overflow-visible"
+              style={{
+                backdropFilter: "saturate(120%) blur(10px)",
+                WebkitBackdropFilter: "saturate(120%) blur(10px)",
+                WebkitTapHighlightColor: "transparent",
+              }}
             >
               <motion.div
-                ref={navRef}
-                className="relative w-[92%] sm:w-[86%] max-w-[480px] bg-gradient-to-b from-neutral-900/80 to-neutral-900/70 border border-sky-500/15 backdrop-blur-2xl rounded-3xl shadow-[0_10px_50px_rgba(0,0,0,0.6)] flex justify-between items-center py-3 px-4 overflow-visible"
+                className="absolute inset-0 rounded-[28px] pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                style={{
+                  background:
+                    "radial-gradient(40% 40% at 20% 20%, rgba(56,189,248,0.03), transparent 18%), radial-gradient(30% 30% at 80% 80%, rgba(99,102,241,0.02), transparent 26%)",
+                  filter: "blur(16px)",
+                }}
+              />
+              <motion.div
+                className="absolute -left-6 -top-6 w-[120px] h-[120px] rounded-full pointer-events-none"
+                animate={{ rotate: [0, 6, -6, 0] }}
+                transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+                style={{
+                  background: "radial-gradient(circle, rgba(56,189,248,0.03), transparent 50%)",
+                  filter: "blur(20px)",
+                }}
+              />
+              <motion.div
+                ref={highlightRef}
+                className="absolute bottom-4 left-0 h-[3px] rounded-full z-40"
+                initial={false}
+                animate={highlightControls}
+                style={{
+                  background: glowGradient,
+                  boxShadow: "0 0 14px rgba(56,189,248,0.45)",
+                }}
+              />
+              <motion.div
+                ref={highlightGhostRef}
+                className="absolute bottom-2 left-0 h-[6px] rounded-full blur-[8px] z-30"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: activeIndex !== null ? 0.18 : 0 }}
+                transition={{ duration: 0.3 }}
+                style={{
+                  background: "linear-gradient(90deg, rgba(56,189,248,0.18), rgba(99,102,241,0.06))",
+                }}
+              />
+              <motion.div
+                className="relative z-50 flex items-center gap-2 justify-between w-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.08, duration: 0.45 }}
               >
-                <FloatingGlow />
-                <Sparks />
-
-                <motion.div
-                  layoutId="highlight"
-                  className="absolute bottom-4 left-0 h-[3px] rounded-full shadow-[0_0_14px_rgba(56,189,248,0.6)]"
-                  initial={false}
-                  animate={{
-                    x: computeHighlightX(activeIndex),
-                    width: 40,
-                    opacity: activeIndex === null ? 0 : 1,
-                  }}
-                  transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                  style={{
-                    background: "linear-gradient(90deg,#38bdf8,#0ea5e9,#38bdf8)",
-                  }}
-                />
-
-                <div className="relative z-10 flex justify-between w-full items-center">
-                  {navItems.map((item, index) => {
-                    const isActive =
-                      router.pathname === item.href ||
-                      router.pathname.startsWith(item.href + "/");
-
-                    return (
-                      <div
-                        key={item.href}
-                        data-nav-item
-                        className="relative flex flex-col items-center justify-center w-[56px]"
+                {navItems.map((item, i) => {
+                  const isActive =
+                    router.pathname === item.href || router.pathname.startsWith(item.href + "/") || activeIndex === i;
+                  const ikey = `nav-${i}`;
+                  return (
+                    <div
+                      key={ikey}
+                      data-nav-item
+                      className="relative flex flex-col items-center justify-center w-[56px] select-none"
+                      aria-hidden={false}
+                    >
+                      <motion.button
+                        onClick={(e) => onNavClick(i, item.href, e)}
+                        whileHover={{ scale: 1.12 }}
+                        whileTap={{ scale: 0.96 }}
+                        className={`relative z-50 w-full flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-colors duration-200 ${isActive ? "text-sky-400" : "text-gray-400 hover:text-sky-300"}`}
+                        style={{ WebkitTapHighlightColor: "transparent" }}
                       >
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={(e) => handleNavClick(index, item.href, e)}
-                          className={`relative flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-colors duration-200 ${
-                            isActive ? "text-sky-400" : "text-gray-400 hover:text-sky-300"
-                          }`}
-                        >
-                          {ripples.map((r) => (
-                            <motion.span
-                              key={r.id}
-                              className="absolute bg-sky-400/40 rounded-full"
-                              style={{
-                                left: r.x,
-                                top: r.y,
-                                width: 4,
-                                height: 4,
-                                transform: "translate(-50%, -50%)",
-                              }}
-                              animate={{
-                                scale: [0, 20],
-                                opacity: [0.6, 0],
-                              }}
-                              transition={{ duration: 0.6, ease: "easeOut" }}
-                            />
-                          ))}
+                        {ripples.map((r) => (
                           <motion.span
-                            animate={{
-                              y: isActive ? -6 : 0,
-                              scale: isActive ? 1.15 : 1,
-                              opacity: 1,
+                            key={r.id}
+                            className="absolute rounded-full"
+                            style={{
+                              left: r.x,
+                              top: r.y,
+                              width: r.size,
+                              height: r.size,
+                              transform: "translate(-50%, -50%)",
+                              background: "radial-gradient(circle at 30% 30%, rgba(56,189,248,0.45), rgba(56,189,248,0.12))",
+                              zIndex: 10,
+                              pointerEvents: "none",
                             }}
-                            transition={{ type: "spring", stiffness: 320, damping: 26 }}
-                          >
-                            {item.icon}
-                          </motion.span>
-                          <AnimatePresence>
-                            {isActive && (
-                              <motion.span
-                                initial={{ opacity: 0, y: 6 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 6 }}
-                                transition={{ duration: 0.25 }}
-                                className="text-[11px] font-medium text-sky-400"
-                              >
-                                {item.label}
-                              </motion.span>
-                            )}
-                          </AnimatePresence>
-                        </motion.button>
-                      </div>
-                    );
-                  })}
-                </div>
+                            initial={{ scale: 0, opacity: 0.6 }}
+                            animate={{ scale: 1, opacity: 0 }}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
+                          />
+                        ))}
+                        <motion.span
+                          initial={false}
+                          animate={{
+                            y: isActive ? -8 : 0,
+                            scale: isActive ? 1.14 : 1,
+                          }}
+                          transition={{ type: "spring", stiffness: 340, damping: 26 }}
+                          className="relative z-60"
+                        >
+                          {item.icon}
+                        </motion.span>
+                        <AnimatePresence>
+                          {isActive && (
+                            <motion.span
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 6 }}
+                              transition={{ duration: 0.26 }}
+                              className="text-[11px] font-medium text-sky-300 z-60"
+                            >
+                              {item.label}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </motion.button>
+                    </div>
+                  );
+                })}
               </motion.div>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {!open && (
           <motion.button
-            key="open"
-            initial={{ scale: 0, opacity: 0, rotate: -120 }}
-            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-            exit={{ scale: 0, opacity: 0, rotate: 120 }}
+            key="open-toggle"
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.6, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 22 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 flex items-center justify-center rounded-2xl bg-gradient-to-br from-neutral-900/95 to-neutral-800/80 border border-sky-400/30 shadow-[0_8px_40px_rgba(56,189,248,0.3)] hover:scale-105 active:scale-95 transition-transform duration-200 backdrop-blur-xl"
+            className="fixed bottom-6 right-6 z-60 w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br from-neutral-900/94 to-neutral-800/84 border border-sky-400/20 shadow-[0_18px_60px_rgba(56,189,248,0.14)] backdrop-blur-xl"
+            style={{ WebkitTapHighlightColor: "transparent" }}
+            aria-label="Open navigation"
           >
             <motion.div
-              animate={{
-                rotate: [0, 12, 0],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="text-sky-400"
+              animate={{ rotate: [0, 10, -6, 0], scale: [1, 1.06, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="z-40"
             >
-              <MdMenuOpen size={28} />
+              <MdMenuOpen size={28} className="text-sky-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.9)]" />
             </motion.div>
             <motion.div
               className="absolute inset-0 rounded-2xl"
-              animate={{
-                opacity: [0.1, 0.3, 0.1],
-                scale: [1, 1.08, 1],
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              animate={{ opacity: [0.16, 0.34, 0.16], scale: [1, 1.06, 1] }}
+              transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
               style={{
-                background:
-                  "radial-gradient(circle at 30% 30%, rgba(56,189,248,0.12), transparent 60%)",
-                filter: "blur(12px)",
+                background: "radial-gradient(circle at 30% 30%, rgba(56,189,248,0.06), transparent 60%)",
+                filter: "blur(10px)",
               }}
             />
             <motion.div
-              animate={{
-                opacity: [0.5, 1, 0.5],
-                y: [0, -3, 0],
-              }}
-              transition={{ duration: 2.4, repeat: Infinity }}
-              className="absolute -top-1 right-2 text-sky-300/90"
+              className="absolute -top-1 -right-1"
+              animate={{ y: [0, -4, 0], opacity: [0.6, 1, 0.6] }}
+              transition={{ duration: 2.6, repeat: Infinity }}
             >
-              <BsStars size={12} />
+              <BsStars size={12} className="text-sky-300/90" />
             </motion.div>
           </motion.button>
         )}
       </AnimatePresence>
+
+      <motion.button
+        onClick={() => setOpen((s) => !s)}
+        aria-label="Toggle navigation"
+        className="fixed bottom-[115px] right-5 z-60 hidden md:flex items-center justify-center w-11 h-11 rounded-xl bg-neutral-900/92 border border-sky-500/12 text-sky-300 shadow-[0_8px_30px_rgba(56,189,248,0.12)] backdrop-blur-md"
+        style={{ WebkitTapHighlightColor: "transparent" }}
+      >
+        <AnimatePresence>
+          {open ? (
+            <motion.div
+              key="close-ico"
+              initial={{ opacity: 0, rotate: -30, scale: 0.86 }}
+              animate={{ opacity: 1, rotate: 0, scale: 1 }}
+              exit={{ opacity: 0, rotate: 30, scale: 0.86 }}
+              transition={{ duration: 0.36 }}
+            >
+              <IoClose size={18} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="open-ico"
+              initial={{ opacity: 0, rotate: -30, scale: 0.86 }}
+              animate={{ opacity: 1, rotate: 0, scale: 1 }}
+              exit={{ opacity: 0, rotate: 30, scale: 0.86 }}
+              transition={{ duration: 0.36 }}
+            >
+              <MdMenuOpen size={20} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.button>
+
+      <div aria-hidden className="pointer-events-none">
+        <svg width="0" height="0" style={{ position: "absolute" }}>
+          <defs>
+            <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="6" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+        </svg>
+      </div>
+      <style jsx>{`
+        .z-60 {
+          z-index: 60;
+        }
+        .rounded-[28px] {
+          border-radius: 28px;
+        }
+        @media (max-width: 420px) {
+          .w-[94%] {
+            width: 96% !important;
+          }
+          .w-[56px] {
+            width: 48px !important;
+          }
+        }
+      `}</style>
     </>
   );
 }
