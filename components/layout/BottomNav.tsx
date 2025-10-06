@@ -5,12 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  FaHome,
-  FaCalendarAlt,
-  FaCompass,
-  FaBookOpen,
-} from "react-icons/fa";
+import { FaHome, FaCalendarAlt, FaCompass, FaBookOpen } from "react-icons/fa";
 import { GiBookshelf } from "react-icons/gi";
 import { MdMenuBook } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
@@ -26,88 +21,115 @@ const navItems = [
 
 export default function BottomNav() {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   return (
     <>
-      <motion.button
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 250, damping: 18 }}
-        onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 z-[70] flex items-center justify-center
-        w-14 h-14 rounded-full bg-gradient-to-br from-sky-500 to-blue-600
-        border border-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.6)]
-        hover:scale-105 transition-transform backdrop-blur-lg overflow-hidden"
-      >
-        {open ? (
-          <IoClose size={26} className="text-white" />
-        ) : (
-          <Image
-            src="/logo.png"
-            alt="Aichiow"
-            width={34}
-            height={34}
-            className="object-contain rounded-full"
-          />
-        )}
-      </motion.button>
-
       <AnimatePresence>
         {open && (
-          <motion.nav
-            key="nav"
-            initial={{ y: 100, opacity: 0, scale: 0.95 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 100, opacity: 0, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 200, damping: 22 }}
-            className="fixed bottom-[85px] left-1/2 -translate-x-1/2
-            w-[88%] max-w-[420px] bg-neutral-900/85 backdrop-blur-2xl
-            border border-sky-700/30 rounded-3xl flex justify-around items-center
-            py-3 px-3 z-[60] shadow-[0_8px_30px_rgba(0,0,0,0.5)]
-            ring-1 ring-sky-500/10"
-          >
-            {navItems.map((item) => {
-              const isActive =
-                router.pathname === item.href ||
-                router.pathname.startsWith(item.href + "/");
+          <>
+            <motion.button
+              key="close"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ type: "spring", stiffness: 280, damping: 22 }}
+              onClick={() => setOpen(false)}
+              className="fixed bottom-[110px] right-6 z-[60]
+              w-11 h-11 flex items-center justify-center
+              rounded-full bg-neutral-900/90 border border-gray-700
+              hover:bg-neutral-800/90 text-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.4)]
+              backdrop-blur-lg transition-all duration-300"
+            >
+              <IoClose size={22} />
+            </motion.button>
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex flex-col items-center relative"
-                >
-                  <motion.div
-                    animate={{
-                      y: isActive ? -6 : 0,
-                      scale: isActive ? 1.15 : 1,
-                    }}
-                    transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                    className={`p-2 rounded-full transition-all duration-300 ${
-                      isActive
-                        ? "bg-sky-500/20 shadow-[0_0_14px_rgba(56,189,248,0.6)] text-sky-400"
-                        : "text-gray-400 hover:bg-white/5 hover:text-sky-300"
-                    }`}
+            <motion.nav
+              key="nav"
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 240, damping: 22 }}
+              className="
+                md:hidden fixed bottom-5 left-1/2 -translate-x-1/2
+                w-[92%] sm:w-[88%] max-w-[430px]
+                bg-neutral-900/80 backdrop-blur-xl
+                border border-gray-800 rounded-3xl
+                flex justify-between items-center
+                py-3 px-4 z-50 shadow-[0_4px_25px_rgba(0,0,0,0.5)]
+                overflow-hidden
+              "
+            >
+              {navItems.map((item) => {
+                const isActive =
+                  router.pathname === item.href ||
+                  router.pathname.startsWith(item.href + "/");
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex flex-col items-center relative"
                   >
-                    {item.icon}
-                  </motion.div>
-
-                  {isActive && (
-                    <motion.span
-                      initial={{ opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 4 }}
-                      transition={{ duration: 0.2 }}
-                      className="text-[11px] font-medium mt-1 text-sky-400"
+                    <motion.div
+                      animate={{
+                        y: isActive ? -6 : 0,
+                        color: isActive ? "#38bdf8" : "#9ca3af",
+                        scale: isActive ? 1.2 : 1,
+                      }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className={`p-2 rounded-full transition-all duration-300 ${
+                        isActive
+                          ? "bg-sky-500/20 shadow-[0_0_14px_rgba(56,189,248,0.6)] text-sky-400"
+                          : "hover:bg-white/5"
+                      }`}
                     >
-                      {item.label}
-                    </motion.span>
-                  )}
-                </Link>
-              );
-            })}
-          </motion.nav>
+                      {item.icon}
+                    </motion.div>
+
+                    <AnimatePresence>
+                      {isActive && (
+                        <motion.span
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 4 }}
+                          transition={{ duration: 0.25 }}
+                          className="text-[11px] font-medium mt-1 text-sky-400"
+                        >
+                          {item.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Link>
+                );
+              })}
+            </motion.nav>
+          </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {!open && (
+          <motion.button
+            key="toggle"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 250, damping: 18 }}
+            onClick={() => setOpen(true)}
+            className="fixed bottom-6 right-6 z-50 flex items-center justify-center
+              w-14 h-14 rounded-full bg-gradient-to-br from-sky-500 to-blue-600
+              border border-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.6)]
+              hover:scale-105 transition-transform backdrop-blur-lg overflow-hidden"
+          >
+            <Image
+              src="/logo.png"
+              alt="Aichiow"
+              width={36}
+              height={36}
+              className="object-contain rounded-full"
+            />
+          </motion.button>
         )}
       </AnimatePresence>
     </>
