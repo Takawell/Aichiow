@@ -3,13 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { motion, AnimatePresence, useAnimation, PanInfo } from "framer-motion";
-import {
-  FaHome,
-  FaCalendarAlt,
-  FaCompass,
-  FaBookOpen,
-} from "react-icons/fa";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
+import { FaHome, FaCalendarAlt, FaCompass, FaBookOpen } from "react-icons/fa";
 import { GiBookshelf } from "react-icons/gi";
 import { MdMenuBook, MdMenuOpen } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
@@ -51,7 +46,6 @@ export default function BottomNav() {
       rotate: [0, -4, 0],
       transition: { duration: 0.45, ease: "circOut" },
     });
-
     setPressing(true);
     setTimeout(() => setPressing(false), 260);
     setTimeout(() => {
@@ -120,8 +114,8 @@ export default function BottomNav() {
     if (!item) return 0;
     const containerRect = container.getBoundingClientRect();
     const itemRect = item.getBoundingClientRect();
-    const x = itemRect.left - containerRect.left + itemRect.width / 2 - 25; // adjust to center for width 50
-    return clamp(Math.round(x), 0, Math.max(0, containerRect.width - 50));
+    const x = itemRect.left - containerRect.left + itemRect.width / 2 - 20;
+    return clamp(Math.round(x), 0, Math.max(0, containerRect.width - 40));
   };
 
   const startDrag = useRef<number | null>(null);
@@ -155,11 +149,7 @@ export default function BottomNav() {
               exit={{ opacity: 0, y: 26, scale: 0.8 }}
               transition={{ type: "spring", stiffness: 320, damping: 28 }}
               onClick={() => setOpen(false)}
-              className="fixed bottom-[112px] right-5 z-[60]
-                w-11 h-11 flex items-center justify-center
-                rounded-xl bg-neutral-900/92 border border-sky-500/20
-                hover:bg-neutral-800/90 text-sky-300 shadow-[0_6px_24px_rgba(56,189,248,0.25)]
-                backdrop-blur-md transition-all duration-220"
+              className="fixed bottom-[112px] right-5 z-[60] w-11 h-11 flex items-center justify-center rounded-xl bg-neutral-900/92 border border-sky-500/20 hover:bg-neutral-800/90 text-sky-300 shadow-[0_6px_24px_rgba(56,189,248,0.25)] backdrop-blur-md transition-all duration-220"
             >
               <IoClose size={18} />
             </motion.button>
@@ -178,44 +168,36 @@ export default function BottomNav() {
                 onPointerMove={onDrag}
                 onPointerUp={onDragEnd}
                 onPointerCancel={onDragEnd}
-                className="relative w-[94%] sm:w-[86%] max-w-[480px]
-                  bg-gradient-to-b from-neutral-900/72 to-neutral-900/60
-                  backdrop-blur-xl border border-sky-500/14 rounded-3xl overflow-visible
-                  flex items-center justify-between px-4 py-3 shadow-[0_10px_50px_rgba(2,6,23,0.6)]"
-                style={{
-                  WebkitTapHighlightColor: "transparent",
-                }}
+                className="relative w-[94%] sm:w-[86%] max-w-[480px] bg-gradient-to-b from-neutral-900/72 to-neutral-900/60 backdrop-blur-xl border border-sky-500/14 rounded-3xl overflow-visible flex items-center justify-between px-4 py-3 shadow-[0_10px_50px_rgba(2,6,23,0.6)]"
+                style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 <FloatingGlow />
                 <Sparks count={6} />
-
                 <motion.div
                   layoutId="highlight"
                   aria-hidden
-                  className="absolute bottom-4 left-0 h-[6px] rounded-full shadow-[0_0_20px_rgba(56,189,248,0.45)]"
+                  className="absolute bottom-4 left-0 h-[3px] rounded-full shadow-[0_0_12px_rgba(56,189,248,0.45)]"
                   initial={false}
                   animate={{
                     x: computeHighlightX(activeIndex),
-                    width: 50,
+                    width: 40,
                     opacity: activeIndex === null ? 0 : 1,
                   }}
                   transition={{
                     type: "spring",
-                    stiffness: 360,
-                    damping: 28,
+                    stiffness: 420,
+                    damping: 26,
                   }}
                   style={{
-                    background: "linear-gradient(90deg,#60a5fa,#38bdf8)",
+                    background: "linear-gradient(90deg,#38bdf8,#0ea5e9,#38bdf8)",
                     zIndex: 5,
                   }}
                 />
-
                 <div className="relative z-10 flex gap-1 items-center justify-between w-full">
                   {navItems.map((item, index) => {
                     const isActive =
                       router.pathname === item.href ||
                       router.pathname.startsWith(item.href + "/");
-
                     return (
                       <div
                         key={item.href}
@@ -226,53 +208,23 @@ export default function BottomNav() {
                           aria-label={item.label}
                           whileHover={{ scale: 1.12 }}
                           whileTap={{ scale: 0.96 }}
-                          onPointerDown={() => {
-                            controls.start({ scale: [1, 0.96, 1], transition: { duration: 0.24 } });
-                          }}
                           onClick={() => handleNavClick(index, item.href)}
-                          className={`relative z-20 w-full flex flex-col items-center justify-center gap-1
-                            rounded-lg px-2 py-1 transition-all duration-220
-                            ${isActive ? "text-sky-300" : "text-gray-400 hover:text-sky-300"}`}
+                          className={`relative z-20 w-full flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-1 transition-all duration-220 ${
+                            isActive ? "text-sky-300" : "text-gray-400 hover:text-sky-300"
+                          }`}
                         >
-                          <motion.div
-                            aria-hidden
-                            initial={false}
-                            animate={{
-                              scale: isActive ? 1 : 0.98,
-                              opacity: isActive ? 1 : 0,
-                            }}
-                            transition={{ duration: 0.5, ease: "easeOut" }}
-                            className="absolute inset-0 m-1 rounded-xl pointer-events-none"
-                            style={{
-                              background: isActive ? "linear-gradient(180deg, rgba(56,189,248,0.06), rgba(99,102,241,0.02))" : "transparent",
-                              filter: isActive ? "blur(6px)" : undefined,
-                              zIndex: 1,
-                            }}
-                          />
-
-                          {isActive && (
-                            <motion.div
-                              aria-hidden
-                              initial={{ scale: 0.9, opacity: 0.22 }}
-                              animate={{ scale: [0.95, 1.12, 0.95], opacity: [0.22, 0.08, 0.22] }}
-                              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                              className="absolute inset-0 rounded-xl pointer-events-none"
-                              style={{ zIndex: 0, background: "rgba(56,189,248,0.02)" }}
-                            />
-                          )}
-
                           <motion.span
                             initial={false}
                             animate={{
                               y: isActive ? -8 : 0,
                               scale: isActive ? 1.14 : 1,
+                              opacity: 1,
                             }}
                             transition={{ type: "spring", stiffness: 320, damping: 26 }}
-                            className={`relative z-30`}
+                            className="relative z-30"
                           >
                             {item.icon}
                           </motion.span>
-
                           <AnimatePresence>
                             {isActive && (
                               <motion.span
@@ -287,18 +239,6 @@ export default function BottomNav() {
                             )}
                           </AnimatePresence>
                         </motion.button>
-
-                        {/* small bottom shadow when active - decorative (NOT another underline) */}
-                        {isActive && (
-                          <motion.div
-                            aria-hidden
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.28 }}
-                            className="absolute -bottom-2 h-[6px] w-[22px] rounded-full bg-sky-400/30 z-0"
-                            style={{ filter: "blur(6px)" }}
-                          />
-                        )}
                       </div>
                     );
                   })}
@@ -319,10 +259,7 @@ export default function BottomNav() {
             exit={{ scale: 0.6, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, mass: 0.9 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 flex items-center justify-center
-              w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-900/92 to-neutral-800/84
-              border border-sky-400/30 shadow-[0_8px_40px_rgba(56,189,248,0.18)]
-              hover:scale-105 active:scale-95 transition-transform duration-200 backdrop-blur-md overflow-hidden"
+            className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-900/92 to-neutral-800/84 border border-sky-400/30 shadow-[0_8px_40px_rgba(56,189,248,0.18)] hover:scale-105 active:scale-95 transition-transform duration-200 backdrop-blur-md overflow-hidden"
           >
             <motion.div
               aria-hidden
@@ -335,7 +272,6 @@ export default function BottomNav() {
                 filter: "blur(10px)",
               }}
             />
-
             <motion.div
               initial={{ rotate: -12, y: -2, opacity: 0.8 }}
               animate={{ rotate: 0, y: 0, opacity: 1 }}
@@ -344,7 +280,6 @@ export default function BottomNav() {
             >
               <MdMenuOpen size={28} className="text-sky-400 drop-shadow-[0_0_12px_rgba(56,189,248,0.9)]" />
             </motion.div>
-
             <motion.div
               aria-hidden
               className="absolute -top-1 right-1 z-10"
