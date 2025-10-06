@@ -40,10 +40,10 @@ export default function BottomNav() {
               exit={{ opacity: 0, y: 30 }}
               transition={{ type: "spring", stiffness: 280, damping: 22 }}
               onClick={() => setOpen(false)}
-              className="fixed bottom-[90px] right-6 z-[60]
+              className="fixed bottom-[calc(4.5rem+80px)] right-6 z-[60]
               w-11 h-11 flex items-center justify-center
-              rounded-full bg-neutral-900/90 border border-gray-700
-              hover:bg-neutral-800/90 text-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.4)]
+              rounded-full bg-neutral-900/95 border border-gray-700
+              hover:bg-neutral-800 text-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.5)]
               backdrop-blur-lg transition-all duration-300"
             >
               <IoClose size={22} />
@@ -55,9 +55,9 @@ export default function BottomNav() {
               animate={{ y: 0 }}
               exit={{ y: 100 }}
               transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[94%] max-w-lg
+              className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] max-w-lg
               bg-neutral-900/90 backdrop-blur-xl border border-gray-800 
-              rounded-2xl flex justify-around items-center py-3 z-50 shadow-[0_0_25px_rgba(0,0,0,0.5)]"
+              rounded-2xl flex justify-around items-center py-3 z-50 shadow-[0_0_25px_rgba(0,0,0,0.6)]"
             >
               {navItems.map((item) => {
                 const isActive =
