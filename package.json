@@ -13,7 +13,6 @@
     "@tanstack/react-query": "^4.29.12",
     "autoprefixer": "^10.4.17",
     "axios": "^1.6.8",
-    "animejs": "4.2.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.0.10",
