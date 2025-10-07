@@ -8,7 +8,7 @@ export async function fetchManhwaList(page = 1, genre?: string) {
           type: MANGA
           sort: TRENDING_DESC
           countryOfOrigin: "KR"
-          genre: $genre
+          genre_in: [$genre]
         ) {
           id
           title {
@@ -33,15 +33,17 @@ export async function fetchManhwaList(page = 1, genre?: string) {
       }
     }
   `
+
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { page, genre } })
+    body: JSON.stringify({ query, variables: { page, genre } }),
   })
   const { data } = await response.json()
+
   return {
-    list: data.Page.media,
-    totalPages: data.Page.pageInfo.lastPage
+    list: data?.Page?.media || [],
+    totalPages: data?.Page?.pageInfo?.lastPage || 1,
   }
 }
 
@@ -49,7 +51,11 @@ export async function searchManhwa(search: string) {
   const query = `
     query ($search: String) {
       Page(page: 1, perPage: 20) {
-        media(type: MANGA, search: $search, countryOfOrigin: "KR") {
+        media(
+          type: MANGA,
+          search: $search,
+          countryOfOrigin: "KR"
+        ) {
           id
           title {
             romaji
@@ -69,10 +75,11 @@ export async function searchManhwa(search: string) {
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { search } })
+    body: JSON.stringify({ query, variables: { search } }),
   })
   const { data } = await response.json()
-  return data.Page.media
+
+  return data?.Page?.media || []
 }
 
 export async function fetchManhwaDetail(id: number) {
@@ -119,13 +126,14 @@ export async function fetchManhwaDetail(id: number) {
       }
     }
   `
+
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { id } })
+    body: JSON.stringify({ query, variables: { id } }),
   })
   const { data } = await response.json()
-  return data.Media
+  return data?.Media || null
 }
 
 export async function fetchGenres() {
@@ -137,10 +145,10 @@ export async function fetchGenres() {
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query })
+    body: JSON.stringify({ query }),
   })
   const { data } = await response.json()
-  return data.GenreCollection
+  return data?.GenreCollection || []
 }
 
 export async function fetchManhwaByGenre(page = 1, genre: string) {
@@ -150,7 +158,7 @@ export async function fetchManhwaByGenre(page = 1, genre: string) {
         media(
           type: MANGA
           countryOfOrigin: "KR"
-          genre: $genre
+          genre_in: [$genre]
           sort: POPULARITY_DESC
         ) {
           id
@@ -177,15 +185,17 @@ export async function fetchManhwaByGenre(page = 1, genre: string) {
       }
     }
   `
+
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { page, genre } })
+    body: JSON.stringify({ query, variables: { page, genre } }),
   })
   const { data } = await response.json()
+
   return {
-    list: data.Page.media,
-    pageInfo: data.Page.pageInfo
+    list: data?.Page?.media || [],
+    pageInfo: data?.Page?.pageInfo || {},
   }
 }
 
@@ -202,7 +212,7 @@ export async function fetchManhwaListExtended(
           format: MANHWA
           sort: $sort
           countryOfOrigin: "KR"
-          genre: $genre
+          genre_in: [$genre]
         ) {
           id
           title {
@@ -236,7 +246,6 @@ export async function fetchManhwaListExtended(
     page,
     sort: [sortType],
   }
-
   if (genre) variables.genre = genre
 
   const response = await fetch(ANILIST_URL, {
@@ -249,8 +258,9 @@ export async function fetchManhwaListExtended(
   })
 
   const { data } = await response.json()
-  const list = data?.Page?.media || []
-  const totalPages = data?.Page?.pageInfo?.lastPage || 1
 
-  return { list, totalPages }
+  return {
+    list: data?.Page?.media || [],
+    totalPages: data?.Page?.pageInfo?.lastPage || 1,
+  }
 }
