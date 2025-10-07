@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 import ManhwaHeroSection from '@/components/manhwa/ManhwaHeroSection'
-import ManhwaCard from '@/components/manhwa/ManhwaCard'
 import { fetchManhwaList, searchManhwa, fetchGenres } from '@/lib/anilistManhwa'
 import { Manhwa } from '@/types/manhwa'
-import { FaSearch, FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
 export default function ManhwaPage() {
   const [manhwa, setManhwa] = useState<Manhwa[]>([])
@@ -59,75 +57,56 @@ export default function ManhwaPage() {
     <>
       <Head>
         <title>Manhwa | Aichiow</title>
-        <meta name="description" content="Search and collect all the manhwa you love on aichiow" />
+        <meta name="description" content="Search and collect all the manhwa you love only on aichiow" />
       </Head>
 
-      <main className="min-h-screen bg-gradient-to-b from-sky-950 via-sky-900/80 to-black text-white relative overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] bg-sky-500/30 blur-[160px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-blue-600/20 blur-[160px] rounded-full"></div>
+      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
+        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 py-6 space-y-6">
+          {loading ? (
+            <section className="w-full h-[320px] md:h-[460px] bg-neutral-900 rounded-lg shadow-inner overflow-hidden animate-pulse"></section>
+          ) : manhwa.length > 0 ? (
+            <ManhwaHeroSection manhwa={manhwa[0]} />
+          ) : (
+            <p className="text-red-500">Tidak ada manhwa ditemukan.</p>
+          )}
 
-        <div className="relative w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 py-8 space-y-10">
-          <AnimatePresence mode="wait">
-            {loading ? (
-              <motion.section
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="w-full h-[320px] md:h-[460px] bg-sky-900/30 rounded-2xl shadow-inner animate-pulse"
-              />
-            ) : manhwa.length > 0 ? (
-              <ManhwaHeroSection key={manhwa[0].id} manhwa={manhwa[0]} />
-            ) : (
-              <p className="text-red-400">Tidak ada manhwa ditemukan.</p>
-            )}
-          </AnimatePresence>
-
-          <motion.form
-            onSubmit={handleSearch}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="relative flex items-center w-full sm:w-[400px] mx-auto"
-          >
-            <FaSearch className="absolute left-3 text-sky-400" />
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               placeholder="Search manhwa..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-full bg-sky-950/50 border border-sky-700/40 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 transition"
+              className="flex-1 p-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-blue-400 text-white"
             />
-            <motion.button
+            <button
               type="submit"
               disabled={searching}
-              whileTap={{ scale: 0.95 }}
-              className={`ml-2 px-5 py-2 rounded-full font-semibold transition-all ${
+              className={`px-4 py-2 rounded-lg ${
                 searching
-                  ? 'bg-sky-400/70 cursor-wait'
-                  : 'bg-sky-600 hover:bg-sky-500 shadow-[0_0_10px_rgba(56,189,248,0.6)]'
+                  ? 'bg-blue-400 cursor-wait'
+                  : 'bg-blue-500 hover:bg-blue-600'
               }`}
             >
-              {searching ? '...' : 'Search'}
-            </motion.button>
-          </motion.form>
+              {searching ? 'Mencari...' : 'Search'}
+            </button>
+          </form>
 
-          <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide px-1">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {genres.map((genre) => (
               <motion.button
                 key={genre}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   setSelectedGenre(genre)
                   setPage(1)
                   setSearchResults([])
                 }}
-                className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold backdrop-blur-md border transition-all duration-300 whitespace-nowrap
+                className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-300
                   ${
                     selectedGenre === genre
-                      ? 'bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-700 border-sky-400 text-white shadow-[0_0_12px_rgba(56,189,248,0.6)]'
-                      : 'bg-sky-900/30 border-sky-700/30 text-gray-300 hover:text-white hover:border-sky-500/50 hover:bg-sky-800/40'
+                      ? 'bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-md shadow-blue-500/30'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
                   }`}
               >
                 {genre}
@@ -135,67 +114,72 @@ export default function ManhwaPage() {
             ))}
           </div>
 
-          {error && <p className="text-red-400">{error}</p>}
+          {error && <p className="text-red-500">{error}</p>}
+
+          {loading && !searching && (
+            <p className="text-gray-400">Memuat data...</p>
+          )}
           {!loading && displayedList.length === 0 && (
-            <p className="text-gray-400 text-center">Tidak ada hasil untuk "{query}".</p>
+            <p className="text-gray-400">Tidak ada hasil untuk "{query}".</p>
           )}
 
-          <motion.div
-            layout
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
-          >
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {displayedList.map((m) => (
               <motion.div
                 key={m.id}
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4 }}
+                whileHover={{ scale: 1.03 }}
+                className="relative bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-blue-500/40 transition-all group"
               >
-                <ManhwaCard manhwa={m} />
+                <Link href={`/manhwa/${m.id}`}>
+                  <div className="relative w-full aspect-[3/4] overflow-hidden">
+                    <img
+                      src={m.coverImage.large}
+                      alt={m.title.english || m.title.romaji}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-70 group-hover:opacity-80 transition duration-300"></div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 w-full p-3">
+                    <h2 className="text-sm sm:text-base font-semibold text-white drop-shadow-md line-clamp-2">
+                      {m.title.english || m.title.romaji}
+                    </h2>
+                  </div>
+                </Link>
               </motion.div>
             ))}
-          </motion.div>
-
+          </div>
+                  
           {searchResults.length === 0 && totalPages > 1 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center items-center gap-3 pt-6"
-            >
-              <motion.button
-                whileTap={{ scale: 0.9 }}
+            <div className="flex justify-center gap-2 mt-4">
+              <button
                 disabled={page === 1}
                 onClick={() => setPage((prev) => prev - 1)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+                className={`px-3 py-1 rounded ${
                   page === 1
-                    ? 'bg-sky-800/30 text-gray-400 cursor-not-allowed'
-                    : 'bg-sky-600 hover:bg-sky-500 text-white shadow-[0_0_10px_rgba(56,189,248,0.6)]'
+                    ? 'bg-gray-600 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700'
                 }`}
               >
-                <FaArrowLeft /> Prev
-              </motion.button>
-
-              <span className="text-gray-300 font-medium">
+                Prev
+              </button>
+              <span className="px-3 py-1 text-gray-300">
                 Page {page} / {totalPages}
               </span>
-
-              <motion.button
-                whileTap={{ scale: 0.9 }}
+              <button
                 disabled={page === totalPages}
                 onClick={() => setPage((prev) => prev + 1)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+                className={`px-3 py-1 rounded ${
                   page === totalPages
-                    ? 'bg-sky-800/30 text-gray-400 cursor-not-allowed'
-                    : 'bg-sky-600 hover:bg-sky-500 text-white shadow-[0_0_10px_rgba(56,189,248,0.6)]'
+                    ? 'bg-gray-600 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700'
                 }`}
               >
-                Next <FaArrowRight />
-              </motion.button>
-            </motion.div>
+                Next
+              </button>
+            </div>
           )}
         </div>
-      </main>
+      </div>
     </>
   )
 }
