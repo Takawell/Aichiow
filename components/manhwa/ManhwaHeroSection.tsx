@@ -36,6 +36,7 @@ export default function ManhwaHeroSection({ manhwa, loading }: HeroProps) {
       />
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
+
       <div className="absolute z-20 bottom-6 md:bottom-12 left-0 w-full px-5 md:px-10">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -133,7 +134,6 @@ export default function ManhwaHeroSection({ manhwa, loading }: HeroProps) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
               </div>
 
-              {/* Info */}
               <div className="p-5 md:p-7 space-y-3">
                 <h2 className="text-2xl font-bold text-white">
                   {manhwa.title.english || manhwa.title.romaji}
@@ -164,7 +164,7 @@ export default function ManhwaHeroSection({ manhwa, loading }: HeroProps) {
                   {manhwa.description?.replace(/<[^>]+>/g, '')}
                 </p>
 
-                <div className="flex justify-end pt-3">
+                <div className="flex justify-end gap-3 pt-3">
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
@@ -175,6 +175,14 @@ export default function ManhwaHeroSection({ manhwa, loading }: HeroProps) {
                     className="flex items-center gap-2 px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
                   >
                     <FaBookOpen /> Read Now
+                  </motion.button>
+
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowPreview(false)}
+                    className="flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/10 transition"
+                  >
+                    <FaTimes /> Close
                   </motion.button>
                 </div>
               </div>
