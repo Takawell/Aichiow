@@ -1,18 +1,14 @@
 const ANILIST_URL = 'https://graphql.anilist.co'
 
-export async function fetchManhwaList(
-  page = 1,
-  genre?: string,
-  sortType: string = 'TRENDING_DESC'
-) {
+export async function fetchManhwaList(page = 1, genre?: string) {
   const query = `
-    query ($page: Int, $genre: String, $sort: [MediaSort]) {
+    query ($page: Int, $genre: String) {
       Page(page: $page, perPage: 20) {
         media(
           type: MANGA
-          sort: $sort
+          sort: TRENDING_DESC
           countryOfOrigin: "KR"
-          genre_in: [$genre]
+          genre: $genre
         ) {
           id
           title {
@@ -37,22 +33,15 @@ export async function fetchManhwaList(
       }
     }
   `
-
-  const variables: Record<string, any> = {
-    page,
-    sort: [sortType],
-  }
-  if (genre) variables.genre = genre
-
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables }),
+    body: JSON.stringify({ query, variables: { page, genre } })
   })
   const { data } = await response.json()
   return {
-    list: data?.Page?.media || [],
-    totalPages: data?.Page?.pageInfo?.lastPage || 1,
+    list: data.Page.media,
+    totalPages: data.Page.pageInfo.lastPage
   }
 }
 
@@ -80,10 +69,10 @@ export async function searchManhwa(search: string) {
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { search } }),
+    body: JSON.stringify({ query, variables: { search } })
   })
   const { data } = await response.json()
-  return data?.Page?.media || []
+  return data.Page.media
 }
 
 export async function fetchManhwaDetail(id: number) {
@@ -133,10 +122,10 @@ export async function fetchManhwaDetail(id: number) {
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { id } }),
+    body: JSON.stringify({ query, variables: { id } })
   })
   const { data } = await response.json()
-  return data?.Media || null
+  return data.Media
 }
 
 export async function fetchGenres() {
@@ -148,10 +137,10 @@ export async function fetchGenres() {
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({ query })
   })
   const { data } = await response.json()
-  return data?.GenreCollection || []
+  return data.GenreCollection
 }
 
 export async function fetchManhwaByGenre(page = 1, genre: string) {
@@ -161,7 +150,7 @@ export async function fetchManhwaByGenre(page = 1, genre: string) {
         media(
           type: MANGA
           countryOfOrigin: "KR"
-          genre_in: [$genre]
+          genre: $genre
           sort: POPULARITY_DESC
         ) {
           id
@@ -191,76 +180,11 @@ export async function fetchManhwaByGenre(page = 1, genre: string) {
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { page, genre } }),
+    body: JSON.stringify({ query, variables: { page, genre } })
   })
   const { data } = await response.json()
   return {
-    list: data?.Page?.media || [],
-    pageInfo: data?.Page?.pageInfo || {},
-  }
-}
-
-export async function fetchManhwaListExtended(
-  page = 1,
-  genre?: string,
-  sortType: string = 'TRENDING_DESC'
-) {
-  const query = `
-    query ($page: Int, $genre: String, $sort: [MediaSort]) {
-      Page(page: $page, perPage: 20) {
-        media(
-          type: MANGA
-          format: MANHWA
-          sort: $sort
-          countryOfOrigin: "KR"
-          genre_in: [$genre]
-        ) {
-          id
-          title {
-            romaji
-            english
-            native
-          }
-          coverImage {
-            large
-            extraLarge
-            color
-          }
-          bannerImage
-          averageScore
-          popularity
-          status
-          genres
-          description(asHtml: false)
-        }
-        pageInfo {
-          total
-          currentPage
-          lastPage
-          hasNextPage
-        }
-      }
-    }
-  `
-
-  const variables: Record<string, any> = {
-    page,
-    sort: [sortType],
-  }
-  if (genre) variables.genre = genre
-
-  const response = await fetch(ANILIST_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({ query, variables }),
-  })
-  const { data } = await response.json()
-
-  return {
-    list: data?.Page?.media || [],
-    totalPages: data?.Page?.pageInfo?.lastPage || 1,
+    list: data.Page.media,
+    pageInfo: data.Page.pageInfo
   }
 }
