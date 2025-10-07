@@ -6,7 +6,6 @@ export interface Manga {
   author?: string
   rating?: number
   genres?: string[]
-  status?: string
   year?: number
   status?: string
   lastChapter?: string
