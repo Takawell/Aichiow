@@ -171,7 +171,7 @@ export default function ManhwaPage() {
               ))}
             </div>
 
-            AnimatePresence>
+            <AnimatePresence>
               {previewManhwa && (
                 <motion.div
                   key={previewManhwa.id}
