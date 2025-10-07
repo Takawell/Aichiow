@@ -62,7 +62,7 @@ export default function ManhwaPage() {
       setManhwa((prev) => {
         if (reset) return res.list
         const ids = new Set(prev.map((p) => p.id))
-        const toAdd = res.list.filter((r) => !ids.has(r.id))
+        const toAdd = res.list.filter((r: Manhwa) => !ids.has(r.id))
         return [...prev, ...toAdd]
       })
     } catch {
@@ -276,31 +276,6 @@ export default function ManhwaPage() {
               </aside>
             </div>
           </section>
-
-          {debouncedQuery && (
-            <section>
-              <h4 className="text-sm text-gray-300 mb-2">Hasil pencarian untuk “{debouncedQuery}”</h4>
-              {searching ? (
-                <div className="flex items-center gap-2 text-gray-400"><FaSpinner className="animate-spin" /> Mencari...</div>
-              ) : searchResults.length === 0 ? (
-                <div className="text-gray-400">Tidak ada hasil.</div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {searchResults.slice(0, 12).map((m) => (
-                    <Link key={m.id} href={`/manhwa/${m.id}`} className="group">
-                      <div className="relative bg-gray-900 rounded-lg overflow-hidden">
-                        <img loading="lazy" src={m.coverImage.large} alt={m.title.english || m.title.romaji} className="w-full h-44 object-cover group-hover:scale-105 transition-transform" />
-                        <div className="p-2">
-                          <div className="text-sm font-semibold line-clamp-2">{m.title.english || m.title.romaji}</div>
-                          <div className="text-xs text-gray-400">{m.startDate?.year ?? '—'}</div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
 
           <section aria-labelledby="manhwa-list">
             <div className="flex items-center justify-between mb-3">
