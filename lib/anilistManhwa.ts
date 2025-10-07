@@ -1,12 +1,16 @@
 const ANILIST_URL = 'https://graphql.anilist.co'
 
-export async function fetchManhwaList(page = 1, genre?: string) {
+export async function fetchManhwaList(
+  page = 1,
+  genre?: string,
+  sortType: string = 'TRENDING_DESC'
+) {
   const query = `
-    query ($page: Int, $genre: String) {
+    query ($page: Int, $genre: String, $sort: [MediaSort]) {
       Page(page: $page, perPage: 20) {
         media(
           type: MANGA
-          sort: TRENDING_DESC
+          sort: $sort
           countryOfOrigin: "KR"
           genre_in: [$genre]
         ) {
@@ -34,13 +38,18 @@ export async function fetchManhwaList(page = 1, genre?: string) {
     }
   `
 
+  const variables: Record<string, any> = {
+    page,
+    sort: [sortType],
+  }
+  if (genre) variables.genre = genre
+
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { page, genre } }),
+    body: JSON.stringify({ query, variables }),
   })
   const { data } = await response.json()
-
   return {
     list: data?.Page?.media || [],
     totalPages: data?.Page?.pageInfo?.lastPage || 1,
@@ -51,11 +60,7 @@ export async function searchManhwa(search: string) {
   const query = `
     query ($search: String) {
       Page(page: 1, perPage: 20) {
-        media(
-          type: MANGA,
-          search: $search,
-          countryOfOrigin: "KR"
-        ) {
+        media(type: MANGA, search: $search, countryOfOrigin: "KR") {
           id
           title {
             romaji
@@ -78,7 +83,6 @@ export async function searchManhwa(search: string) {
     body: JSON.stringify({ query, variables: { search } }),
   })
   const { data } = await response.json()
-
   return data?.Page?.media || []
 }
 
@@ -126,7 +130,6 @@ export async function fetchManhwaDetail(id: number) {
       }
     }
   `
-
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -185,14 +188,12 @@ export async function fetchManhwaByGenre(page = 1, genre: string) {
       }
     }
   `
-
   const response = await fetch(ANILIST_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query, variables: { page, genre } }),
   })
   const { data } = await response.json()
-
   return {
     list: data?.Page?.media || [],
     pageInfo: data?.Page?.pageInfo || {},
@@ -256,7 +257,6 @@ export async function fetchManhwaListExtended(
     },
     body: JSON.stringify({ query, variables }),
   })
-
   const { data } = await response.json()
 
   return {
