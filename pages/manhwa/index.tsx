@@ -1,267 +1,366 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Head from 'next/head'
+import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { fetchManhwaList, searchManhwa, fetchGenres } from '@/lib/anilistManhwa'
 import { Manhwa } from '@/types/manhwa'
-import ManhwaHeroSection from '@/components/manhwa/ManhwaHeroSection'
 
-const tabs = ['Ongoing', 'Completed', 'Top Rated', 'Weekly Best', 'Monthly Best', 'Yearly Best']
+function useDebounce<T>(value: T, delay = 400) {
+  const [debounced, setDebounced] = useState(value)
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delay)
+    return () => clearTimeout(id)
+  }, [value, delay])
+  return debounced
+}
+
+function useInfiniteScroll(callback: () => void) {
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const nodeRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (observerRef.current) observerRef.current.disconnect()
+    observerRef.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) callback()
+    })
+    const node = nodeRef.current
+    if (node) observerRef.current.observe(node)
+    return () => observerRef.current?.disconnect()
+  }, [callback])
+
+  return nodeRef
+}
+
+const IconSpinner = ({ size = 18 }: { size?: number }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+    style={{ width: size, height: size }}
+    className="animate-spin"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v4m0 8v4m8-8h-4M4 12H0" />
+  </svg>
+)
+
+function SkeletonCard() {
+  return (
+    <div className="rounded-xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 overflow-hidden shadow-lg animate-pulse">
+      <div className="w-full aspect-[3/4] bg-gray-700" />
+      <div className="p-3">
+        <div className="h-4 bg-gray-700 rounded w-3/4 mb-2" />
+        <div className="h-3 bg-gray-700 rounded w-1/2" />
+      </div>
+    </div>
+  )
+}
+
+function ModalPreview({ open, manhwa, onClose }: { open: boolean; manhwa?: Manhwa | null; onClose: () => void }) {
+  return (
+    <AnimatePresence>
+      {open && manhwa && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.95, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 20 }}
+            className="max-w-4xl w-full bg-gradient-to-br from-gray-900 to-neutral-900 rounded-2xl shadow-2xl overflow-hidden"
+          >
+            <div className="md:flex">
+              <div className="md:w-1/3 w-full relative aspect-[3/4]">
+                <Image src={manhwa.coverImage.large} alt={manhwa.title.english || manhwa.title.romaji} fill style={{ objectFit: 'cover' }} />
+              </div>
+              <div className="md:w-2/3 p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold">{manhwa.title.english || manhwa.title.romaji}</h3>
+                    <p className="text-sm text-gray-300 mt-1 line-clamp-3">{manhwa.description ? manhwa.description.replace(/<[^>]+>/g, '') : 'No description available.'}</p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {manhwa.genres?.slice(0, 6).map((g) => (
+                        <span key={g} className="text-xs bg-gray-800 px-2 py-1 rounded-full">{g}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={onClose} className="px-3 py-1 rounded-md bg-gray-700 hover:bg-gray-600">Close</button>
+                    <Link href={`/manhwa/${manhwa.id}`} className="px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-700">Open</Link>
+                  </div>
+                </div>
+                <div className="mt-4 text-sm text-gray-400">
+                  <div>Status: <span className="text-gray-200">{manhwa.status || 'Unknown'}</span></div>
+                  <div>Chapters: <span className="text-gray-200">{manhwa.chapters ?? '-'}</span></div>
+                  <div>Score: <span className="text-gray-200">{manhwa.averageScore ?? '-'}</span></div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
 
 export default function ManhwaPage() {
   const [manhwa, setManhwa] = useState<Manhwa[]>([])
   const [genres, setGenres] = useState<string[]>([])
-  const [selectedGenre, setSelectedGenre] = useState('ALL')
-  const [selectedTab, setSelectedTab] = useState('Ongoing')
+  const [selectedGenre, setSelectedGenre] = useState<string>('ALL')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
   const [query, setQuery] = useState('')
+  const debouncedQuery = useDebounce(query, 450)
   const [searchResults, setSearchResults] = useState<Manhwa[]>([])
   const [searching, setSearching] = useState(false)
+
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(5)
+  const [totalPages, setTotalPages] = useState(1)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewItem, setPreviewItem] = useState<Manhwa | null>(null)
 
   useEffect(() => {
-    const load = async () => {
+    let mounted = true
+    ;(async () => {
       try {
-        setLoading(true)
-        let sortType = 'TRENDING_DESC'
-        if (selectedTab === 'Completed') sortType = 'FINISHED_DATE_DESC'
-        else if (selectedTab === 'Top Rated') sortType = 'SCORE_DESC'
-        else if (selectedTab === 'Weekly Best') sortType = 'POPULARITY_DESC'
-        else if (selectedTab === 'Monthly Best') sortType = 'FAVOURITES_DESC'
-        else if (selectedTab === 'Yearly Best') sortType = 'TRENDING_DESC'
-
-        const data = await fetchManhwaList(page, selectedGenre !== 'ALL' ? selectedGenre : undefined, sortType)
-        setManhwa(data.list)
-        setTotalPages(data.totalPages)
-
-        if (genres.length === 0) {
-          const g = await fetchGenres()
-          setGenres(['ALL', ...g])
-        }
+        const gs = await fetchGenres()
+        if (!mounted) return
+        setGenres(['ALL', ...gs])
       } catch (e) {
-        setError('Gagal memuat data manhwa.')
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+   useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      setError(null)
+      try {
+        if (page === 1) setLoading(true)
+        const data = await fetchManhwaList(page, selectedGenre !== 'ALL' ? selectedGenre : undefined)
+        if (!mounted) return
+        if (page === 1) setManhwa(data.list)
+        else setManhwa((prev) => [...prev, ...data.list])
+        setTotalPages(data.totalPages ?? 1)
+      } catch (e) {
+        setError('Gagal memuat daftar manhwa. Coba refresh.')
       } finally {
         setLoading(false)
+        setIsLoadingMore(false)
       }
     }
     load()
-  }, [page, selectedGenre, selectedTab])
+    return () => {
+      mounted = false
+    }
+  }, [page, selectedGenre])
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!query.trim()) return
-    setSearching(true)
-    const results = await searchManhwa(query)
-    setSearchResults(results)
-    setSearching(false)
+  useEffect(() => {
+    let mounted = true
+    const run = async () => {
+      if (!debouncedQuery.trim()) {
+        setSearchResults([])
+        setSearching(false)
+        return
+      }
+      setSearching(true)
+      try {
+        const res = await searchManhwa(debouncedQuery)
+        if (!mounted) return
+        setSearchResults(res)
+      } catch (e) {
+      } finally {
+        setSearching(false)
+      }
+    }
+    run()
+    return () => {
+      mounted = false
+    }
+  }, [debouncedQuery])
+
+  const displayedList = searchResults.length > 0 ? searchResults : manhwa
+
+  const loadMore = () => {
+    if (isLoadingMore) return
+    if (page >= totalPages) return
+    setIsLoadingMore(true)
+    setPage((p) => p + 1)
   }
+  const sentinelRef = useInfiniteScroll(loadMore)
 
-  const list = searchResults.length > 0 ? searchResults : manhwa
+    const genreCounts = useMemo(() => {
+    const map = new Map<string, number>()
+    manhwa.forEach((m) => (m.genres || []).forEach((g) => map.set(g, (map.get(g) || 0) + 1)))
+    return map
+  }, [manhwa])
+
+  const openPreview = (m: Manhwa) => {
+    setPreviewItem(m)
+    setPreviewOpen(true)
+  }
 
   return (
     <>
       <Head>
-        <title>Manhwa | Aichiow</title>
+        <title>Manhwa • Aichiow</title>
+        <meta name="description" content="Discover and explore the best manhwa" />
       </Head>
 
-      <main className="min-h-screen bg-gradient-to-b from-[#050B1A] via-[#0B1122] to-[#101828] text-white overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-900/40 via-transparent to-black/90" />
+      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
+        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 py-8">
+           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 p-2 shadow-lg">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 19V5a1 1 0 0 1 1-1h10l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z" fill="white" opacity="0.95" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-2xl font-bold">Manhwa</h1>
+                <p className="text-xs text-gray-400">Latest, trending, and curated manhwa — all in one place.</p>
+              </div>
+            </div>
 
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-8 py-10 space-y-10">
+            <div className="w-full md:w-auto">
+              <label className="relative block">
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search manhwa, authors, tags..."
+                  className="w-full md:w-[420px] rounded-lg pl-4 pr-12 py-2 bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                  {searching ? <IconSpinner /> : <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14z" />
+                  </svg>}
+                </div>
+              </label>
+            </div>
+          </div>
 
-          <AnimatePresence mode="wait">
+          <section className="mb-6">
             {loading ? (
-              <motion.section
-                key="loading-hero"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="w-full h-[320px] md:h-[460px] bg-gray-800/40 rounded-2xl animate-pulse"
-              />
-            ) : list.length > 0 ? (
-              <motion.div
-                key="hero"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <ManhwaHeroSection manhwa={list[0]} />
+              <div className="w-full h-[260px] md:h-[420px] rounded-xl overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 animate-pulse" />
+            ) : manhwa[0] ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative rounded-xl overflow-hidden">
+                <div className="relative w-full h-[260px] md:h-[420px]">
+                  <Image src={manhwa[0].coverImage.large} alt={manhwa[0].title.english || manhwa[0].title.romaji} fill style={{ objectFit: 'cover' }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                </div>
+                <div className="absolute left-6 bottom-6">
+                  <h2 className="text-2xl md:text-4xl font-extrabold">{manhwa[0].title.english || manhwa[0].title.romaji}</h2>
+                  <p className="max-w-xl mt-2 text-sm text-gray-300 line-clamp-3">{manhwa[0].description ? manhwa[0].description.replace(/<[^>]+>/g, '') : 'No description available.'}</p>
+                  <div className="flex gap-2 mt-4">
+                    <Link href={`/manhwa/${manhwa[0].id}`} className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700">Read</Link>
+                    <button onClick={() => openPreview(manhwa[0])} className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700">Preview</button>
+                  </div>
+                </div>
               </motion.div>
             ) : (
-              <p className="text-center text-red-400">Tidak ada manhwa ditemukan.</p>
+              <div className="text-gray-400">No featured manhwa.</div>
             )}
-          </AnimatePresence>
+          </section>
 
-          <motion.form
-            onSubmit={handleSearch}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-col sm:flex-row gap-3 items-center justify-center"
-          >
-            <input
-              type="text"
-              placeholder="🔍 Cari manhwa..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 w-full sm:w-[400px] px-5 py-3 rounded-2xl bg-white/10 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder-gray-400 backdrop-blur-md transition"
-            />
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              type="submit"
-              disabled={searching}
-              className={`px-6 py-3 rounded-2xl font-semibold shadow-md transition-all duration-300 ${
-                searching
-                  ? 'bg-blue-500/60 cursor-wait'
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800'
-              }`}
-            >
-              {searching ? 'Mencari...' : 'Search'}
-            </motion.button>
-          </motion.form>
-
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-wrap justify-center gap-3"
-          >
-            {tabs.map((tab) => (
-              <motion.button
-                key={tab}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setSelectedTab(tab)
-                  setPage(1)
-                  setSearchResults([])
-                }}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                  selectedTab === tab
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg shadow-blue-600/40'
-                    : 'bg-white/5 text-gray-300 hover:bg-white/10'
-                }`}
-              >
-                {tab}
-              </motion.button>
-            ))}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide justify-center flex-wrap"
-          >
-            {genres.map((g) => (
-              <motion.button
-                key={g}
-                whileHover={{ scale: 1.05 }}
-                onClick={() => {
-                  setSelectedGenre(g)
-                  setPage(1)
-                  setSearchResults([])
-                }}
-                className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
-                  selectedGenre === g
-                    ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white shadow-md'
-                    : 'bg-white/5 text-gray-300 hover:bg-white/10'
-                }`}
-              >
-                {g}
-              </motion.button>
-            ))}
-          </motion.div>
-
-          {error && (
-            <p className="text-center text-red-400 bg-red-900/30 py-2 px-4 rounded-lg">{error}</p>
-          )}
-          {!loading && list.length === 0 && (
-            <p className="text-gray-400 text-center">Tidak ada hasil ditemukan.</p>
-          )}
-
-          <AnimatePresence>
-            {!loading && list.length > 0 && (
-              <motion.div
-                layout
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
-              >
-                {list.map((m) => (
-                  <motion.div
-                    key={m.id}
-                    whileHover={{ scale: 1.03, y: -4 }}
-                    transition={{ type: 'spring', stiffness: 200 }}
-                    className="relative bg-white/5 rounded-2xl overflow-hidden backdrop-blur-sm border border-white/10 hover:border-blue-600/40 group transition"
+          <section className="mb-6">
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+                {genres.map((g) => (
+                  <button
+                    key={g}
+                    onClick={() => {
+                      setSelectedGenre(g)
+                      setPage(1)
+                      setSearchResults([])
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                    className={`px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${selectedGenre === g ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
                   >
-                    <Link href={`/manhwa/${m.id}`}>
-                      <div className="relative aspect-[3/4] overflow-hidden">
-                        <motion.img
-                          src={m.coverImage.large}
-                          alt={m.title.english || m.title.romaji}
-                          className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                    {g} {g !== 'ALL' && genreCounts.get(g) ? <span className="ml-2 text-xs text-gray-400">{genreCounts.get(g)}</span> : null}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-400">Sort:</span>
+                <select onChange={(e) => { /* optional sort handler */ }} className="bg-gray-800 rounded px-2 py-1 text-sm">
+                  <option value="popular">Most Popular</option>
+                  <option value="new">New</option>
+                  <option value="score">Highest Score</option>
+                </select>
+              </div>
+            </div>
+
+            {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+          </section>
+
+           <section>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+              {loading && page === 1
+                ? Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)
+                : displayedList.map((m) => (
+                    <motion.article key={m.id} layout whileHover={{ scale: 1.02 }} className="relative rounded-xl overflow-hidden shadow-lg bg-gradient-to-br from-gray-900 to-neutral-900">
+                      <div className="relative aspect-[3/4] w-full overflow-hidden">
+                        <Image src={m.coverImage.large} alt={m.title.english || m.title.romaji} fill style={{ objectFit: 'cover' }} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-80" />
+                        <div className="absolute left-3 top-3 flex gap-2">
+                          <button onClick={(e) => { e.preventDefault(); openPreview(m) }} aria-label="Preview" className="px-2 py-1 rounded bg-black/40 hover:bg-black/20 backdrop-blur-sm">Preview</button>
+                        </div>
                       </div>
 
-                      <div className="absolute bottom-0 left-0 w-full p-3">
-                        <h2 className="text-sm sm:text-base font-semibold line-clamp-2 drop-shadow-md">
-                          {m.title.english || m.title.romaji}
-                        </h2>
-                        {m.averageScore && (
-                          <p className="text-xs text-blue-400 mt-1">⭐ {m.averageScore}</p>
-                        )}
+                      <div className="p-3">
+                        <h3 className="text-sm font-semibold line-clamp-2">{m.title.english || m.title.romaji}</h3>
+                        <div className="mt-2 text-xs text-gray-400 flex items-center justify-between">
+                          <span>{m.chapters ?? '-'} ch</span>
+                          <span>{m.averageScore ?? '-'}</span>
+                        </div>
                       </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          {searchResults.length === 0 && totalPages > 1 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-center items-center gap-4 mt-10"
-            >
-              <button
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-                className={`px-5 py-2 rounded-xl font-medium transition ${
-                  page === 1
-                    ? 'bg-white/5 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
-              >
+
+                    </motion.article>
+                  ))}
+            </div>
+
+            <div ref={sentinelRef.current ?? null as any} className="mt-6 flex justify-center items-center">
+              {isLoadingMore && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded bg-gray-800 text-gray-300">
+                  <IconSpinner />
+                  <span>Loading more...</span>
+                </div>
+              )}
+              {!isLoadingMore && page >= totalPages && (
+                <div className="text-gray-400 text-sm">You've reached the end.</div>
+              )}
+            </div>
+
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <button onClick={() => { if (page > 1) setPage((p) => p - 1) }} disabled={page === 1} className={`px-3 py-1 rounded ${page === 1 ? 'bg-gray-700 cursor-not-allowed' : 'bg-gray-800 hover:bg-gray-700'}`}>
                 Prev
               </button>
-              <span className="text-gray-300 font-semibold">
-                Halaman {page} / {totalPages}
-              </span>
-              <button
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => p + 1)}
-                className={`px-5 py-2 rounded-xl font-medium transition ${
-                  page === totalPages
-                    ? 'bg-white/5 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
-              >
+              <span className="text-sm text-gray-300">Page {page} / {totalPages}</span>
+              <button onClick={() => { if (page < totalPages) setPage((p) => p + 1) }} disabled={page >= totalPages} className={`px-3 py-1 rounded ${page >= totalPages ? 'bg-gray-700 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
                 Next
               </button>
-            </motion.div>
-          )}
+            </div>
 
-          <footer className="pt-10 pb-6 text-center text-xs text-gray-500">
-            <p>
-              For manhwa fans you are presented by <span className="text-blue-400 font-medium">Aichiow Plus</span>
-            </p>
-          </footer>
+          </section>
+
         </div>
-      </main>
+
+        <ModalPreview open={previewOpen} manhwa={previewItem} onClose={() => setPreviewOpen(false)} />
+      </div>
     </>
   )
 }
