@@ -188,3 +188,69 @@ export async function fetchManhwaByGenre(page = 1, genre: string) {
     pageInfo: data.Page.pageInfo
   }
 }
+
+export async function fetchManhwaListExtended(
+  page = 1,
+  genre?: string,
+  sortType: string = 'TRENDING_DESC'
+) {
+  const query = `
+    query ($page: Int, $genre: String, $sort: [MediaSort]) {
+      Page(page: $page, perPage: 20) {
+        media(
+          type: MANGA
+          format: MANHWA
+          sort: $sort
+          countryOfOrigin: "KR"
+          genre: $genre
+        ) {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          coverImage {
+            large
+            extraLarge
+            color
+          }
+          bannerImage
+          averageScore
+          popularity
+          status
+          genres
+          description(asHtml: false)
+        }
+        pageInfo {
+          total
+          currentPage
+          lastPage
+          hasNextPage
+        }
+      }
+    }
+  `
+
+  const variables: Record<string, any> = {
+    page,
+    sort: [sortType],
+  }
+
+  if (genre) variables.genre = genre
+
+  const response = await fetch(ANILIST_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({ query, variables }),
+  })
+
+  const { data } = await response.json()
+  const list = data?.Page?.media || []
+  const totalPages = data?.Page?.pageInfo?.lastPage || 1
+
+  return { list, totalPages }
+}
