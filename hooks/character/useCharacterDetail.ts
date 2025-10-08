@@ -15,7 +15,7 @@ export function useCharacterDetail(id?: number) {
       setLoading(true);
       setError(null);
       try {
-        const result = await getCharacterDetail(Number(id));
+        const result = await fetchCharacterDetail(Number(id));
         if (isMounted) setData(result);
       } catch (err: any) {
         if (isMounted) {
