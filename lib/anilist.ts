@@ -129,65 +129,6 @@ export async function fetchTopRatedAnime(): Promise<Anime[]> {
   return data.Page.media
 }
 
-export async function fetchCharacterDetail(id: number) {
-  const query = `
-    query ($id: Int) {
-      Character(id: $id) {
-        id
-        name {
-          full
-          native
-          alternative
-        }
-        image {
-          large
-          medium
-        }
-        description
-        gender
-        age
-        dateOfBirth {
-          year
-          month
-          day
-        }
-        bloodType
-        favourites
-        media(perPage: 15) {
-          edges {
-            role
-            node {
-              id
-              title {
-                romaji
-                english
-                native
-              }
-              coverImage {
-                large
-              }
-            }
-          }
-        }
-        voiceActors(language: JAPANESE) {
-          id
-          name {
-            full
-            native
-          }
-          language
-          image {
-            large
-          }
-        }
-      }
-    }
-  `
-  
-  const data = await fetchFromAnilist(query, { id });
-return data.Character;
-}
-
 export async function fetchMangaCharacters(title: string) {
   const query = `
     query ($search: String) {
@@ -225,7 +166,6 @@ export async function fetchMangaCharacters(title: string) {
   return data?.Media?.characters?.edges || []
 }
 
-// Upcoming Anime
 export async function fetchUpcomingAnime(): Promise<Anime[]> {
   const query = `
     query {
@@ -247,7 +187,6 @@ export async function fetchUpcomingAnime(): Promise<Anime[]> {
   return data.Page.media
 }
 
-// Schedule Anime Mingguan
 export async function fetchScheduleAnime(): Promise<Anime[]> {
   const query = `
     query {
@@ -273,7 +212,6 @@ export async function fetchScheduleAnime(): Promise<Anime[]> {
   return data.Page.media.filter((m: any) => m.nextAiringEpisode)
 }
 
-// Detail Anime
 export async function fetchAnimeDetail(id: number): Promise<any> {
   const query = `
     query ($id: Int) {
@@ -349,7 +287,6 @@ export async function fetchAnimeDetail(id: number): Promise<any> {
   return data?.Media
 }
 
-// Anime News (untuk landing)
 export async function fetchNewsAnime(): Promise<Anime[]> {
   const query = `
     query {
@@ -370,7 +307,6 @@ export async function fetchNewsAnime(): Promise<Anime[]> {
   return data.Page.media
 }
 
-// Trending Anime (Paginated)
 export async function fetchTrendingAnimePaginated(page = 1, perPage = 20): Promise<Anime[]> {
   const query = `
     query ($page: Int, $perPage: Int) {
