@@ -78,24 +78,19 @@ export default function MangaDetailPage() {
 
   return (
     <main className="relative bg-neutral-950 text-white">
-      {/* Banner blur background */}
       <div className="absolute inset-0 -z-10 opacity-10 blur-lg">
         <Image src={coverUrl} alt="banner" fill className="object-cover" />
       </div>
 
       <section className="px-4 md:px-8 py-10 max-w-6xl mx-auto">
-        {/* Header */}
         <div className="flex flex-col md:flex-row gap-6 items-start">
-          {/* Cover */}
           <div className="relative w-full md:w-60 aspect-[3/4] rounded-xl overflow-hidden border border-zinc-700 shadow-xl">
             <Image src={coverUrl} alt={title} fill className="object-cover" />
           </div>
 
-          {/* Info */}
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-white mb-3">{title}</h1>
 
-            {/* Genre Tags */}
            <div className="flex flex-wrap gap-2 mb-3">
             {tags.slice(0, 6).map((tag: any) => {
              const genreName = tag.attributes.name?.en;
@@ -112,7 +107,6 @@ export default function MangaDetailPage() {
              })}
            </div>
 
-            {/* Favorite & Share */}
             <div className="flex gap-3 mb-4">
               <button
                 onClick={toggleFavorite}
@@ -139,7 +133,6 @@ export default function MangaDetailPage() {
               </button>
             </div>
 
-            {/* Description */}
             <p
               className={`text-sm text-zinc-300 whitespace-pre-line ${
                 !showFullDesc ? 'line-clamp-5' : ''
@@ -158,7 +151,6 @@ export default function MangaDetailPage() {
           </div>
         </div>
 
-        {/* Chapters */}
         <section className="mt-10">
           <h2 className="text-2xl font-bold mb-4">📚 Chapters</h2>
           {chapters.length > 0 ? (
@@ -186,10 +178,9 @@ export default function MangaDetailPage() {
           )}
         </section>
 
-        {/* Characters */}
         {characters.length > 0 && (
           <section className="mt-14">
-            <h2 className="text-2xl font-bold mb-4">🧑‍🎤 Characters & Voice Actors</h2>
+            <h2 className="text-2xl font-bold mb-4">💫 Characters</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {characters.map((char: any, index: number) => (
                 <div
@@ -219,7 +210,6 @@ export default function MangaDetailPage() {
         )}
       </section>
 
-      {/* Share Modal */}
       <ShareModal
         open={showShare}
         setOpen={setShowShare}
@@ -228,7 +218,6 @@ export default function MangaDetailPage() {
         thumbnail={shareThumbnail}
       />
 
-      {/* Back Button */}
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
         <Link
           href="/manga"
