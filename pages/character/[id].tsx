@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,31 +12,32 @@ export default function CharacterDetailPage() {
   const router = useRouter();
   const { isReady, query } = router;
   const rawId = query.id;
+
   const id = useMemo(() => {
     if (!rawId) return undefined;
     if (Array.isArray(rawId)) return Number(rawId[0]);
     return Number(rawId);
   }, [rawId]);
 
-  const { data: character, loading, error } = useCharacterDetail(id);
+  const { data: character, loading, error } = useCharacterDetail(isReady ? id : undefined);
   const [activeTab, setActiveTab] = useState<typeof TABS[number]>("About");
 
-  if (!isReady) {
+  // Handle invalid ID
+  if (!isReady)
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-gray-400">
-        Loading...
+        Loading router...
       </div>
     );
-  }
 
-  if (!id) {
+  if (!id || isNaN(id))
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-gray-300">
         <p>Invalid character id.</p>
       </div>
     );
-  }
 
+  // Main render
   return (
     <div className="min-h-screen bg-[#0f1117] text-gray-100 pb-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
@@ -46,7 +47,7 @@ export default function CharacterDetailPage() {
           </div>
         )}
 
-        {error && (
+        {error && !loading && (
           <div className="py-10 text-center text-red-400">
             <p>{error}</p>
           </div>
@@ -54,6 +55,7 @@ export default function CharacterDetailPage() {
 
         {!loading && !error && character && (
           <>
+            {/* HEADER */}
             <div className="flex flex-col md:flex-row md:items-end gap-6">
               <div className="flex-shrink-0 self-center md:self-start">
                 <motion.div
@@ -66,7 +68,7 @@ export default function CharacterDetailPage() {
                   {character.image?.large ? (
                     <Image
                       src={character.image.large}
-                      alt={character.name.full}
+                      alt={character.name?.full ?? "Character"}
                       fill
                       sizes="176px"
                       style={{ objectFit: "cover" }}
@@ -113,7 +115,9 @@ export default function CharacterDetailPage() {
                     <span className="px-2 py-1 bg-white/5 rounded-lg">Age: {character.age}</span>
                   )}
                   {character.bloodType && (
-                    <span className="px-2 py-1 bg-white/5 rounded-lg">Blood: {character.bloodType}</span>
+                    <span className="px-2 py-1 bg-white/5 rounded-lg">
+                      Blood: {character.bloodType}
+                    </span>
                   )}
                   {character.dateOfBirth && character.dateOfBirth.year && (
                     <span className="px-2 py-1 bg-white/5 rounded-lg">
@@ -124,6 +128,7 @@ export default function CharacterDetailPage() {
               </div>
             </div>
 
+            {/* TABS */}
             <div className="mt-10 grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="md:col-span-3 bg-white/5 rounded-2xl p-5 backdrop-blur-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
@@ -208,11 +213,12 @@ export default function CharacterDetailPage() {
                 </div>
               </div>
 
+              {/* SIDEBAR */}
               <aside className="md:col-span-1 bg-white/5 rounded-2xl p-4 sticky top-6 h-fit">
                 <div className="text-xs text-gray-400 mb-3">Character Info</div>
                 <dl className="text-sm space-y-3">
-                  <Info label="Full name" value={character.name.full} />
-                  <Info label="Native" value={character.name.native} />
+                  <Info label="Full name" value={character.name?.full} />
+                  <Info label="Native" value={character.name?.native} />
                   <Info label="Gender" value={character.gender} />
                   <Info label="Age" value={character.age} />
                   <Info label="Favourites" value={character.favourites} />
