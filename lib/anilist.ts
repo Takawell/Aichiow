@@ -129,7 +129,7 @@ export async function fetchTopRatedAnime(): Promise<Anime[]> {
   return data.Page.media
 }
 
-export async function getCharacterDetail(id: number) {
+export async function fetchCharacterDetail(id: number) {
   const query = `
     query ($id: Int) {
       Character(id: $id) {
