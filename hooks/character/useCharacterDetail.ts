@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCharacterDetail } from "@/lib/anilist";
+import { fetchCharacterDetail } from "@/lib/anilist";
 
 export function useCharacterDetail(id?: number) {
   const [data, setData] = useState<any>(null);
