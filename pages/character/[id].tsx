@@ -10,7 +10,8 @@ const TABS = ["About", "Media", "Voice Actors", "Stats"] as const;
 
 export default function CharacterDetailPage() {
   const router = useRouter();
-  const rawId = router.query.id;
+  const { isReady, query } = router;
+  const rawId = query.id;
   const id = useMemo(() => {
     if (!rawId) return undefined;
     if (Array.isArray(rawId)) return Number(rawId[0]);
@@ -19,6 +20,14 @@ export default function CharacterDetailPage() {
 
   const { data: character, loading, error } = useCharacterDetail(id);
   const [activeTab, setActiveTab] = useState<typeof TABS[number]>("About");
+
+  if (!isReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-gray-400">
+        Loading...
+      </div>
+    );
+  }
 
   if (!id) {
     return (
@@ -71,15 +80,13 @@ export default function CharacterDetailPage() {
               </div>
 
               <div className="flex-1">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-y-3">
                   <div>
-                    <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
                       {character.name?.full ?? "Unknown"}
                     </h1>
                     {character.name?.native && (
-                      <p className="text-sm text-gray-400 mt-1">
-                        {character.name.native}
-                      </p>
+                      <p className="text-sm text-gray-400 mt-1">{character.name.native}</p>
                     )}
                     {character.name?.alternative?.length > 0 && (
                       <p className="text-xs text-gray-500 mt-2">
@@ -90,28 +97,26 @@ export default function CharacterDetailPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="text-center">
-                      <p className="text-xs text-gray-400">Favourites</p>
-                      <p className="text-lg font-semibold text-blue-300">
-                        {character.favourites ?? 0}
-                      </p>
-                    </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-400">Favourites</p>
+                    <p className="text-lg font-semibold text-blue-400">
+                      {character.favourites ?? 0}
+                    </p>
                   </div>
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-3 items-center text-sm text-gray-400">
                   {character.gender && (
-                    <span className="px-2 py-1 bg-white/3 rounded-lg">{character.gender}</span>
+                    <span className="px-2 py-1 bg-white/5 rounded-lg">{character.gender}</span>
                   )}
                   {character.age && (
-                    <span className="px-2 py-1 bg-white/3 rounded-lg">Age: {character.age}</span>
+                    <span className="px-2 py-1 bg-white/5 rounded-lg">Age: {character.age}</span>
                   )}
                   {character.bloodType && (
-                    <span className="px-2 py-1 bg-white/3 rounded-lg">Blood: {character.bloodType}</span>
+                    <span className="px-2 py-1 bg-white/5 rounded-lg">Blood: {character.bloodType}</span>
                   )}
                   {character.dateOfBirth && character.dateOfBirth.year && (
-                    <span className="px-2 py-1 bg-white/3 rounded-lg">
+                    <span className="px-2 py-1 bg-white/5 rounded-lg">
                       Born: {formatDOB(character.dateOfBirth)}
                     </span>
                   )}
@@ -119,18 +124,18 @@ export default function CharacterDetailPage() {
               </div>
             </div>
 
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="md:col-span-3 bg-white/2 rounded-2xl p-5 backdrop-blur-sm">
+            <div className="mt-10 grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="md:col-span-3 bg-white/5 rounded-2xl p-5 backdrop-blur-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                   <div className="flex gap-2 overflow-x-auto pb-2">
                     {TABS.map((tab) => (
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`whitespace-nowrap px-3 py-2 rounded-lg text-sm font-medium ${
+                        className={`whitespace-nowrap px-3 py-2 rounded-lg text-sm font-medium transition ${
                           activeTab === tab
-                            ? "bg-gradient-to-r from-blue-500 to-blue-700 text-black shadow"
-                            : "text-gray-300 hover:bg-white/3"
+                            ? "bg-blue-600 text-white shadow"
+                            : "text-gray-300 hover:bg-white/10"
                         }`}
                       >
                         {tab}
@@ -138,16 +143,12 @@ export default function CharacterDetailPage() {
                     ))}
                   </div>
 
-                  <div className="mt-3 sm:mt-0 flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className="px-3 py-2 rounded-lg bg-white/3 text-sm"
-                    >
-                      Back to top
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    className="px-3 py-2 rounded-lg bg-white/10 text-sm mt-3 sm:mt-0"
+                  >
+                    Back to top
+                  </button>
                 </div>
 
                 <div className="min-h-[220px]">
@@ -155,14 +156,15 @@ export default function CharacterDetailPage() {
                     {activeTab === "About" && (
                       <motion.div
                         key="about"
-                        initial={{ opacity: 0, y: 6 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
+                        exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.25 }}
-                        className="prose prose-invert max-w-none text-sm"
+                        className="prose prose-invert max-w-none text-sm leading-relaxed"
                       >
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {character.description ?? "_No description available._"}
+                          {character.description?.replace(/<br>/g, "\n") ??
+                            "_No description available._"}
                         </ReactMarkdown>
                       </motion.div>
                     )}
@@ -170,9 +172,9 @@ export default function CharacterDetailPage() {
                     {activeTab === "Media" && (
                       <motion.div
                         key="media"
-                        initial={{ opacity: 0, y: 6 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
+                        exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.25 }}
                       >
                         <MediaGrid edges={character.media?.edges ?? []} />
@@ -182,9 +184,9 @@ export default function CharacterDetailPage() {
                     {activeTab === "Voice Actors" && (
                       <motion.div
                         key="va"
-                        initial={{ opacity: 0, y: 6 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
+                        exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.25 }}
                       >
                         <VAList vAs={character.voiceActors ?? []} />
@@ -194,9 +196,9 @@ export default function CharacterDetailPage() {
                     {activeTab === "Stats" && (
                       <motion.div
                         key="stats"
-                        initial={{ opacity: 0, y: 6 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
+                        exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.25 }}
                       >
                         <StatsPanel character={character} />
@@ -206,31 +208,14 @@ export default function CharacterDetailPage() {
                 </div>
               </div>
 
-              <aside className="md:col-span-1 bg-white/3 rounded-2xl p-4 sticky top-6 h-fit">
+              <aside className="md:col-span-1 bg-white/5 rounded-2xl p-4 sticky top-6 h-fit">
                 <div className="text-xs text-gray-400 mb-3">Character Info</div>
                 <dl className="text-sm space-y-3">
-                  <div>
-                    <dt className="text-gray-300">Full name</dt>
-                    <dd className="font-medium">{character.name.full ?? "-"}</dd>
-                  </div>
-                  {character.name.native && (
-                    <div>
-                      <dt className="text-gray-300">Native</dt>
-                      <dd className="font-medium">{character.name.native}</dd>
-                    </div>
-                  )}
-                  <div>
-                    <dt className="text-gray-300">Gender</dt>
-                    <dd>{character.gender ?? "-"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-gray-300">Age</dt>
-                    <dd>{character.age ?? "-"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-gray-300">Favourites</dt>
-                    <dd>{character.favourites ?? 0}</dd>
-                  </div>
+                  <Info label="Full name" value={character.name.full} />
+                  <Info label="Native" value={character.name.native} />
+                  <Info label="Gender" value={character.gender} />
+                  <Info label="Age" value={character.age} />
+                  <Info label="Favourites" value={character.favourites} />
                 </dl>
               </aside>
             </div>
@@ -241,24 +226,32 @@ export default function CharacterDetailPage() {
   );
 }
 
+function Info({ label, value }: { label: string; value?: string | number }) {
+  return (
+    <div>
+      <dt className="text-gray-300">{label}</dt>
+      <dd className="font-medium">{value ?? "-"}</dd>
+    </div>
+  );
+}
+
 function MediaGrid({ edges }: { edges: any[] }) {
-  if (!edges || edges.length === 0) {
+  if (!edges || edges.length === 0)
     return <p className="text-gray-400">No media found for this character.</p>;
-  }
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {edges.map((edge, idx) => {
+      {edges.map((edge, i) => {
         const node = edge.node;
-        const title = node.title?.romaji ?? node.title?.english ?? node.title?.native ?? "Untitled";
+        const title =
+          node.title?.romaji || node.title?.english || node.title?.native || "Untitled";
         const img = node.coverImage?.large;
         return (
           <motion.a
-            key={`${node.id}-${idx}`}
-            layout
+            key={i}
+            href={`/anime/${node.id}`}
             whileHover={{ scale: 1.03 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="group block rounded-xl overflow-hidden shadow-md bg-[#0b0f14]"
-            href={`/anime/${node.id}`}
+            className="group block rounded-xl overflow-hidden bg-[#0b0f14] shadow-md"
           >
             <div className="relative w-full h-44">
               {img ? (
@@ -281,9 +274,8 @@ function MediaGrid({ edges }: { edges: any[] }) {
 }
 
 function VAList({ vAs }: { vAs: any[] }) {
-  if (!vAs || vAs.length === 0) {
+  if (!vAs || vAs.length === 0)
     return <p className="text-gray-400">No voice actors listed.</p>;
-  }
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {vAs.map((va) => (
@@ -291,15 +283,13 @@ function VAList({ vAs }: { vAs: any[] }) {
           key={va.id}
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 p-2 rounded-lg bg-white/3"
+          className="flex items-center gap-3 p-2 rounded-lg bg-white/10"
         >
           <div className="w-12 h-12 rounded-lg overflow-hidden relative bg-white/5">
             {va.image?.large ? (
               <Image src={va.image.large} alt={va.name.full} fill style={{ objectFit: "cover" }} />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-500">
-                N/A
-              </div>
+              <div className="w-full h-full flex items-center justify-center text-gray-500">N/A</div>
             )}
           </div>
           <div>
@@ -331,7 +321,7 @@ function StatsPanel({ character }: { character: any }) {
 
 function Stat({ title, value }: { title: string; value: string }) {
   return (
-    <div className="p-3 rounded-lg bg-white/4">
+    <div className="p-3 rounded-lg bg-white/10">
       <div className="text-xs text-gray-400">{title}</div>
       <div className="mt-1 font-medium">{value}</div>
     </div>
@@ -341,18 +331,12 @@ function Stat({ title, value }: { title: string; value: string }) {
 function formatDOB(dob: { year?: number | null; month?: number | null; day?: number | null }) {
   const { year, month, day } = dob;
   if (!year && !month && !day) return "-";
-  const parts: string[] = [];
-  if (year) parts.push(String(year));
-  if (month) parts.unshift(padZero(month));
-  if (day) parts.unshift(padZero(day));
-  if (year && (month || day)) {
-    if (day && month) return `${padZero(day)}-${padZero(month)}-${year}`;
-    if (!day && month) return `${padZero(month)}-${year}`;
-  }
-  return parts.join("-");
+  const y = year ?? "";
+  const m = month ? padZero(month) : "";
+  const d = day ? padZero(day) : "";
+  return [d, m, y].filter(Boolean).join("-");
 }
 
-function padZero(n?: number | null) {
-  if (!n && n !== 0) return "";
+function padZero(n: number) {
   return String(n).padStart(2, "0");
 }
