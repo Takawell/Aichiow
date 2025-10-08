@@ -182,10 +182,10 @@ export async function getCharacterDetail(id: number) {
         }
       }
     }
-  `;
+  `
   
-  const data = await fetchAnilist(query, { id });
-  return data.Character;
+  const data = await fetchFromAnilist(query, { id });
+return data.Character;
 }
 
 export async function fetchMangaCharacters(title: string) {
