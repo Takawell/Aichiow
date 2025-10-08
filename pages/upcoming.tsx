@@ -5,7 +5,6 @@ import { fetchUpcomingAnime, fetchScheduleAnime } from '@/lib/anilist'
 import Image from 'next/image'
 import Link from 'next/link'
 import { format, fromUnixTime } from 'date-fns'
-import { id as localeID } from 'date-fns/locale'
 import { AiOutlineCalendar } from 'react-icons/ai'
 import { FaRegClock } from 'react-icons/fa'
 import { BiMoviePlay } from 'react-icons/bi'
@@ -16,7 +15,9 @@ export default function UpcomingPage() {
   const [upcomingAnime, setUpcomingAnime] = useState<Anime[]>([])
   const [scheduleAnime, setScheduleAnime] = useState<Anime[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedDay, setSelectedDay] = useState<string>(format(new Date(), 'EEEE'))
+  const [selectedDay, setSelectedDay] = useState<string>(
+    new Date().toLocaleDateString(undefined, { weekday: 'long' })
+  )
 
   useEffect(() => {
     async function loadData() {
@@ -40,7 +41,9 @@ export default function UpcomingPage() {
   const filteredSchedule = scheduleAnime.filter((anime) => {
     const airingTime = anime.nextAiringEpisode?.airingAt
     if (!airingTime) return false
-    const airingDay = format(fromUnixTime(airingTime), 'EEEE')
+    const airingDay = new Date(airingTime * 1000).toLocaleDateString(undefined, {
+      weekday: 'long',
+    })
     return airingDay === selectedDay
   })
 
@@ -61,9 +64,10 @@ export default function UpcomingPage() {
                 key={day}
                 onClick={() => setSelectedDay(day)}
                 className={`px-4 py-2 rounded-full border text-sm font-medium shadow-sm
-                  ${selectedDay === day
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/30'
-                    : 'bg-zinc-800 text-zinc-300 border-zinc-600 hover:bg-zinc-700'
+                  ${
+                    selectedDay === day
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/30'
+                      : 'bg-zinc-800 text-zinc-300 border-zinc-600 hover:bg-zinc-700'
                   } transition-all`}
               >
                 {day}
@@ -80,7 +84,15 @@ export default function UpcomingPage() {
               {filteredSchedule.map((anime) => {
                 const { airingAt, episode } = anime.nextAiringEpisode || {}
                 const dateText = airingAt
-                  ? format(fromUnixTime(airingAt), 'eeee, MMM d • HH:mm', { locale: localeID })
+                  ? new Date(airingAt * 1000).toLocaleString(undefined, {
+                      weekday: 'long',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                      timeZoneName: 'short',
+                    })
                   : 'Unknown'
 
                 return (
