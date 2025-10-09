@@ -17,6 +17,8 @@ export default function App({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <Head>
         <title>Aichiow Plus</title>
+        <meta property="og:site_name" content="Aichiow Plus" />
+        <meta property="og:title" content="Aichiow Plus" />
         <meta name="google-site-verification" content="yFNWP1UDhvOSuM_tCxDQd_pzebb7ZhMEeYxGJj6Alok" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/favicon.ico" />
