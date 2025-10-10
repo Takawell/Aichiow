@@ -2,19 +2,13 @@
 
 import Head from 'next/head'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaUsers, FaStar, FaGlobe, FaBolt } from 'react-icons/fa'
 
 export default function AboutPage() {
   const [lang, setLang] = useState<'EN' | 'ID'>('EN')
   const [openFAQ, setOpenFAQ] = useState<number | null>(null)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    return () => setMounted(false)
-  }, [])
 
   const toggleFAQ = (i: number) => {
     setOpenFAQ(openFAQ === i ? null : i)
@@ -55,11 +49,11 @@ export default function AboutPage() {
     <>
       <Head>
         <title>About Aichiow</title>
+        <meta name="description" content="About Aichiow Plus.">
       </Head>
 
       <main className="relative min-h-screen bg-black text-white overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-black to-black" />
-
         <div className="relative z-20 max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
           <Link href="/home" className="font-bold text-lg">Aichiow</Link>
           <motion.button
@@ -92,96 +86,6 @@ export default function AboutPage() {
               ? 'Discover, explore, and connect with the world of anime, manga, manhwa, and light novels.'
               : 'Temukan, jelajahi, dan terhubung dengan dunia anime, manga, manhwa, dan light novel.'}
           </p>
-        </section>
-
-        {/* Database Network Animation */}
-        <section className="relative z-10 py-20 flex flex-col items-center justify-center overflow-hidden">
-          <div className="relative w-full max-w-[600px] h-[400px] flex items-center justify-center">
-            {/* Flowing lines */}
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <svg className="w-full h-full" viewBox="0 0 600 400">
-                <motion.path
-                  d="M150 120 L300 200 L450 120"
-                  stroke="url(#flowGradient)"
-                  strokeWidth="3"
-                  fill="transparent"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse' }}
-                />
-                <motion.path
-                  d="M150 280 L300 200 L450 280"
-                  stroke="url(#flowGradient)"
-                  strokeWidth="3"
-                  fill="transparent"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 2, delay: 1, repeat: Infinity, repeatType: 'reverse' }}
-                />
-                <defs>
-                  <linearGradient id="flowGradient" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#ec4899" />
-                    <stop offset="100%" stopColor="#8b5cf6" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </motion.div>
-
-            {/* Boxes */}
-            <motion.div
-              className="absolute bg-gradient-to-br from-pink-500 to-purple-500 text-white font-bold rounded-lg shadow-lg w-28 h-16 flex items-center justify-center border border-white/20"
-              initial={{ y: 0 }}
-              animate={{ y: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 3 }}
-              style={{ top: '30%', left: '10%' }}
-            >
-              {lang === 'EN' ? 'Anime' : 'Anime'}
-            </motion.div>
-
-            <motion.div
-              className="absolute bg-gradient-to-br from-pink-500 to-purple-500 text-white font-bold rounded-lg shadow-lg w-28 h-16 flex items-center justify-center border border-white/20"
-              initial={{ y: 0 }}
-              animate={{ y: [0, 10, 0] }}
-              transition={{ repeat: Infinity, duration: 3, delay: 1 }}
-              style={{ top: '60%', left: '10%' }}
-            >
-              {lang === 'EN' ? 'Manhwa' : 'Manhwa'}
-            </motion.div>
-
-            <motion.div
-              className="absolute bg-gradient-to-br from-pink-500 to-purple-500 text-white font-bold rounded-lg shadow-lg w-32 h-20 flex items-center justify-center border border-white/30 scale-110"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1 }}
-              style={{ top: '40%', left: '38%' }}
-            >
-              Aichiow
-            </motion.div>
-
-            <motion.div
-              className="absolute bg-gradient-to-br from-pink-500 to-purple-500 text-white font-bold rounded-lg shadow-lg w-28 h-16 flex items-center justify-center border border-white/20"
-              initial={{ y: 0 }}
-              animate={{ y: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 3, delay: 0.5 }}
-              style={{ top: '30%', right: '10%' }}
-            >
-              {lang === 'EN' ? 'Manga' : 'Manga'}
-            </motion.div>
-
-            <motion.div
-              className="absolute bg-gradient-to-br from-pink-500 to-purple-500 text-white font-bold rounded-lg shadow-lg w-28 h-16 flex items-center justify-center border border-white/20"
-              initial={{ y: 0 }}
-              animate={{ y: [0, 10, 0] }}
-              transition={{ repeat: Infinity, duration: 3, delay: 1.5 }}
-              style={{ top: '60%', right: '10%' }}
-            >
-              {lang === 'EN' ? 'Novel' : 'Novel'}
-            </motion.div>
-          </div>
         </section>
 
         <section className="relative z-10 max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -277,4 +181,4 @@ export default function AboutPage() {
       </main>
     </>
   )
-} 
+}
