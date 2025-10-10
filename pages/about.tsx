@@ -3,116 +3,151 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion, AnimatePresence, useAnimation, useInView } from 'framer-motion'
-import { FaUsers, FaStar, FaGlobe, FaBolt } from 'react-icons/fa'
+import { useEffect, useRef, useState, RefObject, forwardRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+type NodeKey = 'anime' | 'manga' | 'manhwa' | 'novel' | 'aichiow'
+
+const NODE_META: Record<
+  Exclude<NodeKey, 'aichiow'> | 'aichiow',
+  { label: string; img: string; descEN: string; descID: string }
+> = {
+  aichiow: {
+    label: 'Aichiow',
+    img: '/aichiow.png',
+    descEN: 'Aichiow — central hub for discovery, recommendations and community.',
+    descID: 'Aichiow — pusat untuk penemuan, rekomendasi, dan komunitas.'
+  },
+  anime: {
+    label: 'Anime',
+    img: '/anime.png',
+    descEN: 'Tracks anime titles, seasons, and streaming metadata.',
+    descID: 'Melacak judul anime, musim, dan metadata streaming.'
+  },
+  manga: {
+    label: 'Manga',
+    img: '/manga.png',
+    descEN: 'Manga entries with chapters and scanning sources.',
+    descID: 'Entri manga dengan chapter dan sumber scan.'
+  },
+  manhwa: {
+    label: 'Manhwa',
+    img: '/manhwa.png',
+    descEN: 'Manhwa cataloging, translations, and reading progress.',
+    descID: 'Katalog manhwa, terjemahan, dan progres baca.'
+  },
+  novel: {
+    label: 'Light Novel',
+    img: '/novel.png',
+    descEN: 'Light novels with volumes, translations, and metadata.',
+    descID: 'Light novel dengan volume, terjemahan, dan metadata.'
+  }
+}
+
+function useRects(refs: Record<NodeKey, RefObject<HTMLElement>>) {
+  const [rects, setRects] = useState<Record<NodeKey, DOMRect | null>>({
+    aichiow: null,
+    anime: null,
+    manga: null,
+    manhwa: null,
+    novel: null
+  })
+
+  useEffect(() => {
+    const update = () => {
+      const next: Record<NodeKey, DOMRect | null> = {
+        aichiow: refs.aichiow.current?.getBoundingClientRect() ?? null,
+        anime: refs.anime.current?.getBoundingClientRect() ?? null,
+        manga: refs.manga.current?.getBoundingClientRect() ?? null,
+        manhwa: refs.manhwa.current?.getBoundingClientRect() ?? null,
+        novel: refs.novel.current?.getBoundingClientRect() ?? null
+      }
+      setRects(next)
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    Object.values(refs).forEach(r => r.current && ro.observe(r.current))
+    window.addEventListener('resize', update)
+    window.addEventListener('orientationchange', update)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', update)
+      window.removeEventListener('orientationchange', update)
+    }
+  }, [refs.aichiow, refs.anime, refs.manga, refs.manhwa, refs.novel])
+
+  return rects
+}
 
 export default function AboutPage() {
   const [lang, setLang] = useState<'EN' | 'ID'>('EN')
-  const [openFAQ, setOpenFAQ] = useState<number | null>(null)
-  const [focused, setFocused] = useState<number | null>(null)
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const inView = useInView(containerRef, { once: false, margin: '-120px' })
-  const controls = useAnimation()
-  const [orbitSpeed, setOrbitSpeed] = useState(20)
-  const [showConnectors, setShowConnectors] = useState(true)
+  const [selectedNode, setSelectedNode] = useState<NodeKey | null>(null)
 
+  const refs: Record<NodeKey, RefObject<HTMLDivElement>> = {
+    aichiow: useRef<HTMLDivElement>(null),
+    anime: useRef<HTMLDivElement>(null),
+    manga: useRef<HTMLDivElement>(null),
+    manhwa: useRef<HTMLDivElement>(null),
+    novel: useRef<HTMLDivElement>(null)
+  }
+
+  const rects = useRects(refs)
+
+  const lines: Array<{
+    from: { x: number; y: number }
+    to: { x: number; y: number }
+    id: string
+  }> = []
+
+  if (rects.aichiow) {
+    const centerRect = rects.aichiow
+    const cx = centerRect.left + centerRect.width / 2
+    const cy = centerRect.top + centerRect.height / 2
+    ;(['anime', 'manga', 'manhwa', 'novel'] as NodeKey[]).forEach(k => {
+      const r = rects[k]
+      if (!r) return
+      const tx = r.left + r.width / 2
+      const ty = r.top + r.height / 2
+      lines.push({
+        from: { x: cx, y: cy },
+        to: { x: tx, y: ty },
+        id: `line-${k}`
+      })
+    })
+  }
+
+  const svgRef = useRef<SVGSVGElement | null>(null)
+  const [svgBox, setSvgBox] = useState<DOMRect | null>(null)
   useEffect(() => {
-    if (inView) {
-      controls.start({ opacity: 1 })
-    } else {
-      controls.start({ opacity: 0 })
+    const update = () => {
+      setSvgBox(svgRef.current?.getBoundingClientRect() ?? null)
     }
-  }, [inView, controls])
-
-  const logos = useMemo(
-    () => [
-      { id: 0, src: '/default.png', name: 'anime' },
-      { id: 1, src: '/default.png', name: 'manga' },
-      { id: 2, src: '/default.png', name: 'manhwa' },
-      { id: 3, src: '/default.png', name: 'novel' }
-    ],
-    []
-  )
-
-  const toggleFAQ = (i: number) => setOpenFAQ(openFAQ === i ? null : i)
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setFocused(null)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
   }, [])
 
-  const faq = {
-    EN: [
-      {
-        q: 'What is Aichiow?',
-        a: 'Aichiow is your hub for anime, manga, manhwa, and light novels. We combine discovery, recommendations, and community into one platform.'
-      },
-      {
-        q: 'Is Aichiow free?',
-        a: 'Yes! Aichiow is free to explore. Premium features may come in the future to enhance your experience.'
-      },
-      {
-        q: 'Where does the content come from?',
-        a: 'We integrate trusted APIs like Anilist and MangaDex, providing real-time updates and content.'
-      }
-    ],
-    ID: [
-      {
-        q: 'Apa itu Aichiow?',
-        a: 'Aichiow adalah pusat untuk anime, manga, manhwa, dan light novel. Kami menggabungkan penemuan, rekomendasi, dan komunitas dalam satu platform.'
-      },
-      {
-        q: 'Apakah Aichiow gratis?',
-        a: 'Ya! Aichiow gratis untuk dijelajahi. Fitur premium mungkin hadir di masa depan untuk pengalaman lebih baik.'
-      },
-      {
-        q: 'Dari mana kontennya berasal?',
-        a: 'Kami mengintegrasikan API terpercaya seperti Anilist dan MangaDex, menghadirkan update dan konten real-time.'
-      }
-    ]
-  }
+  const mappedLines = (svgBox && lines.length
+    ? lines.map(l => ({
+        id: l.id,
+        x1: l.from.x - svgBox.left,
+        y1: l.from.y - svgBox.top,
+        x2: l.to.x - svgBox.left,
+        y2: l.to.y - svgBox.top
+      }))
+    : []
+  ).map(l => ({
+    ...l,
+    d: `M ${l.x1} ${l.y1} C ${(l.x1 + l.x2) / 2} ${l.y1} ${(l.x1 + l.x2) / 2} ${l.y2} ${l.x2} ${l.y2}`
+  }))
 
-  const connectorPath = (cx: number, cy: number, tx: number, ty: number) => {
-    const dx = tx - cx
-    const dy = ty - cy
-    const q1x = cx + dx * 0.28
-    const q1y = cy + dy * 0.05
-    const q2x = cx + dx * 0.72
-    const q2y = cy + dy * 0.95
-    return `M ${cx} ${cy} C ${q1x} ${q1y} ${q2x} ${q2y} ${tx} ${ty}`
-  }
-
-  const positionsForSize = (w: number) => {
-    if (w < 480) {
-      return {
-        center: { x: 50, y: 50 },
-        topLeft: { x: 28, y: 22 },
-        topRight: { x: 72, y: 22 },
-        bottomLeft: { x: 35, y: 78 },
-        bottomRight: { x: 65, y: 78 }
-      }
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedNode(null)
     }
-    if (w < 900) {
-      return {
-        center: { x: 50, y: 50 },
-        topLeft: { x: 30, y: 20 },
-        topRight: { x: 70, y: 20 },
-        bottomLeft: { x: 36, y: 82 },
-        bottomRight: { x: 64, y: 82 }
-      }
-    }
-    return {
-      center: { x: 50, y: 50 },
-      topLeft: { x: 28, y: 18 },
-      topRight: { x: 72, y: 18 },
-      bottomLeft: { x: 36, y: 82 },
-      bottomRight: { x: 64, y: 82 }
-    }
-  }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
 
   return (
     <>
@@ -120,68 +155,27 @@ export default function AboutPage() {
         <title>About Aichiow</title>
       </Head>
 
-      <main className="relative min-h-screen bg-black text-white overflow-x-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#07020a] via-[#080317] to-black -z-10" />
-
+      <main className="relative min-h-screen bg-black text-white overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-black to-black" />
         <div className="relative z-20 max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
           <Link href="/home" className="font-bold text-lg">Aichiow</Link>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <motion.button
-                onClick={() => setOrbitSpeed((s) => Math.max(6, s - 2))}
-                whileTap={{ scale: 0.95 }}
-                className="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-xs"
-                aria-label="slower"
-              >
-                -
-              </motion.button>
-              <div className="text-xs text-gray-300 px-3 py-1 rounded-md bg-white/3 border border-white/10">
-                {orbitSpeed}s
-              </div>
-              <motion.button
-                onClick={() => setOrbitSpeed((s) => Math.min(60, s + 2))}
-                whileTap={{ scale: 0.95 }}
-                className="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-xs"
-                aria-label="faster"
-              >
-                +
-              </motion.button>
-            </div>
-
-            <motion.button
-              onClick={() => setShowConnectors((v) => !v)}
-              whileTap={{ scale: 0.95 }}
-              className="relative w-20 h-9 flex items-center bg-gray-800 rounded-full px-1 cursor-pointer overflow-hidden border border-gray-700"
-              aria-pressed={showConnectors}
-            >
-              <motion.div
-                layout
-                className="absolute top-1 left-1 w-7 h-7 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg"
-                animate={{ x: showConnectors ? 0 : 40 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              />
-              <span className="flex-1 text-center text-xs">ON</span>
-              <span className="flex-1 text-center text-xs">OFF</span>
-            </motion.button>
-
-            <motion.button
-              onClick={() => setLang(lang === 'EN' ? 'ID' : 'EN')}
-              whileTap={{ scale: 0.9 }}
-              className="relative w-20 h-9 flex items-center bg-gray-800 rounded-full px-1 cursor-pointer overflow-hidden border border-gray-700"
-            >
-              <motion.div
-                layout
-                className="absolute top-1 left-1 w-7 h-7 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg"
-                animate={{ x: lang === 'EN' ? 0 : 40 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              />
-              <span className="flex-1 text-center text-xs">EN</span>
-              <span className="flex-1 text-center text-xs">ID</span>
-            </motion.button>
-          </div>
+          <motion.button
+            onClick={() => setLang(lang === 'EN' ? 'ID' : 'EN')}
+            whileTap={{ scale: 0.98 }}
+            className="relative w-20 h-9 flex items-center bg-gray-800 rounded-full px-1 cursor-pointer overflow-hidden border border-gray-700"
+          >
+            <motion.div
+              layout
+              className="absolute top-1 left-1 w-7 h-7 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg"
+              animate={{ x: lang === 'EN' ? 0 : 40 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            />
+            <span className="flex-1 text-center text-xs z-10 select-none">EN</span>
+            <span className="flex-1 text-center text-xs z-10 select-none">ID</span>
+          </motion.button>
         </div>
 
-        <section className="relative z-10 text-center py-12 sm:py-16">
+        <section className="relative z-10 text-center py-12 sm:py-20">
           <motion.h1
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -190,258 +184,130 @@ export default function AboutPage() {
           >
             {lang === 'EN' ? 'About Aichiow' : 'Tentang Aichiow'}
           </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.6 }}
-            className="mt-4 text-gray-300 max-w-2xl mx-auto"
-          >
+          <p className="mt-4 text-gray-300 max-w-2xl mx-auto px-4">
             {lang === 'EN'
               ? 'Discover, explore, and connect with the world of anime, manga, manhwa, and light novels.'
               : 'Temukan, jelajahi, dan terhubung dengan dunia anime, manga, manhwa, dan light novel.'}
-          </motion.p>
+          </p>
         </section>
 
-        <section ref={containerRef} className="relative z-10 py-12 sm:py-20 flex items-center justify-center">
-          <div className="relative w-[320px] h-[320px] sm:w-[580px] sm:h-[420px] md:w-[720px] md:h-[520px] lg:w-[820px] lg:h-[560px]">
-            <svg viewBox="0 0 1000 700" className="absolute inset-0 w-full h-full">
-              <defs>
-                <linearGradient id="gradA" x1="0" x2="1">
-                  <stop offset="0" stopColor="#ff7ab6" />
-                  <stop offset="1" stopColor="#7c3aed" />
-                </linearGradient>
-                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="12" result="b" />
-                  <feBlend in="SourceGraphic" in2="b" mode="normal" />
-                </filter>
-              </defs>
+        <section className="relative z-10 max-w-6xl mx-auto px-4 py-8">
+          <div className="relative">
+            <div className="relative w-full min-h-[360px] sm:min-h-[420px] rounded-2xl bg-white/3 border border-white/6 p-4 flex flex-col sm:flex-row items-center justify-center gap-6">
+              <div className="flex flex-row sm:flex-col items-center gap-6 sm:gap-8 w-full sm:w-auto justify-center sm:justify-end">
+                <NodeCard ref={refs.anime} keyName="anime" meta={NODE_META.anime} onClick={() => setSelectedNode('anime')} />
+                <NodeCard ref={refs.manga} keyName="manga" meta={NODE_META.manga} onClick={() => setSelectedNode('manga')} />
+              </div>
 
-              <motion.g
-                initial={{ opacity: 0 }}
-                animate={controls}
-                transform="translate(0,0)"
-              >
-                <motion.circle
-                  cx="500"
-                  cy="350"
-                  r="180"
-                  fill="none"
-                  stroke="url(#gradA)"
-                  strokeWidth="0.8"
-                  strokeOpacity="0.08"
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 120, repeat: Infinity, ease: 'linear' }}
-                />
-
-                {showConnectors &&
-                  logos.map((l, i) => {
-                    const posMap = [
-                      { x: 280, y: 120 },
-                      { x: 720, y: 120 },
-                      { x: 280, y: 580 },
-                      { x: 720, y: 580 }
-                    ]
-                    const { x: tx, y: ty } = posMap[i]
-                    return (
-                      <motion.path
-                        key={i}
-                        d={connectorPath(500, 350, tx, ty)}
-                        fill="none"
-                        stroke="rgba(124,58,237,0.22)"
-                        strokeWidth={3}
-                        strokeLinecap="round"
-                        strokeDasharray="8 10"
-                        animate={{ strokeDashoffset: [0, -120] }}
-                        transition={{ duration: 6 + i * 0.9, repeat: Infinity, ease: 'linear' }}
-                      />
-                    )
-                  })}
-              </motion.g>
-            </svg>
-
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-40">
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.8 }}
-                className="w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-white/6 to-transparent border border-white/10 flex items-center justify-center backdrop-blur-md"
-              >
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
-                  className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full flex items-center justify-center"
-                >
-                  <Image src="/aichiow.png" alt="Aichiow" width={144} height={144} className="object-contain" />
-                </motion.div>
-              </motion.div>
-            </div>
-
-            {logos.map((l, i) => {
-              const posMap = [
-                { xPct: 28, yPct: 18 },
-                { xPct: 72, yPct: 18 },
-                { xPct: 28, yPct: 82 },
-                { xPct: 72, yPct: 82 }
-              ]
-              const container = { width: 1000, height: 700 }
-              const px = (posMap[i].xPct / 100) * container.width
-              const py = (posMap[i].yPct / 100) * container.height
-              const delay = (i / logos.length) * 0.6
-              return (
-                <motion.div
-                  key={l.id}
-                  role="button"
-                  tabIndex={0}
-                  onFocus={() => setFocused(l.id)}
-                  onBlur={() => setFocused(null)}
-                  onMouseEnter={() => setFocused(l.id)}
-                  onMouseLeave={() => setFocused(null)}
-                  onClick={() => setFocused(focused === l.id ? null : l.id)}
-                  initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay }}
-                  className="absolute z-50"
-                  style={{
-                    left: `calc(${posMap[i].xPct}% - 40px)`,
-                    top: `calc(${posMap[i].yPct}% - 40px)`
-                  }}
+              <div className="relative flex items-center justify-center w-40 h-40 sm:w-52 sm:h-52">
+                <div
+                  ref={refs.aichiow}
+                  className="flex flex-col items-center justify-center w-36 h-36 sm:w-48 sm:h-48 rounded-2xl bg-gradient-to-br from-pink-600/20 to-purple-700/10 border border-white/10 backdrop-blur p-3 cursor-pointer"
+                  onClick={() => setSelectedNode('aichiow')}
                 >
                   <motion.div
-                    animate={{
-                      y: focused === l.id ? -10 : 0,
-                      scale: focused === l.id ? 1.18 : 1,
-                      boxShadow:
-                        focused === l.id ? '0 18px 40px rgba(124,58,237,0.35)' : '0 10px 24px rgba(0,0,0,0.4)'
-                    }}
-                    transition={{ type: 'spring', stiffness: 160, damping: 18 }}
-                    className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full flex items-center justify-center bg-gradient-to-br from-white/6 to-transparent border border-white/10"
+                    initial={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="relative rounded-lg w-full h-full flex items-center justify-center"
                   >
-                    <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.98 }} className="w-[64px] h-[64px] sm:w-[72px] sm:h-[72px] md:w-[84px] md:h-[84px] rounded-full flex items-center justify-center bg-gradient-to-br from-white/10 to-transparent">
-                      <Image src={l.src} alt={l.name} width={72} height={72} className="object-contain" />
-                    </motion.div>
-
-                    <AnimatePresence>
-                      {focused === l.id && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: -60 }}
-                          exit={{ opacity: 0, y: 8 }}
-                          transition={{ duration: 0.22 }}
-                          className="absolute left-1/2 -translate-x-1/2 top-0 flex items-center gap-2 pointer-events-none"
-                          aria-hidden
-                        >
-                          <svg width="110" height="44" viewBox="0 0 110 44" fill="none" xmlns="http://www.w3.org/2000/svg" className="filter drop-shadow-lg">
-                            <path d="M8 36C8 26 28 12 55 12C82 12 102 26 102 36" stroke="url(#gradA)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                          <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.8, opacity: 0 }}
-                            transition={{ duration: 0.18 }}
-                            className="w-28 px-3 py-1 rounded-lg bg-gradient-to-br from-white/6 to-transparent border border-white/10 text-xs text-center text-gray-200"
-                          >
-                            {l.name.toUpperCase()}
-                          </motion.div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <div className="absolute -inset-0.5 rounded-lg blur opacity-30 bg-gradient-to-r from-pink-500 to-purple-500" />
+                    <div className="relative z-10 flex flex-col items-center gap-2">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 relative">
+                        <Image src={NODE_META.aichiow.img} alt="Aichiow" fill sizes="80px" className="object-contain" />
+                      </div>
+                      <div className="text-sm sm:text-base font-semibold">{NODE_META.aichiow.label}</div>
+                    </div>
                   </motion.div>
-                </motion.div>
-              )
-            })}
-
-            <motion.div
-              initial={{ opacity: 0.06 }}
-              animate={{ opacity: [0.06, 0.6, 0.06] }}
-              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"
-              style={{ width: 520, height: 520 }}
-            />
-          </div>
-        </section>
-
-        <section className="relative z-10 max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            {
-              icon: <FaStar className="w-8 h-8" />,
-              title: lang === 'EN' ? 'Curated Content' : 'Konten Kurasi',
-              desc:
-                lang === 'EN'
-                  ? 'Handpicked recommendations, trending charts, and seasonal picks.'
-                  : 'Rekomendasi pilihan, daftar tren, dan rilisan musiman.'
-            },
-            {
-              icon: <FaUsers className="w-8 h-8" />,
-              title: lang === 'EN' ? 'Community Driven' : 'Didorong Komunitas',
-              desc:
-                lang === 'EN'
-                  ? 'Engage with fans, share lists, and connect with like-minded people.'
-                  : 'Terlibat dengan penggemar, bagikan daftar, dan terhubung dengan orang-orang sefrekuensi.'
-            },
-            {
-              icon: <FaBolt className="w-8 h-8" />,
-              title: lang === 'EN' ? 'Fast Updates' : 'Update Cepat',
-              desc:
-                lang === 'EN'
-                  ? 'Real-time updates powered by trusted APIs like Anilist & MangaDex.'
-                  : 'Update real-time dari API terpercaya seperti Anilist & MangaDex.'
-            },
-            {
-              icon: <FaGlobe className="w-8 h-8" />,
-              title: lang === 'EN' ? 'Global Access' : 'Akses Global',
-              desc:
-                lang === 'EN'
-                  ? 'Access your favorite content anytime, anywhere in the world.'
-                  : 'Akses konten favoritmu kapan saja, di mana saja.'
-            }
-          ].map((f, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.04 }}
-              transition={{ duration: 0.5, delay: i * 0.12 }}
-              className="p-6 bg-gradient-to-b from-white/5 to-transparent rounded-xl border border-white/10 hover:shadow-lg hover:shadow-pink-500/20"
-            >
-              <div className="mb-3 text-pink-400">{f.icon}</div>
-              <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
-              <p className="text-sm text-gray-300">{f.desc}</p>
-            </motion.div>
-          ))}
-        </section>
-
-        <section className="relative z-10 max-w-3xl mx-auto px-6 py-16">
-          <h2 className="text-2xl font-bold text-center mb-8">
-            {lang === 'EN' ? 'Frequently Asked Questions' : 'Pertanyaan Umum'}
-          </h2>
-          <div className="space-y-4">
-            {faq[lang].map((f, i) => (
-              <div key={i} className="rounded-lg bg-white/5 border border-white/10 overflow-hidden">
-                <button
-                  onClick={() => toggleFAQ(i)}
-                  className="w-full flex justify-between items-center px-4 py-3 text-left font-medium hover:bg-white/10 transition"
-                >
-                  <span>{f.q}</span>
-                  <span>{openFAQ === i ? '-' : '+'}</span>
-                </button>
-                <AnimatePresence>
-                  {openFAQ === i && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="px-4 pb-4 text-gray-300 text-sm"
-                    >
-                      {f.a}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                </div>
               </div>
-            ))}
+
+              <div className="flex flex-row sm:flex-col items-center gap-6 sm:gap-8 w-full sm:w-auto justify-center sm:justify-start">
+                <NodeCard ref={refs.manhwa} keyName="manhwa" meta={NODE_META.manhwa} onClick={() => setSelectedNode('manhwa')} />
+                <NodeCard ref={refs.novel} keyName="novel" meta={NODE_META.novel} onClick={() => setSelectedNode('novel')} />
+              </div>
+
+              <svg ref={svgRef} className="pointer-events-none absolute inset-0 w-full h-full">
+                <defs>
+                  <linearGradient id="g1" x1="0" x2="1">
+                    <stop offset="0%" stopColor="#ff7ab6" stopOpacity="0.9" />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.9" />
+                  </linearGradient>
+                </defs>
+                {mappedLines.map((L, idx) => (
+                  <motion.path
+                    key={L.id}
+                    d={L.d}
+                    stroke="url(#g1)"
+                    strokeWidth={2.6}
+                    fill="transparent"
+                    strokeLinecap="round"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1.2, delay: idx * 0.12, ease: 'easeOut' }}
+                    style={{ filter: 'drop-shadow(0 2px 6px rgba(139,92,246,0.15))' }}
+                  />
+                ))}
+              </svg>
+            </div>
           </div>
         </section>
+
+        <AnimatePresence>
+          {selectedNode && (
+            <motion.div
+              key="node-info"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ y: 20, scale: 0.98 }}
+                animate={{ y: 0, scale: 1 }}
+                exit={{ y: 10, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                className="max-w-md w-full bg-black/90 border border-white/10 rounded-xl p-6"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
+                    <Image src={NODE_META[selectedNode].img} alt={NODE_META[selectedNode].label} fill sizes="64px" className="object-contain p-2" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">{NODE_META[selectedNode].label}</h3>
+                      <button onClick={() => setSelectedNode(null)} className="text-gray-400 hover:text-white">✕</button>
+                    </div>
+                    <p className="mt-2 text-gray-300 text-sm">
+                      {lang === 'EN' ? NODE_META[selectedNode].descEN : NODE_META[selectedNode].descID}
+                    </p>
+                    <div className="mt-4 text-xs text-gray-400">
+                      {selectedNode === 'aichiow' ? (
+                        <>
+                          <div>Flow: central database → metadata store → indexers → API layer</div>
+                          <div className="mt-2">Click other nodes to see how they connect.</div>
+                        </>
+                      ) : (
+                        <>
+                          <div>Role: content source → ingest → normalize → index → serve.</div>
+                          <div className="mt-2">Status: sync via scheduled jobs & webhooks.</div>
+                        </>
+                      )}
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <a onClick={() => setSelectedNode(null)} className="cursor-pointer inline-block px-3 py-2 rounded-md bg-white/6 text-sm hover:bg-white/8">
+                        {lang === 'EN' ? 'Close' : 'Tutup'}
+                      </a>
+                      <a href="/home" className="ml-auto inline-block px-3 py-2 rounded-md bg-gradient-to-r from-pink-500 to-purple-500 text-sm font-medium">
+                        {lang === 'EN' ? 'Explore' : 'Jelajahi'}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <footer className="relative z-10 text-center text-sm text-gray-400 py-8">
           <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent mb-6" />
@@ -451,3 +317,26 @@ export default function AboutPage() {
     </>
   )
 }
+
+const NodeCard = forwardRef<HTMLDivElement, {
+  keyName: Exclude<NodeKey, 'aichiow'>
+  meta: { label: string; img: string }
+  onClick: () => void
+}>(({ keyName, meta, onClick }, ref) => {
+  return (
+    <motion.div
+      ref={ref}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.97 }}
+      onClick={onClick}
+      className="w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br from-purple-800/20 to-pink-700/10 border border-white/10 rounded-xl flex flex-col items-center justify-center cursor-pointer backdrop-blur p-2"
+    >
+      <div className="w-12 h-12 sm:w-14 sm:h-14 relative mb-2">
+        <Image src={meta.img} alt={meta.label} fill sizes="56px" className="object-contain" />
+      </div>
+      <div className="text-xs sm:text-sm font-medium">{meta.label}</div>
+    </motion.div>
+  )
+})
+
+NodeCard.displayName = 'NodeCard'
