@@ -49,7 +49,7 @@ export default function AboutPage() {
     <>
       <Head>
         <title>About Aichiow</title>
-        <meta name="description" content="About Aichiow Plus.">
+        <meta name="description" content="About Aichiow Plus." />
       </Head>
 
       <main className="relative min-h-screen bg-black text-white overflow-hidden">
