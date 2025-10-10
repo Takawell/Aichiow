@@ -2,6 +2,7 @@
 
 import Head from 'next/head'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaUsers, FaStar, FaGlobe, FaBolt } from 'react-icons/fa'
@@ -9,10 +10,7 @@ import { FaUsers, FaStar, FaGlobe, FaBolt } from 'react-icons/fa'
 export default function AboutPage() {
   const [lang, setLang] = useState<'EN' | 'ID'>('EN')
   const [openFAQ, setOpenFAQ] = useState<number | null>(null)
-
-  const toggleFAQ = (i: number) => {
-    setOpenFAQ(openFAQ === i ? null : i)
-  }
+  const toggleFAQ = (i: number) => setOpenFAQ(openFAQ === i ? null : i)
 
   const faq = {
     EN: [
@@ -53,6 +51,8 @@ export default function AboutPage() {
 
       <main className="relative min-h-screen bg-black text-white overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-black to-black" />
+
+        {/* Navbar */}
         <div className="relative z-20 max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
           <Link href="/home" className="font-bold text-lg">Aichiow</Link>
           <motion.button
@@ -71,6 +71,7 @@ export default function AboutPage() {
           </motion.button>
         </div>
 
+        {/* Hero Section */}
         <section className="relative z-10 text-center py-16 sm:py-24">
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
@@ -87,6 +88,80 @@ export default function AboutPage() {
           </p>
         </section>
 
+        {/* 🔥 NEW: Interactive Logo Flow Section */}
+        <section className="relative z-10 py-24 flex items-center justify-center overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1 }}
+            className="relative w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] flex items-center justify-center"
+          >
+            {/* Center Aichiow logo */}
+            <motion.div
+              className="absolute z-20 w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-pink-500/30 to-purple-600/30 backdrop-blur-md flex items-center justify-center border border-white/10 shadow-[0_0_30px_rgba(236,72,153,0.3)]"
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+            >
+              <Image
+                src="/logo.png"
+                alt="Aichiow"
+                width={100}
+                height={100}
+                className="object-contain"
+              />
+            </motion.div>
+
+            {/* Animated circular orbit for logos */}
+            {[
+              { src: '/default.png', angle: 0 },
+              { src: '/default.png', angle: 90 },
+              { src: '/default.png', angle: 180 },
+              { src: '/default.png', angle: 270 }
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center bg-gradient-to-br from-white/10 to-transparent backdrop-blur-md border border-white/10 shadow-[0_0_25px_rgba(236,72,153,0.3)]"
+                style={{
+                  transform: `rotate(${item.angle}deg) translateY(-200px) rotate(-${item.angle}deg)`
+                }}
+                whileHover={{ scale: 1.15, rotate: 10 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+              >
+                <Image
+                  src={item.src}
+                  alt={item.src}
+                  width={70}
+                  height={70}
+                  className="object-contain"
+                />
+              </motion.div>
+            ))}
+
+            {/* Pulse rings for motion effect */}
+            {[1, 2, 3].map((r, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full border border-purple-500/20"
+                style={{
+                  width: `${200 + i * 100}px`,
+                  height: `${200 + i * 100}px`
+                }}
+                animate={{
+                  opacity: [0.2, 0.6, 0],
+                  scale: [1, 1.2, 1.4]
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  delay: i * 1.2,
+                  ease: 'easeOut'
+                }}
+              />
+            ))}
+          </motion.div>
+        </section>
+
+        {/* Features Section */}
         <section className="relative z-10 max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
@@ -138,6 +213,7 @@ export default function AboutPage() {
           ))}
         </section>
 
+        {/* FAQ Section */}
         <section className="relative z-10 max-w-3xl mx-auto px-6 py-16">
           <h2 className="text-2xl font-bold text-center mb-8">
             {lang === 'EN' ? 'Frequently Asked Questions' : 'Pertanyaan Umum'}
@@ -173,6 +249,7 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Footer */}
         <footer className="relative z-10 text-center text-sm text-gray-400 py-8">
           <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent mb-6" />
           © {new Date().getFullYear()} Aichiow Plus. All rights reserved.
