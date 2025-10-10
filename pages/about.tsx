@@ -106,13 +106,6 @@ export default function AboutPage() {
     ]
   }
 
-  const nodes: Array<{ key: NodeKey; px: string; py: string }> = [
-    { key: 'anime', px: '10%', py: '8%' },
-    { key: 'manga', px: '82%', py: '8%' },
-    { key: 'manhwa', px: '8%', py: '78%' },
-    { key: 'novel', px: '82%', py: '78%' }
-  ]
-
   const svgRef = useRef<SVGSVGElement | null>(null)
   const [svgBox, setSvgBox] = useState<DOMRect | null>(null)
   useEffect(() => {
@@ -122,27 +115,27 @@ export default function AboutPage() {
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  const lines = []
+  const lines: Array<{ id: string; from: { x: number; y: number }; to: { x: number; y: number } }> = []
   if (rects.aichiow) {
     const c = rects.aichiow
     const cx = c.left + c.width / 2
     const cy = c.top + c.height / 2
-    for (const n of ['anime', 'manga', 'manhwa', 'novel'] as NodeKey[]) {
-      const r = rects[n]
+    for (const k of ['anime', 'manga', 'manhwa', 'novel'] as NodeKey[]) {
+      const r = rects[k]
       if (!r) continue
       const tx = r.left + r.width / 2
       const ty = r.top + r.height / 2
-      lines.push({ id: `${n}-line`, x1: cx, y1: cy, x2: tx, y2: ty })
+      lines.push({ id: `line-${k}`, from: { x: cx, y: cy }, to: { x: tx, y: ty } })
     }
   }
 
-  const mappedLines = (svgBox && lines.length
+  const mapped = (svgBox && lines.length
     ? lines.map(l => ({
         id: l.id,
-        x1: l.x1 - svgBox.left,
-        y1: l.y1 - svgBox.top,
-        x2: l.x2 - svgBox.left,
-        y2: l.y2 - svgBox.top
+        x1: l.from.x - svgBox.left,
+        y1: l.from.y - svgBox.top,
+        x2: l.to.x - svgBox.left,
+        y2: l.to.y - svgBox.top
       }))
     : []
   ).map(p => ({ ...p, d: `M ${p.x1} ${p.y1} C ${(p.x1 + p.x2) / 2} ${p.y1} ${(p.x1 + p.x2) / 2} ${p.y2} ${p.x2} ${p.y2}` }))
@@ -180,85 +173,70 @@ export default function AboutPage() {
           </motion.h1>
           <p className="mt-3 text-sm sm:text-base text-gray-300 max-w-2xl mx-auto px-2">
             {lang === 'EN'
-              ? 'Interactive database flow: Aichiow in the center synchronizes metadata with content nodes and serves APIs for consumption.'
-              : 'Alur database interaktif: Aichiow di tengah menyinkronkan metadata dengan node konten dan menyajikan API untuk konsumsi.'}
+              ? 'Modern box-style database flow: center orchestrator with content nodes on the sides, synced by APIs.'
+              : 'Alur database bergaya kotak modern: orchestrator pusat dengan node konten di samping, tersinkron lewat API.'}
           </p>
         </section>
 
         <section className="relative z-20 max-w-6xl mx-auto px-4 py-10">
-          <div className="relative w-full bg-white/3 border border-white/6 rounded-3xl p-6 overflow-visible flex flex-col items-center">
-            <div className="relative w-full max-w-4xl h-[420px] sm:h-[540px]">
+          <div className="relative w-full bg-white/3 border border-white/6 rounded-3xl p-6 overflow-visible">
+            <div className="relative w-full h-[540px] md:h-[420px]">
               <svg ref={svgRef} className="absolute inset-0 w-full h-full pointer-events-none" />
 
               <div ref={refs.aichiow} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                <motion.div initial={{ scale: 0.98 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="relative w-44 sm:w-56">
-                  <div className="relative bg-gradient-to-br from-sky-900/60 to-pink-700/40 border border-white/10 rounded-2xl p-4 shadow-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 relative rounded-lg overflow-hidden bg-white/5">
-                        <Image src="/aichiow.png" alt="Aichiow" fill sizes="56px" className="object-contain p-2" />
+                <motion.div initial={{ scale: 0.99 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-[300px] md:w-[420px]">
+                  <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/60 border border-white/10 rounded-2xl p-5 shadow-2xl">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
+                        <Image src="/aichiow.png" alt="Aichiow" fill sizes="64px" className="object-contain p-2" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-lg font-semibold">Aichiow</div>
+                        <div className="text-xl font-semibold">Aichiow</div>
                         <div className="text-xs text-gray-300">Central Database & API Orchestrator</div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <div className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg border border-white/6">
-                      <div className="w-2 h-2 rounded-full bg-pink-400" />
-                      <div className="text-xs text-gray-300">Metadata Store</div>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg border border-white/6">
-                      <div className="w-2 h-2 rounded-full bg-violet-400" />
-                      <div className="text-xs text-gray-300">Indexers</div>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg border border-white/6">
-                      <div className="w-2 h-2 rounded-full bg-cyan-400" />
-                      <div className="text-xs text-gray-300">API Layer</div>
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="px-3 py-2 bg-white/5 rounded-lg border border-white/6 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-pink-400" />
+                        <div className="text-xs text-gray-300">Metadata Store</div>
+                      </div>
+                      <div className="px-3 py-2 bg-white/5 rounded-lg border border-white/6 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-violet-400" />
+                        <div className="text-xs text-gray-300">Indexers</div>
+                      </div>
+                      <div className="px-3 py-2 bg-white/5 rounded-lg border border-white/6 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-cyan-400" />
+                        <div className="text-xs text-gray-300">API Layer</div>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
               </div>
 
-              {nodes.map((n, idx) => {
-                const left = n.px
-                const top = n.py
-                return (
-                  <div key={n.key} style={{ left, top }} className="absolute -translate-x-1/2 -translate-y-1/2">
-                    <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 * idx }} onClick={() => setSelectedNode(n.key)} className="group relative w-24 sm:w-28">
-                      <div className="relative w-full h-full">
-                        <div className="rounded-2xl border border-white/8 p-3 bg-gradient-to-br from-white/3 to-transparent flex flex-col items-center gap-2 hover:scale-[1.04] transform transition">
-                          <div className="w-12 h-12 relative">
-                            <Image src={NODE_META[n.key].img} alt={NODE_META[n.key].label} fill sizes="48px" className="object-contain" />
-                          </div>
-                          <div className="text-sm text-gray-200">{NODE_META[n.key].label}</div>
-                        </div>
-                        <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-pink-500/40 pointer-events-none" />
-                      </div>
-                    </motion.button>
-                  </div>
-                )
-              })}
+              <div className="absolute left-8 top-6 md:top-16 flex flex-col gap-6">
+                <NodeCard ref={refs.anime} id="anime" onOpen={() => setSelectedNode('anime')} />
+                <NodeCard ref={refs.manga} id="manga" onOpen={() => setSelectedNode('manga')} />
+              </div>
 
-              {mappedLines.map((L, i) => (
-                <motion.path key={L.id} d={L.d} stroke="url(#aichiow-grad)" strokeWidth={2.6} fill="transparent" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.9, delay: i * 0.06 }} style={{ filter: 'drop-shadow(0 6px 18px rgba(139,92,246,0.12))' }} />
-              ))}
+              <div className="absolute right-8 top-6 md:top-16 flex flex-col gap-6">
+                <NodeCard ref={refs.manhwa} id="manhwa" onOpen={() => setSelectedNode('manhwa')} />
+                <NodeCard ref={refs.novel} id="novel" onOpen={() => setSelectedNode('novel')} />
+              </div>
 
               <svg className="absolute inset-0 w-full h-full pointer-events-none">
                 <defs>
-                  <linearGradient id="aichiow-grad" x1="0" x2="1">
+                  <linearGradient id="g-flow" x1="0" x2="1">
                     <stop offset="0%" stopColor="#ff7ab6" />
                     <stop offset="100%" stopColor="#8b5cf6" />
                   </linearGradient>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="6" result="coloredBlur" />
-                    <feMerge>
-                      <feMergeNode in="coloredBlur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
                 </defs>
+                {mapped.map((L, i) => (
+                  <g key={L.id}>
+                    <motion.path d={L.d} stroke="url(#g-flow)" strokeWidth={2.6} fill="transparent" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.9, delay: i * 0.06 }} style={{ filter: 'drop-shadow(0 8px 20px rgba(139,92,246,0.12))' }} />
+                    <motion.circle r={5} initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0], scale: [0.6, 1, 0.6] }} transition={{ repeat: Infinity, duration: 1.6, delay: i * 0.22 }} cx={(L.x1 * 0.55 + L.x2 * 0.45)} cy={(L.y1 * 0.55 + L.y2 * 0.45)} fill="url(#g-flow)" />
+                  </g>
+                ))}
               </svg>
             </div>
 
@@ -277,13 +255,12 @@ export default function AboutPage() {
 
         <section className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { icon: <FaStar className="w-8 h-8" />, title: lang === 'EN' ? 'Curated Content' : 'Konten Kurasi', desc: lang === 'EN' ? 'Handpicked recommendations, trending charts, and seasonal picks.' : 'Rekomendasi pilihan, daftar tren, dan rilisan musiman.' },
-            { icon: <FaUsers className="w-8 h-8" />, title: lang === 'EN' ? 'Community Driven' : 'Didorong Komunitas', desc: lang === 'EN' ? 'Engage with fans, share lists, and connect with like-minded people.' : 'Terlibat dengan penggemar, bagikan daftar, dan terhubung dengan orang-orang sefrekuensi.' },
-            { icon: <FaBolt className="w-8 h-8" />, title: lang === 'EN' ? 'Fast Updates' : 'Update Cepat', desc: lang === 'EN' ? 'Real-time updates powered by trusted APIs like Anilist & MangaDex.' : 'Update real-time dari API terpercaya seperti Anilist & MangaDex.' },
-            { icon: <FaGlobe className="w-8 h-8" />, title: lang === 'EN' ? 'Global Access' : 'Akses Global', desc: lang === 'EN' ? 'Access your favorite content anytime, anywhere in the world.' : 'Akses konten favoritmu kapan saja, di mana saja.' }
+            { title: lang === 'EN' ? 'Curated Content' : 'Konten Kurasi', desc: lang === 'EN' ? 'Handpicked recommendations, trending charts, and seasonal picks.' : 'Rekomendasi pilihan, daftar tren, dan rilisan musiman.' },
+            { title: lang === 'EN' ? 'Community Driven' : 'Didorong Komunitas', desc: lang === 'EN' ? 'Engage with fans, share lists, and connect with like-minded people.' : 'Terlibat dengan penggemar, bagikan daftar, dan terhubung dengan orang-orang sefrekuensi.' },
+            { title: lang === 'EN' ? 'Fast Updates' : 'Update Cepat', desc: lang === 'EN' ? 'Real-time updates powered by trusted APIs like Anilist & MangaDex.' : 'Update real-time dari API terpercaya seperti Anilist & MangaDex.' },
+            { title: lang === 'EN' ? 'Global Access' : 'Akses Global', desc: lang === 'EN' ? 'Access your favorite content anytime, anywhere in the world.' : 'Akses konten favoritmu kapan saja, di mana saja.' }
           ].map((f, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.06 }} className="p-5 bg-gradient-to-b from-white/4 to-transparent rounded-xl border border-white/8">
-              <div className="mb-2 text-pink-400">{f.icon}</div>
               <h3 className="font-semibold mb-1">{f.title}</h3>
               <p className="text-sm text-gray-300">{f.desc}</p>
             </motion.div>
@@ -357,3 +334,24 @@ export default function AboutPage() {
     </>
   )
 }
+
+const NodeCard = React.forwardRef<HTMLDivElement, { id: NodeKey; onOpen: () => void }>(({ id, onOpen }, ref) => {
+  return (
+    <div ref={ref} className="w-44 sm:w-52">
+      <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32 }} onClick={onOpen} className="w-full text-left">
+        <div className="bg-gradient-to-br from-white/4 to-transparent border border-white/8 rounded-2xl p-4 hover:scale-[1.03] transition transform">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 relative rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
+              <Image src={NODE_META[id].img} alt={NODE_META[id].label} fill sizes="48px" className="object-contain p-2" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold">{NODE_META[id].label}</div>
+              <div className="text-xs text-gray-300">{NODE_META[id].descEN}</div>
+            </div>
+          </div>
+        </div>
+      </motion.button>
+    </div>
+  )
+})
+NodeCard.displayName = 'NodeCard'
