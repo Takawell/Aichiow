@@ -2,14 +2,19 @@
 
 import Head from 'next/head'
 import Link from 'next/link'
-import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaUsers, FaStar, FaGlobe, FaBolt } from 'react-icons/fa'
 
 export default function AboutPage() {
   const [lang, setLang] = useState<'EN' | 'ID'>('EN')
   const [openFAQ, setOpenFAQ] = useState<number | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    return () => setMounted(false)
+  }, [])
 
   const toggleFAQ = (i: number) => {
     setOpenFAQ(openFAQ === i ? null : i)
@@ -45,13 +50,6 @@ export default function AboutPage() {
       }
     ]
   }
-
-  const cards = [
-    { name: 'Anime', image: '/default.png' },
-    { name: 'Manga', image: '/default.png' },
-    { name: 'Manhwa', image: '/default.png' },
-    { name: 'Light Novel', image: '/default.png' }
-  ]
 
   return (
     <>
@@ -96,40 +94,93 @@ export default function AboutPage() {
           </p>
         </section>
 
-        <section className="relative z-10 flex flex-col items-center justify-center py-16 px-6">
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-6 items-center justify-center w-full max-w-4xl">
-            <motion.div whileHover={{ scale: 1.05 }} className="hidden sm:block" />
-            <motion.div whileHover={{ scale: 1.05 }} className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-md hover:shadow-pink-500/30 transition">
-              <Image src={cards[0].image} alt={cards[0].name} width={150} height={150} className="rounded-lg mx-auto" />
-              <p className="text-center mt-2 font-semibold">{cards[0].name}</p>
+        {/* Database Network Animation */}
+        <section className="relative z-10 py-20 flex flex-col items-center justify-center overflow-hidden">
+          <div className="relative w-full max-w-[600px] h-[400px] flex items-center justify-center">
+            {/* Flowing lines */}
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <svg className="w-full h-full" viewBox="0 0 600 400">
+                <motion.path
+                  d="M150 120 L300 200 L450 120"
+                  stroke="url(#flowGradient)"
+                  strokeWidth="3"
+                  fill="transparent"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse' }}
+                />
+                <motion.path
+                  d="M150 280 L300 200 L450 280"
+                  stroke="url(#flowGradient)"
+                  strokeWidth="3"
+                  fill="transparent"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 2, delay: 1, repeat: Infinity, repeatType: 'reverse' }}
+                />
+                <defs>
+                  <linearGradient id="flowGradient" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#ec4899" />
+                    <stop offset="100%" stopColor="#8b5cf6" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </motion.div>
+
+            {/* Boxes */}
+            <motion.div
+              className="absolute bg-gradient-to-br from-pink-500 to-purple-500 text-white font-bold rounded-lg shadow-lg w-28 h-16 flex items-center justify-center border border-white/20"
+              initial={{ y: 0 }}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 3 }}
+              style={{ top: '30%', left: '10%' }}
+            >
+              {lang === 'EN' ? 'Anime' : 'Anime'}
             </motion.div>
 
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="col-span-3 sm:col-span-1 bg-gradient-to-br from-purple-600 via-pink-600 to-blue-600 rounded-2xl p-6 text-center shadow-lg border border-white/10"
+              className="absolute bg-gradient-to-br from-pink-500 to-purple-500 text-white font-bold rounded-lg shadow-lg w-28 h-16 flex items-center justify-center border border-white/20"
+              initial={{ y: 0 }}
+              animate={{ y: [0, 10, 0] }}
+              transition={{ repeat: Infinity, duration: 3, delay: 1 }}
+              style={{ top: '60%', left: '10%' }}
             >
-              <Image src="/logo.png" alt="Aichiow" width={160} height={160} className="mx-auto rounded-xl" />
-              <h2 className="mt-4 text-2xl font-bold">Aichiow</h2>
+              {lang === 'EN' ? 'Manhwa' : 'Manhwa'}
             </motion.div>
 
-            <motion.div whileHover={{ scale: 1.05 }} className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-md hover:shadow-pink-500/30 transition">
-              <Image src={cards[1].image} alt={cards[1].name} width={150} height={150} className="rounded-lg mx-auto" />
-              <p className="text-center mt-2 font-semibold">{cards[1].name}</p>
+            <motion.div
+              className="absolute bg-gradient-to-br from-pink-500 to-purple-500 text-white font-bold rounded-lg shadow-lg w-32 h-20 flex items-center justify-center border border-white/30 scale-110"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1 }}
+              style={{ top: '40%', left: '38%' }}
+            >
+              Aichiow
             </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} className="hidden sm:block" />
-          </div>
 
-          <div className="grid grid-cols-2 gap-6 mt-8 max-w-3xl">
-            {cards.slice(2, 4).map((c, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.05 }}
-                className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-md hover:shadow-pink-500/30 transition"
-              >
-                <Image src={c.image} alt={c.name} width={150} height={150} className="rounded-lg mx-auto" />
-                <p className="text-center mt-2 font-semibold">{c.name}</p>
-              </motion.div>
-            ))}
+            <motion.div
+              className="absolute bg-gradient-to-br from-pink-500 to-purple-500 text-white font-bold rounded-lg shadow-lg w-28 h-16 flex items-center justify-center border border-white/20"
+              initial={{ y: 0 }}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 3, delay: 0.5 }}
+              style={{ top: '30%', right: '10%' }}
+            >
+              {lang === 'EN' ? 'Manga' : 'Manga'}
+            </motion.div>
+
+            <motion.div
+              className="absolute bg-gradient-to-br from-pink-500 to-purple-500 text-white font-bold rounded-lg shadow-lg w-28 h-16 flex items-center justify-center border border-white/20"
+              initial={{ y: 0 }}
+              animate={{ y: [0, 10, 0] }}
+              transition={{ repeat: Infinity, duration: 3, delay: 1.5 }}
+              style={{ top: '60%', right: '10%' }}
+            >
+              {lang === 'EN' ? 'Novel' : 'Novel'}
+            </motion.div>
           </div>
         </section>
 
@@ -226,4 +277,4 @@ export default function AboutPage() {
       </main>
     </>
   )
-}
+} 
