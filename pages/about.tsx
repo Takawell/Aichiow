@@ -11,45 +11,38 @@ export default function AboutPage() {
   const [lang, setLang] = useState<'EN' | 'ID'>('EN')
   const [openFAQ, setOpenFAQ] = useState<number | null>(null)
   const [focused, setFocused] = useState<number | null>(null)
-  const [orbitSpeed, setOrbitSpeed] = useState(18)
-  const [showConnectors, setShowConnectors] = useState(true)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const inView = useInView(containerRef, { once: false, margin: '-100px' })
+  const inView = useInView(containerRef, { once: false, margin: '-120px' })
   const controls = useAnimation()
-  const pulseControls = useAnimation()
+  const [orbitSpeed, setOrbitSpeed] = useState(20)
+  const [showConnectors, setShowConnectors] = useState(true)
 
   useEffect(() => {
     if (inView) {
-      controls.start('visible')
-      pulseControls.start('pulse')
+      controls.start({ opacity: 1 })
     } else {
-      controls.start('hidden')
-      pulseControls.stop()
+      controls.start({ opacity: 0 })
     }
-  }, [inView, controls, pulseControls])
+  }, [inView, controls])
 
   const logos = useMemo(
     () => [
-      { id: 0, src: '/anime.png', name: 'anime' },
-      { id: 1, src: '/manga.png', name: 'manga' },
-      { id: 2, src: '/manhwa.png', name: 'manhwa' },
-      { id: 3, src: '/novel.png', name: 'novel' }
+      { id: 0, src: '/default.png', name: 'anime' },
+      { id: 1, src: '/default.png', name: 'manga' },
+      { id: 2, src: '/default.png', name: 'manhwa' },
+      { id: 3, src: '/default.png', name: 'novel' }
     ],
     []
   )
 
-  const toggleFAQ = (i: number) => {
-    setOpenFAQ(openFAQ === i ? null : i)
-  }
+  const toggleFAQ = (i: number) => setOpenFAQ(openFAQ === i ? null : i)
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setFocused(null)
-      }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFocused(null)
     }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
   }, [])
 
   const faq = {
@@ -86,11 +79,39 @@ export default function AboutPage() {
   const connectorPath = (cx: number, cy: number, tx: number, ty: number) => {
     const dx = tx - cx
     const dy = ty - cy
-    const qx = cx + dx * 0.45
-    const qy = cy + dy * 0.45
-    const rx = tx - dx * 0.45
-    const ry = ty - dy * 0.45
-    return `M ${cx} ${cy} C ${qx} ${qy} ${rx} ${ry} ${tx} ${ty}`
+    const q1x = cx + dx * 0.28
+    const q1y = cy + dy * 0.05
+    const q2x = cx + dx * 0.72
+    const q2y = cy + dy * 0.95
+    return `M ${cx} ${cy} C ${q1x} ${q1y} ${q2x} ${q2y} ${tx} ${ty}`
+  }
+
+  const positionsForSize = (w: number) => {
+    if (w < 480) {
+      return {
+        center: { x: 50, y: 50 },
+        topLeft: { x: 28, y: 22 },
+        topRight: { x: 72, y: 22 },
+        bottomLeft: { x: 35, y: 78 },
+        bottomRight: { x: 65, y: 78 }
+      }
+    }
+    if (w < 900) {
+      return {
+        center: { x: 50, y: 50 },
+        topLeft: { x: 30, y: 20 },
+        topRight: { x: 70, y: 20 },
+        bottomLeft: { x: 36, y: 82 },
+        bottomRight: { x: 64, y: 82 }
+      }
+    }
+    return {
+      center: { x: 50, y: 50 },
+      topLeft: { x: 28, y: 18 },
+      topRight: { x: 72, y: 18 },
+      bottomLeft: { x: 36, y: 82 },
+      bottomRight: { x: 64, y: 82 }
+    }
   }
 
   return (
@@ -99,8 +120,8 @@ export default function AboutPage() {
         <title>About Aichiow</title>
       </Head>
 
-      <main className="relative min-h-screen bg-black text-white overflow-hidden select-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0b0216] via-[#07060b] to-black/90 -z-10" />
+      <main className="relative min-h-screen bg-black text-white overflow-x-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#07020a] via-[#080317] to-black -z-10" />
 
         <div className="relative z-20 max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
           <Link href="/home" className="font-bold text-lg">Aichiow</Link>
@@ -182,103 +203,90 @@ export default function AboutPage() {
         </section>
 
         <section ref={containerRef} className="relative z-10 py-12 sm:py-20 flex items-center justify-center">
-          <div className="relative w-[360px] h-[360px] sm:w-[520px] sm:h-[520px]">
-            <svg viewBox="0 0 520 520" className="absolute inset-0 w-full h-full">
+          <div className="relative w-[320px] h-[320px] sm:w-[580px] sm:h-[420px] md:w-[720px] md:h-[520px] lg:w-[820px] lg:h-[560px]">
+            <svg viewBox="0 0 1000 700" className="absolute inset-0 w-full h-full">
               <defs>
-                <linearGradient id="g1" x1="0" x2="1">
+                <linearGradient id="gradA" x1="0" x2="1">
                   <stop offset="0" stopColor="#ff7ab6" />
                   <stop offset="1" stopColor="#7c3aed" />
                 </linearGradient>
-                <filter id="f1" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="10" result="b" />
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="12" result="b" />
                   <feBlend in="SourceGraphic" in2="b" mode="normal" />
                 </filter>
               </defs>
 
               <motion.g
-                initial="hidden"
+                initial={{ opacity: 0 }}
                 animate={controls}
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: { opacity: 1 }
-                }}
+                transform="translate(0,0)"
               >
-                <g>
-                  <motion.circle
-                    cx="260"
-                    cy="260"
-                    r="100"
-                    fill="none"
-                    stroke="url(#g1)"
-                    strokeWidth="0.6"
-                    strokeOpacity="0.12"
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 80, repeat: Infinity, ease: 'linear' }}
-                  />
-                </g>
+                <motion.circle
+                  cx="500"
+                  cy="350"
+                  r="180"
+                  fill="none"
+                  stroke="url(#gradA)"
+                  strokeWidth="0.8"
+                  strokeOpacity="0.08"
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 120, repeat: Infinity, ease: 'linear' }}
+                />
 
                 {showConnectors &&
                   logos.map((l, i) => {
-                    const angle = (i / logos.length) * Math.PI * 2 - Math.PI / 2
-                    const tx = 260 + Math.cos(angle) * 200
-                    const ty = 260 + Math.sin(angle) * 200
+                    const posMap = [
+                      { x: 280, y: 120 },
+                      { x: 720, y: 120 },
+                      { x: 280, y: 580 },
+                      { x: 720, y: 580 }
+                    ]
+                    const { x: tx, y: ty } = posMap[i]
                     return (
                       <motion.path
-                        key={l.id}
-                        d={connectorPath(260, 260, tx, ty)}
+                        key={i}
+                        d={connectorPath(500, 350, tx, ty)}
                         fill="none"
-                        stroke="rgba(124,58,237,0.25)"
-                        strokeWidth={2}
+                        stroke="rgba(124,58,237,0.22)"
+                        strokeWidth={3}
                         strokeLinecap="round"
-                        strokeDasharray="6 8"
-                        animate={{
-                          strokeDashoffset: [0, -80]
-                        }}
-                        transition={{
-                          duration: 6 + i * 0.8,
-                          repeat: Infinity,
-                          ease: 'linear'
-                        }}
+                        strokeDasharray="8 10"
+                        animate={{ strokeDashoffset: [0, -120] }}
+                        transition={{ duration: 6 + i * 0.9, repeat: Infinity, ease: 'linear' }}
                       />
                     )
                   })}
               </motion.g>
             </svg>
 
-            <motion.div
-              initial={{ scale: 0.96, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30"
-            >
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-40">
               <motion.div
-                animate={{
-                  boxShadow: [
-                    '0 0 0px rgba(124,58,237,0.15)',
-                    '0 0 40px rgba(124,58,237,0.25)',
-                    '0 0 0px rgba(124,58,237,0.15)'
-                  ]
-                }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                className="w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-white/6 to-transparent border border-white/10 flex items-center justify-center backdrop-blur-md"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.8 }}
+                className="w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-white/6 to-transparent border border-white/10 flex items-center justify-center backdrop-blur-md"
               >
                 <motion.div
                   animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center"
+                  transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
+                  className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full flex items-center justify-center"
                 >
-                  <Image src="/aichiow.png" alt="Aichiow" width={96} height={96} className="object-contain" />
+                  <Image src="/aichiow.png" alt="Aichiow" width={144} height={144} className="object-contain" />
                 </motion.div>
               </motion.div>
-            </motion.div>
+            </div>
 
             {logos.map((l, i) => {
-              const angle = (i / logos.length) * Math.PI * 2 - Math.PI / 2
-              const r = 200
-              const cx = 260 + Math.cos(angle) * r
-              const cy = 260 + Math.sin(angle) * r
-              const start = (i / logos.length) * orbitSpeed
-              const hoverScale = focused === l.id ? 1.35 : 1
+              const posMap = [
+                { xPct: 28, yPct: 18 },
+                { xPct: 72, yPct: 18 },
+                { xPct: 28, yPct: 82 },
+                { xPct: 72, yPct: 82 }
+              ]
+              const container = { width: 1000, height: 700 }
+              const px = (posMap[i].xPct / 100) * container.width
+              const py = (posMap[i].yPct / 100) * container.height
+              const delay = (i / logos.length) * 0.6
               return (
                 <motion.div
                   key={l.id}
@@ -289,70 +297,48 @@ export default function AboutPage() {
                   onMouseEnter={() => setFocused(l.id)}
                   onMouseLeave={() => setFocused(null)}
                   onClick={() => setFocused(focused === l.id ? null : l.id)}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{
-                    opacity: 1,
-                    rotate: [0, 360],
-                    x: [0],
-                    y: [0],
-                    scale: hoverScale
-                  }}
-                  transition={{
-                    rotate: { duration: orbitSpeed, repeat: Infinity, ease: 'linear', delay: start },
-                    default: { duration: 0.6 }
-                  }}
-                  className="absolute z-40"
+                  initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay }}
+                  className="absolute z-50"
                   style={{
-                    left: cx - 36,
-                    top: cy - 36,
-                    width: 72,
-                    height: 72
+                    left: `calc(${posMap[i].xPct}% - 40px)`,
+                    top: `calc(${posMap[i].yPct}% - 40px)`
                   }}
                 >
                   <motion.div
                     animate={{
-                      y: focused === l.id ? -8 : 0,
+                      y: focused === l.id ? -10 : 0,
+                      scale: focused === l.id ? 1.18 : 1,
                       boxShadow:
-                        focused === l.id
-                          ? '0 10px 30px rgba(124,58,237,0.35)'
-                          : '0 6px 18px rgba(0,0,0,0.35)'
+                        focused === l.id ? '0 18px 40px rgba(124,58,237,0.35)' : '0 10px 24px rgba(0,0,0,0.4)'
                     }}
-                    transition={{ type: 'spring', stiffness: 180, damping: 16 }}
-                    className="w-full h-full rounded-full flex items-center justify-center bg-gradient-to-br from-white/5 to-transparent border border-white/10"
+                    transition={{ type: 'spring', stiffness: 160, damping: 18 }}
+                    className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full flex items-center justify-center bg-gradient-to-br from-white/6 to-transparent border border-white/10"
                   >
-                    <motion.div
-                      whileHover={{ scale: 1.08 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-[56px] h-[56px] rounded-full flex items-center justify-center bg-gradient-to-br from-white/10 to-transparent"
-                    >
-                      <Image src={l.src} alt={l.name} width={56} height={56} className="object-contain" />
+                    <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.98 }} className="w-[64px] h-[64px] sm:w-[72px] sm:h-[72px] md:w-[84px] md:h-[84px] rounded-full flex items-center justify-center bg-gradient-to-br from-white/10 to-transparent">
+                      <Image src={l.src} alt={l.name} width={72} height={72} className="object-contain" />
                     </motion.div>
 
                     <AnimatePresence>
                       {focused === l.id && (
                         <motion.div
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: -52 }}
-                          exit={{ opacity: 0, y: 6 }}
-                          transition={{ duration: 0.25 }}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: -60 }}
+                          exit={{ opacity: 0, y: 8 }}
+                          transition={{ duration: 0.22 }}
                           className="absolute left-1/2 -translate-x-1/2 top-0 flex items-center gap-2 pointer-events-none"
                           aria-hidden
                         >
-                          <svg width="96" height="40" viewBox="0 0 96 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="filter drop-shadow-lg">
-                            <path d="M8 32C8 24 20 12 48 12C76 12 88 24 88 32" stroke="url(#g2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <defs>
-                              <linearGradient id="g2" x1="0" x2="1">
-                                <stop offset="0" stopColor="#ff7ab6" />
-                                <stop offset="1" stopColor="#7c3aed" />
-                              </linearGradient>
-                            </defs>
+                          <svg width="110" height="44" viewBox="0 0 110 44" fill="none" xmlns="http://www.w3.org/2000/svg" className="filter drop-shadow-lg">
+                            <path d="M8 36C8 26 28 12 55 12C82 12 102 26 102 36" stroke="url(#gradA)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                           <motion.div
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.8, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="w-24 px-3 py-1 rounded-lg bg-gradient-to-br from-white/6 to-transparent border border-white/10 text-xs text-center text-gray-200"
+                            transition={{ duration: 0.18 }}
+                            className="w-28 px-3 py-1 rounded-lg bg-gradient-to-br from-white/6 to-transparent border border-white/10 text-xs text-center text-gray-200"
                           >
                             {l.name.toUpperCase()}
                           </motion.div>
@@ -365,13 +351,10 @@ export default function AboutPage() {
             })}
 
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={pulseControls}
-              variants={{
-                pulse: { opacity: [0.1, 0.6, 0.1] }
-              }}
-              transition={{ duration: 4, repeat: Infinity }}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none"
+              initial={{ opacity: 0.06 }}
+              animate={{ opacity: [0.06, 0.6, 0.06] }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"
               style={{ width: 520, height: 520 }}
             />
           </div>
@@ -434,10 +417,7 @@ export default function AboutPage() {
           </h2>
           <div className="space-y-4">
             {faq[lang].map((f, i) => (
-              <div
-                key={i}
-                className="rounded-lg bg-white/5 border border-white/10 overflow-hidden"
-              >
+              <div key={i} className="rounded-lg bg-white/5 border border-white/10 overflow-hidden">
                 <button
                   onClick={() => toggleFAQ(i)}
                   className="w-full flex justify-between items-center px-4 py-3 text-left font-medium hover:bg-white/10 transition"
