@@ -284,5 +284,6 @@ export default function MaintenancePage() {
         </div>
       </motion.main>
     </div>
+   </>
   )
 }
