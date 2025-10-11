@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useTransform } from 'framer-motion'
+import Head from 'next/head'
 import Image from 'next/image'
 import { FaDiscord, FaYoutube, FaTiktok, FaInstagram } from 'react-icons/fa'
 
@@ -161,6 +162,32 @@ export default function MaintenancePage() {
   }, [])
 
   return (
+    <>
+      <Head>
+        <title>Aichiow Plus Maintenance Mode</title>
+        <meta
+          name="description"
+          content="Aichiow is temporarily under maintenance to bring you a faster, smoother, and more powerful experience for anime, manga, manhwa, and light novel discovery."
+        />
+        <meta name="theme-color" content="#0ea5e9" />
+        <meta property="og:title" content="Aichiow Maintenance" />
+        <meta
+          property="og:description"
+          content="We’re performing essential updates to improve Aichiow’s performance and reliability. Please check back soon!"
+        />
+        <meta property="og:image" content="/logo.png" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Aichiow" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="AICHIOW Maintenance" />
+        <meta
+          name="twitter:description"
+          content="Aichiow is upgrading its systems for a better experience. We’ll be back online shortly!"
+        />
+        <meta name="twitter:image" content="/logo.png" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+    
     <div className="min-h-screen w-full flex items-center justify-center p-4 md:p-6 bg-[radial-gradient(circle_at_20%_30%,#0ea5e9_0%,transparent_40%),radial-gradient(circle_at_80%_70%,#7c3aed_0%,transparent_40%)] text-white relative overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-70" />
       <motion.main
@@ -244,7 +271,7 @@ export default function MaintenancePage() {
 
             <div className="w-full rounded-md p-3 bg-black/40 border border-white/10 text-sm text-gray-300">
               <div className="font-semibold">Support</div>
-              <div className="mt-2 text-xs">Contact via Discord or support email for contributors.</div>
+              <div className="mt-2 text-xs">Got questions? Hit us up on Discord or any of our socials above.</div>
             </div>
 
             <div className="w-full text-xs text-gray-500 mt-2">© {new Date().getFullYear()} Aichiow Plus. All Rights Reserved.</div>
