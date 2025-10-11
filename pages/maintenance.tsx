@@ -23,19 +23,11 @@ export default function MaintenancePage() {
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    const particles: {
-      x: number
-      y: number
-      r: number
-      vx: number
-      vy: number
-      alpha: number
-      pulse: number
-      hue: number
-    }[] = []
+    const particles: { x: number; y: number; r: number; vx: number; vy: number; alpha: number; pulse: number; hue: number }[] = []
     const DPR = Math.max(1, window.devicePixelRatio || 1)
 
     function resize() {
+      if (!canvas) return
       width = canvas.clientWidth
       height = canvas.clientHeight
       canvas.width = Math.floor(width * DPR)
@@ -122,21 +114,10 @@ export default function MaintenancePage() {
       const y = (e.clientY - rect.top) / rect.height
       mouseX.set(x)
       mouseY.set(y)
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i]
-        const dx = p.x - e.clientX + rect.left
-        const dy = p.y - e.clientY + rect.top
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 120) {
-          p.vx += (Math.random() - 0.5) * 0.8
-          p.vy += (Math.random() - 0.5) * 0.8
-        }
-      }
     }
 
     window.addEventListener('pointermove', handlePointer)
     window.addEventListener('resize', resize)
-
     setReady(true)
 
     return () => {
@@ -148,11 +129,7 @@ export default function MaintenancePage() {
 
   useEffect(() => {
     const id = setInterval(() => {
-      setProgress(p => {
-        if (p >= 100) return 100
-        const step = 1 + Math.random() * 4
-        return Math.min(100, +(p + step).toFixed(2))
-      })
+      setProgress(p => (p >= 100 ? 100 : +(p + (1 + Math.random() * 4)).toFixed(2)))
       const now = Date.now()
       const d = Math.max(0, targetDate.current - now)
       setTimeLeft({
@@ -166,138 +143,62 @@ export default function MaintenancePage() {
   }, [])
 
   return (
-    <div className="min-h-screen w-full bg-black text-white flex items-center justify-center p-6">
-      <div className="absolute inset-0">
-        <canvas ref={canvasRef} className="w-full h-full block" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(30,58,138,0.14),_transparent_20%),radial-gradient(ellipse_at_bottom_right,_rgba(124,58,237,0.12),_transparent_18%)] pointer-events-none" />
-      </div>
-
+    <div className="min-h-screen w-full bg-black text-white flex items-center justify-center p-6 relative overflow-hidden">
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(30,58,138,0.14),_transparent_20%),radial-gradient(ellipse_at_bottom_right,_rgba(124,58,237,0.12),_transparent_18%)] pointer-events-none" />
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
         style={{ perspective: 1200 }}
-        className="relative z-10 w-full max-w-5xl p-6 md:p-10 rounded-3xl"
+        className="relative z-10 w-full max-w-5xl p-6 md:p-10 rounded-3xl backdrop-blur-2xl border border-neutral-800/60 bg-gradient-to-r from-[rgba(255,255,255,0.02)] via-[rgba(255,255,255,0.01)] to-[rgba(255,255,255,0.02)]"
       >
-        <motion.div
-          style={{ rotateX: tiltX, rotateY: tiltY }}
-          className="relative rounded-2xl p-6 md:p-10 bg-gradient-to-r from-[rgba(255,255,255,0.02)] via-[rgba(255,255,255,0.01)] to-[rgba(255,255,255,0.02)] border border-neutral-800/60 backdrop-blur-2xl shadow-2xl"
-        >
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-black font-extrabold text-2xl md:text-3xl drop-shadow-sm">
-                A
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-4xl font-extrabold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-300 via-indigo-400 to-rose-400">
-                  AICHIOW
-                </h1>
-                <div className="mt-1 text-sm text-gray-300">Scheduled maintenance — systems offline</div>
-              </div>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-black font-extrabold text-2xl md:text-3xl">
+              A
             </div>
-
-            <div className="flex flex-col items-end">
-              <div className="text-xs text-gray-400">Mode</div>
-              <div className="mt-1 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-700/30 to-sky-700/20 border border-neutral-800 text-sm">
-                FULL MAINTENANCE
-              </div>
+            <div>
+              <h1 className="text-2xl md:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-300 via-indigo-400 to-rose-400">
+                AICHIOW
+              </h1>
+              <div className="text-sm text-gray-400">Scheduled maintenance — systems offline</div>
             </div>
           </div>
-
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 rounded-2xl p-6 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] border border-neutral-800/60">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex-1">
-                  <div className="text-sm text-gray-300">Estimated time to restore</div>
-                  <div className="mt-4 flex items-end gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className="font-mono text-3xl md:text-5xl font-semibold">{String(timeLeft.days)}</div>
-                      <div className="text-xs text-gray-400">days</div>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="font-mono text-3xl md:text-5xl font-semibold">{String(timeLeft.hours).padStart(2, '0')}</div>
-                      <div className="text-xs text-gray-400">hrs</div>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="font-mono text-3xl md:text-5xl font-semibold">{String(timeLeft.minutes).padStart(2, '0')}</div>
-                      <div className="text-xs text-gray-400">min</div>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="font-mono text-3xl md:text-5xl font-semibold">{String(timeLeft.seconds).padStart(2, '0')}</div>
-                      <div className="text-xs text-gray-400">sec</div>
-                    </div>
-                  </div>
+          <div className="text-xs md:text-sm bg-gradient-to-r from-indigo-700/30 to-sky-700/20 border border-neutral-800 px-4 py-1.5 rounded-full">
+            SERVER MAINTENANCE
+          </div>
+        </div>
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2 space-y-6">
+            <div className="text-sm text-gray-300">Estimated time to restore</div>
+            <div className="flex gap-4 justify-between">
+              {[['days', timeLeft.days], ['hrs', timeLeft.hours], ['min', timeLeft.minutes], ['sec', timeLeft.seconds]].map(([label, value]) => (
+                <div key={label} className="flex flex-col items-center">
+                  <div className="font-mono text-4xl font-semibold">{String(value).padStart(2, '0')}</div>
+                  <div className="text-xs text-gray-400">{label}</div>
                 </div>
-
-                <div className="w-full md:w-64">
-                  <div className="text-sm text-gray-400">Progress</div>
-                  <div className="mt-3 w-full h-3 bg-neutral-800 rounded-full overflow-hidden border border-neutral-800/50">
-                    <div
-                      style={{
-                        width: `${progress}%`,
-                        transition: 'width 500ms cubic-bezier(.2,.9,.2,1)',
-                      }}
-                      className="h-full bg-[linear-gradient(90deg,#38bdf8,#7c3aed,#fb7185)]"
-                    />
-                  </div>
-                  <div className="mt-2 text-xs text-gray-400 text-right">{Math.round(progress)}%</div>
-                </div>
-              </div>
-
-              <div className="mt-6 grid grid-cols-3 gap-3">
-                <div className="rounded-lg p-3 bg-neutral-900/40 border border-neutral-800/60 text-sm text-gray-300">
-                  <div className="font-semibold">Scope</div>
-                  <div className="mt-2 text-xs">Infrastructure & data migration</div>
-                </div>
-                <div className="rounded-lg p-3 bg-neutral-900/40 border border-neutral-800/60 text-sm text-gray-300">
-                  <div className="font-semibold">Impact</div>
-                  <div className="mt-2 text-xs">All services are temporarily unavailable</div>
-                </div>
-                <div className="rounded-lg p-3 bg-neutral-900/40 border border-neutral-800/60 text-sm text-gray-300">
-                  <div className="font-semibold">ETA</div>
-                  <div className="mt-2 text-xs">{timeLeft.days > 0 ? `${timeLeft.days} days` : `${timeLeft.hours} hrs`}</div>
-                </div>
-              </div>
-
-              <div className="mt-6 flex items-center gap-4">
-                <div className="rounded-full w-12 h-12 bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-black font-bold text-lg">
-                  ⚙
-                </div>
-                <div className="text-sm text-gray-300">We are performing critical updates to improve stability and performance. Follow the official channels for live updates.</div>
-              </div>
+              ))}
             </div>
-
-            <aside className="rounded-2xl p-6 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),transparent)] border border-neutral-800/60 flex flex-col items-center gap-4 text-center">
-              <div className="text-sm text-gray-300">Live updates</div>
-              <div className="mt-2 flex gap-3">
-                <a href="https://discord.gg/aichinime" target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-[rgba(255,255,255,0.02)] border border-neutral-800/40 hover:scale-105 transition-transform">
-                  <FaDiscord className="text-xl" />
-                </a>
-                <a href="https://youtube.com/@Takadevelopment" target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-[rgba(255,255,255,0.02)] border border-neutral-800/40 hover:scale-105 transition-transform">
-                  <FaYoutube className="text-xl" />
-                </a>
-                <a href="https://tiktok.com/@putrawangyyy" target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-[rgba(255,255,255,0.02)] border border-neutral-800/40 hover:scale-105 transition-transform">
-                  <FaTiktok className="text-xl" />
-                </a>
-                <a href="https://instagram.com/putrasenpaiii" target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-[rgba(255,255,255,0.02)] border border-neutral-800/40 hover:scale-105 transition-transform">
-                  <FaInstagram className="text-xl" />
-                </a>
-              </div>
-
-              <div className="w-full rounded-md p-3 bg-neutral-900/30 border border-neutral-800/60 text-sm text-gray-300">
-                <div className="font-semibold">Support</div>
-                <div className="mt-2 text-xs">If you're a contributor needing access, use the project's preview branch on GitHub.</div>
-              </div>
-
-              <div className="w-full text-xs text-gray-500">© {new Date().getFullYear()} AICHIOW</div>
-            </aside>
+            <div className="w-full h-3 bg-neutral-800 rounded-full overflow-hidden border border-neutral-800/50">
+              <div
+                style={{ width: `${progress}%`, transition: 'width 500ms cubic-bezier(.2,.9,.2,1)' }}
+                className="h-full bg-[linear-gradient(90deg,#38bdf8,#7c3aed,#fb7185)]"
+              />
+            </div>
+            <div className="text-xs text-gray-400 text-right">{Math.round(progress)}%</div>
           </div>
-
-          <div className="mt-8 flex items-center justify-between gap-4">
-            <div className="text-xs text-gray-400">This page will remain until maintenance completes</div>
-            <div className="text-xs text-gray-400">Last checked: {new Date().toLocaleString()}</div>
-          </div>
-        </motion.div>
+          <aside className="rounded-2xl p-6 bg-[rgba(255,255,255,0.02)] border border-neutral-800/60 flex flex-col items-center gap-3">
+            <div className="flex gap-3">
+              {[FaDiscord, FaYoutube, FaTiktok, FaInstagram].map((Icon, i) => (
+                <div key={i} className="p-3 rounded-lg bg-neutral-900/30 border border-neutral-800/40 hover:scale-105 transition-transform">
+                  <Icon className="text-xl" />
+                </div>
+              ))}
+            </div>
+            <div className="text-xs text-gray-500">© {new Date().getFullYear()} AICHIOW</div>
+          </aside>
+        </div>
       </motion.div>
     </div>
   )
