@@ -33,23 +33,58 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
-    const getProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        const { data, error } = await supabase
+    const loadAvatar = async () => {
+      try {
+        const localAvatar = localStorage.getItem('avatar')
+        if (localAvatar) {
+          setAvatarUrl(localAvatar)
+          return
+        }
+
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+
+        if (!user) return
+
+        const { data: userData, error: userErr } = await supabase
+          .from('users')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .single()
+
+        if (!userErr && userData?.avatar_url) {
+          setAvatarUrl(userData.avatar_url)
+          return
+        }
+
+        const { data: profileData } = await supabase
           .from('profiles')
           .select('avatar_url')
           .eq('id', user.id)
           .single()
 
-        if (!error && data?.avatar_url) {
-          setAvatarUrl(data.avatar_url)
+        if (profileData?.avatar_url) {
+          setAvatarUrl(profileData.avatar_url)
+          return
         }
+
+        setAvatarUrl('/default.png')
+      } catch (err) {
+        console.error('Error loading avatar:', err)
+        setAvatarUrl('/default.png')
       }
     }
-    getProfile()
+
+    loadAvatar()
+
+    const handleStorageChange = () => {
+      const newAvatar = localStorage.getItem('avatar') || '/default.png'
+      setAvatarUrl(newAvatar)
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
   const isReadPage = router.pathname.startsWith('/read/')
@@ -99,6 +134,7 @@ export default function Navbar() {
               <img
                 src={avatarUrl}
                 alt="Profile"
+                onError={(e) => (e.currentTarget.src = '/default.png')}
                 className="w-10 h-10 rounded-full border-2 border-sky-400 hover:scale-105 transition-transform object-cover"
               />
             </Link>
@@ -119,6 +155,7 @@ export default function Navbar() {
               <img
                 src={avatarUrl}
                 alt="Profile"
+                onError={(e) => (e.currentTarget.src = '/default.png')}
                 className="w-9 h-9 rounded-full border-2 border-sky-400 object-cover"
               />
             </Link>
