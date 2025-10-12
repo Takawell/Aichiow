@@ -39,7 +39,7 @@ export default function ProfileDashboard() {
   const [history, setHistory] = useState<TrailerHistoryRow[]>([])
   const [favorites, setFavorites] = useState<FavoriteRow[]>([])
   const [openEdit, setOpenEdit] = useState(false)
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null)
+  const [selectedAvatar, setSelectedAvatar] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -53,12 +53,15 @@ export default function ProfileDashboard() {
           return
         }
         setSession(sess)
+
         const userId = sess.user.id
+
         const { data: profileData } = await supabase
           .from('users')
           .select('*')
           .eq('id', userId)
           .single()
+
         let baseUser: UserRow =
           profileData ?? {
             id: userId,
@@ -68,9 +71,11 @@ export default function ProfileDashboard() {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           }
-        const localUsername = localStorage.getItem('username')
-        const localBio = localStorage.getItem('bio')
-        const localAvatar = localStorage.getItem('avatar')
+
+        const localUsername = typeof window !== 'undefined' ? localStorage.getItem('username') : null
+        const localBio = typeof window !== 'undefined' ? localStorage.getItem('bio') : null
+        const localAvatar = typeof window !== 'undefined' ? localStorage.getItem('avatar') : null
+
         if (localUsername || localBio || localAvatar) {
           baseUser = {
             ...baseUser,
@@ -79,7 +84,10 @@ export default function ProfileDashboard() {
             avatar_url: localAvatar || baseUser.avatar_url,
           }
         }
+
         setUser(baseUser)
+        setSelectedAvatar(baseUser.avatar_url || '/v1.png')
+
         const { data: rawHistoryData } = await supabase
           .from('trailer_watch_history')
           .select(`
@@ -98,6 +106,7 @@ export default function ProfileDashboard() {
           `)
           .eq('user_id', userId)
           .order('watched_at', { ascending: false })
+
         if (rawHistoryData && Array.isArray(rawHistoryData)) {
           const normalized: TrailerHistoryRow[] = rawHistoryData.map((it: any) => {
             let animeObj: any = null
@@ -127,10 +136,12 @@ export default function ProfileDashboard() {
           })
           setHistory(normalized)
         }
+
         const { data: favoritesData } = await supabase
           .from('favorites')
           .select('*')
           .eq('user_id', userId)
+
         if (favoritesData) setFavorites(favoritesData as FavoriteRow[])
       } catch (err) {
         console.error('loadSession error', err)
@@ -138,6 +149,7 @@ export default function ProfileDashboard() {
         setLoading(false)
       }
     }
+
     loadSession()
   }, [router])
 
@@ -149,19 +161,24 @@ export default function ProfileDashboard() {
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!user) return
+
     const formData = new FormData(e.currentTarget)
     const newUsername = (formData.get('username') as string) || ''
     const newBio = (formData.get('bio') as string) || ''
-    const newAvatar = selectedAvatar || user.avatar_url
+    const newAvatar = selectedAvatar || user.avatar_url || '/v1.png'
+
     localStorage.setItem('username', newUsername)
     localStorage.setItem('bio', newBio)
-    localStorage.setItem('avatar', newAvatar)
+    if (newAvatar) localStorage.setItem('avatar', newAvatar)
+    else localStorage.removeItem('avatar')
+
     setUser({
       ...user,
       username: newUsername || user.username,
       bio: newBio || user.bio,
       avatar_url: newAvatar || user.avatar_url,
     })
+
     setOpenEdit(false)
   }
 
@@ -178,6 +195,7 @@ export default function ProfileDashboard() {
           <Image src="/background.png" alt="bg" fill className="object-cover opacity-25 blur-sm" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/25 via-purple-500/25 to-pink-500/25 mix-blend-overlay" />
+
         <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-6">
           <motion.div whileHover={{ rotate: 6, scale: 1.05 }} transition={{ type: 'spring', stiffness: 200 }} className="relative">
             <span className="absolute -inset-1 rounded-full bg-gradient-to-tr from-blue-500/40 via-purple-500/40 to-fuchsia-500/40 blur-lg" />
@@ -189,6 +207,7 @@ export default function ProfileDashboard() {
               className="relative rounded-full border-4 border-blue-500/80 shadow-[0_10px_30px_rgba(59,130,246,0.6)]"
             />
           </motion.div>
+
           <div className="text-center md:text-left max-w-xl">
             <h2 className="text-2xl md:text-4xl font-extrabold tracking-wide drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
               {user.username || 'Otaku Explorer ✨'}
@@ -197,6 +216,7 @@ export default function ProfileDashboard() {
               {user.bio || 'Lover of anime, manga, manhwa & light novels.'}
             </p>
             <p className="text-xs md:text-sm text-gray-400 mt-1">{session.user.email}</p>
+
             <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
               <span className="px-3 py-1 rounded-full text-xs bg-white/10 border border-white/10">
                 History: <b>{history.length}</b>
@@ -206,6 +226,7 @@ export default function ProfileDashboard() {
               </span>
             </div>
           </div>
+
           <div className="flex gap-3">
             <motion.button
               onClick={() => {
@@ -227,6 +248,7 @@ export default function ProfileDashboard() {
           </div>
         </div>
       </motion.div>
+
       <AnimatePresence>
         {openEdit && (
           <motion.div
@@ -260,23 +282,23 @@ export default function ProfileDashboard() {
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
+
                 <div>
                   <label className="block mb-2 text-sm font-semibold">Avatar</label>
                   <div className="flex justify-between gap-2">
-                    {['/default.png', '/default.png', '/default.png', '/default.png'].map((src) => (
+                    {['/default.png', '/aichixia.png', '/default.png', '/aichixia.png'].map((src) => (
                       <button
                         type="button"
                         key={src}
                         onClick={() => setSelectedAvatar(src)}
-                        className={`relative rounded-full overflow-hidden border-2 ${
-                          selectedAvatar === src ? 'border-blue-500' : 'border-transparent'
-                        }`}
+                        className={`relative rounded-full overflow-hidden border-2 ${selectedAvatar === src ? 'border-blue-500' : 'border-transparent'}`}
                       >
                         <Image src={src} alt="avatar" width={60} height={60} className="rounded-full" />
                       </button>
                     ))}
                   </div>
                 </div>
+
                 <div className="flex gap-3 mt-2">
                   <button
                     type="button"
@@ -297,6 +319,7 @@ export default function ProfileDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+
       <section className="mb-12">
         <motion.h3
           initial={{ opacity: 0, y: 20 }}
@@ -307,10 +330,14 @@ export default function ProfileDashboard() {
         >
           <FaHistory /> Watch History
         </motion.h3>
+
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="relative overflow-hidden rounded-2xl h-36 md:h-52 bg-white/10 border border-white/10">
+              <div
+                key={i}
+                className="relative overflow-hidden rounded-2xl h-36 md:h-52 bg-white/10 border border-white/10"
+              >
                 <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/10 to-transparent" />
               </div>
             ))}
@@ -343,10 +370,14 @@ export default function ProfileDashboard() {
             ))}
           </div>
         )}
+
         {!loading && history.length === 0 && (
-          <div className="mt-6 text-center text-sm text-gray-400">Belum ada riwayat tontonan.</div>
+          <div className="mt-6 text-center text-sm text-gray-400">
+            Belum ada riwayat tontonan.
+          </div>
         )}
       </section>
+
       <section>
         <motion.h3
           initial={{ opacity: 0, y: 20 }}
@@ -357,6 +388,7 @@ export default function ProfileDashboard() {
         >
           <FaStar /> Favorites
         </motion.h3>
+
         {loading ? (
           <div className="text-sm text-gray-400">Loading favorites...</div>
         ) : (
@@ -382,6 +414,7 @@ export default function ProfileDashboard() {
                       {list.length}
                     </span>
                   </div>
+
                   <div className="relative flex flex-wrap gap-2 z-10">
                     {list.length > 0 ? (
                       list.map((fav: any) => (
@@ -394,7 +427,9 @@ export default function ProfileDashboard() {
                         </span>
                       ))
                     ) : (
-                      <div className="w-full text-xs text-gray-400 italic">No favorites yet</div>
+                      <div className="w-full text-xs text-gray-400 italic">
+                        No favorites yet
+                      </div>
                     )}
                   </div>
                 </motion.div>
