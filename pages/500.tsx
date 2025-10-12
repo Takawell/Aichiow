@@ -247,20 +247,6 @@ Trace: at internal.service.ts:182
           />
         )}
       </AnimatePresence>
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 sm:hidden">
-        <div className="flex items-center gap-3 bg-neutral-900/60 px-3 py-2 rounded-full border border-neutral-800 shadow-xl">
-          <button
-            onClick={handleRetry}
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
-              loading
-                ? 'bg-gradient-to-r from-pink-500 to-indigo-500 shadow-[0_8px_30px_rgba(99,102,241,0.12)] animate-pulse'
-                : 'bg-gradient-to-r from-pink-600 to-indigo-600 hover:brightness-110'
-            }`}
-          >
-            {loading ? <FaSpinner className="animate-spin" /> : 'Retry'}
-          </button>
-        </div>
-      </div>
     </div>
   )
 }
