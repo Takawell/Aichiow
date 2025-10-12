@@ -153,7 +153,6 @@ Trace: at internal.service.ts:182
                   onClick={handleRetry}
                   className="inline-flex items-center justify-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-pink-600 to-indigo-600 hover:brightness-110 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
                   aria-pressed={loading}
-                  aria-label="Retry"
                 >
                   {loading ? <FaSpinner className="animate-spin" /> : <FaBug />}
                   <span className="font-medium">{loading ? 'Retrying...' : 'Retry'}</span>
@@ -161,7 +160,6 @@ Trace: at internal.service.ts:182
                 <Link
                   href="/"
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800/60 hover:bg-neutral-800/80 transition text-sm"
-                  aria-label="Back to home"
                 >
                   <FaHome />
                   <span>Back to Safety</span>
@@ -174,7 +172,7 @@ Trace: at internal.service.ts:182
                   <span>Report</span>
                 </button>
               </div>
-              <div className="mt-6 flex items-center justify-between gap-4">
+              <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
                 <div className="text-xs text-gray-400">
                   Press <kbd className="px-2 py-1 rounded bg-neutral-800 text-white">R</kbd> to retry, <kbd className="px-2 py-1 rounded bg-neutral-800 text-white">D</kbd> for details, <kbd className="px-2 py-1 rounded bg-neutral-800 text-white">C</kbd> to report.
                 </div>
@@ -194,7 +192,6 @@ Trace: at internal.service.ts:182
                   <button
                     onClick={handleCopyDetails}
                     className="inline-flex items-center gap-2 text-sm text-gray-300 rounded px-3 py-1 hover:bg-neutral-800/40"
-                    aria-label="Copy details"
                   >
                     <FaCopy />
                     <span>{copied ? 'Copied' : 'Copy'}</span>
@@ -302,7 +299,6 @@ function BackgroundOrbs({ active = true }: { active?: boolean }) {
         animate={{ opacity: 0.03 }}
         transition={{ duration: 1.2 }}
         className="absolute inset-0 bg-[repeating-linear-gradient(0deg,#ffffff0a_0px,#ffffff0a_1px,#0000_1px,#0000_35px)] mix-blend-overlay"
-        aria-hidden
       />
     </div>
   )
@@ -320,13 +316,7 @@ function SocialLinks() {
       {socials.map((s, i) => {
         const Icon = s.icon
         return (
-          <a
-            key={i}
-            href={s.href}
-            target="_blank"
-            rel="noreferrer"
-            className="group inline-flex p-2 rounded hover:bg-neutral-800/40 transition"
-          >
+          <a key={i} href={s.href} target="_blank" rel="noreferrer" className="group inline-flex p-2 rounded hover:bg-neutral-800/40 transition">
             <Icon className="text-lg text-gray-300 group-hover:text-white transition" />
           </a>
         )
@@ -388,16 +378,15 @@ function ReportModal({
         exit={{ opacity: 0 }}
         onClick={onClose}
         className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
-        aria-hidden
       />
       <motion.div
         initial={{ scale: 0.94, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.94, opacity: 0, y: 20 }}
         transition={{ duration: 0.22 }}
-        className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
-        <div ref={modalRef} className="rounded-2xl bg-neutral-900/90 backdrop-blur-xl border border-neutral-800 p-6">
+        <div ref={modalRef} className="w-full max-w-md rounded-2xl bg-neutral-900/90 backdrop-blur-xl border border-neutral-800 p-6">
           <h3 className="text-lg font-semibold mb-3">Report this issue</h3>
           <form onSubmit={onSubmit} className="space-y-3">
             <div>
@@ -436,11 +425,7 @@ function ReportModal({
               Error ID: <span className="text-gray-300">{errorId}</span>
             </div>
             <div className="flex justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 rounded-md text-sm bg-neutral-800/60 hover:bg-neutral-800/80"
-              >
+              <button type="button" onClick={onClose} className="px-4 py-2 rounded-md text-sm bg-neutral-800/60 hover:bg-neutral-800/80">
                 Cancel
               </button>
               <button
