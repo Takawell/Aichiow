@@ -104,8 +104,8 @@ Trace: at internal.service.ts:182
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-gradient-to-br from-black via-neutral-950 to-black text-white flex items-center justify-center px-6 py-12 overflow-hidden">
-      <BackgroundOrbs active={glowToggle} />
+    <div className="relative min-h-screen w-full bg-black text-white flex items-center justify-center px-6 py-12 overflow-hidden">
+      <InteractiveBackground active={glowToggle} />
       <motion.main
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -151,7 +151,11 @@ Trace: at internal.service.ts:182
               <div className="mt-5 flex flex-col sm:flex-row sm:items-center gap-3">
                 <button
                   onClick={handleRetry}
-                  className="inline-flex items-center justify-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-pink-600 to-indigo-600 hover:brightness-110 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                  className={`inline-flex items-center justify-center gap-3 px-4 py-2 rounded-full transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 ${
+                    loading
+                      ? 'bg-gradient-to-r from-pink-500 to-indigo-500 shadow-[0_8px_30px_rgba(99,102,241,0.12)] animate-pulse'
+                      : 'bg-gradient-to-r from-pink-600 to-indigo-600 hover:brightness-110'
+                  }`}
                   aria-pressed={loading}
                 >
                   {loading ? <FaSpinner className="animate-spin" /> : <FaBug />}
@@ -245,11 +249,15 @@ Trace: at internal.service.ts:182
       </AnimatePresence>
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 sm:hidden">
         <div className="flex items-center gap-3 bg-neutral-900/60 px-3 py-2 rounded-full border border-neutral-800 shadow-xl">
-          <button onClick={handleRetry} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-pink-600 to-indigo-600">
+          <button
+            onClick={handleRetry}
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
+              loading
+                ? 'bg-gradient-to-r from-pink-500 to-indigo-500 shadow-[0_8px_30px_rgba(99,102,241,0.12)] animate-pulse'
+                : 'bg-gradient-to-r from-pink-600 to-indigo-600 hover:brightness-110'
+            }`}
+          >
             {loading ? <FaSpinner className="animate-spin" /> : 'Retry'}
-          </button>
-          <button onClick={() => setReportOpen(true)} className="px-3 py-1 rounded-full border border-neutral-700">
-            Report
           </button>
         </div>
       </div>
@@ -257,50 +265,98 @@ Trace: at internal.service.ts:182
   )
 }
 
-function BackgroundOrbs({ active = true }: { active?: boolean }) {
-  const orbs = [
-    { size: 420, top: '8%', left: '-12%', color: 'bg-red-600/20', blur: 'blur-3xl', delay: 0 },
-    { size: 340, top: '60%', left: '70%', color: 'bg-pink-600/18', blur: 'blur-2xl', delay: 1 },
-    { size: 260, top: '30%', left: '60%', color: 'bg-indigo-600/12', blur: 'blur-2xl', delay: 0.6 },
-    { size: 160, top: '78%', left: '10%', color: 'bg-emerald-500/12', blur: 'blur-xl', delay: 0.9 },
-  ]
-
+function InteractiveBackground({ active = true }: { active?: boolean }) {
   return (
-    <div className="pointer-events-none absolute inset-0 -z-10">
-      {orbs.map((o, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{
-            opacity: active ? [0.06, 0.22, 0.06] : [0.06, 0.06],
-            scale: active ? [0.98, 1.04, 0.98] : 1,
-            x: active ? [0, 8 * (i % 2 === 0 ? 1 : -1), 0] : 0,
-          }}
-          transition={{
-            delay: o.delay,
-            duration: 5 + i,
-            repeat: Infinity,
-            repeatType: 'loop',
-            ease: 'easeInOut',
-          }}
-          style={{
-            width: o.size,
-            height: o.size,
-            top: o.top,
-            left: o.left,
-            position: 'absolute',
-            borderRadius: '9999px',
-          }}
-          className={`${o.color} ${o.blur}`}
-        />
-      ))}
+    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.03 }}
-        transition={{ duration: 1.2 }}
-        className="absolute inset-0 bg-[repeating-linear-gradient(0deg,#ffffff0a_0px,#ffffff0a_1px,#0000_1px,#0000_35px)] mix-blend-overlay"
-      />
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="absolute inset-0"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-[#050017] via-[#081226] to-[#030006] mix-blend-normal" />
+        <motion.div
+          initial={{ opacity: 0.12 }}
+          animate={{ opacity: 0.22 }}
+          transition={{ duration: 6, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.06),transparent_30%)]"
+        />
+        <motion.div
+          initial={{ rotate: 0 }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+          className="absolute -top-20 -left-20 w-[900px] h-[900px] bg-gradient-to-r from-[#ff7ab6]/20 to-[#8b5cf6]/12 rounded-full blur-3xl"
+        />
+        <motion.div
+          initial={{ rotate: 45 }}
+          animate={{ rotate: 0 }}
+          transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
+          className="absolute -bottom-40 -right-40 w-[700px] h-[700px] bg-gradient-to-tr from-[#06b6d4]/10 to-[#7c3aed]/08 rounded-full blur-2xl"
+        />
+      </motion.div>
+
+      <Particles count={26} active={active} />
+      <GradientWave />
     </div>
+  )
+}
+
+function Particles({ count = 20, active = true }: { count?: number; active?: boolean }) {
+  const arr = Array.from({ length: count })
+  return (
+    <div className="absolute inset-0 -z-20">
+      {arr.map((_, i) => {
+        const size = 6 + (i % 6)
+        const left = `${Math.floor((i * 73) % 100)}%`
+        const top = `${Math.floor((i * 47 + 13) % 100)}%`
+        const delay = (i % 7) * 0.6
+        return (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 0, scale: 1 }}
+            animate={{
+              opacity: active ? [0.02, 0.18, 0.02] : 0.06,
+              y: active ? [0, -18 - (i % 8), 0] : 0,
+              scale: active ? [1, 1.12, 1] : 1,
+            }}
+            transition={{
+              delay,
+              duration: 8 + (i % 5),
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            style={{
+              width: size,
+              height: size,
+              left,
+              top,
+              position: 'absolute',
+              borderRadius: 9999,
+            }}
+            className="bg-white/6"
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+function GradientWave() {
+  return (
+    <>
+      <div className="absolute inset-x-0 -bottom-36 h-72 opacity-40 blur-3xl" aria-hidden>
+        <svg className="w-full h-full" viewBox="0 0 1440 320" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0%" stopColor="#ff7ab6" stopOpacity="0.12" />
+              <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.06" />
+            </linearGradient>
+          </defs>
+          <path fill="url(#g1)" d="M0,128L48,138.7C96,149,192,171,288,160C384,149,480,107,576,117.3C672,128,768,192,864,202.7C960,213,1056,171,1152,160C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+      </div>
+    </>
   )
 }
 
