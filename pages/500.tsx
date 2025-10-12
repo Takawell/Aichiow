@@ -138,7 +138,7 @@ Trace: at internal.service.ts:182
                 transition={{ delay: 0.12 }}
                 className="text-2xl md:text-3xl font-semibold"
               >
-                Oops — internal server overload.
+                Oops internal server overload.
               </motion.h2>
               <motion.p
                 initial={{ y: 12, opacity: 0 }}
