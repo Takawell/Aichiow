@@ -16,6 +16,7 @@ import {
   FaBook,
   FaBookOpen,
   FaDragon,
+  FaUpload,
 } from 'react-icons/fa'
 
 type TrailerHistoryRow = {
@@ -72,9 +73,12 @@ export default function ProfileDashboard() {
             updated_at: new Date().toISOString(),
           }
 
-        const localUsername = typeof window !== 'undefined' ? localStorage.getItem('username') : null
-        const localBio = typeof window !== 'undefined' ? localStorage.getItem('bio') : null
-        const localAvatar = typeof window !== 'undefined' ? localStorage.getItem('avatar') : null
+        const localUsername =
+          typeof window !== 'undefined' ? localStorage.getItem('username') : null
+        const localBio =
+          typeof window !== 'undefined' ? localStorage.getItem('bio') : null
+        const localAvatar =
+          typeof window !== 'undefined' ? localStorage.getItem('avatar') : null
 
         if (localUsername || localBio || localAvatar) {
           baseUser = {
@@ -153,6 +157,20 @@ export default function ProfileDashboard() {
     loadSession()
   }, [router])
 
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const base64 = reader.result as string
+      localStorage.setItem('avatar', base64)
+      setSelectedAvatar(base64)
+      setUser((prev) => (prev ? { ...prev, avatar_url: base64 } : prev))
+    }
+    reader.readAsDataURL(file)
+  }
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.replace('/auth/login')
@@ -198,12 +216,22 @@ export default function ProfileDashboard() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="absolute inset-0">
-          <Image src="/background.png" alt="bg" fill className="object-cover opacity-25 blur-sm" onError={handleImageError} />
+          <Image
+            src="/background.png"
+            alt="bg"
+            fill
+            className="object-cover opacity-25 blur-sm"
+            onError={handleImageError}
+          />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/25 via-purple-500/25 to-pink-500/25 mix-blend-overlay" />
 
         <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-6">
-          <motion.div whileHover={{ rotate: 6, scale: 1.05 }} transition={{ type: 'spring', stiffness: 200 }} className="relative">
+          <motion.div
+            whileHover={{ rotate: 6, scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+            className="relative"
+          >
             <span className="absolute -inset-1 rounded-full bg-gradient-to-tr from-blue-500/40 via-purple-500/40 to-fuchsia-500/40 blur-lg" />
             <Image
               src={user.avatar_url || '/default.png'}
@@ -211,7 +239,7 @@ export default function ProfileDashboard() {
               width={120}
               height={120}
               onError={handleImageError}
-              className="relative rounded-full border-4 border-blue-500/80 shadow-[0_10px_30px_rgba(59,130,246,0.6)]"
+              className="relative rounded-full border-4 border-blue-500/80 shadow-[0_10px_30px_rgba(59,130,246,0.6)] object-cover"
             />
           </motion.div>
 
@@ -222,7 +250,9 @@ export default function ProfileDashboard() {
             <p className="text-gray-300 text-sm md:text-base italic">
               {user.bio || 'Lover of anime, manga, manhwa & light novels.'}
             </p>
-            <p className="text-xs md:text-sm text-gray-400 mt-1">{session.user.email}</p>
+            <p className="text-xs md:text-sm text-gray-400 mt-1">
+              {session.user.email}
+            </p>
 
             <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
               <span className="px-3 py-1 rounded-full text-xs bg-white/10 border border-white/10">
@@ -273,7 +303,9 @@ export default function ProfileDashboard() {
               <h3 className="text-lg font-bold mb-4">Edit Profile</h3>
               <form onSubmit={handleSave} className="space-y-4">
                 <div>
-                  <label className="block mb-1 text-sm font-semibold">Username</label>
+                  <label className="block mb-1 text-sm font-semibold">
+                    Username
+                  </label>
                   <input
                     name="username"
                     defaultValue={user.username || ''}
@@ -291,22 +323,45 @@ export default function ProfileDashboard() {
                 </div>
 
                 <div>
-                  <label className="block mb-2 text-sm font-semibold">Avatar</label>
-                  <div className="flex justify-between gap-2">
-                    {['/default.png', '/v2.png', '/v3.png', '/v4.png'].map((src) => (
-                      <button
-                        type="button"
-                        key={src}
-                        onClick={() => setSelectedAvatar(src)}
-                        className={`relative rounded-full overflow-hidden border-2 ${selectedAvatar === src ? 'border-blue-500' : 'border-transparent'}`}
-                      >
-                        <Image src={src} alt="avatar" width={60} height={60} onError={handleImageError} className="rounded-full" />
-                      </button>
-                    ))}
+                  <label className="block mb-2 text-sm font-semibold">
+                    Avatar
+                  </label>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="w-full rounded-lg bg-white/10 border border-white/20 text-sm p-2 cursor-pointer"
+                    />
+                    <div className="flex justify-between gap-2 mt-2">
+                      {['/default.png', '/v2.png', '/v3.png', '/v4.png'].map(
+                        (src) => (
+                          <button
+                            type="button"
+                            key={src}
+                            onClick={() => setSelectedAvatar(src)}
+                            className={`relative rounded-full overflow-hidden border-2 ${
+                              selectedAvatar === src
+                                ? 'border-blue-500'
+                                : 'border-transparent'
+                            }`}
+                          >
+                            <Image
+                              src={src}
+                              alt="avatar"
+                              width={60}
+                              height={60}
+                              onError={handleImageError}
+                              className="rounded-full object-cover"
+                            />
+                          </button>
+                        )
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex gap-3 mt-2">
+                <div className="flex gap-3 mt-3">
                   <button
                     type="button"
                     onClick={() => setOpenEdit(false)}
@@ -381,7 +436,7 @@ export default function ProfileDashboard() {
 
         {!loading && history.length === 0 && (
           <div className="mt-6 text-center text-sm text-gray-400">
-            Belum ada riwayat tontonan.
+            No viewing history yet.
           </div>
         )}
       </section>
