@@ -86,7 +86,7 @@ export default function ProfileDashboard() {
         }
 
         setUser(baseUser)
-        setSelectedAvatar(baseUser.avatar_url || '/v1.png')
+        setSelectedAvatar(baseUser.avatar_url || '/default.png')
 
         const { data: rawHistoryData } = await supabase
           .from('trailer_watch_history')
@@ -165,12 +165,14 @@ export default function ProfileDashboard() {
     const formData = new FormData(e.currentTarget)
     const newUsername = (formData.get('username') as string) || ''
     const newBio = (formData.get('bio') as string) || ''
-    const newAvatar = selectedAvatar || user.avatar_url || '/v1.png'
+    const newAvatar = selectedAvatar || user.avatar_url || '/default.png'
 
-    localStorage.setItem('username', newUsername)
-    localStorage.setItem('bio', newBio)
-    if (newAvatar) localStorage.setItem('avatar', newAvatar)
-    else localStorage.removeItem('avatar')
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('username', newUsername)
+      localStorage.setItem('bio', newBio)
+      if (newAvatar) localStorage.setItem('avatar', newAvatar)
+      else localStorage.removeItem('avatar')
+    }
 
     setUser({
       ...user,
@@ -184,6 +186,10 @@ export default function ProfileDashboard() {
 
   if (!session || !user) return null
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = '/default.png'
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#121026] to-[#0f172a] p-4 md:p-8 text-white">
       <motion.div
@@ -192,7 +198,7 @@ export default function ProfileDashboard() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="absolute inset-0">
-          <Image src="/background.png" alt="bg" fill className="object-cover opacity-25 blur-sm" />
+          <Image src="/background.png" alt="bg" fill className="object-cover opacity-25 blur-sm" onError={handleImageError} />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/25 via-purple-500/25 to-pink-500/25 mix-blend-overlay" />
 
@@ -200,10 +206,11 @@ export default function ProfileDashboard() {
           <motion.div whileHover={{ rotate: 6, scale: 1.05 }} transition={{ type: 'spring', stiffness: 200 }} className="relative">
             <span className="absolute -inset-1 rounded-full bg-gradient-to-tr from-blue-500/40 via-purple-500/40 to-fuchsia-500/40 blur-lg" />
             <Image
-              src={user.avatar_url || '/v1.png'}
+              src={user.avatar_url || '/default.png'}
               alt="Avatar"
               width={120}
               height={120}
+              onError={handleImageError}
               className="relative rounded-full border-4 border-blue-500/80 shadow-[0_10px_30px_rgba(59,130,246,0.6)]"
             />
           </motion.div>
@@ -230,7 +237,7 @@ export default function ProfileDashboard() {
           <div className="flex gap-3">
             <motion.button
               onClick={() => {
-                setSelectedAvatar(user.avatar_url || '/v1.png')
+                setSelectedAvatar(user.avatar_url || '/default.png')
                 setOpenEdit(true)
               }}
               whileTap={{ scale: 0.95 }}
@@ -286,14 +293,14 @@ export default function ProfileDashboard() {
                 <div>
                   <label className="block mb-2 text-sm font-semibold">Avatar</label>
                   <div className="flex justify-between gap-2">
-                    {['/default.png', '/aichixia.png', '/default.png', '/aichixia.png'].map((src) => (
+                    {['/default.png', '/v2.png', '/v3.png', '/v4.png'].map((src) => (
                       <button
                         type="button"
                         key={src}
                         onClick={() => setSelectedAvatar(src)}
                         className={`relative rounded-full overflow-hidden border-2 ${selectedAvatar === src ? 'border-blue-500' : 'border-transparent'}`}
                       >
-                        <Image src={src} alt="avatar" width={60} height={60} className="rounded-full" />
+                        <Image src={src} alt="avatar" width={60} height={60} onError={handleImageError} className="rounded-full" />
                       </button>
                     ))}
                   </div>
@@ -355,6 +362,7 @@ export default function ProfileDashboard() {
                   alt={item.anime?.title_romaji || 'Trailer'}
                   width={400}
                   height={500}
+                  onError={handleImageError}
                   className="object-cover w-full h-36 md:h-52"
                 />
                 <span className="absolute left-2 top-2 z-10 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide bg-black/60 border border-white/10">
