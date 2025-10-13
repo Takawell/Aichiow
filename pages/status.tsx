@@ -136,13 +136,7 @@ export default function StatusPage() {
         viewport={{ once: true }}
         className="mt-12 text-center text-neutral-500 text-xs flex flex-col md:flex-row justify-center gap-4"
       >
-        <a href="/terms" className="hover:text-primary transition">
-          Terms of Service
-        </a>
-        <a href="/privacy" className="hover:text-primary transition">
-          Privacy Policy
-        </a>
-        <span>© {new Date().getFullYear()} Aichixia AI Assistant. All rights reserved.</span>
+        <span>© {new Date().getFullYear()} Aichiow Plus. All rights reserved.</span>
       </motion.div>
     </section>
   )
