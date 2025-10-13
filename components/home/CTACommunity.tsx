@@ -80,7 +80,7 @@ export default function CTACommunityFooter() {
           >
             <h2 className="text-2xl font-bold tracking-wide">Aichiow Plus</h2>
             <p className="text-sm text-neutral-400">
-              Uniting otakus worldwide — anime & beyond.
+              Uniting otakus worldwide anime & beyond.
             </p>
           </motion.div>
 
@@ -111,9 +111,9 @@ export default function CTACommunityFooter() {
           >
             <h3 className="font-semibold mb-2">Platform</h3>
             <ul className="space-y-1">
-              <li><Link href="/signup" className="hover:text-primary transition">Sign Up</Link></li>
+              <li><Link href="/auth/register" className="hover:text-primary transition">Sign Up</Link></li>
               <li><Link href="/status" className="hover:text-primary transition">Status Server</Link></li>
-              <li><Link href="/api" className="hover:text-primary transition">API for Developers</Link></li>
+              <li><Link href="/API" className="hover:text-primary transition">API for Developers</Link></li>
             </ul>
           </motion.div>
 
