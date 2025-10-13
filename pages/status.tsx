@@ -17,6 +17,7 @@ const services: StatusItem[] = [
   { name: 'Manhwa', type: 'Content', status: 'online', lastChecked: new Date().toISOString() },
   { name: 'Light Novel', type: 'Content', status: 'online', lastChecked: new Date().toISOString() },
   { name: 'Aichixia', type: 'AI Assistant', status: 'online', lastChecked: new Date().toISOString() },
+  { name: 'Search Anime from Image', type: 'Search Engine', status: 'online', lastChecked: new Date().toISOString() },
 ]
 
 const statusColors = {
@@ -65,7 +66,7 @@ export default function StatusPage() {
           Platform Status
         </h1>
         <p className="text-neutral-400 mt-4 text-lg md:text-xl">
-          Real-time status of all content and AI Assistant services.
+          Real-time health and availability of all content, AI Assistant services, and cutting-edge features.
         </p>
       </motion.div>
 
@@ -120,11 +121,11 @@ export default function StatusPage() {
         className="max-w-4xl mx-auto mt-24 text-center text-neutral-500 text-sm md:text-base"
       >
         <p>
-          All services are currently online and fully operational. For developers, visit our{' '}
+          All services are fully operational. Experience real-time AI features like <span className="text-primary font-semibold">search anime from image</span>. For developers, check our{' '}
           <a href="/API" className="text-primary hover:underline">
             API Docs
           </a>{' '}
-          for integration and live metrics.
+          for full integration and metrics.
         </p>
       </motion.div>
 
