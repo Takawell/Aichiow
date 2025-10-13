@@ -1,18 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { FaCircle, FaCheckCircle, FaTimesCircle, FaBookOpen } from 'react-icons/fa'
+import { FaCircle, FaCopy, FaCheck } from 'react-icons/fa'
 
-interface APIItem {
+interface ApiEndpoint {
   name: string
-  method: string
+  method: 'GET' | 'POST'
   path: string
   desc: string
   status: 'online' | 'maintenance'
 }
 
-const endpoints: APIItem[] = [
+const endpoints: ApiEndpoint[] = [
   { name: 'Search Anime', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=anime&action=search&query={text}', desc: 'Search anime', status: 'online' },
   { name: 'Search Manga', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=manga&action=search&query={text}', desc: 'Search manga', status: 'online' },
   { name: 'Search Manhwa', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=manhwa&action=search&query={text}', desc: 'Search manhwa', status: 'online' },
@@ -23,35 +23,28 @@ const endpoints: APIItem[] = [
   { name: 'Staff Detail', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?action=staff&id={value}', desc: 'Staff detail', status: 'maintenance' },
 ]
 
+const statusColors = {
+  online: 'text-green-500',
+  maintenance: 'text-yellow-400',
+}
+
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: 'easeOut' },
+    transition: { delay: i * 0.08, duration: 0.5, ease: 'easeOut' },
   }),
 }
 
-const StatusBadge = ({ status }: { status: 'online' | 'maintenance' }) => (
-  <span
-    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold ${
-      status === 'online'
-        ? 'bg-green-500 text-white shadow-green-400/50 animate-pulse'
-        : 'bg-red-500 text-white shadow-red-400/50'
-    }`}
-  >
-    {status === 'online' ? <FaCheckCircle /> : <FaTimesCircle />}
-    {status === 'online' ? 'Online' : 'Maintenance'}
-  </span>
-)
+export default function ApiPage() {
+  const [copied, setCopied] = useState<string | null>(null)
 
-export default function APIPage() {
-  const [data, setData] = useState<APIItem[]>(endpoints)
-
-  useEffect(() => {
-    const interval = setInterval(() => setData([...endpoints]), 15000)
-    return () => clearInterval(interval)
-  }, [])
+  const handleCopy = (path: string) => {
+    navigator.clipboard.writeText(path)
+    setCopied(path)
+    setTimeout(() => setCopied(null), 2000)
+  }
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-[#0f0f10] via-[#16171a] to-[#0a0a0a] py-24 px-6 md:px-12">
@@ -63,11 +56,11 @@ export default function APIPage() {
         viewport={{ once: true }}
         className="text-center max-w-4xl mx-auto"
       >
-        <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-white via-primary to-white text-transparent bg-clip-text flex justify-center items-center gap-3">
-          <FaBookOpen /> Aichixia API
+        <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-white via-primary to-white text-transparent bg-clip-text">
+          API Endpoints
         </h1>
         <p className="text-neutral-400 mt-4 text-lg md:text-xl">
-          Real-time API endpoints status.
+          Explore all available API endpoints with live status and easy copy.
         </p>
       </motion.div>
 
@@ -79,9 +72,9 @@ export default function APIPage() {
         viewport={{ once: true }}
         className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
       >
-        {data.map((item, i) => (
+        {endpoints.map((ep, i) => (
           <motion.div
-            key={item.name}
+            key={ep.name}
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
@@ -90,11 +83,26 @@ export default function APIPage() {
             className="bg-[#111111] border border-white/10 rounded-2xl p-6 flex flex-col justify-between shadow-lg hover:shadow-primary/40 transition-all duration-300"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-white">{item.name}</h2>
-              <StatusBadge status={item.status} />
+              <h2 className="text-xl font-semibold text-white">{ep.name}</h2>
+              <div className={`flex items-center gap-2 ${statusColors[ep.status]}`}>
+                <FaCircle />
+                <span className="capitalize">{ep.status}</span>
+              </div>
             </div>
-            <p className="text-sm text-neutral-400 mt-3 break-all">{item.path}</p>
-            <p className="text-sm text-neutral-400 mt-3">{item.desc}</p>
+            <p className="text-sm text-neutral-400 mt-3">{ep.desc}</p>
+            <div className="mt-3 flex items-center justify-between">
+              <code className="text-xs text-white break-all">{ep.path}</code>
+              <button
+                onClick={() => handleCopy(ep.path)}
+                className="ml-2 p-2 rounded-full bg-primary/20 hover:bg-primary/40 transition-colors"
+                title="Copy API URL"
+              >
+                {copied === ep.path ? <FaCheck className="text-green-400" /> : <FaCopy />}
+              </button>
+            </div>
+            <span className="mt-2 inline-block px-2 py-1 text-xs rounded-full bg-white/10 text-white w-fit">
+              {ep.method}
+            </span>
           </motion.div>
         ))}
       </motion.div>
@@ -108,7 +116,7 @@ export default function APIPage() {
         className="max-w-4xl mx-auto mt-24 text-center text-neutral-500 text-sm md:text-base"
       >
         <p>
-          All endpoints are currently online or in maintenance. For integration info, visit our API Docs.
+          All endpoints are monitored in real-time. Visit the docs for full usage and examples.
         </p>
       </motion.div>
 
