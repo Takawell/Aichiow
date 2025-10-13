@@ -19,8 +19,13 @@ const endpoints: ApiEndpoint[] = [
   { name: 'Light Novel Search', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=ln&action=search&query={text}', desc: 'Search light novels', status: 'online' },
   { name: 'Media Detail', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=anime&action=detail&id={value}', desc: 'Get media detail by ID', status: 'online' },
   { name: 'Trending', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?action=trending', desc: 'Trending anime & manga', status: 'online' },
+  { name: 'Seasonal Anime', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=anime&action=seasonal', desc: 'Seasonal anime', status: 'online' },
+  { name: 'Airing Anime', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?action=airing', desc: 'Currently airing anime', status: 'online' },
+  { name: 'Recommendations', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=anime&action=recommendations&id={value}', desc: 'Get recommendations by ID', status: 'online' },
+  { name: 'Top Genre Manhwa', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=manhwa&action=top-genre&genre={name}', desc: 'Top genre manhwa', status: 'online' },
+  { name: 'Character Detail', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?action=character&id={value}', desc: 'Character detail by ID', status: 'online' },
+  { name: 'Staff Detail', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?action=staff&id={value}', desc: 'Staff detail by ID', status: 'maintenance' },
   { name: 'AI Chat', method: 'POST', path: 'https://aichixia.vercel.app/api/chat', desc: 'AI-powered anime assistant', status: 'online' },
-  { name: 'Staff Detail', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?action=staff&id={value}', desc: 'Staff detail', status: 'maintenance' },
 ]
 
 const statusColors = {
@@ -84,7 +89,7 @@ export default function ApiPage() {
       >
         <h2 className="text-xl font-semibold mb-3">Notes</h2>
         <ul className="text-sm text-neutral-400 space-y-2">
-          <li>Categories: <span className="text-white">anime, manga, manhwa, manhua, light novel</span></li>
+          <li>Categories: <span className="text-white">anime, manga, manhwa, manhua, ln</span></li>
           <li>Required parameters:</li>
           <ul className="ml-6 list-disc text-neutral-400">
             <li><span className="text-white">id</span> → for detail, character, staff, recommendations</li>
