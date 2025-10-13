@@ -24,7 +24,7 @@ const endpoints: ApiEndpoint[] = [
 ]
 
 const statusColors = {
-  online: 'text-green-400',
+  online: 'text-green-500',
   maintenance: 'text-yellow-400',
 }
 
@@ -70,7 +70,7 @@ export default function ApiPage() {
           API Endpoints
         </h1>
         <p className="text-neutral-400 mt-4 text-lg md:text-xl">
-          Explore all available API endpoints with live status, full details, and copy-to-clipboard.
+          Explore all available API endpoints with live status and easy copy.
         </p>
       </motion.div>
 
@@ -127,30 +127,25 @@ export default function ApiPage() {
             whileInView="visible"
             custom={i}
             viewport={{ once: true }}
-            className="bg-[#111111] border border-white/10 rounded-2xl p-6 flex flex-col justify-between shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-primary/50"
+            className="bg-[#111111] border border-white/10 rounded-2xl p-6 flex flex-col justify-between shadow-lg hover:shadow-primary/40 transition-all duration-300"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-white">{ep.name}</h2>
-              <motion.div
-                className={`flex items-center gap-2 ${statusColors[ep.status]}`}
-                animate={{ scale: [1, 1.3, 1], rotate: [0, 15, 0] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-              >
+              <div className={`flex items-center gap-2 ${statusColors[ep.status]}`}>
                 <FaCircle />
                 <span className="capitalize">{ep.status}</span>
-              </motion.div>
+              </div>
             </div>
             <p className="text-sm text-neutral-400 mt-3">{ep.desc}</p>
             <div className="mt-3 flex items-center justify-between">
               <code className="text-xs text-white break-all">{ep.path}</code>
-              <motion.button
+              <button
                 onClick={() => handleCopy(ep.path)}
                 className="ml-2 p-2 rounded-full bg-primary/20 hover:bg-primary/40 transition-colors"
-                whileTap={{ scale: 0.9 }}
                 title="Copy API URL"
               >
                 {copied === ep.path ? <FaCheck className="text-green-400" /> : <FaCopy />}
-              </motion.button>
+              </button>
             </div>
             <span className="mt-3 inline-block px-3 py-1 text-xs rounded-full bg-white/10 text-white w-fit">
               {ep.method}
