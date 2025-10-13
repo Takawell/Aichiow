@@ -184,7 +184,7 @@ export default function CTACommunityFooter() {
           viewport={{ once: true }}
           className="mt-6 text-center text-neutral-500 text-xs flex flex-col md:flex-row justify-center gap-4"
         >
-          <span>© {new Date().getFullYear()} Aichiow Plus. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Aichiow Plus. All Rights Reserved.</span>
         </motion.div>
       </footer>
     </section>
