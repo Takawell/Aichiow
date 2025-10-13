@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { FaCircle, FaCopy, FaCheck } from 'react-icons/fa'
 
@@ -24,7 +24,7 @@ const endpoints: ApiEndpoint[] = [
 ]
 
 const statusColors = {
-  online: 'text-green-500',
+  online: 'text-green-400',
   maintenance: 'text-yellow-400',
 }
 
@@ -39,6 +39,16 @@ const fadeUp = {
 
 export default function ApiPage() {
   const [copied, setCopied] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+
+  const filteredEndpoints = useMemo(() => {
+    return endpoints.filter(
+      (ep) =>
+        ep.name.toLowerCase().includes(search.toLowerCase()) ||
+        ep.method.toLowerCase().includes(search.toLowerCase()) ||
+        ep.status.toLowerCase().includes(search.toLowerCase())
+    )
+  }, [search])
 
   const handleCopy = (path: string) => {
     navigator.clipboard.writeText(path)
@@ -60,7 +70,7 @@ export default function ApiPage() {
           API Endpoints
         </h1>
         <p className="text-neutral-400 mt-4 text-lg md:text-xl">
-          Explore all available API endpoints with live status and easy copy.
+          Explore all available endpoints with live status and copy-to-clipboard.
         </p>
       </motion.div>
 
@@ -70,9 +80,26 @@ export default function ApiPage() {
         whileInView="visible"
         custom={1}
         viewport={{ once: true }}
+        className="mt-12 max-w-3xl mx-auto"
+      >
+        <input
+          type="text"
+          placeholder="Search endpoints..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full p-3 rounded-lg bg-[#1b1b1f] border border-white/20 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+        />
+      </motion.div>
+
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        custom={2}
+        viewport={{ once: true }}
         className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
       >
-        {endpoints.map((ep, i) => (
+        {filteredEndpoints.map((ep, i) => (
           <motion.div
             key={ep.name}
             variants={fadeUp}
@@ -80,27 +107,34 @@ export default function ApiPage() {
             whileInView="visible"
             custom={i}
             viewport={{ once: true }}
-            className="bg-[#111111] border border-white/10 rounded-2xl p-6 flex flex-col justify-between shadow-lg hover:shadow-primary/40 transition-all duration-300"
+            className="bg-[#111111] border border-white/10 rounded-2xl p-6 flex flex-col justify-between shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-primary/50"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-white">{ep.name}</h2>
-              <div className={`flex items-center gap-2 ${statusColors[ep.status]}`}>
-                <FaCircle />
-                <span className="capitalize">{ep.status}</span>
+              <div className="flex items-center gap-2">
+                <motion.span
+                  className={`flex items-center gap-2 ${statusColors[ep.status]}`}
+                  animate={{ scale: [1, 1.3, 1], rotate: [0, 15, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                >
+                  <FaCircle />
+                  <span className="capitalize">{ep.status}</span>
+                </motion.span>
               </div>
             </div>
             <p className="text-sm text-neutral-400 mt-3">{ep.desc}</p>
             <div className="mt-3 flex items-center justify-between">
               <code className="text-xs text-white break-all">{ep.path}</code>
-              <button
+              <motion.button
                 onClick={() => handleCopy(ep.path)}
                 className="ml-2 p-2 rounded-full bg-primary/20 hover:bg-primary/40 transition-colors"
+                whileTap={{ scale: 0.9 }}
                 title="Copy API URL"
               >
                 {copied === ep.path ? <FaCheck className="text-green-400" /> : <FaCopy />}
-              </button>
+              </motion.button>
             </div>
-            <span className="mt-2 inline-block px-2 py-1 text-xs rounded-full bg-white/10 text-white w-fit">
+            <span className="mt-3 inline-block px-3 py-1 text-xs rounded-full bg-white/10 text-white w-fit">
               {ep.method}
             </span>
           </motion.div>
@@ -111,12 +145,12 @@ export default function ApiPage() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        custom={2}
+        custom={3}
         viewport={{ once: true }}
         className="max-w-4xl mx-auto mt-24 text-center text-neutral-500 text-sm md:text-base"
       >
         <p>
-          All endpoints are monitored in real-time. Visit the docs for full usage and examples.
+          All endpoints are monitored in real-time. Use the search bar to quickly find the endpoint you need.
         </p>
       </motion.div>
 
@@ -124,7 +158,7 @@ export default function ApiPage() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        custom={3}
+        custom={4}
         viewport={{ once: true }}
         className="mt-12 text-center text-neutral-500 text-xs flex flex-col md:flex-row justify-center gap-4"
       >
