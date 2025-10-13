@@ -69,7 +69,7 @@ export default function CTACommunityFooter() {
       </div>
 
       <footer className="w-full px-6 md:px-12 pb-16 relative z-10">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-white">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 text-white">
           <motion.div
             variants={fadeUp}
             initial="hidden"
@@ -106,6 +106,22 @@ export default function CTACommunityFooter() {
             initial="hidden"
             whileInView="visible"
             custom={2}
+            viewport={{ once: true }}
+            className="text-sm"
+          >
+            <h3 className="font-semibold mb-2">Platform</h3>
+            <ul className="space-y-1">
+              <li><Link href="/signup" className="hover:text-primary transition">Sign Up</Link></li>
+              <li><Link href="/status" className="hover:text-primary transition">Status Server</Link></li>
+              <li><Link href="/api" className="hover:text-primary transition">API for Developers</Link></li>
+            </ul>
+          </motion.div>
+
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            custom={3}
             viewport={{ once: true }}
             className="text-sm"
           >
@@ -155,11 +171,24 @@ export default function CTACommunityFooter() {
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
-          custom={3}
+          custom={4}
           viewport={{ once: true }}
-          className="mt-12 text-center text-neutral-500 text-xs border-t border-white/5 pt-6"
+          className="mt-12 border-t border-white/5"
+        />
+
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          custom={5}
+          viewport={{ once: true }}
+          className="mt-6 text-center text-neutral-500 text-xs flex flex-col md:flex-row justify-center gap-4"
         >
-          © {new Date().getFullYear()} Aichiow Plus. All rights reserved.
+          <Link href="/terms" className="hover:text-primary transition">Terms of Service</Link>
+          <Link href="/privacy" className="hover:text-primary transition">Privacy Policy</Link>
+          <Link href="/status" className="hover:text-primary transition">Server Status</Link>
+          <Link href="/api" className="hover:text-primary transition">API Docs</Link>
+          <span>© {new Date().getFullYear()} Aichiow Plus. All rights reserved.</span>
         </motion.div>
       </footer>
     </section>
