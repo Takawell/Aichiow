@@ -84,7 +84,7 @@ export default function ApiPage() {
       >
         <h2 className="text-xl font-semibold mb-3">Notes</h2>
         <ul className="text-sm text-neutral-400 space-y-2">
-          <li>Categories: <span className="text-white">anime, manga, manhwa, manhua, ln</span></li>
+          <li>Categories: <span className="text-white">anime, manga, manhwa, manhua, light novel</span></li>
           <li>Required parameters:</li>
           <ul className="ml-6 list-disc text-neutral-400">
             <li><span className="text-white">id</span> → for detail, character, staff, recommendations</li>
