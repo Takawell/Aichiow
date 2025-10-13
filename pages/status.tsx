@@ -121,7 +121,7 @@ export default function StatusPage() {
       >
         <p>
           All services are currently online and fully operational. For developers, visit our{' '}
-          <a href="/api" className="text-primary hover:underline">
+          <a href="/API" className="text-primary hover:underline">
             API Docs
           </a>{' '}
           for integration and live metrics.
