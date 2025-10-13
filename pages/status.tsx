@@ -121,7 +121,7 @@ export default function StatusPage() {
         className="max-w-4xl mx-auto mt-24 text-center text-neutral-500 text-sm md:text-base"
       >
         <p>
-          All services are fully operational. Experience real-time AI features like <span className="text-primary font-semibold">search anime from image</span>. For developers, check our{' '}
+          All services are fully operational. For developers, check our{' '}
           <a href="/API" className="text-primary hover:underline">
             API Docs
           </a>{' '}
