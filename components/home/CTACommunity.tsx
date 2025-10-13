@@ -184,10 +184,6 @@ export default function CTACommunityFooter() {
           viewport={{ once: true }}
           className="mt-6 text-center text-neutral-500 text-xs flex flex-col md:flex-row justify-center gap-4"
         >
-          <Link href="/terms" className="hover:text-primary transition">Terms of Service</Link>
-          <Link href="/privacy" className="hover:text-primary transition">Privacy Policy</Link>
-          <Link href="/status" className="hover:text-primary transition">Server Status</Link>
-          <Link href="/api" className="hover:text-primary transition">API Docs</Link>
           <span>© {new Date().getFullYear()} Aichiow Plus. All rights reserved.</span>
         </motion.div>
       </footer>
