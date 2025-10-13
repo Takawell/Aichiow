@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FaCircle, FaCheckCircle, FaTimesCircle, FaCopy, FaBookOpen } from 'react-icons/fa'
+import { FaCircle, FaCheckCircle, FaTimesCircle, FaBookOpen } from 'react-icons/fa'
 
 interface APIItem {
   name: string
@@ -12,17 +12,15 @@ interface APIItem {
   status: 'online' | 'maintenance'
 }
 
-const base = 'https://aichixia.vercel.app'
-
 const endpoints: APIItem[] = [
-  { name: 'Search Anime', method: 'GET', path: `${base}/api/aichixia?category=anime&action=search&query={text}`, desc: 'Search anime', status: 'online' },
-  { name: 'Search Manga', method: 'GET', path: `${base}/api/aichixia?category=manga&action=search&query={text}`, desc: 'Search manga', status: 'online' },
-  { name: 'Search Manhwa', method: 'GET', path: `${base}/api/aichixia?category=manhwa&action=search&query={text}`, desc: 'Search manhwa', status: 'online' },
-  { name: 'Light Novel Search', method: 'GET', path: `${base}/api/aichixia?category=ln&action=search&query={text}`, desc: 'Search light novels', status: 'online' },
-  { name: 'Media Detail', method: 'GET', path: `${base}/api/aichixia?category=anime&action=detail&id={value}`, desc: 'Get media detail by ID', status: 'online' },
-  { name: 'Trending', method: 'GET', path: `${base}/api/aichixia?action=trending`, desc: 'Trending anime & manga', status: 'online' },
-  { name: 'AI Chat', method: 'POST', path: `${base}/api/chat`, desc: 'AI-powered anime assistant', status: 'online' },
-  { name: 'Staff Detail', method: 'GET', path: `${base}/api/aichixia?action=staff&id={value}`, desc: 'Staff detail', status: 'maintenance' },
+  { name: 'Search Anime', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=anime&action=search&query={text}', desc: 'Search anime', status: 'online' },
+  { name: 'Search Manga', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=manga&action=search&query={text}', desc: 'Search manga', status: 'online' },
+  { name: 'Search Manhwa', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=manhwa&action=search&query={text}', desc: 'Search manhwa', status: 'online' },
+  { name: 'Light Novel Search', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=ln&action=search&query={text}', desc: 'Search light novels', status: 'online' },
+  { name: 'Media Detail', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?category=anime&action=detail&id={value}', desc: 'Get media detail by ID', status: 'online' },
+  { name: 'Trending', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?action=trending', desc: 'Trending anime & manga', status: 'online' },
+  { name: 'AI Chat', method: 'POST', path: 'https://aichixia.vercel.app/api/chat', desc: 'AI-powered anime assistant', status: 'online' },
+  { name: 'Staff Detail', method: 'GET', path: 'https://aichixia.vercel.app/api/aichixia?action=staff&id={value}', desc: 'Staff detail', status: 'maintenance' },
 ]
 
 const fadeUp = {
@@ -55,13 +53,6 @@ export default function APIPage() {
     return () => clearInterval(interval)
   }, [])
 
-  const handleCopy = (text: string) => {
-    if (typeof navigator !== 'undefined') {
-      navigator.clipboard.writeText(text)
-      alert('Copied!')
-    }
-  }
-
   return (
     <section className="min-h-screen bg-gradient-to-b from-[#0f0f10] via-[#16171a] to-[#0a0a0a] py-24 px-6 md:px-12">
       <motion.div
@@ -76,7 +67,7 @@ export default function APIPage() {
           <FaBookOpen /> Aichixia API
         </h1>
         <p className="text-neutral-400 mt-4 text-lg md:text-xl">
-          Real-time API endpoints status, responsive & interactive.
+          Real-time API endpoints status.
         </p>
       </motion.div>
 
@@ -96,17 +87,13 @@ export default function APIPage() {
             whileInView="visible"
             custom={i}
             viewport={{ once: true }}
-            className="bg-[#111111] border border-white/10 rounded-2xl p-6 flex flex-col justify-between shadow-lg hover:shadow-primary/40 transition-all duration-300 cursor-pointer"
-            onClick={() => handleCopy(item.path)}
+            className="bg-[#111111] border border-white/10 rounded-2xl p-6 flex flex-col justify-between shadow-lg hover:shadow-primary/40 transition-all duration-300"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-white">{item.name}</h2>
               <StatusBadge status={item.status} />
             </div>
-            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-gray-100 text-blue-600 rounded-md font-medium cursor-pointer select-all truncate">
-              <code>{item.path}</code>
-              <FaCopy size={14} onClick={(e) => { e.stopPropagation(); handleCopy(item.path) }} />
-            </div>
+            <p className="text-sm text-neutral-400 mt-3 break-all">{item.path}</p>
             <p className="text-sm text-neutral-400 mt-3">{item.desc}</p>
           </motion.div>
         ))}
@@ -121,7 +108,7 @@ export default function APIPage() {
         className="max-w-4xl mx-auto mt-24 text-center text-neutral-500 text-sm md:text-base"
       >
         <p>
-          All endpoints are currently online or in maintenance. Click any API path to copy it.
+          All endpoints are currently online or in maintenance. For integration info, visit our API Docs.
         </p>
       </motion.div>
 
