@@ -70,7 +70,7 @@ export default function ApiPage() {
           API Endpoints
         </h1>
         <p className="text-neutral-400 mt-4 text-lg md:text-xl">
-          Explore all available endpoints with live status and copy-to-clipboard.
+          Explore all available API endpoints with live status, full details, and copy-to-clipboard.
         </p>
       </motion.div>
 
@@ -79,6 +79,26 @@ export default function ApiPage() {
         initial="hidden"
         whileInView="visible"
         custom={1}
+        viewport={{ once: true }}
+        className="max-w-4xl mx-auto mt-10 bg-[#111111] border border-white/10 rounded-xl p-6 text-white"
+      >
+        <h2 className="text-xl font-semibold mb-3">Notes</h2>
+        <ul className="text-sm text-neutral-400 space-y-2">
+          <li>Categories: <span className="text-white">anime, manga, manhwa, manhua, ln</span></li>
+          <li>Required parameters:</li>
+          <ul className="ml-6 list-disc text-neutral-400">
+            <li><span className="text-white">id</span> → for detail, character, staff, recommendations</li>
+            <li><span className="text-white">query</span> → for search</li>
+            <li><span className="text-white">genre</span> → for top-genre</li>
+          </ul>
+        </ul>
+      </motion.div>
+
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        custom={2}
         viewport={{ once: true }}
         className="mt-12 max-w-3xl mx-auto"
       >
@@ -95,7 +115,7 @@ export default function ApiPage() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        custom={2}
+        custom={3}
         viewport={{ once: true }}
         className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
       >
@@ -111,16 +131,14 @@ export default function ApiPage() {
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-white">{ep.name}</h2>
-              <div className="flex items-center gap-2">
-                <motion.span
-                  className={`flex items-center gap-2 ${statusColors[ep.status]}`}
-                  animate={{ scale: [1, 1.3, 1], rotate: [0, 15, 0] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                >
-                  <FaCircle />
-                  <span className="capitalize">{ep.status}</span>
-                </motion.span>
-              </div>
+              <motion.div
+                className={`flex items-center gap-2 ${statusColors[ep.status]}`}
+                animate={{ scale: [1, 1.3, 1], rotate: [0, 15, 0] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+              >
+                <FaCircle />
+                <span className="capitalize">{ep.status}</span>
+              </motion.div>
             </div>
             <p className="text-sm text-neutral-400 mt-3">{ep.desc}</p>
             <div className="mt-3 flex items-center justify-between">
@@ -145,12 +163,12 @@ export default function ApiPage() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        custom={3}
+        custom={4}
         viewport={{ once: true }}
         className="max-w-4xl mx-auto mt-24 text-center text-neutral-500 text-sm md:text-base"
       >
         <p>
-          All endpoints are monitored in real-time. Use the search bar to quickly find the endpoint you need.
+          All endpoints are monitored in real-time. Use the search bar or notes to quickly find the endpoint you need.
         </p>
       </motion.div>
 
@@ -158,7 +176,7 @@ export default function ApiPage() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        custom={4}
+        custom={5}
         viewport={{ once: true }}
         className="mt-12 text-center text-neutral-500 text-xs flex flex-col md:flex-row justify-center gap-4"
       >
