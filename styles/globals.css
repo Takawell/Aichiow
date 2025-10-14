@@ -111,3 +111,25 @@ a {
 .animate-fade-up {
   animation: fadeInUp 0.6s ease-out forwards;
 }
+
+html, body {
+  overscroll-behavior-y: contain;
+  background-color: #000; 
+}
+
+* {
+  overscroll-behavior: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; 
+}
+
+.overflow-x-auto {
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
