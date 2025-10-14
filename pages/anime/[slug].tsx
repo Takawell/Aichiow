@@ -9,6 +9,8 @@ import CharacterList from "@/components/character/CharacterList";
 import AnimeCard from "@/components/anime/AnimeCard";
 import { format, fromUnixTime } from "date-fns";
 import slugify from "slugify";
+import { useEffect, useRef } from "react";
+import { motion, useAnimation } from "framer-motion";
 
 export default function AnimeDetailPage() {
   const router = useRouter();
@@ -23,8 +25,44 @@ export default function AnimeDetailPage() {
     enabled: !!id,
   });
 
-  if (isLoading) return <p className="text-center text-white mt-10">Loading...</p>;
-  if (isError || !anime) return <p className="text-center text-red-500 mt-10">Anime not found.</p>;
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const controls = useAnimation();
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    const scrollContainer = scrollRef.current;
+
+    let scrollAmount = 0;
+    const scrollSpeed = 1; 
+    let scrollDirection = 1; 
+
+    let animationFrame: number;
+
+    const autoScroll = () => {
+      if (scrollContainer) {
+        scrollContainer.scrollLeft += scrollSpeed * scrollDirection;
+        scrollAmount += scrollSpeed * scrollDirection;
+
+        if (
+          scrollContainer.scrollLeft + scrollContainer.clientWidth >=
+          scrollContainer.scrollWidth
+        ) {
+          scrollDirection = -1;
+        } else if (scrollContainer.scrollLeft <= 0) {
+          scrollDirection = 1;
+        }
+      }
+      animationFrame = requestAnimationFrame(autoScroll);
+    };
+
+    animationFrame = requestAnimationFrame(autoScroll);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [similarAnime]);
+
+  if (isLoading)
+    return <p className="text-center text-white mt-10">Loading...</p>;
+  if (isError || !anime)
+    return <p className="text-center text-red-500 mt-10">Anime not found.</p>;
 
   const statusBadgeColor =
     anime.status === "RELEASING"
@@ -35,7 +73,10 @@ export default function AnimeDetailPage() {
 
   const totalEpisodes = anime.episodes || null;
   const duration = anime.duration || null;
-  const animeSlug = slugify(anime.title.romaji || anime.title.english || "", { lower: true });
+  const animeSlug = slugify(
+    anime.title.romaji || anime.title.english || "",
+    { lower: true }
+  );
 
   return (
     <>
@@ -43,18 +84,17 @@ export default function AnimeDetailPage() {
         <title>{anime.title.english || anime.title.romaji} | Aichiow</title>
       </Head>
       <main className="bg-dark text-white pb-20">
-        {/* Header */}
         <AnimeDetailHeader anime={anime} />
 
-        {/* Trailer */}
-        {anime.trailer?.site === "youtube" && <AnimeTrailer trailer={anime.trailer} />}
-
-        {/* Characters */}
-        {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
-          <CharacterList characters={anime.characters.edges} />
+        {anime.trailer?.site === "youtube" && (
+          <AnimeTrailer trailer={anime.trailer} />
         )}
 
-        {/* Episode Section */}
+        {Array.isArray(anime.characters?.edges) &&
+          anime.characters.edges.length > 0 && (
+            <CharacterList characters={anime.characters.edges} />
+          )}
+
         <section className="mt-10 px-4 text-center">
           <div className="mb-4">
             <span
@@ -68,23 +108,30 @@ export default function AnimeDetailPage() {
             </span>
           </div>
 
-          {/* Info Total Episode + Durasi */}
           <p className="text-gray-300 text-sm mb-2">
-            {totalEpisodes ? `Total Episodes: ${totalEpisodes}` : "Total Episodes: ?"} |{" "}
-            {duration ? `Duration: ${duration} min/ep` : "Duration: ?"}
+            {totalEpisodes
+              ? `Total Episodes: ${totalEpisodes}`
+              : "Total Episodes: ?"}{" "}
+            |{" "}
+            {duration
+              ? `Duration: ${duration} min/ep`
+              : "Duration: ?"}
           </p>
 
-          {/* Next Airing Info */}
           {anime.nextAiringEpisode && (
             <p className="text-blue-400 text-sm mb-6">
               Next Episode {anime.nextAiringEpisode.episode} airs on{" "}
-              {format(fromUnixTime(anime.nextAiringEpisode.airingAt), "PPpp")}
+              {format(
+                fromUnixTime(anime.nextAiringEpisode.airingAt),
+                "PPpp"
+              )}
             </p>
           )}
 
-          <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
+          <h2 className="text-2xl font-extrabold text-white mb-6">
+            Episodes
+          </h2>
 
-          {/* Episode List */}
           {totalEpisodes ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {Array.from({ length: totalEpisodes }).map((_, idx) => {
@@ -105,19 +152,28 @@ export default function AnimeDetailPage() {
           )}
         </section>
 
-        {/* Similar Anime Section */}
         <section className="mt-10 px-4">
-          <h2 className="text-xl font-semibold mb-4">Maybe you like it</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            Maybe you like it
+          </h2>
           {loadingSimilar ? (
-            <p className="text-center text-gray-400">Looking for recommendations...</p>
+            <p className="text-center text-gray-400">
+              Looking for recommendations...
+            </p>
           ) : similarAnime.length > 0 ? (
-            <div className="flex gap-4 overflow-x-auto">
+            <motion.div
+              ref={scrollRef}
+              className="flex gap-4 overflow-x-auto scrollbar-hide"
+              animate={controls}
+            >
               {similarAnime.map((anime) => (
                 <AnimeCard key={anime.id} anime={anime} />
               ))}
-            </div>
+            </motion.div>
           ) : (
-            <p className="text-center text-gray-500">No recommendations found.</p>
+            <p className="text-center text-gray-500">
+              No recommendations found.
+            </p>
           )}
         </section>
       </main>
