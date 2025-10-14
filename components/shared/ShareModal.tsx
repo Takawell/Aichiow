@@ -1,10 +1,10 @@
+Nanti aja dah btw ini share modal kalo tambahin method qris bisa ga?
 "use client"
 
 import React, { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FaWhatsapp, FaTelegramPlane, FaLink } from "react-icons/fa"
 import { FaXTwitter } from "react-icons/fa6"
-import { QRCodeCanvas } from "qrcode.react"
 
 interface ShareModalProps {
   open: boolean
@@ -104,20 +104,6 @@ export default function ShareModal({ open, setOpen, title, url, thumbnail }: Sha
                 >
                   <FaLink size={22} />
                 </button>
-              </div>
-
-              <div className="mt-8 text-center">
-                <p className="text-gray-300 text-sm mb-2">Scan to open this anime:</p>
-                <div className="flex justify-center">
-                  <QRCodeCanvas
-                    value={url}
-                    size={128}
-                    bgColor="transparent"
-                    fgColor="#ffffff"
-                    includeMargin={true}
-                    level="M"
-                  />
-                </div>
               </div>
             </motion.div>
           </motion.div>
