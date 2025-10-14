@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import Head from "next/head";
+import Image from "next/image";
 import { useAnimeDetail } from "@/hooks/useAnimeDetail";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSimilarAnime } from "@/lib/anilist";
@@ -23,29 +24,27 @@ export default function AnimeDetailPage() {
     enabled: !!id,
   });
 
-  if (isLoading)
+  if (isLoading) {
     return (
-      <main className="min-h-screen bg-dark text-white flex flex-col items-center justify-center p-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-5xl">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-gray-800 rounded-lg animate-pulse overflow-hidden shadow-md"
-            >
-              <div className="w-full h-48 bg-gray-700" />
-              <div className="p-4 space-y-3">
-                <div className="h-4 bg-gray-600 rounded w-3/4" />
-                <div className="h-3 bg-gray-600 rounded w-1/2" />
-              </div>
-            </div>
-          ))}
-        </div>
-        <p className="text-gray-400 mt-6 animate-pulse">Loading anime details...</p>
-      </main>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
+        <Image
+          src="/loading.gif"
+          alt="Loading anime..."
+          width={200}
+          height={200}
+          className="mb-6 select-none pointer-events-none"
+          priority
+        />
+        <p className="text-xl font-bold text-white animate-pulse tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
+          Loading your anime world...
+        </p>
+      </div>
     );
+  }
 
-  if (isError || !anime)
+  if (isError || !anime) {
     return <p className="text-center text-red-500 mt-10">Anime not found.</p>;
+  }
 
   const statusBadgeColor =
     anime.status === "RELEASING"
@@ -56,28 +55,19 @@ export default function AnimeDetailPage() {
 
   const totalEpisodes = anime.episodes || null;
   const duration = anime.duration || null;
-  const animeSlug = slugify(
-    anime.title.romaji || anime.title.english || "",
-    { lower: true }
-  );
+  const animeSlug = slugify(anime.title.romaji || anime.title.english || "", { lower: true });
 
   return (
     <>
       <Head>
         <title>{anime.title.english || anime.title.romaji} | Aichiow</title>
       </Head>
-
       <main className="bg-dark text-white pb-20">
         <AnimeDetailHeader anime={anime} />
-
-        {anime.trailer?.site === "youtube" && (
-          <AnimeTrailer trailer={anime.trailer} />
+        {anime.trailer?.site === "youtube" && <AnimeTrailer trailer={anime.trailer} />}
+        {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
+          <CharacterList characters={anime.characters.edges} />
         )}
-
-        {Array.isArray(anime.characters?.edges) &&
-          anime.characters.edges.length > 0 && (
-            <CharacterList characters={anime.characters.edges} />
-          )}
 
         <section className="mt-10 px-4 text-center">
           <div className="mb-4">
@@ -93,20 +83,14 @@ export default function AnimeDetailPage() {
           </div>
 
           <p className="text-gray-300 text-sm mb-2">
-            {totalEpisodes
-              ? `Total Episodes: ${totalEpisodes}`
-              : "Total Episodes: ?"}{" "}
-            |{" "}
+            {totalEpisodes ? `Total Episodes: ${totalEpisodes}` : "Total Episodes: ?"} |{" "}
             {duration ? `Duration: ${duration} min/ep` : "Duration: ?"}
           </p>
 
           {anime.nextAiringEpisode && (
             <p className="text-blue-400 text-sm mb-6">
               Next Episode {anime.nextAiringEpisode.episode} airs on{" "}
-              {format(
-                fromUnixTime(anime.nextAiringEpisode.airingAt),
-                "PPpp"
-              )}
+              {format(fromUnixTime(anime.nextAiringEpisode.airingAt), "PPpp")}
             </p>
           )}
 
@@ -134,21 +118,16 @@ export default function AnimeDetailPage() {
 
         <section className="mt-10 px-4">
           <h2 className="text-xl font-semibold mb-4">Maybe you like it</h2>
-
           {loadingSimilar ? (
-            <div className="flex gap-4 overflow-x-auto">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-gray-800 rounded-lg animate-pulse w-40 flex-shrink-0"
-                >
-                  <div className="w-full h-56 bg-gray-700" />
-                  <div className="p-3 space-y-2">
-                    <div className="h-4 bg-gray-600 rounded w-3/4" />
-                    <div className="h-3 bg-gray-600 rounded w-1/2" />
-                  </div>
-                </div>
-              ))}
+            <div className="flex flex-col items-center py-10">
+              <Image
+                src="/loading.gif"
+                alt="Loading recommendations..."
+                width={100}
+                height={100}
+                className="mb-4"
+              />
+              <p className="text-gray-400 animate-pulse">Finding more anime for you...</p>
             </div>
           ) : similarAnime.length > 0 ? (
             <div className="flex gap-4 overflow-x-auto">
