@@ -1,4 +1,3 @@
-Nanti aja dah btw ini share modal kalo tambahin method qris bisa ga?
 "use client"
 
 import React, { useEffect, useState } from "react"
