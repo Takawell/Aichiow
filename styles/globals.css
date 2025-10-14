@@ -10,11 +10,6 @@ a {
   @apply text-white no-underline;
 }
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #38bdf8 #1f2937;
-}
-
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
