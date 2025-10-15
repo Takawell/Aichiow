@@ -26,6 +26,8 @@ export interface Anime {
   }
   episodes?: number
   duration?: number
+  format?: string
+  status?: string
 }
 
 export interface ZoroEpisode {
