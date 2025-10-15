@@ -30,12 +30,22 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
           <svg
             className="animate-spin h-10 w-10 text-white/70"
             xmlns="http://www.w3.org/2000/svg"
-            fill="none" viewBox="0 0 24 24"
+            fill="none"
+            viewBox="0 0 24 24"
           >
-            <circle className="opacity-25" cx="12" cy="12" r="10"
-              stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor"
-              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
           </svg>
         </div>
       </section>
@@ -43,76 +53,78 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
   }
 
   return (
-    <div className="relative w-full h-[320px] md:h-[460px] overflow-hidden rounded-lg shadow-xl group">
-      <Image
-        src={anime.bannerImage || anime.coverImage?.large}
-        alt={anime.title.romaji}
-        fill
-        priority
-        className="object-cover transition duration-1000 group-hover:scale-105 brightness-[.45]"
-      />
+    <>
+      <div className="relative w-full h-[320px] md:h-[460px] overflow-hidden rounded-lg shadow-xl group">
+        <Image
+          src={anime.bannerImage || anime.coverImage?.large}
+          alt={anime.title.romaji}
+          fill
+          priority
+          className="object-cover transition duration-1000 group-hover:scale-105 brightness-[.45]"
+        />
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="absolute z-20 bottom-5 md:bottom-10 px-5 md:px-12 w-full"
-      >
-        <h1 className="text-white text-2xl md:text-5xl font-extrabold mb-2 drop-shadow-lg">
-          {anime.title.english || anime.title.romaji}
-        </h1>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="absolute z-20 bottom-5 md:bottom-10 px-5 md:px-12 w-full"
+        >
+          <h1 className="text-white text-2xl md:text-5xl font-extrabold mb-2 drop-shadow-lg">
+            {anime.title.english || anime.title.romaji}
+          </h1>
 
-        div className="flex flex-wrap items-center gap-3 text-sm text-white mb-3">
-          {anime.averageScore && (
-            <span className="flex items-center gap-1">
-              ⭐ {anime.averageScore / 10}/10
-            </span>
-          )}
-          {anime.nextAiringEpisode?.episode && (
-            <span className="flex items-center gap-1">
-              📺 Ep {anime.nextAiringEpisode.episode}
-            </span>
-          )}
-          {anime.genres?.slice(0, 3).map((genre) => (
-            <Link
-              key={genre}
-              href={`/anime/genre/${encodeURIComponent(genre.toLowerCase())}`}
-              className="px-3 py-1 text-xs font-medium text-white bg-white/10 border border-white/20 rounded-full backdrop-blur-md hover:bg-blue-600/40 transition"
+          <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-3">
+            {anime.averageScore && (
+              <span className="flex items-center gap-1">
+                ⭐ {anime.averageScore / 10}/10
+              </span>
+            )}
+            {anime.nextAiringEpisode?.episode && (
+              <span className="flex items-center gap-1">
+                📺 Ep {anime.nextAiringEpisode.episode}
+              </span>
+            )}
+            {anime.genres?.slice(0, 3).map((genre) => (
+              <Link
+                key={genre}
+                href={`/anime/genre/${encodeURIComponent(genre.toLowerCase())}`}
+                className="px-3 py-1 text-xs font-medium text-white bg-white/10 border border-white/20 rounded-full backdrop-blur-md hover:bg-blue-600/40 transition"
+              >
+                {genre}
+              </Link>
+            ))}
+          </div>
+
+          <p className="text-gray-200 text-sm md:text-base max-w-2xl line-clamp-3 mb-4 drop-shadow">
+            {anime.description?.replace(/<[^>]+>/g, '')}
+          </p>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setLoadingDetail(true)
+                router.push(`/anime/${anime.id}`)
+              }}
+              disabled={loadingDetail}
+              className={`px-6 py-2 rounded-full text-sm font-semibold text-white shadow-md transition-all ${
+                loadingDetail
+                  ? 'bg-blue-400 cursor-wait'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
-              {genre}
-            </Link>
-          ))}
-        </div>
+              {loadingDetail ? 'Loading...' : '💓 DETAIL'}
+            </button>
 
-        <p className="text-gray-200 text-sm md:text-base max-w-2xl line-clamp-3 mb-4 drop-shadow">
-          {anime.description?.replace(/<[^>]+>/g, '')}
-        </p>
-
-        <div className="flex gap-3">
-          <button
-            onClick={() => {
-              setLoadingDetail(true)
-              router.push(`/anime/${anime.id}`)
-            }}
-            disabled={loadingDetail}
-            className={`px-6 py-2 rounded-full text-sm font-semibold text-white shadow-md transition-all ${
-              loadingDetail
-                ? 'bg-blue-400 cursor-wait'
-                : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            {loadingDetail ? 'Loading...' : '💓 DETAIL'}
-          </button>
-
-          <button
-            onClick={() => setShowPreview(true)}
-            className="px-6 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-600 transition shadow-md flex items-center gap-2"
-          >
-            <FaPlay className="text-sm" /> Preview
-          </button>
-        </div>
-      </motion.div>
+            <button
+              onClick={() => setShowPreview(true)}
+              className="px-6 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-600 transition shadow-md flex items-center gap-2"
+            >
+              <FaPlay className="text-sm" /> Preview
+            </button>
+          </div>
+        </motion.div>
+      </div>
 
       <AnimatePresence>
         {showPreview && (
@@ -139,7 +151,9 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                 <div className="relative h-72 md:h-full rounded-xl overflow-hidden">
                   <Image
-                    src={anime.coverImage?.extraLarge || anime.coverImage?.large}
+                    src={
+                      anime.coverImage?.extraLarge || anime.coverImage?.large
+                    }
                     alt={anime.title.romaji}
                     fill
                     className="object-cover rounded-xl"
@@ -152,7 +166,8 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
                       {anime.title.english || anime.title.romaji}
                     </h2>
                     <p className="text-sm text-gray-300 mb-3">
-                      {anime.format} • {anime.status} • {anime.episodes || '?'} eps
+                      {anime.format} • {anime.status} •{' '}
+                      {anime.episodes || '?'} eps
                     </p>
                     <p className="text-gray-200 text-sm mb-4 max-h-48 overflow-y-auto pr-2">
                       {anime.description?.replace(/<[^>]+>/g, '')}
@@ -163,7 +178,9 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
                     {anime.genres?.map((g) => (
                       <Link
                         key={g}
-                        href={`/anime/genre/${encodeURIComponent(g.toLowerCase())}`}
+                        href={`/anime/genre/${encodeURIComponent(
+                          g.toLowerCase()
+                        )}`}
                         className="px-3 py-1 rounded-full bg-white/10 border border-white/20 hover:bg-blue-600/40 transition"
                       >
                         {g}
@@ -176,7 +193,6 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   )
 }
-
