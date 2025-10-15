@@ -30,35 +30,21 @@ export async function fetchChapterImages(chapterId: string) {
 
     const mangaRel = chapter?.relationships?.find((rel: any) => rel.type === 'manga')
     const mangaId = mangaRel?.id
+    const currentChapter = chapter?.chapter || null
 
     let next: string | null = null
     let prev: string | null = null
 
-    if (mangaId) {
+    if (mangaId && currentChapter) {
       const listRes = await axios.get(
         `https://api.mangadex.org/chapter?manga=${mangaId}&order[chapter]=asc&limit=500`
       )
 
       const all = listRes.data?.data || []
-      const sorted = all.sort((a: any, b: any) => {
-        const numA = parseFloat(a.attributes.chapter)
-        const numB = parseFloat(b.attributes.chapter)
+      const index = all.findIndex((ch: any) => ch.id === chapterId)
 
-        if (isNaN(numA) && isNaN(numB))
-          return new Date(a.attributes.createdAt).getTime() - new Date(b.attributes.createdAt).getTime()
-        if (isNaN(numA)) return 1
-        if (isNaN(numB)) return -1
-        return numA - numB
-      })
-
-      const index = sorted.findIndex((ch: any) => ch.id === chapterId)
-
-      if (index > 0) prev = sorted[index - 1]?.id || null
-      if (index < sorted.length - 1) next = sorted[index + 1]?.id || null
-
-      console.log('Current chapter:', chapterId)
-      console.log('Prev:', prev)
-      console.log('Next:', next)
+      if (index > 0) prev = all[index - 1]?.id || null
+      if (index < all.length - 1) next = all[index + 1]?.id || null
     }
 
     return {
