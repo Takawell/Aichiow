@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { fetchPopularManga } from '@/lib/mangadex'
 import MangaGrid from '@/components/manga/MangaGrid'
+import JoinCommunity from '@components/manga/JoinCommunity'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaFire, FaSearch, FaCheckCircle, FaTimesCircle, FaSpinner } from 'react-icons/fa'
@@ -146,6 +147,9 @@ export default function MangaLandingPage() {
             <MangaGrid mangaList={popular} />
           </section>
         )}
+        <section className="mt-20">
+          <JoinCommunity />
+        </section>
       </main>
     </>
   )
