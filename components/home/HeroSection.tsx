@@ -24,7 +24,7 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
 
   if (loading || !anime) {
     return (
-      <section className="w-full h-[340px] md:h-[480px] bg-neutral-900 rounded-3xl shadow-inner overflow-hidden relative animate-pulse">
+      <section className="w-full h-[320px] md:h-[460px] bg-neutral-900 rounded-lg shadow-inner overflow-hidden relative animate-pulse">
         <div className="absolute inset-0 bg-gradient-to-r from-neutral-800 via-neutral-700 to-neutral-800 animate-[pulse_2s_infinite]" />
         <div className="flex items-center justify-center h-full z-10 relative">
           <svg
@@ -43,83 +43,73 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
 
   return (
     <>
-      <div className="relative w-full h-[340px] md:h-[480px] overflow-hidden rounded-3xl shadow-2xl group">
+      <div className="relative w-full h-[320px] md:h-[460px] overflow-hidden rounded-lg shadow-xl group">
         <Image
           src={anime.bannerImage || anime.coverImage?.extraLarge || anime.coverImage?.large}
           alt={anime.title.romaji}
           fill
           priority
-          className="object-cover transition-all duration-[1800ms] group-hover:scale-110 brightness-[.45]"
+          className="object-cover transition duration-1000 group-hover:scale-105 brightness-[.45]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="absolute z-20 bottom-6 md:bottom-12 px-6 md:px-16 w-full"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="absolute z-20 bottom-5 md:bottom-10 px-5 md:px-12 w-full"
         >
-          <div className="space-y-3 md:space-y-4">
-            <h1 className="text-white text-3xl md:text-6xl font-extrabold leading-tight tracking-tight drop-shadow-lg">
-              {anime.title.english || anime.title.romaji}
-            </h1>
+          <h1 className="text-white text-2xl md:text-5xl font-extrabold mb-2 drop-shadow-lg">
+            {anime.title.english || anime.title.romaji}
+          </h1>
 
-            <div className="flex flex-wrap items-center gap-3 text-sm text-white/90">
-              {anime.averageScore && (
-                <span className="flex items-center gap-1 text-yellow-400">
-                  <FaStar className="text-yellow-400" /> {anime.averageScore / 10}/10
-                </span>
-              )}
-              {anime.nextAiringEpisode?.episode && (
-                <span className="bg-white/10 px-3 py-1 rounded-full text-xs border border-white/10 backdrop-blur-md">
-                  Ep {anime.nextAiringEpisode.episode}
-                </span>
-              )}
-              {anime.genres?.slice(0, 3).map((genre) => (
-                <Link
-                  key={genre}
-                  href={`/anime/genre/${encodeURIComponent(genre.toLowerCase())}`}
-                  className="px-3 py-1 text-xs font-medium text-white/90 bg-white/10 border border-white/20 rounded-full backdrop-blur-md hover:bg-blue-600/50 hover:text-white transition-all"
-                >
-                  {genre}
-                </Link>
-              ))}
-            </div>
-
-            <p className="text-gray-200 text-sm md:text-base max-w-2xl line-clamp-3 md:line-clamp-4 leading-relaxed drop-shadow">
-              {anime.description?.replace(/<[^>]+>/g, '')}
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 mt-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setLoadingDetail(true)
-                  router.push(`/anime/${anime.id}`)
-                }}
-                disabled={loadingDetail}
-                className={`px-8 py-3 rounded-full text-sm md:text-base font-semibold text-white shadow-lg transition-all ${
-                  loadingDetail
-                    ? 'bg-blue-400 cursor-wait'
-                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500'
-                }`}
+          <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-3">
+            {anime.averageScore && (
+              <span className="flex items-center gap-1">
+                <FaStar className="text-yellow-400" /> {anime.averageScore / 10}/10
+              </span>
+            )}
+            {anime.nextAiringEpisode?.episode && (
+              <span className="flex items-center gap-1">
+                📺 Ep {anime.nextAiringEpisode.episode}
+              </span>
+            )}
+            {anime.genres?.slice(0, 3).map((genre) => (
+              <Link
+                key={genre}
+                href={`/anime/genre/${encodeURIComponent(genre.toLowerCase())}`}
+                className="px-3 py-1 text-xs font-medium text-white bg-white/10 border border-white/20 rounded-full backdrop-blur-md hover:bg-blue-600/40 transition"
               >
-                {loadingDetail ? 'Loading...' : '💓 View Detail'}
-              </motion.button>
+                {genre}
+              </Link>
+            ))}
+          </div>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowPreview(true)}
-                className="px-8 py-3 rounded-full text-sm md:text-base font-semibold text-white bg-gradient-to-r from-pink-600 to-purple-600 hover:from-purple-500 hover:to-blue-600 transition shadow-lg flex items-center justify-center gap-2"
-              >
-                <FaPlay className="text-sm" /> Preview
-              </motion.button>
-            </div>
+          <p className="text-gray-200 text-sm md:text-base max-w-2xl line-clamp-3 mb-4 drop-shadow">
+            {anime.description?.replace(/<[^>]+>/g, '')}
+          </p>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setLoadingDetail(true)
+                router.push(`/anime/${anime.id}`)
+              }}
+              disabled={loadingDetail}
+              className={`px-6 py-2 rounded-full text-sm font-semibold text-white shadow-md transition-all ${
+                loadingDetail ? 'bg-blue-400 cursor-wait' : 'bg-blue-600 hover:bg-blue-700'
+              }`}
+            >
+              {loadingDetail ? 'Loading...' : '💓 DETAIL'}
+            </button>
+
+            <button
+              onClick={() => setShowPreview(true)}
+              className="px-6 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-600 transition shadow-md flex items-center gap-2"
+            >
+              <FaPlay className="text-sm" /> Preview
+            </button>
           </div>
         </motion.div>
-
-        <div className="absolute -bottom-1 left-0 w-full h-1 bg-gradient-to-r from-indigo-600 via-blue-500 to-pink-500 opacity-70" />
       </div>
 
       <AnimatePresence>
@@ -128,91 +118,165 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-md"
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 md:p-10"
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="bg-gradient-to-br from-neutral-900/90 to-neutral-950/90 border border-white/10 rounded-3xl shadow-2xl w-full max-w-5xl relative overflow-hidden flex flex-col"
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ duration: 0.32, ease: 'easeOut' }}
+              className="relative bg-gradient-to-br from-[#0f0f10]/95 to-[#1a1a1d]/95 border border-white/10 rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] w-full max-w-6xl overflow-hidden flex flex-col md:flex-row"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 md:p-10 flex-1 overflow-y-auto custom-scroll">
-                <div className="relative h-72 md:h-full rounded-2xl overflow-hidden shadow-lg">
-                  <Image
-                    src={anime.coverImage?.extraLarge || anime.coverImage?.large}
-                    alt={anime.title.romaji}
-                    fill
-                    className="object-cover rounded-2xl transition-transform duration-500 hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.12, duration: 0.45 }}
+                className="relative w-full md:w-1/2 h-64 md:h-auto overflow-hidden group"
+              >
+                <Image
+                  src={anime.coverImage?.extraLarge || anime.coverImage?.large}
+                  alt={anime.title.romaji}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+
+                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+                  <button
+                    onClick={() => {
+                      setShowPreview(false)
+                      router.push(`/anime/${anime.id}`)
+                    }}
+                    className="px-4 py-2 text-xs md:text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-full shadow-lg transition-transform hover:scale-105"
+                  >
+                    View Detail
+                  </button>
+                  <button
+                    onClick={() => setShowPreview(false)}
+                    className="px-4 py-2 text-xs md:text-sm font-semibold bg-red-600/85 hover:bg-red-700 text-white rounded-full shadow-lg transition-transform hover:scale-105"
+                  >
+                    Close
+                  </button>
                 </div>
+              </motion.div>
 
-                <div className="flex flex-col justify-between">
-                  <div className="space-y-4">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight drop-shadow-lg">
-                      {anime.title.english || anime.title.romaji}
-                    </h2>
+              <motion.div
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.18, duration: 0.45 }}
+                className="flex flex-col justify-between w-full md:w-1/2 p-6 md:p-8 text-white"
+              >
+                <div>
+                  <h2 className="text-2xl md:text-4xl font-extrabold mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    {anime.title.english || anime.title.romaji}
+                  </h2>
 
-                    <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm text-gray-300">
-                      {anime.format && (
-                        <span className="bg-white/10 px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
-                          {anime.format}
-                        </span>
-                      )}
-                      {anime.status && (
-                        <span className="bg-white/10 px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
-                          {anime.status}
-                        </span>
-                      )}
-                      {anime.episodes && (
-                        <span className="bg-white/10 px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
-                          {anime.episodes} eps
-                        </span>
-                      )}
-                    </div>
+                  <p className="text-gray-300 text-sm md:text-base mb-4 flex flex-wrap gap-3">
+                    {anime.format && (
+                      <span className="px-3 py-1 bg-white/10 rounded-full text-xs md:text-sm border border-white/10">
+                        {anime.format}
+                      </span>
+                    )}
+                    {anime.status && (
+                      <span className="px-3 py-1 bg-white/10 rounded-full text-xs md:text-sm border border-white/10">
+                        {anime.status}
+                      </span>
+                    )}
+                    {anime.episodes && (
+                      <span className="px-3 py-1 bg-white/10 rounded-full text-xs md:text-sm border border-white/10">
+                        {anime.episodes} eps
+                      </span>
+                    )}
+                  </p>
 
-                    <p className="text-gray-300 text-sm md:text-base max-h-56 overflow-y-auto leading-relaxed scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
-                      {anime.description?.replace(/<[^>]+>/g, '')}
+                  <div className="relative overflow-y-auto max-h-56 pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                    <p className="text-gray-200 text-sm md:text-base leading-relaxed">
+                      {anime.description?.replace(/<[^>]+>/g, '') || 'No description available.'}
                     </p>
                   </div>
+                </div>
 
-                  <div className="flex flex-wrap items-center gap-2 mt-5">
-                    {anime.genres?.map((g) => (
+                <div className="mt-5">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {anime.genres?.map((g, i) => (
                       <Link
-                        key={g}
+                        key={i}
                         href={`/anime/genre/${encodeURIComponent(g.toLowerCase())}`}
-                        className="px-3 py-1 rounded-full bg-white/10 border border-white/20 hover:bg-blue-600/40 transition text-xs md:text-sm text-white/90"
+                        className="px-3 py-1 rounded-full text-xs md:text-sm bg-white/10 border border-white/10 hover:bg-blue-600/40 transition"
                       >
                         {g}
                       </Link>
                     ))}
                   </div>
+
+                  <div className="hidden md:flex items-center justify-between gap-4 mt-4">
+                    <div className="flex items-center gap-4 text-sm text-gray-300">
+                      {anime.averageScore && <span className="flex items-center gap-1">⭐ {anime.averageScore / 10}/10</span>}
+                      {anime.nextAiringEpisode?.episode && <span className="flex items-center gap-1">📺 Next Ep {anime.nextAiringEpisode.episode}</span>}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => {
+                          setShowPreview(false)
+                          router.push(`/anime/${anime.id}`)
+                        }}
+                        className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold rounded-full transition-transform hover:scale-105 shadow-md"
+                      >
+                        View Detail
+                      </button>
+                      <button
+                        onClick={() => setShowPreview(false)}
+                        className="px-5 py-2 bg-red-600/85 hover:bg-red-700 text-white font-semibold rounded-full transition-transform hover:scale-105 shadow-md"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex md:hidden justify-between items-center mt-6 border-t border-white/10 pt-4 gap-3">
+                    <button
+                      onClick={() => setShowPreview(false)}
+                      className="w-1/2 py-2 bg-red-600/85 hover:bg-red-700 rounded-full text-sm font-semibold transition-all"
+                    >
+                      Close
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowPreview(false)
+                        router.push(`/anime/${anime.id}`)
+                      }}
+                      className="w-1/2 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 rounded-full text-sm font-semibold transition-all"
+                    >
+                      View Detail
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex flex-col md:flex-row justify-between items-center border-t border-white/10 p-4 md:p-6 bg-black/40 backdrop-blur-md gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowPreview(false)}
-                  className="px-8 py-3 text-sm md:text-base font-semibold text-white bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-rose-500 transition rounded-full shadow-md w-full md:w-auto text-center"
-                >
-                  Close
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    setShowPreview(false)
-                    router.push(`/anime/${anime.id}`)
-                  }}
-                  className="px-8 py-3 text-sm md:text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 transition rounded-full shadow-md w-full md:w-auto text-center"
-                >
-                  View Detail
-                </motion.button>
+              <div className="hidden md:flex absolute bottom-0 left-0 w-full items-center justify-between p-5 backdrop-blur-xl bg-white/5 border-t border-white/10">
+                <div className="flex items-center gap-4 text-sm text-gray-300">
+                  {anime.averageScore && <span className="flex items-center gap-1">⭐ {anime.averageScore / 10}/10</span>}
+                  {anime.nextAiringEpisode?.episode && <span className="flex items-center gap-1">📺 Next Ep {anime.nextAiringEpisode.episode}</span>}
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      setShowPreview(false)
+                      router.push(`/anime/${anime.id}`)
+                    }}
+                    className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold rounded-full transition-transform hover:scale-105 shadow-md"
+                  >
+                    View Detail
+                  </button>
+                  <button
+                    onClick={() => setShowPreview(false)}
+                    className="px-5 py-2 bg-red-600/85 hover:bg-red-700 text-white font-semibold rounded-full transition-transform hover:scale-105 shadow-md"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
