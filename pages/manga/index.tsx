@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { fetchPopularManga } from '@/lib/mangadex'
 import MangaGrid from '@/components/manga/MangaGrid'
-import JoinCommunity from '@components/manga/JoinCommunity'
+import JoinCommunity from '@/components/manga/JoinCommunity'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaFire, FaSearch, FaCheckCircle, FaTimesCircle, FaSpinner } from 'react-icons/fa'
