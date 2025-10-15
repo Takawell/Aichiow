@@ -147,7 +147,8 @@ export default function MangaLandingPage() {
             <MangaGrid mangaList={popular} />
           </section>
         )}
-        <section className="mt-20">
+        
+        <section>
           <JoinCommunity />
         </section>
       </main>
