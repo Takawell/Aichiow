@@ -237,25 +237,26 @@ export default function LandingPage() {
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {features.map((f, idx) => (
-                <motion.div
-                  key={f.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  whileHover={{ scale: 1.03 }}
-                  transition={{ duration: 0.45, delay: idx * 0.06 }}
-                  className="group relative rounded-2xl p-6 bg-gradient-to-b from-white/5 to-transparent border border-white/10 backdrop-blur-sm hover:shadow-lg hover:shadow-pink-500/20 transition-all"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-gradient-to-br from-pink-500 to-blue-500 text-black shadow-md">
-                      {f.icon}
+                <Link key={f.id} href={f.href}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.03 }}
+                    transition={{ duration: 0.45, delay: idx * 0.06 }}
+                    className="group relative rounded-2xl p-6 bg-gradient-to-b from-white/5 to-transparent border border-white/10 backdrop-blur-sm hover:shadow-lg hover:shadow-pink-500/20 transition-all cursor-pointer"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-lg bg-gradient-to-br from-pink-500 to-blue-500 text-black shadow-md">
+                        {f.icon}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-lg">{f.title}</div>
+                        <div className="text-sm text-gray-300 mt-1">{f.desc}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-semibold text-lg">{f.title}</div>
-                      <div className="text-sm text-gray-300 mt-1">{f.desc}</div>
-                    </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </section>
