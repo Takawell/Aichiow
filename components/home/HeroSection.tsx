@@ -141,24 +141,6 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-
-                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-                  <button
-                    onClick={() => {
-                      setShowPreview(false)
-                      router.push(`/anime/${anime.id}`)
-                    }}
-                    className="px-4 py-2 text-xs md:text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-full shadow-lg transition-transform hover:scale-105"
-                  >
-                    View Detail
-                  </button>
-                  <button
-                    onClick={() => setShowPreview(false)}
-                    className="px-4 py-2 text-xs md:text-sm font-semibold bg-red-600/85 hover:bg-red-700 text-white rounded-full shadow-lg transition-transform hover:scale-105"
-                  >
-                    Close
-                  </button>
-                </div>
               </motion.div>
 
               <motion.div
@@ -210,32 +192,7 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
                     ))}
                   </div>
 
-                  <div className="hidden md:flex items-center justify-between gap-4 mt-4">
-                    <div className="flex items-center gap-4 text-sm text-gray-300">
-                      {anime.averageScore && <span className="flex items-center gap-1">⭐ {anime.averageScore / 10}/10</span>}
-                      {anime.nextAiringEpisode?.episode && <span className="flex items-center gap-1">📺 Next Ep {anime.nextAiringEpisode.episode}</span>}
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => {
-                          setShowPreview(false)
-                          router.push(`/anime/${anime.id}`)
-                        }}
-                        className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold rounded-full transition-transform hover:scale-105 shadow-md"
-                      >
-                        View Detail
-                      </button>
-                      <button
-                        onClick={() => setShowPreview(false)}
-                        className="px-5 py-2 bg-red-600/85 hover:bg-red-700 text-white font-semibold rounded-full transition-transform hover:scale-105 shadow-md"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex md:hidden justify-between items-center mt-6 border-t border-white/10 pt-4 gap-3">
+                  <div className="flex justify-between items-center mt-6 border-t border-white/10 pt-4 gap-3">
                     <button
                       onClick={() => setShowPreview(false)}
                       className="w-1/2 py-2 bg-red-600/85 hover:bg-red-700 rounded-full text-sm font-semibold transition-all"
@@ -254,30 +211,6 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
                   </div>
                 </div>
               </motion.div>
-
-              <div className="hidden md:flex absolute bottom-0 left-0 w-full items-center justify-between p-5 backdrop-blur-xl bg-white/5 border-t border-white/10">
-                <div className="flex items-center gap-4 text-sm text-gray-300">
-                  {anime.averageScore && <span className="flex items-center gap-1">⭐ {anime.averageScore / 10}/10</span>}
-                  {anime.nextAiringEpisode?.episode && <span className="flex items-center gap-1">📺 Next Ep {anime.nextAiringEpisode.episode}</span>}
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => {
-                      setShowPreview(false)
-                      router.push(`/anime/${anime.id}`)
-                    }}
-                    className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold rounded-full transition-transform hover:scale-105 shadow-md"
-                  >
-                    View Detail
-                  </button>
-                  <button
-                    onClick={() => setShowPreview(false)}
-                    className="px-5 py-2 bg-red-600/85 hover:bg-red-700 text-white font-semibold rounded-full transition-transform hover:scale-105 shadow-md"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
             </motion.div>
           </motion.div>
         )}
