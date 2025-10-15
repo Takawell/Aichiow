@@ -65,6 +65,7 @@ export default function LandingPage() {
     {
       id: 'anime',
       title: 'Anime',
+      href: '/home',
       desc:
         lang === 'EN'
           ? 'Trailers, schedules, and trending recommendations for every anime fan.'
@@ -74,6 +75,7 @@ export default function LandingPage() {
     {
       id: 'manga',
       title: 'Manga',
+      href: '/manga',
       desc:
         lang === 'EN'
           ? 'Integrated reader, latest chapters, and a comprehensive collection.'
@@ -83,6 +85,7 @@ export default function LandingPage() {
     {
       id: 'manhwa',
       title: 'Manhwa',
+      href: '/manhwa',
       desc:
         lang === 'EN'
           ? 'Popular Korean content with organized chapters and smart recommendations.'
@@ -92,6 +95,7 @@ export default function LandingPage() {
     {
       id: 'ln',
       title: 'Light Novel',
+      href: '/light-novel',
       desc:
         lang === 'EN'
           ? 'Summaries, translations, and recommendations — from isekai to slice of life.'
