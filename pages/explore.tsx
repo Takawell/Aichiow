@@ -193,7 +193,7 @@ export default function ExplorePage() {
 
                 <div className="text-center mb-6">
                   <h2 className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-                    🔍 Search Anime from Image
+                    🔎 Search Engine
                   </h2>
                   <p className="text-sm text-neutral-400 mt-1">
                     Upload a screenshot to detect the anime instantly
@@ -264,7 +264,7 @@ export default function ExplorePage() {
                               onClick={() => setScanOpen(false)}
                               className="inline-block mt-3 text-blue-400 hover:text-blue-300 font-medium transition-all"
                             >
-                              → View anime detail
+                              → View Anime Detail
                             </Link>
                           )}
                         </div>
