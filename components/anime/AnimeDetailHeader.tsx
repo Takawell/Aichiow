@@ -8,14 +8,15 @@ import { useFavorites } from "@/hooks/useFavorites"
 import {
   Heart,
   Share2,
-  Calendar,
-  Star,
-  Film,
-  TrendingUp,
-  Tv,
 } from "lucide-react"
+import {
+  FaCalendarAlt,
+  FaStar,
+  FaFilm,
+  FaChartLine,
+  FaTv,
+} from "react-icons/fa"
 import ShareModal from "@/components/shared/ShareModal"
-import { motion } from "framer-motion"
 
 interface Props {
   anime: AnimeDetail
@@ -54,31 +55,21 @@ export default function AnimeDetailHeader({ anime }: Props) {
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black" />
       </div>
 
-      <div className="relative z-10 flex flex-col md:flex-row items-start gap-8 p-6 md:p-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="min-w-[200px] max-w-[220px]"
-        >
+      <div className="relative z-10 flex flex-col md:flex-row items-start gap-6 p-6 md:p-10">
+        <div className="min-w-[200px] max-w-[220px]">
           <Image
             src={coverSrc}
             alt={anime.title.romaji}
             width={200}
             height={300}
-            className="rounded-2xl shadow-2xl border-2 border-white/10 object-cover"
+            className="rounded-xl shadow-2xl border-2 border-white/10 object-cover"
           />
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-4xl w-full"
-        >
-          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+        <div className="max-w-4xl w-full">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white drop-shadow-lg">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white">
                 {anime.title.english || anime.title.romaji}
               </h1>
               {anime.title.romaji && (
@@ -97,25 +88,31 @@ export default function AnimeDetailHeader({ anime }: Props) {
               <button
                 onClick={toggleFavorite}
                 disabled={loading}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium backdrop-blur-md transition-all ${
+                className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl border transition text-sm md:text-base ${
                   isFavorite
-                    ? "bg-red-500/90 border-red-500 hover:bg-red-600 text-white"
+                    ? "bg-red-500 border-red-500 text-white hover:bg-red-600"
                     : "bg-white/10 border-white/20 text-white hover:bg-white/20"
                 }`}
               >
                 <Heart
                   size={18}
-                  className={isFavorite ? "fill-current text-white" : ""}
+                  className={
+                    isFavorite
+                      ? "fill-current text-white"
+                      : "text-white"
+                  }
                 />
-                <span>{isFavorite ? "Favorited" : "Favorite"}</span>
+                <span className="hidden sm:inline">
+                  {isFavorite ? "Favorited" : "Favorite"}
+                </span>
               </button>
 
               <button
                 onClick={() => setShareOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-blue-500/80 transition-all backdrop-blur-md"
+                className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-blue-500/80 transition text-sm md:text-base"
               >
                 <Share2 size={18} />
-                <span>Share</span>
+                <span className="hidden sm:inline">Share</span>
               </button>
             </div>
           </div>
@@ -131,7 +128,7 @@ export default function AnimeDetailHeader({ anime }: Props) {
                 <span
                   className="cursor-pointer text-[11px] uppercase tracking-wide font-medium px-3 py-1 
                            rounded-full bg-white/10 text-white/80 hover:bg-blue-500/80 hover:text-white 
-                           transition backdrop-blur-sm"
+                           transition"
                 >
                   {genre}
                 </span>
@@ -140,7 +137,9 @@ export default function AnimeDetailHeader({ anime }: Props) {
           </div>
 
           <div className="mt-4 max-w-2xl text-sm text-neutral-300 leading-relaxed">
-            <p className={showFullDesc ? "" : "line-clamp-5"}>{cleanDesc}</p>
+            <p className={showFullDesc ? "" : "line-clamp-5"}>
+              {cleanDesc}
+            </p>
             {cleanDesc.length > 300 && (
               <button
                 onClick={toggleDesc}
@@ -151,52 +150,48 @@ export default function AnimeDetailHeader({ anime }: Props) {
             )}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-6 text-sm text-neutral-300"
-          >
-            {[
-              {
-                icon: <Calendar size={14} className="text-blue-400" />,
-                label: "Season",
-                value: `${anime.season || "-"} ${anime.seasonYear || ""}`,
-              },
-              {
-                icon: <Star size={14} className="text-yellow-400" />,
-                label: "Score",
-                value: anime.averageScore ? `${anime.averageScore}%` : "-",
-              },
-              {
-                icon: <Film size={14} className="text-purple-400" />,
-                label: "Studio",
-                value: anime.studios?.nodes?.[0]?.name || "-",
-              },
-              {
-                icon: <TrendingUp size={14} className="text-green-400" />,
-                label: "Popularity",
-                value: anime.popularity?.toLocaleString() || "-",
-              },
-              {
-                icon: <Tv size={14} className="text-pink-400" />,
-                label: "Status",
-                value: anime.status || "-",
-              },
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all backdrop-blur-sm"
-              >
-                {item.icon}
-                <span className="text-white font-medium">{item.value}</span>
-                <span className="text-[11px] text-neutral-400 uppercase tracking-wide ml-1">
-                  {item.label}
-                </span>
-              </div>
-            ))}
-          </motion.div>
-        </motion.div>
+          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm">
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 hover:bg-white/10 transition-all">
+              <FaCalendarAlt className="text-blue-400" size={14} />
+              <span className="text-white font-medium">
+                {anime.season} {anime.seasonYear}
+              </span>
+              <span className="text-[11px] text-neutral-400 uppercase ml-1">Season</span>
+            </div>
+
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 hover:bg-white/10 transition-all">
+              <FaStar className="text-yellow-400" size={14} />
+              <span className="text-white font-medium">
+                {anime.averageScore || "-"}%
+              </span>
+              <span className="text-[11px] text-neutral-400 uppercase ml-1">Score</span>
+            </div>
+
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 hover:bg-white/10 transition-all">
+              <FaFilm className="text-purple-400" size={14} />
+              <span className="text-white font-medium">
+                {anime.studios.nodes[0]?.name || "-"}
+              </span>
+              <span className="text-[11px] text-neutral-400 uppercase ml-1">Studio</span>
+            </div>
+
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 hover:bg-white/10 transition-all">
+              <FaChartLine className="text-green-400" size={14} />
+              <span className="text-white font-medium">
+                {anime.popularity?.toLocaleString() || "-"}
+              </span>
+              <span className="text-[11px] text-neutral-400 uppercase ml-1">Popularity</span>
+            </div>
+
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 hover:bg-white/10 transition-all">
+              <FaTv className="text-pink-400" size={14} />
+              <span className="text-white font-medium">
+                {anime.status || "-"}
+              </span>
+              <span className="text-[11px] text-neutral-400 uppercase ml-1">Status</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <ShareModal
