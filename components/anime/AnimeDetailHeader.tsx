@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { AnimeDetail } from "@/types/anime"
+import { motion } from "framer-motion"
 import { useState } from "react"
+import { AnimeDetail } from "@/types/anime"
 import { useFavorites } from "@/hooks/useFavorites"
 import { Heart, Share2, Calendar, Star, Film, BarChart3, Tv } from "lucide-react"
 import ShareModal from "@/components/shared/ShareModal"
@@ -31,94 +32,97 @@ export default function AnimeDetailHeader({ anime }: Props) {
   const popPercent = Math.min((popularity / 200000) * 100, 100)
 
   return (
-    <section className="relative w-full bg-neutral-900 text-white">
+    <section className="relative w-full bg-gradient-to-b from-black via-neutral-900 to-black text-white overflow-hidden">
       <div className="absolute inset-0">
         <Image
-          src={
-            anime.bannerImage ??
-            anime.coverImage.extraLarge ??
-            "/default-banner.jpg"
-          }
+          src={anime.bannerImage ?? anime.coverImage.extraLarge ?? "/default-banner.jpg"}
           alt={anime.title.romaji || "Anime Banner"}
           fill
           priority
-          className="object-cover opacity-30 blur-sm"
+          className="object-cover opacity-40 blur-sm"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black" />
       </div>
 
-      <div className="relative z-10 flex flex-col md:flex-row items-start gap-6 p-6 md:p-10">
-        <div className="min-w-[180px] max-w-[200px] mx-auto md:mx-0">
-          <Image
-            src={coverSrc}
-            alt={anime.title.romaji}
-            width={200}
-            height={300}
-            className="rounded-xl shadow-2xl border-2 border-white/10 object-cover w-full"
-          />
-        </div>
+      <div className="relative z-10 flex flex-col md:flex-row items-start gap-8 p-6 md:p-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full sm:w-auto flex justify-center md:block"
+        >
+          <div className="relative group">
+            <Image
+              src={coverSrc}
+              alt={anime.title.romaji}
+              width={240}
+              height={340}
+              className="rounded-2xl shadow-2xl border-2 border-white/10 object-cover w-[200px] sm:w-[240px]"
+            />
+            <div className="absolute inset-0 rounded-2xl bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-500" />
+          </div>
+        </motion.div>
 
-        <div className="max-w-4xl w-full">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex-1 backdrop-blur-md bg-white/5 p-6 md:p-8 rounded-2xl shadow-lg border border-white/10"
+        >
+          <div className="flex flex-col sm:flex-row justify-between gap-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white">
+              <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-white drop-shadow-lg">
                 {anime.title.english || anime.title.romaji}
               </h1>
               {anime.title.romaji && (
-                <p className="text-sm text-neutral-400 italic">
+                <p className="text-sm md:text-base text-neutral-400 italic mt-1">
                   {anime.title.romaji}
                 </p>
               )}
               {anime.title.native && (
-                <p className="text-sm text-neutral-500">
-                  {anime.title.native}
-                </p>
+                <p className="text-sm text-neutral-500">{anime.title.native}</p>
               )}
             </div>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <button
+            <div className="flex items-center gap-3 self-start sm:self-center">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={toggleFavorite}
                 disabled={loading}
-                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-xl border transition text-sm md:text-base ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition ${
                   isFavorite
                     ? "bg-red-500 border-red-500 text-white hover:bg-red-600"
                     : "bg-white/10 border-white/20 text-white hover:bg-white/20"
                 }`}
               >
-                <Heart
-                  size={18}
-                  className={
-                    isFavorite
-                      ? "fill-current text-white"
-                      : "text-white"
-                  }
-                />
+                <Heart size={18} className={isFavorite ? "fill-white" : ""} />
                 <span>{isFavorite ? "Favorited" : "Favorite"}</span>
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setShareOpen(true)}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-blue-500/80 transition text-sm md:text-base"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-blue-500/70 transition text-sm font-medium"
               >
                 <Share2 size={18} />
                 <span>Share</span>
-              </button>
+              </motion.button>
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             {anime.genres.slice(0, 6).map((genre) => (
-              <Link
-                key={genre}
-                href={`/anime/genre/${encodeURIComponent(
-                  genre.toLowerCase().replace(/\s+/g, "-")
-                )}`}
-              >
-                <span className="cursor-pointer text-[11px] uppercase tracking-wide font-medium px-3 py-1 rounded-full bg-white/10 text-white/80 hover:bg-blue-500/80 hover:text-white transition">
-                  {genre}
-                </span>
-              </Link>
+              <motion.div key={genre} whileHover={{ scale: 1.05 }}>
+                <Link
+                  href={`/anime/genre/${encodeURIComponent(
+                    genre.toLowerCase().replace(/\s+/g, "-")
+                  )}`}
+                >
+                  <span className="cursor-pointer text-[11px] uppercase tracking-wide font-medium px-3 py-1 rounded-full bg-white/10 text-white/80 hover:bg-blue-500/80 hover:text-white transition">
+                    {genre}
+                  </span>
+                </Link>
+              </motion.div>
             ))}
           </div>
 
@@ -134,62 +138,93 @@ export default function AnimeDetailHeader({ anime }: Props) {
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 mt-6 text-sm">
-            <div className="flex items-center gap-2">
-              <Calendar size={16} className="text-blue-400" />
-              <p className="text-neutral-300">
-                <span className="font-medium text-white">Season:</span>{" "}
-                {anime.season} {anime.seasonYear}
-              </p>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Star size={16} className="text-yellow-400" />
-                <p className="text-neutral-300 font-medium text-white">
-                  Score: {score}%
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mt-8 text-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex items-center gap-2"
+            >
+              <Calendar size={18} className="text-blue-400" />
+              <div>
+                <p className="text-neutral-400">Season</p>
+                <p className="font-semibold text-white">
+                  {anime.season} {anime.seasonYear}
                 </p>
               </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Star size={18} className="text-yellow-400" />
+                <p className="text-white font-semibold">Score</p>
+              </div>
               <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-yellow-400 rounded-full transition-all"
-                  style={{ width: `${score}%` }}
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${score}%` }}
+                  transition={{ duration: 1 }}
+                  className="h-full bg-yellow-400 rounded-full"
                 />
               </div>
-            </div>
+              <p className="mt-1 text-xs text-neutral-400">{score}%</p>
+            </motion.div>
 
-            <div className="flex items-center gap-2">
-              <Film size={16} className="text-purple-400" />
-              <p className="text-neutral-300">
-                <span className="font-medium text-white">Studio:</span>{" "}
-                {anime.studios.nodes[0]?.name || "-"}
-              </p>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <BarChart3 size={16} className="text-green-400" />
-                <p className="text-neutral-300 font-medium text-white">
-                  Popularity: {anime.popularity?.toLocaleString() || 0}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="flex items-center gap-2"
+            >
+              <Film size={18} className="text-purple-400" />
+              <div>
+                <p className="text-neutral-400">Studio</p>
+                <p className="font-semibold text-white">
+                  {anime.studios.nodes[0]?.name || "-"}
                 </p>
               </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <BarChart3 size={18} className="text-green-400" />
+                <p className="text-white font-semibold">Popularity</p>
+              </div>
               <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-green-400 rounded-full transition-all"
-                  style={{ width: `${popPercent}%` }}
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${popPercent}%` }}
+                  transition={{ duration: 1 }}
+                  className="h-full bg-green-400 rounded-full"
                 />
               </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Tv size={16} className="text-pink-400" />
-              <p className="text-neutral-300">
-                <span className="font-medium text-white">Status:</span>{" "}
-                {anime.status || "-"}
+              <p className="mt-1 text-xs text-neutral-400">
+                {anime.popularity?.toLocaleString() || 0}
               </p>
-            </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              className="flex items-center gap-2"
+            >
+              <Tv size={18} className="text-pink-400" />
+              <div>
+                <p className="text-neutral-400">Status</p>
+                <p className="font-semibold text-white">{anime.status || "-"}</p>
+              </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <ShareModal
