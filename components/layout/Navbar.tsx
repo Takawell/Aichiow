@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import BottomNav from './BottomNav'
 import { FaRobot } from 'react-icons/fa'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const navItems = [
   { href: '/home', label: 'HOME' },
@@ -92,76 +93,102 @@ export default function Navbar() {
 
   return (
     <>
-      <header
+      <motion.header
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
         className={classNames(
-          'sticky top-0 z-50 transition-all duration-300 backdrop-blur-lg animate-fade-down',
-          scrolled ? 'bg-neutral-900/80 shadow-lg' : 'bg-neutral-900/50',
-          mounted ? 'opacity-100' : 'opacity-0'
+          'sticky top-0 z-50 transition-all duration-500 backdrop-blur-xl border-b border-white/10',
+          scrolled
+            ? 'bg-black/70 shadow-[0_4px_20px_rgba(0,0,0,0.3)]'
+            : 'bg-gradient-to-r from-gray-900/40 via-gray-900/30 to-gray-800/40'
         )}
       >
-        <div className="w-full px-4 md:px-10 py-3 flex items-center justify-between">
+        <div className="w-full px-4 md:px-10 py-3 flex items-center justify-between relative">
           <Link
             href="/"
-            className="logo-gradient text-2xl font-extrabold tracking-wide hover:scale-105 transition-transform"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 
+              text-2xl font-extrabold tracking-wider hover:brightness-110 transition-all duration-300"
           >
             AICHIOW
           </Link>
 
-          <div className="hidden md:flex items-center gap-6 ml-auto">
-            <nav className="flex gap-6 text-sm md:text-base font-medium">
+          <div className="hidden md:flex items-center gap-8 ml-auto">
+            <nav className="flex gap-6 text-sm md:text-base font-medium relative">
               {navItems.map((item) => {
                 const isActive =
                   router.pathname === item.href ||
                   router.pathname.startsWith(item.href + '/')
 
                 return (
-                  <Link
+                  <motion.div
                     key={item.href}
-                    href={item.href}
-                    className={classNames(
-                      'nav-link hover:text-sky-400 transition-colors duration-200',
-                      isActive ? 'text-sky-400' : 'text-white'
-                    )}
+                    whileHover={{ y: -2 }}
+                    className="relative"
                   >
-                    {item.label}
-                  </Link>
+                    <Link
+                      href={item.href}
+                      className={classNames(
+                        'transition-all duration-300 hover:text-blue-400',
+                        isActive
+                          ? 'text-blue-400 font-semibold'
+                          : 'text-gray-300'
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeNavIndicator"
+                        className="absolute -bottom-1 left-0 right-0 mx-auto h-[2px] w-full bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"
+                        transition={{ type: 'spring', stiffness: 380, damping: 25 }}
+                      />
+                    )}
+                  </motion.div>
                 )
               })}
             </nav>
+
             <ThemeToggle />
 
             <Link href="/profile">
-              <img
+              <motion.img
+                whileHover={{ scale: 1.08 }}
                 src={avatarUrl}
                 alt="Profile"
                 onError={(e) => (e.currentTarget.src = '/default.png')}
-                className="w-10 h-10 rounded-full border-2 border-sky-400 hover:scale-105 transition-transform object-cover"
+                className="w-10 h-10 rounded-full border-2 border-blue-400 object-cover shadow-lg"
               />
             </Link>
           </div>
 
           <div className="md:hidden flex items-center gap-3">
             {!isAIPage && (
-              <Link
-                href="/aichixia"
-                className="p-2 rounded-lg bg-sky-500 text-white shadow-md hover:bg-sky-600 active:scale-95 transition"
-                title="AI Assistant"
-              >
-                <FaRobot className="text-lg" />
-              </Link>
+              <motion.div whileTap={{ scale: 0.9 }}>
+                <Link
+                  href="/aichixia"
+                  className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white 
+                    shadow-md shadow-blue-500/30 hover:brightness-110 transition-all"
+                  title="AI Assistant"
+                >
+                  <FaRobot className="text-lg" />
+                </Link>
+              </motion.div>
             )}
 
             <Link href="/profile">
-              <img
+              <motion.img
+                whileHover={{ scale: 1.05 }}
                 src={avatarUrl}
                 alt="Profile"
                 onError={(e) => (e.currentTarget.src = '/default.png')}
-                className="w-9 h-9 rounded-full border-2 border-sky-400 object-cover"
+                className="w-9 h-9 rounded-full border-2 border-blue-400 object-cover shadow-md"
               />
             </Link>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {!isReadPage && !isAIPage && (
         <div className="md:hidden">
