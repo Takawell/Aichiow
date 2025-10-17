@@ -5,7 +5,15 @@ import Image from "next/image"
 import { AnimeDetail } from "@/types/anime"
 import { useState } from "react"
 import { useFavorites } from "@/hooks/useFavorites"
-import { Heart, Share2, Calendar, Star, Film, TrendingUp, Tv } from "lucide-react"
+import {
+  Heart,
+  Share2,
+  Calendar,
+  Star,
+  Film,
+  TrendingUp,
+  Tv,
+} from "lucide-react"
 import ShareModal from "@/components/shared/ShareModal"
 import { motion } from "framer-motion"
 
@@ -50,7 +58,7 @@ export default function AnimeDetailHeader({ anime }: Props) {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4 }}
           className="min-w-[200px] max-w-[220px]"
         >
           <Image
@@ -65,7 +73,7 @@ export default function AnimeDetailHeader({ anime }: Props) {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.6 }}
           className="max-w-4xl w-full"
         >
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
@@ -144,51 +152,48 @@ export default function AnimeDetailHeader({ anime }: Props) {
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8"
+            transition={{ duration: 0.6 }}
+            className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-6 text-sm text-neutral-300"
           >
             {[
               {
-                icon: <Calendar size={18} />,
+                icon: <Calendar size={14} className="text-blue-400" />,
                 label: "Season",
                 value: `${anime.season || "-"} ${anime.seasonYear || ""}`,
               },
               {
-                icon: <Star size={18} />,
+                icon: <Star size={14} className="text-yellow-400" />,
                 label: "Score",
                 value: anime.averageScore ? `${anime.averageScore}%` : "-",
               },
               {
-                icon: <Film size={18} />,
+                icon: <Film size={14} className="text-purple-400" />,
                 label: "Studio",
                 value: anime.studios?.nodes?.[0]?.name || "-",
               },
               {
-                icon: <TrendingUp size={18} />,
+                icon: <TrendingUp size={14} className="text-green-400" />,
                 label: "Popularity",
                 value: anime.popularity?.toLocaleString() || "-",
               },
               {
-                icon: <Tv size={18} />,
+                icon: <Tv size={14} className="text-pink-400" />,
                 label: "Status",
                 value: anime.status || "-",
               },
             ].map((item, idx) => (
-              <motion.div
+              <div
                 key={idx}
-                whileHover={{ scale: 1.05 }}
-                className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all backdrop-blur-sm"
               >
-                <div className="flex items-center gap-2 text-blue-400 mb-1">
-                  {item.icon}
-                  <span className="font-semibold text-white">{item.label}</span>
-                </div>
-                <p className="text-sm text-neutral-300 font-medium text-center">
-                  {item.value}
-                </p>
-              </motion.div>
+                {item.icon}
+                <span className="text-white font-medium">{item.value}</span>
+                <span className="text-[11px] text-neutral-400 uppercase tracking-wide ml-1">
+                  {item.label}
+                </span>
+              </div>
             ))}
           </motion.div>
         </motion.div>
