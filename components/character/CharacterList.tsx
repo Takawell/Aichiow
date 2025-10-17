@@ -1,4 +1,3 @@
-// components/character/CharacterList.tsx
 import { CharacterEdge } from '@/types/anime'
 import Image from 'next/image'
 import { FaMicrophoneAlt } from 'react-icons/fa'
@@ -23,7 +22,6 @@ export default function CharacterList({ characters }: Props) {
             transition={{ type: 'spring', stiffness: 200 }}
             className="relative bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-xl overflow-hidden border border-zinc-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all"
           >
-            {/* Character Image */}
             <div className="relative w-full h-40">
               <Image
                 src={char.node.image.large}
@@ -33,7 +31,6 @@ export default function CharacterList({ characters }: Props) {
               />
             </div>
 
-            {/* Character Info */}
             <div className="p-3">
               <h3 className="text-sm font-bold truncate text-white">
                 {char.node.name.full}
@@ -41,7 +38,6 @@ export default function CharacterList({ characters }: Props) {
               <p className="text-xs text-zinc-400">{char.role}</p>
             </div>
 
-            {/* Voice Actor */}
             {char.voiceActors?.[0] && (
               <div className="px-3 pb-3 flex items-center gap-2 mt-auto">
                 <Image
