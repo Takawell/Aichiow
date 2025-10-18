@@ -10,7 +10,7 @@ export default function MaintenancePage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [progress, setProgress] = useState(0)
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-  const targetDateRef = useRef(new Date('2025-10-20T12:00:00').getTime())
+  const targetDateRef = useRef(new Date('2025-11-11T12:00:00').getTime())
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
   const tiltX = useTransform(mouseY, [0, 1], ['-6deg', '6deg'])
@@ -217,7 +217,7 @@ export default function MaintenancePage() {
           <div className="sm:flex flex-col items-end hidden">
             <span className="text-xs text-gray-400">Mode</span>
             <span className="mt-1 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-700/40 to-sky-700/30 border border-white/10 text-sm">
-              MAINTENANCE
+              HIATUS
             </span>
           </div>
         </div>
@@ -248,7 +248,7 @@ export default function MaintenancePage() {
 
             <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
               {[
-                ['Scope', 'Infra improvements & migrations'],
+                ['Scope', 'Taking a short break we’ll be back soon better than ever. see you soon! 💫'],
                 ['Impact', 'All services temporarily offline'],
                 ['ETA', timeLeft.days > 0 ? `${timeLeft.days} days` : `${timeLeft.hours} hrs`],
               ].map(([title, desc], i) => (
@@ -263,7 +263,7 @@ export default function MaintenancePage() {
           <aside className="rounded-2xl p-6 bg-white/5 border border-white/10 flex flex-col items-center gap-4 text-center">
             <div className="text-sm text-gray-300">Live Updates</div>
             <div className="flex gap-3 flex-wrap justify-center">
-              <a href="https://discord.gg/aichinime" target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-black/40 border border-white/10 hover:scale-110 transition-transform"><FaDiscord className="text-xl" /></a>
+              <a href="https://github.com/Takawell/Aichiow" target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-black/40 border border-white/10 hover:scale-110 transition-transform"><FaDiscord className="text-xl" /></a>
               <a href="https://youtube.com/@Takadevelopment" target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-black/40 border border-white/10 hover:scale-110 transition-transform"><FaYoutube className="text-xl" /></a>
               <a href="https://tiktok.com/@putrawangyyy" target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-black/40 border border-white/10 hover:scale-110 transition-transform"><FaTiktok className="text-xl" /></a>
               <a href="https://instagram.com/putrasenpaiii" target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-black/40 border border-white/10 hover:scale-110 transition-transform"><FaInstagram className="text-xl" /></a>
