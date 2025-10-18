@@ -7,7 +7,8 @@ import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import BottomNav from './BottomNav'
-import { FaRobot } from 'react-icons/fa'
+import { PiSparkleFill } from 'react-icons/pi' // icon imut ✨
+import { FaRegUserCircle } from 'react-icons/fa' // icon profile default
 
 const navItems = [
   { href: '/home', label: 'HOME' },
@@ -23,7 +24,7 @@ export default function Navbar() {
   const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const [avatarUrl, setAvatarUrl] = useState('/default.png')
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -45,7 +46,10 @@ export default function Navbar() {
           data: { user },
         } = await supabase.auth.getUser()
 
-        if (!user) return
+        if (!user) {
+          setAvatarUrl(null)
+          return
+        }
 
         const { data: userData, error: userErr } = await supabase
           .from('users')
@@ -69,18 +73,18 @@ export default function Navbar() {
           return
         }
 
-        setAvatarUrl('/default.png')
+        setAvatarUrl(null)
       } catch (err) {
         console.error('Error loading avatar:', err)
-        setAvatarUrl('/default.png')
+        setAvatarUrl(null)
       }
     }
 
     loadAvatar()
 
     const handleStorageChange = () => {
-      const newAvatar = localStorage.getItem('avatar') || '/default.png'
-      setAvatarUrl(newAvatar)
+      const newAvatar = localStorage.getItem('avatar')
+      setAvatarUrl(newAvatar || null)
     }
 
     window.addEventListener('storage', handleStorageChange)
@@ -130,13 +134,17 @@ export default function Navbar() {
             </nav>
             <ThemeToggle />
 
-            <Link href="/profile">
-              <img
-                src={avatarUrl}
-                alt="Profile"
-                onError={(e) => (e.currentTarget.src = '/default.png')}
-                className="w-10 h-10 rounded-full border-2 border-sky-400 hover:scale-105 transition-transform object-cover"
-              />
+            <Link href="/profile" className="hover:scale-105 transition-transform">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  onError={(e) => (e.currentTarget.src = '/default.png')}
+                  className="w-10 h-10 rounded-full border-2 border-sky-400 object-cover"
+                />
+              ) : (
+                <FaRegUserCircle className="text-3xl text-sky-400 hover:text-sky-300" />
+              )}
             </Link>
           </div>
 
@@ -147,17 +155,21 @@ export default function Navbar() {
                 className="p-2 rounded-lg bg-sky-500 text-white shadow-md hover:bg-sky-600 active:scale-95 transition"
                 title="AI Assistant"
               >
-                <FaRobot className="text-lg" />
+                <PiSparkleFill className="text-lg" />
               </Link>
             )}
 
             <Link href="/profile">
-              <img
-                src={avatarUrl}
-                alt="Profile"
-                onError={(e) => (e.currentTarget.src = '/default.png')}
-                className="w-9 h-9 rounded-full border-2 border-sky-400 object-cover"
-              />
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  onError={(e) => (e.currentTarget.src = '/default.png')}
+                  className="w-9 h-9 rounded-full border-2 border-sky-400 object-cover"
+                />
+              ) : (
+                <FaRegUserCircle className="text-2xl text-sky-400 hover:text-sky-300" />
+              )}
             </Link>
           </div>
         </div>
