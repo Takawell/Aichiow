@@ -125,13 +125,17 @@ export default function BottomNav() {
           <>
             <motion.button
               key="close"
+              drag
+              dragMomentum={false}
+              dragElastic={0.2}
+              dragConstraints={{ top: -600, bottom: 600, left: -300, right: 300 }}
               aria-label="Close navigation"
               initial={{ opacity: 0, y: 30, scale: 0.8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 30, scale: 0.8 }}
               transition={{ type: "spring", stiffness: 280, damping: 26 }}
               onClick={() => setOpen(false)}
-              className="fixed bottom-[110px] right-5 z-[60] w-11 h-11 flex items-center justify-center rounded-xl bg-neutral-900/90 border border-sky-500/20 hover:bg-neutral-800/85 text-sky-300 shadow-[0_6px_24px_rgba(56,189,248,0.22)] backdrop-blur-[2px] transition-all duration-220"
+              className="fixed bottom-[110px] right-5 z-[60] w-11 h-11 flex items-center justify-center rounded-xl bg-neutral-900/90 border border-sky-500/20 hover:bg-neutral-800/85 text-sky-300 shadow-[0_6px_24px_rgba(56,189,248,0.22)] backdrop-blur-[2px] transition-all duration-220 cursor-grab active:cursor-grabbing"
             >
               <IoClose size={18} />
             </motion.button>
@@ -207,13 +211,17 @@ export default function BottomNav() {
         {!open && (
           <motion.button
             key="toggle"
+            drag
+            dragMomentum={false}
+            dragElastic={0.2}
+            dragConstraints={{ top: -600, bottom: 600, left: -300, right: 300 }}
             aria-label="Open navigation"
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.7, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 22, mass: 0.9 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-900/88 to-neutral-800/82 border border-sky-400/25 shadow-[0_8px_36px_rgba(56,189,248,0.16)] hover:scale-105 active:scale-95 transition-transform duration-250 backdrop-blur-[1.5px] overflow-hidden"
+            className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-900/88 to-neutral-800/82 border border-sky-400/25 shadow-[0_8px_36px_rgba(56,189,248,0.16)] hover:scale-105 active:scale-95 transition-transform duration-250 backdrop-blur-[1.5px] overflow-hidden cursor-grab active:cursor-grabbing"
           >
             <motion.div
               aria-hidden
