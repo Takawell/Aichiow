@@ -217,7 +217,7 @@ export default function MaintenancePage() {
           <div className="sm:flex flex-col items-end hidden">
             <span className="text-xs text-gray-400">Mode</span>
             <span className="mt-1 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-700/40 to-sky-700/30 border border-white/10 text-sm">
-              HIATUS
+              maintenance
             </span>
           </div>
         </div>
@@ -248,7 +248,7 @@ export default function MaintenancePage() {
 
             <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
               {[
-                ['Scope', 'Taking a short break we’ll be back soon better than ever. see you soon! 💫'],
+                ['Scope', 'We are currently doing integration and optimization.'],
                 ['Impact', 'All services temporarily offline'],
                 ['ETA', timeLeft.days > 0 ? `${timeLeft.days} days` : `${timeLeft.hours} hrs`],
               ].map(([title, desc], i) => (
