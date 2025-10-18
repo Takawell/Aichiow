@@ -78,8 +78,7 @@ This project is licensed under the **MIT License**
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
-#![1000133871](https://github.com/user-attachments/assets/3c99c1f8-cbad-4a32-bf0f-cadc3b145e58)
- Feature flags
+# Feature flags
 MAINTENANCE_MODE=false
 
 # Example (optional if needed for other providers):
