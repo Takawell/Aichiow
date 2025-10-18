@@ -19,7 +19,9 @@ export default function RegisterPage() {
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (event === 'SIGNED_IN' && session) router.replace('/profile')
+        if (event === 'SIGNED_IN' && session) {
+          router.replace('/profile')
+        }
       }
     )
     return () => {
@@ -41,7 +43,10 @@ export default function RegisterPage() {
 
     setLoading(false)
 
-    if (error) return setErr(error.message)
+    if (error) {
+      setErr(error.message)
+      return
+    }
 
     setMsg(
       "Account created! Check your inbox for the verification link. Once confirmed, you'll be redirected automatically."
@@ -49,73 +54,38 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#06060f] via-[#0c0c1a] to-[#111122] overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(22)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute bg-sky-400/10 rounded-full"
-            style={{
-              width: Math.random() * 8 + 4,
-              height: Math.random() * 8 + 4,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -12, 0],
-              opacity: [0.2, 0.8, 0.2],
-              scale: [1, 1.4, 1],
-            }}
-            transition={{
-              duration: Math.random() * 5 + 4,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
-      </div>
-
+    <div className="min-h-screen flex items-center justify-center bg-black p-6 text-white">
       <motion.form
         onSubmit={onSubmit}
-        initial={{ opacity: 0, y: 40 }}
+        className="w-full max-w-md space-y-6 p-8 rounded-2xl bg-white/10 backdrop-blur-md shadow-xl border border-white/10"
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        className="relative w-full max-w-md z-10 bg-white/5 border border-white/10 backdrop-blur-xl p-8 rounded-3xl shadow-[0_0_35px_rgba(56,189,248,0.15)]"
       >
-        <motion.h1
-          className="text-3xl font-bold text-center text-white mb-6"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <h1 className="text-3xl font-semibold text-center text-white">
           Create your Account
-        </motion.h1>
+        </h1>
 
-        <motion.div whileFocus={{ scale: 1.02 }} className="space-y-2">
-          <input
-            className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-sky-400/70 transition"
-            placeholder="Username"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            required
-          />
-        </motion.div>
+        <motion.input
+          className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white transition"
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+        />
 
-        <motion.div whileFocus={{ scale: 1.02 }} className="space-y-2 mt-4">
-          <input
-            className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-sky-400/70 transition"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-        </motion.div>
+        <motion.input
+          className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white transition"
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+        />
 
-        <div className="relative mt-4">
-          <input
-            className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 pr-12 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-sky-400/70 transition"
+        <div className="relative">
+          <motion.input
+            className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 pr-12 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white transition"
             type={showPass ? 'text' : 'password'}
             placeholder="Password"
             value={password}
@@ -125,7 +95,7 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={() => setShowPass(!showPass)}
-            className="absolute right-3 top-3.5 text-white/60 hover:text-white transition"
+            className="absolute right-3 top-3 text-white/60 hover:text-white transition"
           >
             {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
@@ -133,37 +103,21 @@ export default function RegisterPage() {
 
         <motion.button
           disabled={loading}
+          className="w-full rounded-xl p-3 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-semibold shadow-md hover:opacity-90 transition disabled:opacity-50"
           type="submit"
-          className="w-full mt-6 p-3 font-semibold text-white bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 rounded-xl shadow-[0_0_25px_rgba(56,189,248,0.3)] hover:opacity-90 active:scale-95 transition disabled:opacity-50"
           whileTap={{ scale: 0.97 }}
         >
-          {loading ? 'Creating Account...' : 'Register'}
+          {loading ? 'Registering…' : 'Register'}
         </motion.button>
 
-        {err && (
-          <motion.p
-            className="text-red-400 text-sm text-center mt-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            {err}
-          </motion.p>
-        )}
-        {msg && (
-          <motion.p
-            className="text-green-400 text-sm text-center mt-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            {msg}
-          </motion.p>
-        )}
+        {err && <p className="text-red-400 text-sm text-center">{err}</p>}
+        {msg && <p className="text-green-400 text-sm text-center">{msg}</p>}
 
-        <p className="text-sm text-center mt-6 text-white/60">
+        <p className="text-sm text-center text-white/70">
           Already have an account?{' '}
           <a
+            className="underline text-blue-400 hover:text-blue-300 transition"
             href="/auth/login"
-            className="text-sky-400 hover:text-sky-300 underline underline-offset-2 transition"
           >
             Login
           </a>
