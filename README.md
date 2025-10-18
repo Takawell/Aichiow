@@ -23,20 +23,27 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 <summary>More Screenshot</summary>
 
 ### Anime (Home)
-![Anime Home](https://i.ibb.co/mrmZ8Vsr/home-anime.png)
+![Anime Home](https://github.com/user-attachments/assets/77b6d08e-f263-4e73-842a-b147cf327456)
 
 ### Schedule & Upcoming
 ![preview](https://i.ibb.co/p6HQJm0p/1757298018286.jpg)
 
 ### Manga
 ![Manga](https://i.ibb.co/BKjQZrL7/1755945661098.jpg)
-![My wife](https://i.ibb.co/Psn34Hf0/1757297296809.jpg)
+![My wife](https://github.com/user-attachments/assets/6a74e3a9-42b0-4090-98fe-dedf636108e1)
 
 ### Manhwa
 ![Manhwa](https://i.ibb.co/GQMC0b2b/68923578dc66d8397f76472f.png)
 
 ### Light Novels
 ![Light Novels](https://i.ibb.co/DNxqYKf/1757297605643.jpg)
+
+### AI ASSISTANT
+![aichixia](https://github.com/user-attachments/assets/bce754ce-efd9-4435-ac2c-7401cd78deaf)
+
+### Community
+![community](https://github.com/user-attachments/assets/d14d9baf-072d-40c6-bd8b-93232bb9d3f4)
+
 
 ### AND MUCH MORE
 
@@ -65,13 +72,14 @@ This project is licensed under the **MIT License**
  file for details.
 ---
 
-## .env.locale
+## .env.local
 ```bash
 # Supabase Project
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
-# Feature flags
+#![1000133871](https://github.com/user-attachments/assets/3c99c1f8-cbad-4a32-bf0f-cadc3b145e58)
+ Feature flags
 MAINTENANCE_MODE=false
 
 # Example (optional if needed for other providers):
