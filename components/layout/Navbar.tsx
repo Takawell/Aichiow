@@ -7,8 +7,8 @@ import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import BottomNav from './BottomNav'
-import { PiSparkleFill } from 'react-icons/pi' // icon imut ✨
-import { FaRegUserCircle } from 'react-icons/fa' // icon profile default
+import { PiSparkleFill } from 'react-icons/pi'
+import { FaRegUserCircle } from 'react-icons/fa'
 
 const navItems = [
   { href: '/home', label: 'HOME' },
@@ -152,10 +152,10 @@ export default function Navbar() {
             {!isAIPage && (
               <Link
                 href="/aichixia"
-                className="p-2 rounded-lg bg-sky-500 text-white shadow-md hover:bg-sky-600 active:scale-95 transition"
+                className="text-sky-400 hover:text-sky-300 active:scale-95 transition-transform"
                 title="AI Assistant"
               >
-                <PiSparkleFill className="text-lg" />
+                <PiSparkleFill className="text-2xl" />
               </Link>
             )}
 
