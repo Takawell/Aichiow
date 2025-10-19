@@ -169,21 +169,24 @@ export default function ExplorePage() {
           </motion.p>
         )}
 
+        {/* ⚡ NEW MODERN SCAN MODAL */}
         <AnimatePresence>
           {scanOpen && (
             <motion.div
-              className="fixed inset-0 bg-black/70 backdrop-blur-xl flex items-center justify-center z-50"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-2xl"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
               <motion.div
-                className="relative w-[90%] max-w-2xl bg-gradient-to-b from-[#151518]/80 to-[#0f0f10]/90 rounded-3xl shadow-2xl border border-white/10 p-8 backdrop-blur-lg overflow-hidden flex flex-col items-center"
-                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-[90%] max-w-2xl bg-gradient-to-br from-[#0e0f12]/80 via-[#11131a]/90 to-[#090a0d]/80 border border-white/10 rounded-3xl shadow-[0_0_50px_-12px_rgba(59,130,246,0.5)] p-8 flex flex-col items-center overflow-hidden"
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                transition={{ duration: 0.25 }}
+                transition={{ duration: 0.3 }}
               >
+                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_10%,rgba(59,130,246,0.15),transparent_60%)]" />
+
                 <button
                   onClick={() => setScanOpen(false)}
                   className="absolute right-5 top-5 text-neutral-400 hover:text-white transition text-2xl"
@@ -191,27 +194,36 @@ export default function ExplorePage() {
                   ✕
                 </button>
 
-                <div className="text-center mb-6">
-                  <h2 className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-                    🔎 Search Engine
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-center mb-6"
+                >
+                  <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">
+                    Search Engine
                   </h2>
-                  <p className="text-sm text-neutral-400 mt-1">
-                    Upload a screenshot to detect the anime instantly
+                  <p className="text-neutral-400 text-sm mt-2">
+                    Upload any anime scene and let the AI detect it instantly ⚡
                   </p>
-                </div>
+                </motion.div>
 
-                <div className="flex justify-center w-full">
-                  <label className="relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-blue-700/30">
-                    <LuScanLine className="text-lg" />
-                    <span>Choose Image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                    />
-                  </label>
-                </div>
+                <motion.label
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="relative cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-blue-500/30 rounded-2xl p-10 w-full max-w-md text-center transition-all duration-300 hover:border-blue-500/60 hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.4)]"
+                >
+                  <LuScanLine className="text-4xl text-blue-400 mb-3" />
+                  <span className="text-neutral-300 font-medium">
+                    Click to upload or drag image here
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </motion.label>
 
                 {scanLoading && (
                   <motion.div
@@ -226,7 +238,7 @@ export default function ExplorePage() {
 
                 {!scanLoading && scanResults.length > 0 && (
                   <motion.div
-                    className="mt-6 grid gap-5 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-600/50 scrollbar-track-transparent w-full"
+                    className="mt-6 grid gap-5 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-600/40 scrollbar-track-transparent w-full"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25 }}
@@ -234,22 +246,19 @@ export default function ExplorePage() {
                     {scanResults.map((r, i) => (
                       <motion.div
                         key={i}
-                        className="relative p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/40 transition-all duration-300 hover:shadow-[0_0_20px_-5px_rgba(59,130,246,0.3)] group"
+                        className="relative p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/40 transition-all duration-300 hover:shadow-[0_0_25px_-6px_rgba(59,130,246,0.3)] group"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
                       >
-                        <div className="overflow-hidden rounded-xl">
-                          <video
-                            src={r.video}
-                            className="rounded-xl w-full group-hover:scale-[1.02] transition-all duration-300"
-                            controls
-                            autoPlay
-                            muted
-                            loop
-                          />
-                        </div>
-
+                        <video
+                          src={r.video}
+                          className="rounded-xl w-full group-hover:scale-[1.02] transition-all duration-300"
+                          controls
+                          autoPlay
+                          muted
+                          loop
+                        />
                         <div className="mt-3">
                           <p className="font-semibold text-white">
                             {r.title?.romaji || r.title?.english || 'Unknown Title'}
@@ -257,7 +266,6 @@ export default function ExplorePage() {
                           <p className="text-sm text-neutral-400">
                             Episode {r.episode || '?'} · Accuracy {(r.similarity * 100).toFixed(1)}%
                           </p>
-
                           {r.anilist && (
                             <Link
                               href={`/anime/${r.anilist}`}
@@ -275,7 +283,7 @@ export default function ExplorePage() {
 
                 {!scanLoading && scanResults.length === 0 && (
                   <motion.p
-                    className="text-neutral-400 mt-6 text-sm text-center"
+                    className="text-neutral-500 mt-6 text-sm text-center"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
