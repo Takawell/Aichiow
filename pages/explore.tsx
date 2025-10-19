@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useExploreAnime } from '@/hooks/useExploreAnime'
@@ -20,8 +20,10 @@ export default function ExplorePage() {
   const [scanOpen, setScanOpen] = useState(false)
   const [scanResults, setScanResults] = useState<any[]>([])
   const [scanLoading, setScanLoading] = useState(false)
+
   const { anime: exploreAnime, isLoading, loadMore, hasMore } = useExploreAnime()
   const { anime: searchAnime, isLoading: searchLoading } = useSearchAnime(query)
+
   const animeData = query ? searchAnime : exploreAnime
   const filtered = selectedGenre ? animeData.filter((a) => a.genres.includes(selectedGenre)) : animeData
 
@@ -35,6 +37,7 @@ export default function ExplorePage() {
     if (!file) return
     setScanLoading(true)
     setScanResults([])
+
     try {
       const res = await searchAnimeByFile(file)
       setScanResults(res)
@@ -168,221 +171,124 @@ export default function ExplorePage() {
 
         <AnimatePresence>
           {scanOpen && (
-            <ScanOverlay
-              onClose={() => setScanOpen(false)}
-              onFileChange={handleFileUpload}
-              loading={scanLoading}
-              results={scanResults}
-            />
+            <motion.div
+              className="fixed inset-0 bg-[rgba(10,10,15,0.6)] backdrop-blur-2xl flex items-center justify-center z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="relative w-[92%] sm:w-[80%] md:w-[70%] lg:w-[50%] bg-white/10 border border-white/20 rounded-3xl shadow-[0_0_50px_-10px_rgba(59,130,246,0.4)] p-6 sm:p-8 backdrop-blur-3xl flex flex-col items-center transition-all duration-300"
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ duration: 0.25 }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-400/5 to-transparent pointer-events-none rounded-3xl" />
+
+                <button
+                  onClick={() => setScanOpen(false)}
+                  className="absolute right-5 top-5 text-neutral-300 hover:text-white transition text-2xl"
+                >
+                  ✕
+                </button>
+
+                <div className="text-center mb-6 mt-2">
+                  <h2 className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+                    Search anime from image
+                  </h2>
+                  <p className="text-sm text-neutral-400 mt-1">
+                    Upload a screenshot to detect the anime instantly
+                  </p>
+                </div>
+
+                <div className="flex justify-center w-full">
+                  <label className="relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-blue-700/30">
+                    <LuScanLine className="text-lg" />
+                    <span>Choose Image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                  </label>
+                </div>
+
+                {scanLoading && (
+                  <motion.div
+                    className="flex flex-col items-center justify-center mt-8"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <FaSpinner className="animate-spin text-blue-400 text-3xl mb-2" />
+                    <p className="text-neutral-400 text-sm">Analyzing your image...</p>
+                  </motion.div>
+                )}
+
+                {!scanLoading && scanResults.length > 0 && (
+                  <motion.div
+                    className="mt-6 grid gap-5 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-600/50 scrollbar-track-transparent w-full"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    {scanResults.map((r, i) => (
+                      <motion.div
+                        key={i}
+                        className="relative p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/40 transition-all duration-300 hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.3)] group"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                      >
+                        <div className="overflow-hidden rounded-xl">
+                          <video
+                            src={r.video}
+                            className="rounded-xl w-full group-hover:scale-[1.02] transition-all duration-300"
+                            controls
+                            autoPlay
+                            muted
+                            loop
+                          />
+                        </div>
+
+                        <div className="mt-3">
+                          <p className="font-semibold text-white">
+                            {r.title?.romaji || r.title?.english || 'Unknown Title'}
+                          </p>
+                          <p className="text-sm text-neutral-400">
+                            Episode {r.episode || '?'} · Accuracy {(r.similarity * 100).toFixed(1)}%
+                          </p>
+
+                          {r.anilist && (
+                            <Link
+                              href={`/anime/${r.anilist}`}
+                              onClick={() => setScanOpen(false)}
+                              className="inline-block mt-3 text-blue-400 hover:text-blue-300 font-medium transition-all"
+                            >
+                              → View Anime Detail
+                            </Link>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+
+                {!scanLoading && scanResults.length === 0 && (
+                  <motion.p
+                    className="text-neutral-400 mt-6 text-sm text-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    No results yet. Try uploading an image!
+                  </motion.p>
+                )}
+              </motion.div>
+            </motion.div>
           )}
         </AnimatePresence>
       </main>
     </>
-  )
-}
-
-type ScanOverlayProps = {
-  onClose: () => void
-  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  loading: boolean
-  results: any[]
-}
-
-function VisualBeam({ className = '' }: { className?: string }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0.08, scaleY: 0.6 }}
-      animate={{ opacity: [0.08, 0.22, 0.08], scaleY: [0.6, 1.02, 0.6] }}
-      transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-      className={`absolute inset-x-0 h-1/2 top-1/4 pointer-events-none ${className}`}
-      aria-hidden
-    >
-      <div className="absolute inset-0 transform-gpu overflow-hidden">
-        <div className="absolute left-[-40%] w-[180%] h-full bg-gradient-to-r from-transparent via-blue-400/20 to-transparent blur-xl opacity-80 animate-[beamShift_6s_linear_infinite]"></div>
-        <div className="absolute left-0 w-full h-1/2 top-1/4 bg-gradient-to-r from-transparent via-cyan-300/10 to-transparent mix-blend-screen" />
-      </div>
-      <style jsx>{`
-        @keyframes beamShift {
-          0% { transform: translateX(-10%); }
-          50% { transform: translateX(10%); }
-          100% { transform: translateX(-10%); }
-        }
-      `}</style>
-    </motion.div>
-  )
-}
-
-function NoiseLayer() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-10"
-      style={{
-        backgroundImage:
-          'repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.01) 1px)',
-        animation: 'noiseAnim 8s steps(10) infinite',
-      }}
-    >
-      <style>{`
-        @keyframes noiseAnim {
-          0% { transform: translateY(0); }
-          50% { transform: translateY(1px); }
-          100% { transform: translateY(0); }
-        }
-      `}</style>
-    </div>
-  )
-}
-
-function ScanResultCard({ r }: { r: any }) {
-  const similarity = typeof r.similarity === 'number' ? (r.similarity * 100).toFixed(1) : '0.0'
-  const title = r.title?.romaji || r.title?.english || 'Unknown Title'
-  const episode = r.episode ?? '?'
-  return (
-    <motion.div
-      className="relative p-4 rounded-2xl bg-white/5 border border-white/8 hover:border-blue-400/30 transition-all duration-250 hover:shadow-[0_10px_30px_-10px_rgba(59,130,246,0.25)]"
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
-      <div className="overflow-hidden rounded-xl bg-black/40 border border-white/6">
-        {r.video ? (
-          <video src={r.video} className="w-full rounded-t-xl max-h-44 object-cover" controls autoPlay muted loop />
-        ) : (
-          <div className="h-36 w-full flex items-center justify-center text-neutral-400 text-sm">No preview</div>
-        )}
-      </div>
-      <div className="mt-3">
-        <p className="font-semibold text-white text-sm truncate">{title}</p>
-        <p className="text-xs text-neutral-400 mt-1">Episode {episode} · Accuracy {similarity}%</p>
-        {r.anilist && (
-          <Link href={`/anime/${r.anilist}`} className="inline-block mt-3 text-blue-400 hover:text-blue-300 text-xs font-medium transition-all">
-            → View Anime Detail
-          </Link>
-        )}
-      </div>
-    </motion.div>
-  )
-}
-
-function ScanOverlay({ onClose, onFileChange, loading, results }: ScanOverlayProps) {
-  const closeBtnRef = useRef<HTMLButtonElement | null>(null)
-  useEffect(() => {
-    setTimeout(() => closeBtnRef.current?.focus(), 80)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [])
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <div className="absolute inset-0 backdrop-blur-xl" />
-      <motion.div
-        role="dialog"
-        aria-modal="true"
-        className="relative w-[95%] max-w-3xl mt-10 mb-10"
-        initial={{ scale: 0.98, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.98, opacity: 0 }}
-        transition={{ duration: 0.28 }}
-      >
-        <div className="relative rounded-3xl overflow-hidden border border-white/6 shadow-[0_30px_80px_-30px_rgba(2,6,23,0.8)]">
-          <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-blue-500/10 via-cyan-400/8 to-purple-500/6 blur-xl opacity-80 animate-[pulseBorder_6s_ease-in-out_infinite]" />
-          <style>{`
-            @keyframes pulseBorder {
-              0% { opacity: 0.35; transform: rotate(0.01deg) }
-              50% { opacity: 0.65; transform: rotate(-0.01deg) }
-              100% { opacity: 0.35; transform: rotate(0.01deg) }
-            }
-          `}</style>
-          <div className="relative bg-gradient-to-b from-[#0f1113]/80 to-[#070809]/80 backdrop-blur-md border border-white/8 rounded-3xl p-7">
-            <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[60%] h-36 rounded-full bg-gradient-to-t from-blue-500/6 to-transparent pointer-events-none blur-3xl" />
-            <button
-              ref={closeBtnRef}
-              onClick={onClose}
-              className="absolute right-5 top-5 text-neutral-400 hover:text-white transition text-2xl z-20"
-              aria-label="Close scan modal"
-            >
-              ✕
-            </button>
-            <div className="relative z-10 text-center mb-4">
-              <h2 className="text-2xl sm:text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
-                🔎 Search Engine
-              </h2>
-              <p className="text-sm text-neutral-400 mt-1">Upload a screenshot to detect the anime instantly</p>
-            </div>
-            <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <label
-                  htmlFor="file-upload"
-                  className="group relative flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border-2 border-dashed border-blue-500/25 hover:border-blue-500/50 transition-transform duration-200 hover:scale-[1.02] cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <LuScanLine className="text-2xl text-blue-400" />
-                    <div className="text-left">
-                      <p className="text-sm text-neutral-100 font-medium">Choose Image</p>
-                      <p className="text-xs text-neutral-400">Or drag & drop a screenshot</p>
-                    </div>
-                  </div>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={onFileChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <div className="mt-3 text-xs text-neutral-500">Supported: JPG, PNG, WebP — max 10MB</div>
-                </label>
-              </div>
-              <div className="w-full md:w-64 flex flex-col items-center md:items-end gap-3">
-                <div className="flex items-center gap-2">
-                  {loading ? (
-                    <>
-                      <FaSpinner className="animate-spin text-blue-400" />
-                      <span className="text-sm text-neutral-300">Analyzing your image...</span>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-3 h-3 rounded-full bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.3)]" />
-                      <span className="text-sm text-neutral-300">Ready to scan</span>
-                    </>
-                  )}
-                </div>
-                <div className="text-xs text-neutral-400 bg-white/3 px-3 py-2 rounded-md">Tip: crop the character face for better accuracy.</div>
-              </div>
-            </div>
-            <div className="relative mt-6 z-10">
-              <VisualBeam />
-              <NoiseLayer />
-              <div className="mt-4">
-                {loading && (
-                  <div className="flex flex-col items-center justify-center py-8">
-                    <FaSpinner className="animate-spin text-4xl text-blue-400 mb-3" />
-                    <p className="text-sm text-neutral-400">Analyzing your image...</p>
-                  </div>
-                )}
-                {!loading && results.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[56vh] overflow-y-auto pr-2">
-                    {results.map((r, i) => (
-                      <ScanResultCard key={i} r={r} />
-                    ))}
-                  </div>
-                )}
-                {!loading && results.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-8 text-neutral-500 text-sm">
-                    <p>No results yet. Upload an image above to start scanning.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
   )
 }
