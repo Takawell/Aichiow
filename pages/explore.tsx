@@ -229,7 +229,7 @@ export default function ExplorePage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            You've reached the end of the list.
+            You're reached the end of the list.
           </motion.p>
         )}
 
