@@ -9,13 +9,10 @@ export type StudioMedia = {
   format?: string | null
 }
 
-export interface StudioDetail {
+export type StudioDetail = {
   id: number
   name: string
-  isAnimationStudio: boolean
+  isAnimationStudio?: boolean
   favourites?: number
-  media?: {
-    nodes: StudioMedia[]
-  }
-  founded?: string 
+  media?: { nodes?: StudioMedia[] }
 }
