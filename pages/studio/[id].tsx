@@ -2,10 +2,9 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import Head from 'next/head'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaArrowLeft, FaChevronDown, FaSpinner } from 'react-icons/fa'
+import { FaArrowLeft, FaChevronDown, FaSpinner, FaSearch } from 'react-icons/fa'
 import AnimeCard from '@/components/anime/AnimeCard'
 import SectionTitle from '@/components/shared/SectionTitle'
 import { fetchStudioDetail } from '@/lib/anilist'
@@ -80,10 +79,10 @@ export default function StudioPage() {
       <motion.div
         key={g}
         whileHover={{ scale: 1.06 }}
-        className="px-4 py-1.5 rounded-full bg-gradient-to-r from-sky-600/18 to-indigo-600/18 border border-white/6 text-sm font-medium text-sky-100"
+        className="px-3 py-1 rounded-full bg-gradient-to-r from-sky-600/20 to-indigo-600/20 border border-white/8 text-sm font-medium text-white/90"
       >
         {g}
-        <span className="text-xs text-neutral-400 ml-1">({c})</span>
+        <span className="text-xs text-neutral-400 ml-2">({c})</span>
       </motion.div>
     ))
   }
@@ -95,10 +94,9 @@ export default function StudioPage() {
         <meta name="description" content="Studio details and produced anime on Aichiow" />
       </Head>
 
-      <main className="min-h-screen bg-gradient-to-b from-[#07102a] via-[#041028] to-[#02101a] text-white px-4 md:px-12 pb-24">
+      <main className="min-h-screen bg-gradient-to-b from-[#04112a] via-[#031022] to-[#01040a] text-white px-4 md:px-12 pb-24">
         <div className="max-w-[1400px] mx-auto pt-10">
-
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-8">
             <button
               onClick={() => router.back()}
               className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/6 hover:bg-white/10 transition-all duration-200"
@@ -112,12 +110,8 @@ export default function StudioPage() {
           <motion.section
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="relative rounded-3xl overflow-hidden border border-white/6"
-            style={{
-              background:
-                'radial-gradient(800px 200px at 10% 10%, rgba(56,189,248,0.06), transparent), radial-gradient(600px 160px at 90% 80%, rgba(99,102,241,0.04), transparent), linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))',
-            }}
+            transition={{ duration: 0.45 }}
+            className="rounded-2xl overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] border border-white/8 shadow-[0_10px_40px_rgba(2,6,23,0.8)]"
           >
             <div className="p-6 md:p-8 lg:p-10">
               {loading ? (
@@ -130,155 +124,135 @@ export default function StudioPage() {
                 <div className="py-14 text-center text-neutral-400 text-sm">Studio not found</div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 items-start">
-                    <div className="lg:col-span-2 flex flex-col gap-4">
-                      <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))' }}>
-                        <div className="flex items-center gap-4">
-                          <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-3xl font-extrabold">
-                            {studio.name.charAt(0)}
-                          </div>
-                          <div>
-                            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent" style={{ background: 'linear-gradient(90deg,#fff,#9be1ff)' }}>
-                              {studio.name}
-                            </h1>
-                            <div className="mt-2 text-sm text-sky-100 flex flex-wrap gap-2">
-                              <span>{studio.isAnimationStudio ? 'Animation Studio' : 'Studio'}</span>
-                              <span className="opacity-60">•</span>
-                              <span>{studio.favourites ?? 0} favourites</span>
-                              <span className="opacity-60">•</span>
-                              <span>{studio.media?.nodes?.length ?? 0} anime</span>
-                            </div>
-                          </div>
-                        </div>
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div className="flex items-center gap-5">
+                      <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 bg-gradient-to-br from-sky-600/30 to-indigo-600/30 border border-white/8">
+                        <span className="text-2xl md:text-3xl font-extrabold">{studio.name.charAt(0)}</span>
                       </div>
-
-                      <div className="rounded-2xl p-4 border border-white/6" style={{ background: 'linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.4))' }}>
-                        <div className="text-xs text-sky-200 uppercase tracking-wide">Quick Actions</div>
-                        <div className="mt-3 flex gap-3">
-                          <button onClick={() => { setQuery(''); setVisibleCount(18) }} className="px-3 py-2 rounded-lg bg-sky-600/10 text-sky-200">Reset</button>
-                          <button onClick={() => setTab('anime')} className="px-3 py-2 rounded-lg bg-sky-600/12 text-sky-200">Go to Anime</button>
-                          <button onClick={() => setTab('stats')} className="px-3 py-2 rounded-lg bg-sky-600/12 text-sky-200">View Stats</button>
+                      <div>
+                        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-sky-300">
+                          {studio.name}
+                        </h1>
+                        <div className="flex flex-wrap items-center gap-3 mt-2 text-xs sm:text-sm text-slate-300">
+                          <span>{studio.isAnimationStudio ? 'Animation Studio' : 'Studio'}</span>
+                          <span className="opacity-60">•</span>
+                          <span>{studio.favourites ?? 0} favourites</span>
+                          <span className="opacity-60">•</span>
+                          <span>{studio.media?.nodes?.length ?? 0} anime</span>
                         </div>
-                      </div>
-
-                      <div className="hidden lg:block rounded-2xl p-4 border border-white/6">
-                        <div className="text-xs text-sky-200 uppercase tracking-wide">Top Genres</div>
-                        <div className="mt-3 flex flex-wrap gap-2">{renderTopGenres()}</div>
                       </div>
                     </div>
 
-                    <div className="lg:col-span-4">
-                      <div className="flex items-center justify-between gap-4 mb-4">
-                        <div className="flex items-center gap-3 w-full">
-                          <div className="flex-1">
-                            <input
-                              placeholder="Search anime..."
-                              value={query}
-                              onChange={(e) => setQuery(e.target.value)}
-                              className="w-full px-4 py-3 rounded-full bg-transparent border border-white/6 text-sm placeholder:text-sky-100/50 focus:outline-none focus:ring-1 focus:ring-sky-400"
-                            />
-                          </div>
-
-                          <div className="flex gap-2">
-                            {(['anime', 'info', 'stats'] as const).map((key) => (
-                              <button
-                                key={key}
-                                onClick={() => setTab(key)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-                                  tab === key
-                                    ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-sm'
-                                    : 'bg-white/6 text-sky-100 hover:bg-white/8'
-                                }`}
-                              >
-                                {key}
-                              </button>
-                            ))}
-                          </div>
+                    <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                      <div className="relative w-full sm:w-[360px]">
+                        <input
+                          placeholder="Search anime..."
+                          className="w-full bg-transparent border border-white/8 px-4 py-2.5 rounded-lg text-sm outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-sky-500 transition"
+                          value={query}
+                          onChange={(e) => setQuery(e.target.value)}
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-80">
+                          <FaSearch />
                         </div>
                       </div>
 
-                      <div>
-                        <AnimatePresence mode="wait">
-                          {tab === 'anime' && (
-                            <motion.div key="anime" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.32 }}>
-                              <div className="w-full" style={{ background: 'linear-gradient(180deg, rgba(3,7,18,0.3), transparent)' }}>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                                  {mediaList.slice(0, visibleCount).map((m) => (
-                                    <div key={m.id} className="relative group">
-                                      <AnimeCard
-                                        anime={{
-                                          id: m.id,
-                                          title: m.title,
-                                          coverImage: m.coverImage,
-                                          bannerImage: m.bannerImage,
-                                          genres: m.genres,
-                                          averageScore: m.averageScore,
-                                        } as any}
-                                      />
-                                      <div className="pointer-events-none absolute inset-0 rounded-lg ring-0 group-hover:ring-2 group-hover:ring-sky-500/30 transition" />
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {visibleCount < mediaList.length && (
-                                <div className="mt-8 flex justify-center">
-                                  <button onClick={loadMore} className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-semibold shadow-md">
-                                    Load more <FaChevronDown />
-                                  </button>
-                                </div>
-                              )}
-                            </motion.div>
-                          )}
-
-                          {tab === 'info' && (
-                            <motion.div key="info" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.32 }}>
-                              <div className="rounded-2xl p-6 border border-white/6" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))' }}>
-                                <h4 className="text-sm text-sky-200 uppercase tracking-wide mb-3">Studio Overview</h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sky-100 text-sm">
-                                  <div><span className="text-sky-300">Name:</span> {studio.name}</div>
-                                  <div><span className="text-sky-300">Type:</span> {studio.isAnimationStudio ? 'Animation Studio' : 'N/A'}</div>
-                                  <div><span className="text-sky-300">Anime Count:</span> {studio.media?.nodes?.length ?? 0}</div>
-                                  <div><span className="text-sky-300">Favourites:</span> {studio.favourites ?? 0}</div>
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
-
-                          {tab === 'stats' && (
-                            <motion.div key="stats" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.32 }}>
-                              <div className="rounded-2xl p-6 border border-white/6" style={{ background: 'linear-gradient(180deg, rgba(3,7,18,0.45), rgba(3,7,18,0.35))' }}>
-                                <h4 className="text-sm text-sky-200 uppercase tracking-wide mb-4">Top Genres</h4>
-                                <div className="flex flex-wrap gap-2">{renderTopGenres()}</div>
-                                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                  <div>
-                                    <div className="text-xs text-sky-300">Produced Titles</div>
-                                    <div className="text-lg font-semibold text-sky-100 mt-1">{studio.media?.nodes?.length ?? 0}</div>
-                                  </div>
-                                  <div>
-                                    <div className="text-xs text-sky-300">Favourites</div>
-                                    <div className="text-lg font-semibold text-sky-100 mt-1">{studio.favourites ?? 0}</div>
-                                  </div>
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                      <div className="flex items-center gap-2">
+                        {(['anime', 'info', 'stats'] as const).map((key) => (
+                          <button
+                            key={key}
+                            onClick={() => setTab(key)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200 ${
+                              tab === key
+                                ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-sm transform scale-[1.03]'
+                                : 'bg-white/6 hover:bg-white/10 text-neutral-200'
+                            }`}
+                          >
+                            {key}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-8 lg:hidden">
-                    <div className="rounded-2xl p-4 border border-white/6">
-                      <div className="text-xs text-sky-200 uppercase tracking-wide mb-2">Top Genres</div>
-                      <div className="flex flex-wrap gap-2">{renderTopGenres()}</div>
-                    </div>
+                  <div className="mt-8">
+                    <AnimatePresence mode="wait">
+                      {tab === 'anime' && (
+                        <motion.div
+                          key="anime"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{ duration: 0.32 }}
+                        >
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                            {mediaList.slice(0, visibleCount).map((m) => (
+                              <AnimeCard
+                                key={m.id}
+                                anime={{
+                                  id: m.id,
+                                  title: m.title,
+                                  coverImage: m.coverImage,
+                                  bannerImage: m.bannerImage,
+                                  genres: m.genres,
+                                  averageScore: m.averageScore,
+                                } as any}
+                              />
+                            ))}
+                          </div>
+
+                          {visibleCount < mediaList.length && (
+                            <div className="mt-10 flex justify-center">
+                              <button
+                                onClick={loadMore}
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:scale-105 transition text-white font-semibold shadow-md"
+                              >
+                                Load more <FaChevronDown />
+                              </button>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+
+                      {tab === 'info' && (
+                        <motion.div
+                          key="info"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{ duration: 0.32 }}
+                        >
+                          <div className="rounded-xl bg-white/5 p-5 md:p-8 backdrop-blur-sm border border-white/10">
+                            <h4 className="text-sm text-slate-300 uppercase tracking-wide">Studio Overview</h4>
+                            <div className="mt-4 space-y-2 text-slate-200 text-sm">
+                              <p><span className="text-slate-400">Name:</span> {studio.name}</p>
+                              <p><span className="text-slate-400">Type:</span> {studio.isAnimationStudio ? 'Animation Studio' : 'N/A'}</p>
+                              <p><span className="text-slate-400">Anime Count:</span> {studio.media?.nodes?.length ?? 0}</p>
+                              <p><span className="text-slate-400">Favourites:</span> {studio.favourites ?? 0}</p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {tab === 'stats' && (
+                        <motion.div
+                          key="stats"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{ duration: 0.32 }}
+                        >
+                          <div className="rounded-xl bg-white/5 p-6 md:p-8 backdrop-blur-sm border border-white/10">
+                            <h4 className="text-sm text-slate-300 uppercase tracking-wide mb-4">Top Genres</h4>
+                            <div className="flex flex-wrap gap-3">{renderTopGenres()}</div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </>
               )}
             </div>
           </motion.section>
-
         </div>
       </main>
     </>
