@@ -9,25 +9,7 @@ import { FaArrowLeft, FaChevronDown, FaSpinner } from 'react-icons/fa'
 import AnimeCard from '@/components/anime/AnimeCard'
 import SectionTitle from '@/components/shared/SectionTitle'
 import { fetchStudioDetail } from '@/lib/anilist'
-
-type StudioMedia = {
-  id: number
-  title: { romaji?: string; english?: string }
-  coverImage?: { large?: string; color?: string }
-  bannerImage?: string | null
-  averageScore?: number
-  genres?: string[]
-  seasonYear?: number | null
-  format?: string | null
-}
-
-type StudioDetail = {
-  id: number
-  name: string
-  isAnimationStudio?: boolean
-  favourites?: number
-  media?: { nodes?: StudioMedia[] }
-}
+import type { StudioDetail, StudioMedia } from '@/types/studio'
 
 export default function StudioPage() {
   const router = useRouter()
