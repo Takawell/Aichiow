@@ -375,3 +375,49 @@ export async function fetchSimilarAnime(id: number): Promise<Anime[]> {
       ?.filter(Boolean) || []
   )
 }
+
+export async function fetchStudioDetail(id: number) {
+  const query = `
+    query ($id: Int) {
+      Studio(id: $id) {
+        id
+        name
+        isAnimationStudio
+        favourites
+        media(perPage: 30, sort: POPULARITY_DESC) {
+          nodes {
+            id
+            title { romaji english }
+            coverImage { large color }
+            bannerImage
+            averageScore
+            genres
+            seasonYear
+            format
+          }
+        }
+      }
+    }
+  `
+
+const variables = { id }
+  const data = await fetchFromAnilist(query, variables)
+  return data?.Studio
+}
+
+export async function fetchAllStudios(page = 1, perPage = 20) {
+  const query = `
+    query ($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        studios(sort: FAVOURITES_DESC, isAnimationStudio: true) {
+          id
+          name
+          favourites
+        }
+      }
+    }
+  `
+  const variables = { page, perPage }
+  const data = await fetchFromAnilist(query, variables)
+  return data?.Page?.studios || []
+}
