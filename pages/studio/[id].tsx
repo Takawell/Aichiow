@@ -4,11 +4,11 @@ import { useEffect, useState, useMemo } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaArrowLeft, FaChevronDown, FaSpinner } from 'react-icons/fa'
+import { FaArrowLeft, FaChevronDown, FaSpinner, FaSearch } from 'react-icons/fa'
 import AnimeCard from '@/components/anime/AnimeCard'
 import SectionTitle from '@/components/shared/SectionTitle'
 import { fetchStudioDetail } from '@/lib/anilist'
-import type { StudioDetail } from '@/types/studio'
+import type { StudioDetail, StudioMedia } from '@/types/studio'
 
 export default function StudioPage() {
   const router = useRouter()
@@ -78,11 +78,11 @@ export default function StudioPage() {
     return top.map(([g, c]) => (
       <motion.div
         key={g}
-        whileHover={{ scale: 1.08 }}
-        className="px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-600/30 to-blue-500/30 border border-white/10 text-sm font-medium text-white/90 backdrop-blur-md"
+        whileHover={{ scale: 1.06 }}
+        className="px-3 py-1 rounded-full bg-gradient-to-r from-sky-600/20 to-indigo-600/20 border border-white/8 text-sm font-medium text-white/90"
       >
         {g}
-        <span className="text-xs text-neutral-400 ml-1">({c})</span>
+        <span className="text-xs text-neutral-400 ml-2">({c})</span>
       </motion.div>
     ))
   }
@@ -94,46 +94,46 @@ export default function StudioPage() {
         <meta name="description" content="Studio details and produced anime on Aichiow" />
       </Head>
 
-      <main className="min-h-screen bg-gradient-to-b from-[#050509] via-[#0b0b12] to-[#030306] text-white px-4 md:px-10 pb-20">
-        <div className="max-w-[1450px] mx-auto pt-10">
-          <div className="flex items-center gap-4 mb-10">
+      <main className="min-h-screen bg-gradient-to-b from-[#04112a] via-[#031022] to-[#01040a] text-white px-4 md:px-12 pb-24">
+        <div className="max-w-[1400px] mx-auto pt-10">
+          <div className="flex items-center gap-4 mb-8">
             <button
               onClick={() => router.back()}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300 backdrop-blur-md"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/6 hover:bg-white/10 transition-all duration-200"
             >
               <FaArrowLeft />
-              <span className="hidden sm:inline text-sm font-medium">Back</span>
+              <span className="hidden sm:inline text-sm">Back</span>
             </button>
             <SectionTitle title="Studio" />
           </div>
 
-          <motion.div
+          <motion.section
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="relative rounded-3xl overflow-hidden bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_40px_rgba(0,0,0,0.4)]"
+            transition={{ duration: 0.45 }}
+            className="rounded-2xl overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] border border-white/8 shadow-[0_10px_40px_rgba(2,6,23,0.8)]"
           >
-            <div className="relative z-10 p-6 sm:p-8 md:p-10">
+            <div className="p-6 md:p-8 lg:p-10">
               {loading ? (
                 <div className="flex items-center justify-center py-28">
-                  <FaSpinner className="animate-spin text-4xl text-blue-500" />
+                  <FaSpinner className="animate-spin text-4xl text-sky-400" />
                 </div>
               ) : error ? (
-                <div className="py-14 text-center text-red-400 text-sm">{error}</div>
+                <div className="py-14 text-center text-rose-400 text-sm">{error}</div>
               ) : !studio ? (
                 <div className="py-14 text-center text-neutral-400 text-sm">Studio not found</div>
               ) : (
                 <>
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
-                    <div className="flex items-center gap-6">
-                      <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl flex items-center justify-center bg-gradient-to-br from-blue-700/40 to-indigo-600/40 border border-white/10 shadow-lg">
-                        <span className="text-3xl font-extrabold tracking-tight">{studio.name.charAt(0)}</span>
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div className="flex items-center gap-5">
+                      <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 bg-gradient-to-br from-sky-600/30 to-indigo-600/30 border border-white/8">
+                        <span className="text-2xl md:text-3xl font-extrabold">{studio.name.charAt(0)}</span>
                       </div>
                       <div>
-                        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-blue-200 to-indigo-300 bg-clip-text text-transparent">
+                        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-sky-300">
                           {studio.name}
                         </h1>
-                        <div className="flex flex-wrap items-center gap-3 mt-3 text-sm text-neutral-300">
+                        <div className="flex flex-wrap items-center gap-3 mt-2 text-xs sm:text-sm text-slate-300">
                           <span>{studio.isAnimationStudio ? 'Animation Studio' : 'Studio'}</span>
                           <span className="opacity-60">•</span>
                           <span>{studio.favourites ?? 0} favourites</span>
@@ -144,21 +144,27 @@ export default function StudioPage() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-                      <input
-                        placeholder="Search anime..."
-                        className="bg-white/5 px-4 py-2.5 rounded-xl text-sm outline-none placeholder:text-neutral-400 focus:ring-2 focus:ring-blue-500/40 transition w-full sm:w-56"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                      />
-                      <div className="flex items-center gap-2 justify-center">
+                      <div className="relative w-full sm:w-[360px]">
+                        <input
+                          placeholder="Search studio anime..."
+                          className="w-full bg-transparent border border-white/8 px-4 py-2.5 rounded-lg text-sm outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-sky-500 transition"
+                          value={query}
+                          onChange={(e) => setQuery(e.target.value)}
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-80">
+                          <FaSearch />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
                         {(['anime', 'info', 'stats'] as const).map((key) => (
                           <button
                             key={key}
                             onClick={() => setTab(key)}
-                            className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-all duration-300 ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200 ${
                               tab === key
-                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-[1.06]'
-                                : 'bg-white/5 hover:bg-white/10 text-neutral-200'
+                                ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-sm transform scale-[1.03]'
+                                : 'bg-white/6 hover:bg-white/10 text-neutral-200'
                             }`}
                           >
                             {key}
@@ -168,7 +174,7 @@ export default function StudioPage() {
                     </div>
                   </div>
 
-                  <div className="mt-10">
+                  <div className="mt-8">
                     <AnimatePresence mode="wait">
                       {tab === 'anime' && (
                         <motion.div
@@ -176,9 +182,9 @@ export default function StudioPage() {
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -8 }}
-                          transition={{ duration: 0.35 }}
+                          transition={{ duration: 0.32 }}
                         >
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                             {mediaList.slice(0, visibleCount).map((m) => (
                               <AnimeCard
                                 key={m.id}
@@ -193,11 +199,12 @@ export default function StudioPage() {
                               />
                             ))}
                           </div>
+
                           {visibleCount < mediaList.length && (
-                            <div className="mt-12 flex justify-center">
+                            <div className="mt-10 flex justify-center">
                               <button
                                 onClick={loadMore}
-                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-105 transition-all text-white font-semibold shadow-lg"
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:scale-105 transition text-white font-semibold shadow-md"
                               >
                                 Load more <FaChevronDown />
                               </button>
@@ -212,16 +219,15 @@ export default function StudioPage() {
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -8 }}
-                          transition={{ duration: 0.35 }}
-                          className="space-y-6"
+                          transition={{ duration: 0.32 }}
                         >
-                          <div className="rounded-2xl bg-white/5 p-6 md:p-8 backdrop-blur-md border border-white/10 shadow-lg">
-                            <h4 className="text-sm text-neutral-300 uppercase tracking-widest">Studio Overview</h4>
-                            <div className="mt-4 space-y-2 text-neutral-200 text-sm leading-relaxed">
-                              <p><span className="text-neutral-400">Name:</span> {studio.name}</p>
-                              <p><span className="text-neutral-400">Type:</span> {studio.isAnimationStudio ? 'Animation Studio' : 'N/A'}</p>
-                              <p><span className="text-neutral-400">Anime Count:</span> {studio.media?.nodes?.length ?? 0}</p>
-                              <p><span className="text-neutral-400">Favourites:</span> {studio.favourites ?? 0}</p>
+                          <div className="rounded-xl bg-white/5 p-5 md:p-8 backdrop-blur-sm border border-white/10">
+                            <h4 className="text-sm text-slate-300 uppercase tracking-wide">Studio Overview</h4>
+                            <div className="mt-4 space-y-2 text-slate-200 text-sm">
+                              <p><span className="text-slate-400">Name:</span> {studio.name}</p>
+                              <p><span className="text-slate-400">Type:</span> {studio.isAnimationStudio ? 'Animation Studio' : 'N/A'}</p>
+                              <p><span className="text-slate-400">Anime Count:</span> {studio.media?.nodes?.length ?? 0}</p>
+                              <p><span className="text-slate-400">Favourites:</span> {studio.favourites ?? 0}</p>
                             </div>
                           </div>
                         </motion.div>
@@ -233,10 +239,10 @@ export default function StudioPage() {
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -8 }}
-                          transition={{ duration: 0.35 }}
+                          transition={{ duration: 0.32 }}
                         >
-                          <div className="rounded-2xl bg-white/5 p-6 md:p-8 backdrop-blur-md border border-white/10 shadow-lg">
-                            <h4 className="text-sm text-neutral-300 uppercase tracking-widest mb-4">Top Genres</h4>
+                          <div className="rounded-xl bg-white/5 p-6 md:p-8 backdrop-blur-sm border border-white/10">
+                            <h4 className="text-sm text-slate-300 uppercase tracking-wide mb-4">Top Genres</h4>
                             <div className="flex flex-wrap gap-3">{renderTopGenres()}</div>
                           </div>
                         </motion.div>
@@ -246,7 +252,7 @@ export default function StudioPage() {
                 </>
               )}
             </div>
-          </motion.div>
+          </motion.section>
         </div>
       </main>
     </>
