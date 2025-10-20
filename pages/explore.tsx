@@ -11,7 +11,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FaSearch, FaArrowDown, FaSpinner } from 'react-icons/fa'
 import { LuScanLine } from 'react-icons/lu'
 import { searchAnimeByFile } from '@/lib/traceMoe'
-import { genres } from '@/constants/genres'
+
+const genreList = [
+  'Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy',
+  'Romance', 'Sci-Fi', 'Horror', 'Mystery', 'Sports',
+  'Slice of Life', 'Supernatural'
+]
 
 export default function ExplorePage() {
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null)
@@ -37,6 +42,7 @@ export default function ExplorePage() {
     if (!file) return
     setScanLoading(true)
     setScanResults([])
+
     try {
       const res = await searchAnimeByFile(file)
       setScanResults(res)
@@ -95,23 +101,23 @@ export default function ExplorePage() {
 
         {!query && (
           <motion.div
-            className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
+            className="flex flex-wrap gap-3 justify-center sm:justify-start"
           >
-            {genres.map((genre) => (
+            {genreList.map((g) => (
               <motion.button
-                key={genre}
+                key={g}
+                onClick={() => setSelectedGenre(selectedGenre === g ? null : g)}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedGenre(selectedGenre === genre ? null : genre)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                  selectedGenre === genre
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/40 scale-[1.05]'
-                    : 'bg-white/5 hover:bg-white/10 text-neutral-300 border border-white/10'
+                className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-300 ${
+                  selectedGenre === g
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500 shadow-[0_0_15px_-3px_rgba(59,130,246,0.5)]'
+                    : 'bg-transparent border-neutral-700 text-neutral-400 hover:text-white hover:border-blue-500/40'
                 }`}
               >
-                {genre}
+                {g}
               </motion.button>
             ))}
           </motion.div>
@@ -202,12 +208,14 @@ export default function ExplorePage() {
                 transition={{ duration: 0.25 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-400/5 to-transparent pointer-events-none rounded-3xl" />
+
                 <button
                   onClick={() => setScanOpen(false)}
                   className="absolute right-5 top-5 text-neutral-300 hover:text-white transition text-2xl"
                 >
                   ✕
                 </button>
+
                 <div className="text-center mb-6 mt-2">
                   <h2 className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
                     Search Engine
@@ -216,6 +224,7 @@ export default function ExplorePage() {
                     Upload a screenshot to detect the anime instantly
                   </p>
                 </div>
+
                 <div className="flex justify-center w-full">
                   <label className="relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-blue-700/30">
                     <LuScanLine className="text-lg" />
@@ -228,12 +237,18 @@ export default function ExplorePage() {
                     />
                   </label>
                 </div>
+
                 {scanLoading && (
-                  <motion.div className="flex flex-col items-center justify-center mt-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <motion.div
+                    className="flex flex-col items-center justify-center mt-8"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
                     <FaSpinner className="animate-spin text-blue-400 text-3xl mb-2" />
                     <p className="text-neutral-400 text-sm">Analyzing your image...</p>
                   </motion.div>
                 )}
+
                 {!scanLoading && scanResults.length > 0 && (
                   <motion.div
                     className="mt-6 grid gap-5 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-600/50 scrollbar-track-transparent w-full"
@@ -259,6 +274,7 @@ export default function ExplorePage() {
                             loop
                           />
                         </div>
+
                         <div className="mt-3">
                           <p className="font-semibold text-white">
                             {r.title?.romaji || r.title?.english || 'Unknown Title'}
@@ -266,6 +282,7 @@ export default function ExplorePage() {
                           <p className="text-sm text-neutral-400">
                             Episode {r.episode || '?'} · Accuracy {(r.similarity * 100).toFixed(1)}%
                           </p>
+
                           {r.anilist && (
                             <Link
                               href={`/anime/${r.anilist}`}
@@ -280,8 +297,13 @@ export default function ExplorePage() {
                     ))}
                   </motion.div>
                 )}
+
                 {!scanLoading && scanResults.length === 0 && (
-                  <motion.p className="text-neutral-400 mt-6 text-sm text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <motion.p
+                    className="text-neutral-400 mt-6 text-sm text-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
                     No results yet. Try uploading an image!
                   </motion.p>
                 )}
