@@ -28,6 +28,7 @@ const genreList = [
   'Psychological',
   'Romance',
   'Sci-Fi',
+  'School',
   'Slice of Life',
   'Sports',
   'Supernatural',
