@@ -17,17 +17,21 @@ const genreList = [
   'Adventure',
   'Comedy',
   'Drama',
+  'Ecchi',
   'Fantasy',
-  'Romance',
-  'Sci-Fi',
+  'Hentai',
   'Horror',
-  'Mystery',
-  'Sports',
-  'Slice of Life',
-  'Supernatural',
+  'Mahou Shoujo',
   'Mecha',
   'Music',
-  'Historical'
+  'Mystery',
+  'Psychological',
+  'Romance',
+  'Sci-Fi',
+  'Slice of Life',
+  'Sports',
+  'Supernatural',
+  'Thriller'
 ]
 
 export default function ExplorePage() {
