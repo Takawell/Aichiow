@@ -103,7 +103,7 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
                 'Loading...'
               ) : (
                 <>
-                  <FaPlayCircle className="text-sm" /> DETAIL
+                  <FaPlayCircle className="text-sm" /> Play
                 </>
               )}
             </button>
