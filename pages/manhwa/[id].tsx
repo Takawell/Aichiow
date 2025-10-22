@@ -4,25 +4,23 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { fetchManhwaDetail } from '@/lib/anilistManhwa'
 import { ManhwaDetail } from '@/types/manhwa'
 import { useFavorites } from '@/hooks/useFavorites'
 import { Heart, Share2 } from 'lucide-react'
 import { FaArrowLeft } from 'react-icons/fa'
 import ShareModal from '@/components/shared/ShareModal'
-
-import {
-  searchManga,
-  fetchChapters,
-  sortChapters,
-} from '@/lib/mangadex'
+import { searchManga, fetchChapters, sortChapters } from '@/lib/mangadex'
 
 export default function ManhwaDetailPage() {
   const router = useRouter()
   const { id } = router.query
   const [manhwa, setManhwa] = useState<ManhwaDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showCard, setShowCard] = useState(false)
+  const [dontShowAgain, setDontShowAgain] = useState(false)
+  const [lang, setLang] = useState<'en' | 'id'>('en')
   const [showShare, setShowShare] = useState(false)
   const [mangaDexId, setMangaDexId] = useState<string | null>(null)
   const [chapters, setChapters] = useState<any[]>([])
@@ -32,6 +30,11 @@ export default function ManhwaDetailPage() {
     mediaId: id ? Number(id) : undefined,
     mediaType: 'manhwa',
   })
+
+  useEffect(() => {
+    const stored = localStorage.getItem('hideNotice')
+    if (!stored) setShowCard(true)
+  }, [])
 
   useEffect(() => {
     if (id) {
@@ -46,15 +49,12 @@ export default function ManhwaDetailPage() {
     if (manhwa) {
       const title =
         manhwa.title.english || manhwa.title.romaji || manhwa.title.native || ''
-
-      if (!title) return 
-
+      if (!title) return
       setLoadingChapters(true)
       searchManga(title).then((results) => {
         if (results.length > 0) {
           const md = results[0]
           setMangaDexId(md.id)
-
           fetchChapters(md.id)
             .then((chs) => setChapters(sortChapters(chs)))
             .finally(() => setLoadingChapters(false))
@@ -84,8 +84,98 @@ export default function ManhwaDetailPage() {
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const shareTitle = manhwa.title.english || manhwa.title.romaji || 'Manhwa'
 
+  const handleCloseModal = () => {
+    if (dontShowAgain) {
+      localStorage.setItem('hideNotice', 'true')
+    }
+    setShowCard(false)
+  }
+
   return (
     <div className="bg-neutral-950 min-h-screen text-white relative overflow-hidden">
+      <AnimatePresence>
+        {showCard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed top-0 left-0 w-screen h-screen z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm md:backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="relative max-w-md w-[90%] p-6 rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/20 text-center"
+            >
+              <h2 className="text-xl md:text-2xl font-bold mb-3">
+                {lang === 'en' ? 'Notice' : 'Pemberitahuan'}
+              </h2>
+              <p className="text-gray-200 mb-4 text-sm md:text-base">
+                {lang === 'en'
+                  ? 'Now the reading feature is available, happy reading :)'
+                  : 'Sekarang fitur membaca sudah hadir, selamat membaca :)'}
+              </p>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <input
+                  type="checkbox"
+                  id="dontShowAgain"
+                  checked={dontShowAgain}
+                  onChange={(e) => setDontShowAgain(e.target.checked)}
+                  className="w-4 h-4 accent-blue-500 cursor-pointer"
+                />
+                <label
+                  htmlFor="dontShowAgain"
+                  className="text-sm text-gray-300 cursor-pointer"
+                >
+                  {lang === 'en'
+                    ? "Don't remind me again"
+                    : 'Jangan ingatkan lagi'}
+                </label>
+              </div>
+              <div className="flex justify-center gap-3 mt-4">
+                <button
+                  onClick={handleCloseModal}
+                  className="px-5 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium shadow-lg border border-white/20 transition"
+                >
+                  {lang === 'en' ? 'Close' : 'Tutup'}
+                </button>
+              </div>
+              <div className="mt-6 flex items-center justify-center gap-2 text-sm">
+                <span
+                  className={
+                    lang === 'en'
+                      ? 'text-blue-400 font-semibold'
+                      : 'text-gray-300'
+                  }
+                >
+                  EN
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={lang === 'id'}
+                    onChange={() => setLang(lang === 'en' ? 'id' : 'en')}
+                  />
+                  <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-blue-600 transition"></div>
+                  <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </label>
+                <span
+                  className={
+                    lang === 'id'
+                      ? 'text-blue-400 font-semibold'
+                      : 'text-gray-300'
+                  }
+                >
+                  ID
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="relative w-full h-[360px] md:h-[480px] overflow-hidden">
         {manhwa.bannerImage ? (
           <Image
@@ -99,7 +189,6 @@ export default function ManhwaDetailPage() {
           <div className="w-full h-full bg-neutral-800" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-
         <div className="absolute bottom-4 left-4 right-4 md:bottom-10 md:left-10 md:right-auto z-10 flex flex-col md:flex-row items-start md:items-end gap-4">
           <div className="w-[120px] md:w-[180px] aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg shrink-0">
             <Image
@@ -109,7 +198,6 @@ export default function ManhwaDetailPage() {
               className="object-cover"
             />
           </div>
-
           <div className="w-full max-w-full md:max-w-[calc(100vw-240px-6rem)]">
             <h1 className="text-xl sm:text-2xl md:text-4xl font-bold drop-shadow-lg break-words leading-tight">
               {manhwa.title.english || manhwa.title.romaji}
@@ -119,7 +207,6 @@ export default function ManhwaDetailPage() {
                 ⭐ {manhwa.averageScore / 10}/10
               </p>
             )}
-
             {manhwa.genres && manhwa.genres.length > 0 && (
               <div className="hidden md:flex flex-wrap gap-2 mt-3">
                 {manhwa.genres.map((genre) => (
@@ -133,7 +220,6 @@ export default function ManhwaDetailPage() {
                 ))}
               </div>
             )}
-
             <div className="flex gap-3 mt-3">
               <button
                 onClick={toggleFavorite}
@@ -150,7 +236,6 @@ export default function ManhwaDetailPage() {
                 />
                 {isFavorite ? 'Remove Favorite' : 'Add Favorite'}
               </button>
-
               <button
                 onClick={() => setShowShare(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition"
@@ -185,7 +270,6 @@ export default function ManhwaDetailPage() {
             ))}
           </div>
         )}
-
         <p className="text-gray-300 leading-relaxed whitespace-pre-line">
           {manhwa.description?.replace(/<[^>]+>/g, '')}
         </p>
