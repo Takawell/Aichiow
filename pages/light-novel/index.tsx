@@ -39,7 +39,7 @@ export default function LightNovelPage() {
           setGenres(['ALL', ...genreList])
         }
       } catch {
-        setError('Gagal memuat daftar Light Novel.')
+        setError('Failed to load Light Novel list.')
       } finally {
         setLoading(false)
       }
@@ -72,13 +72,13 @@ export default function LightNovelPage() {
           ) : novels.length > 0 ? (
             <HeroSelection novels={novels} />
           ) : (
-            <p className="text-red-500">Tidak ada Light Novel ditemukan.</p>
+            <p className="text-red-500">No Light Novels found.</p>
           )}
 
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
-              placeholder="Cari Light Novel..."
+              placeholder="Search Light Novel..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="flex-1 p-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-blue-400 text-white"
