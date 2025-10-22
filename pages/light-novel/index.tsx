@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
-import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import {
   fetchLightNovelList,
   fetchLightNovelGenres,
   searchLightNovel,
 } from '@/lib/anilistLightNovel'
 import { LightNovel } from '@/types/lightNovel'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import HeroSelection from '@/components/novels/HeroSelection'
 
 export default function LightNovelPage() {
   const [novels, setNovels] = useState<LightNovel[]>([])
@@ -18,15 +18,11 @@ export default function LightNovelPage() {
   const [selectedGenre, setSelectedGenre] = useState<string>('ALL')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState<LightNovel[]>([])
   const [searching, setSearching] = useState(false)
-
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(5)
-
-  const [heroIndex, setHeroIndex] = useState(0)
 
   useEffect(() => {
     const loadData = async () => {
@@ -42,7 +38,7 @@ export default function LightNovelPage() {
           const genreList = await fetchLightNovelGenres()
           setGenres(['ALL', ...genreList])
         }
-      } catch (e: any) {
+      } catch {
         setError('Gagal memuat daftar Light Novel.')
       } finally {
         setLoading(false)
@@ -50,18 +46,6 @@ export default function LightNovelPage() {
     }
     loadData()
   }, [page, selectedGenre])
-
-  useEffect(() => {
-    if (novels.length > 0) {
-      const interval = setInterval(() => {
-        setHeroIndex((prev) => (prev + 1) % novels.length)
-      }, 7000)
-      return () => clearInterval(interval)
-    }
-  }, [novels])
-
-  const nextSlide = () => setHeroIndex((prev) => (prev + 1) % novels.length)
-  const prevSlide = () => setHeroIndex((prev) => (prev - 1 + novels.length) % novels.length)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,7 +62,7 @@ export default function LightNovelPage() {
     <>
       <Head>
         <title>Light Novels | Aichiow</title>
-        <meta name="description" content="Find all the novels you love only on aichiow" />
+        <meta name="description" content="Find all the novels you love only on Aichiow" />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-950 text-white">
@@ -86,55 +70,7 @@ export default function LightNovelPage() {
           {loading ? (
             <section className="w-full h-[320px] md:h-[460px] bg-neutral-900 rounded-lg shadow-inner overflow-hidden animate-pulse"></section>
           ) : novels.length > 0 ? (
-            <div className="relative w-full h-[320px] md:h-[460px] rounded-xl overflow-hidden shadow-lg">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={novels[heroIndex].id}
-                  className="absolute inset-0"
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ duration: 0.6 }}
-                >
-                  <img
-                    src={
-                      novels[heroIndex].bannerImage ||
-                      novels[heroIndex].coverImage.extraLarge
-                    }
-                    alt={novels[heroIndex].title.english || novels[heroIndex].title.romaji}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                  <div className="absolute bottom-6 left-6 max-w-2xl">
-                    <h2 className="text-2xl md:text-3xl font-bold drop-shadow-lg">
-                      {novels[heroIndex].title.english || novels[heroIndex].title.romaji}
-                    </h2>
-                    <p className="text-sm text-gray-300 line-clamp-2 mt-1">
-                      {novels[heroIndex].description?.replace(/<[^>]*>/g, '') || 'No description'}
-                    </p>
-                    <Link
-                      href={`/light-novel/${novels[heroIndex].id}`}
-                      className="mt-3 inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-white font-medium shadow-lg"
-                    >
-                      Read More
-                    </Link>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-
-              <button
-                onClick={prevSlide}
-                className="absolute top-1/2 left-3 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 transition"
-              >
-                <ChevronLeft className="h-6 w-6 text-white" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute top-1/2 right-3 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 transition"
-              >
-                <ChevronRight className="h-6 w-6 text-white" />
-              </button>
-            </div>
+            <HeroSelection novels={novels} />
           ) : (
             <p className="text-red-500">Tidak ada Light Novel ditemukan.</p>
           )}
@@ -169,12 +105,11 @@ export default function LightNovelPage() {
                   setPage(1)
                   setSearchResults([])
                 }}
-                className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-300
-                  ${
-                    selectedGenre === genre
-                      ? 'bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-md shadow-blue-500/30'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
-                  }`}
+                className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+                  selectedGenre === genre
+                    ? 'bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-md shadow-blue-500/30'
+                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                }`}
               >
                 {genre}
               </motion.button>
@@ -182,7 +117,6 @@ export default function LightNovelPage() {
           </div>
 
           {error && <p className="text-red-500">{error}</p>}
-
           {loading && !searching && <p className="text-gray-400">Memuat data...</p>}
           {!loading && displayedList.length === 0 && (
             <p className="text-gray-400">Tidak ada hasil untuk "{query}".</p>
