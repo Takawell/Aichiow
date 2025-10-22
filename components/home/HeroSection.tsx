@@ -6,7 +6,7 @@ import { Anime } from '@/types/anime'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { FaPlayCircle, FaStar, FaEye } from 'react-icons/fa'
+import { FaStar, FaPlayCircle, FaEye } from 'react-icons/fa'
 
 interface HeroSectionProps {
   anime?: Anime
@@ -69,7 +69,9 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
               </span>
             )}
             {anime.nextAiringEpisode?.episode && (
-              <span className="flex items-center gap-1">📺 Ep {anime.nextAiringEpisode.episode}</span>
+              <span className="flex items-center gap-1">
+                📺 Ep {anime.nextAiringEpisode.episode}
+              </span>
             )}
             {anime.genres?.slice(0, 3).map((genre) => (
               <Link
@@ -88,24 +90,29 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
 
           <div className="flex gap-3">
             <button
-              onClick={() => setShowPreview(true)}
-              className="flex items-center gap-2 px-6 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-600 transition shadow-md"
-            >
-              <FaEye className="text-sm" /> Preview
-            </button>
-
-            <button
               onClick={() => {
                 setLoadingDetail(true)
                 router.push(`/anime/${anime.id}`)
               }}
               disabled={loadingDetail}
-              className={`flex items-center gap-2 px-6 py-2 rounded-full text-sm font-semibold text-white shadow-md transition-all ${
+              className={`px-6 py-2 rounded-full text-sm font-semibold text-white shadow-md transition-all flex items-center gap-2 ${
                 loadingDetail ? 'bg-blue-400 cursor-wait' : 'bg-blue-600 hover:bg-blue-700'
               }`}
             >
-              <FaPlayCircle className="text-sm" />
-              {loadingDetail ? 'Loading...' : 'Detail'}
+              {loadingDetail ? (
+                'Loading...'
+              ) : (
+                <>
+                  <FaPlayCircle className="text-sm" /> DETAIL
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => setShowPreview(true)}
+              className="px-6 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-600 transition shadow-md flex items-center gap-2"
+            >
+              <FaEye className="text-sm" /> Preview
             </button>
           </div>
         </motion.div>
@@ -203,9 +210,9 @@ export default function HeroSection({ anime, loading }: HeroSectionProps) {
                         setShowPreview(false)
                         router.push(`/anime/${anime.id}`)
                       }}
-                      className="w-1/2 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 rounded-full text-sm font-semibold transition-all flex items-center justify-center gap-2"
+                      className="w-1/2 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 rounded-full text-sm font-semibold transition-all"
                     >
-                      <FaPlayCircle /> View Detail
+                      View Detail
                     </button>
                   </div>
                 </div>
