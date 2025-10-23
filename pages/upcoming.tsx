@@ -16,8 +16,8 @@ const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 function CardSkeleton({ type }: { type: 'schedule' | 'upcoming' }) {
   if (type === 'schedule') {
     return (
-      <div className="flex items-center gap-4 p-4 bg-zinc-900 rounded-xl border border-zinc-800 animate-pulse">
-        <div className="w-14 h-20 bg-zinc-700 rounded-md" />
+      <div className="flex items-center gap-4 p-4 bg-gradient-to-b from-zinc-900 to-zinc-800 rounded-xl border border-zinc-700 animate-pulse shadow-inner shadow-black/40">
+        <div className="w-14 h-20 bg-zinc-700/80 rounded-md" />
         <div className="flex flex-col gap-2">
           <div className="w-40 h-3 bg-zinc-700 rounded" />
           <div className="w-28 h-3 bg-zinc-700 rounded" />
@@ -25,7 +25,6 @@ function CardSkeleton({ type }: { type: 'schedule' | 'upcoming' }) {
       </div>
     )
   }
-
   return (
     <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden animate-pulse">
       <div className="w-full h-48 bg-zinc-700" />
@@ -81,7 +80,7 @@ export default function UpcomingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="flex items-center gap-2 text-3xl font-bold mb-6">
+          <h2 className="flex items-center gap-2 text-3xl font-extrabold mb-6 tracking-tight">
             <AiOutlineCalendar className="text-blue-500" /> Weekly Schedule
           </h2>
 
@@ -90,11 +89,11 @@ export default function UpcomingPage() {
               <button
                 key={day}
                 onClick={() => setSelectedDay(day)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium shadow-sm
+                className={`px-4 py-2 rounded-full border text-sm font-semibold shadow-sm backdrop-blur-sm transition-all duration-300
                   ${selectedDay === day
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/30 scale-105'
-                    : 'bg-zinc-800 text-zinc-300 border-zinc-600 hover:bg-zinc-700'
-                  } transition-all duration-300`}
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/40 scale-105'
+                    : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:bg-zinc-700 hover:text-white'
+                  }`}
               >
                 {day}
               </button>
@@ -108,6 +107,7 @@ export default function UpcomingPage() {
                 className="space-y-4"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
               >
                 {Array.from({ length: 5 }).map((_, i) => (
                   <CardSkeleton key={i} type="schedule" />
@@ -128,14 +128,12 @@ export default function UpcomingPage() {
                 className="space-y-4"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ staggerChildren: 0.05 }}
               >
                 {filteredSchedule.map((anime, idx) => {
                   const { airingAt, episode } = anime.nextAiringEpisode || {}
                   const dateText = airingAt
                     ? format(fromUnixTime(airingAt), 'eeee, MMM d • HH:mm', { locale: localeID })
                     : 'Unknown'
-
                   return (
                     <motion.div
                       key={anime.id}
@@ -145,7 +143,7 @@ export default function UpcomingPage() {
                     >
                       <Link
                         href={`/anime/${anime.id}`}
-                        className="flex items-center gap-4 p-4 bg-gradient-to-r from-zinc-900 to-zinc-800 rounded-xl border border-zinc-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300"
+                        className="flex items-center gap-4 p-4 rounded-xl border border-zinc-700 bg-gradient-to-r from-zinc-900 to-zinc-800 hover:from-blue-600/10 hover:to-blue-900/20 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300"
                       >
                         <Image
                           src={anime.coverImage.large}
@@ -172,11 +170,7 @@ export default function UpcomingPage() {
           </AnimatePresence>
         </motion.section>
 
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
+        <section>
           <h1 className="flex items-center gap-2 text-3xl font-extrabold mb-6">
             <BiMoviePlay className="text-blue-500" /> Upcoming Anime
           </h1>
@@ -216,7 +210,7 @@ export default function UpcomingPage() {
               ))}
             </div>
           )}
-        </motion.section>
+        </section>
       </main>
     </>
   )
