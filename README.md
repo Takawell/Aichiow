@@ -1,6 +1,6 @@
 ### AICHIOW
 
-Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design, fast navigation, and rich details in one place.
+Discover anime, manga, manhwa, and light novels on **Aichiow** modern design, fast navigation, and rich details in one place.
 
 ---
 
@@ -33,7 +33,8 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** — modern design
 ![My wife](https://i.ibb.co/PGchDv5q/68f3ae832623b11e2511ee3f.jpg)
 
 ### Manhwa
-![Manhwa](https://i.ibb.co/GQMC0b2b/68923578dc66d8397f76472f.png)
+![Manhwa](https://i.ibb.co/SXrx3PLY/undefined.png)
+![this my...](https://i.ibb.co/PscRLnd4/download-7.png)
 
 ### Light Novels
 ![Light Novels](https://i.ibb.co/DNxqYKf/1757297605643.jpg)
