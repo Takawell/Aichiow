@@ -74,32 +74,44 @@ export default function UpcomingPage() {
       <Head>
         <title>Anime Schedule & Upcoming | Aichiow</title>
       </Head>
-      <main className="px-4 md:px-10 py-10 text-white max-w-7xl mx-auto min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900">
+      <main className="px-4 md:px-10 py-10 text-white max-w-7xl mx-auto">
         <motion.section
           className="mb-16"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
         >
-          <h2 className="flex items-center gap-2 text-3xl font-bold mb-6">
+          <motion.h2
+            className="flex items-center gap-2 text-3xl font-bold mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
             <AiOutlineCalendar className="text-blue-500" /> Weekly Schedule
-          </h2>
+          </motion.h2>
 
-          <div className="flex flex-wrap gap-3 mb-6">
+          <motion.div
+            className="flex flex-wrap gap-3 mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
             {days.map((day) => (
-              <button
+              <motion.button
                 key={day}
+                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.1 }}
                 onClick={() => setSelectedDay(day)}
                 className={`px-4 py-2 rounded-full border text-sm font-medium shadow-sm
                   ${selectedDay === day
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/30 scale-105'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/30'
                     : 'bg-zinc-800 text-zinc-300 border-zinc-600 hover:bg-zinc-700'
                   } transition-all duration-300`}
               >
                 {day}
-              </button>
+              </motion.button>
             ))}
-          </div>
+          </motion.div>
 
           <AnimatePresence mode="wait">
             {loading ? (
@@ -108,6 +120,7 @@ export default function UpcomingPage() {
                 className="space-y-4"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
               >
                 {Array.from({ length: 5 }).map((_, i) => (
                   <CardSkeleton key={i} type="schedule" />
@@ -126,11 +139,18 @@ export default function UpcomingPage() {
               <motion.div
                 key="data"
                 className="space-y-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ staggerChildren: 0.05 }}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: {},
+                  visible: {
+                    transition: {
+                      staggerChildren: 0.08,
+                    },
+                  },
+                }}
               >
-                {filteredSchedule.map((anime, idx) => {
+                {filteredSchedule.map((anime) => {
                   const { airingAt, episode } = anime.nextAiringEpisode || {}
                   const dateText = airingAt
                     ? format(fromUnixTime(airingAt), 'eeee, MMM d • HH:mm', { locale: localeID })
@@ -139,13 +159,15 @@ export default function UpcomingPage() {
                   return (
                     <motion.div
                       key={anime.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.05 }}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0 },
+                      }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
                     >
                       <Link
                         href={`/anime/${anime.id}`}
-                        className="flex items-center gap-4 p-4 bg-gradient-to-r from-zinc-900 to-zinc-800 rounded-xl border border-zinc-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300"
+                        className="flex items-center gap-4 p-4 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 hover:scale-[1.02]"
                       >
                         <Image
                           src={anime.coverImage.large}
@@ -173,48 +195,70 @@ export default function UpcomingPage() {
         </motion.section>
 
         <motion.section
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
         >
           <h1 className="flex items-center gap-2 text-3xl font-extrabold mb-6">
             <BiMoviePlay className="text-blue-500" /> Upcoming Anime
           </h1>
 
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
               {Array.from({ length: 10 }).map((_, i) => (
                 <CardSkeleton key={i} type="upcoming" />
               ))}
-            </div>
+            </motion.div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.08 } },
+              }}
+            >
               {upcomingAnime.map((anime) => (
-                <Link
+                <motion.div
                   key={anime.id}
-                  href={`/anime/${anime.id}`}
-                  className="group bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-xl overflow-hidden border border-zinc-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transform hover:scale-[1.03] transition-all duration-300"
+                  variants={{
+                    hidden: { opacity: 0, y: 30 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
                 >
-                  <div className="relative">
-                    <Image
-                      src={anime.coverImage.large}
-                      alt={anime.title.english || anime.title.romaji}
-                      width={300}
-                      height={400}
-                      className="w-full h-48 object-cover group-hover:brightness-110 transition"
-                    />
-                    <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded flex items-center gap-1">
-                      <AiOutlineCalendar /> Soon
-                    </div>
-                  </div>
-                  <div className="p-3">
-                    <h2 className="text-sm font-semibold line-clamp-2">
-                      {anime.title.english || anime.title.romaji}
-                    </h2>
-                  </div>
-                </Link>
+                  <Link
+                    href={`/anime/${anime.id}`}
+                    className="group bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-xl overflow-hidden border border-zinc-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transform hover:scale-[1.03] transition-all duration-300"
+                  >
+                    <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.4 }}>
+                      <div className="relative">
+                        <Image
+                          src={anime.coverImage.large}
+                          alt={anime.title.english || anime.title.romaji}
+                          width={300}
+                          height={400}
+                          className="w-full h-48 object-cover group-hover:brightness-110 transition duration-300"
+                        />
+                        <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded flex items-center gap-1">
+                          <AiOutlineCalendar /> Soon
+                        </div>
+                      </div>
+                      <div className="p-3">
+                        <h2 className="text-sm font-semibold line-clamp-2">
+                          {anime.title.english || anime.title.romaji}
+                        </h2>
+                      </div>
+                    </motion.div>
+                  </Link>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </motion.section>
       </main>
