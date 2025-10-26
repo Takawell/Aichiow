@@ -49,7 +49,12 @@ export default function ExploreMangaPage() {
         const tagData = await fetchGenres()
         setGenres(tagData)
       } catch {
-        setGenres(fallbackGenres.map((g) => ({ id: g, attributes: { name: { en: g } } })))
+        setGenres(
+          fallbackGenres.map((g) => ({
+            id: g,
+            attributes: { name: { en: g } },
+          }))
+        )
       }
     }
     loadGenres()
@@ -115,6 +120,7 @@ export default function ExploreMangaPage() {
         >
           💫 Explore Manga
         </motion.h1>
+
         <motion.form
           onSubmit={handleSearch}
           className="max-w-2xl mx-auto mb-8 flex flex-col sm:flex-row gap-3"
@@ -222,13 +228,13 @@ export default function ExploreMangaPage() {
         <AnimatePresence>
           {genreModalOpen && (
             <motion.div
-              className="fixed inset-0 bg-[rgba(8,8,12,0.6)] backdrop-blur-2xl flex items-center justify-center z-50 px-4"
+              className="fixed inset-0 bg-[rgba(8,8,12,0.6)] backdrop-blur-2xl flex items-center justify-center z-50 px-3 sm:px-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
               <motion.div
-                className="relative w-full max-w-3xl bg-white/6 border border-white/10 rounded-3xl shadow-[0_30px_80px_-30px_rgba(2,6,23,0.8)] p-6 sm:p-8 backdrop-blur-3xl"
+                className="relative w-full max-w-3xl bg-white/6 border border-white/10 rounded-3xl shadow-[0_30px_80px_-30px_rgba(2,6,23,0.8)] p-5 sm:p-8 backdrop-blur-3xl max-h-[85vh] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500/40 scrollbar-track-transparent"
                 initial={{ y: 20, opacity: 0, scale: 0.98 }}
                 animate={{ y: 0, opacity: 1, scale: 1 }}
                 exit={{ y: 20, opacity: 0, scale: 0.98 }}
@@ -241,8 +247,8 @@ export default function ExploreMangaPage() {
                   ✕
                 </button>
 
-                <div className="text-center mb-4">
-                  <h3 className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-300">
+                <div className="text-center mb-4 mt-2">
+                  <h3 className="text-xl sm:text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-300">
                     Select Genres
                   </h3>
                   <p className="text-sm text-neutral-400 mt-1">
@@ -250,7 +256,7 @@ export default function ExploreMangaPage() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-3">
                   {genres.map((tag) => {
                     const id = tag.id
                     const active = selectedGenres.includes(id)
@@ -259,14 +265,16 @@ export default function ExploreMangaPage() {
                         key={id}
                         onClick={() => toggleGenre(id)}
                         whileTap={{ scale: 0.97 }}
-                        className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
                           active
                             ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-[0_10px_30px_-12px_rgba(56,189,248,0.5)] scale-[1.02]'
                             : 'bg-white/4 text-neutral-200 hover:bg-white/6'
                         }`}
                       >
                         {tag.attributes.name.en}
-                        {active && <span className="text-xs text-white/90">✓</span>}
+                        {active && (
+                          <span className="text-[10px] text-white/90">✓</span>
+                        )}
                       </motion.button>
                     )
                   })}
@@ -276,7 +284,7 @@ export default function ExploreMangaPage() {
                   <div className="text-sm text-neutral-300">
                     Selected: {selectedGenres.length}
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-end">
                     <button
                       onClick={() => setSelectedGenres([])}
                       className="px-4 py-2 rounded-lg bg-white/6 text-sm text-neutral-200 hover:bg-white/8 transition"
