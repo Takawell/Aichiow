@@ -13,7 +13,6 @@ import MangaGrid from '@/components/manga/MangaGrid'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaSearch, FaSpinner, FaFilter, FaTimesCircle } from 'react-icons/fa'
 
-// Fallback
 const fallbackGenres = [
   'Action',
   'Adventure',
@@ -35,7 +34,6 @@ const fallbackGenres = [
 export default function ExploreMangaPage() {
   const router = useRouter()
   const { genre } = router.query
-
   const [genres, setGenres] = useState<any[]>([])
   const [mangaList, setMangaList] = useState<any[]>([])
   const [search, setSearch] = useState('')
@@ -111,55 +109,48 @@ export default function ExploreMangaPage() {
         />
       </Head>
 
-      <main className="relative min-h-screen bg-gradient-to-b from-[#090b12] via-[#0d0f17] to-[#0a0b10] text-white px-4 md:px-10 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: -25 }}
+      <main className="relative min-h-screen bg-gradient-to-b from-[#0b0b10] via-[#0e1015] to-[#0a0a0f] text-white px-4 md:px-10 py-12">
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-10"
+          className="text-4xl md:text-5xl font-extrabold mb-10 text-center bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(56,189,248,0.4)]"
         >
-          <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_18px_rgba(56,189,248,0.4)]">
-            💫 Explore Manga
-          </h1>
-          <p className="mt-3 text-zinc-400 text-sm md:text-base">
-            Discover your next favorite manga search, filter, and explore.
-          </p>
-        </motion.div>
+          💫 Explore Manga
+        </motion.h1>
 
         <motion.form
           onSubmit={handleSearch}
+          className="max-w-2xl mx-auto mb-8 flex flex-col sm:flex-row gap-3"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="max-w-3xl mx-auto mb-10"
         >
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-zinc-900/60 border border-zinc-700 rounded-xl p-2 sm:p-2.5 backdrop-blur-sm shadow-[0_8px_25px_-8px_rgba(56,189,248,0.2)]">
-            <div className="relative flex-1">
-              <FaSearch className="absolute left-4 top-3.5 text-zinc-400" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search manga title..."
-                className="w-full pl-11 pr-28 py-3 bg-transparent text-white placeholder:text-zinc-500 outline-none focus:ring-0"
-              />
-              <button
-                type="button"
-                onClick={() => setGenreModalOpen(true)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 transition text-sm"
-              >
-                <FaFilter className="text-sky-400" />
-                <span className="hidden sm:inline text-zinc-300">Filter</span>
-              </button>
-            </div>
-
+          <div className="relative flex-1">
+            <FaSearch className="absolute left-4 top-3.5 text-zinc-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search manga title..."
+              className="w-full pl-11 pr-24 py-3 bg-zinc-900/60 border border-zinc-700 rounded-lg text-white placeholder:text-zinc-500 focus:ring-2 focus:ring-sky-500 outline-none transition-all duration-300 backdrop-blur-sm"
+            />
             <button
-              type="submit"
-              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 rounded-lg font-semibold transition-all duration-300 shadow-lg shadow-blue-700/30"
+              type="button"
+              onClick={() => setGenreModalOpen(true)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 transition text-sm"
             >
-              Search
+              <FaFilter className="text-sky-400" />
+              <span className="hidden sm:inline text-zinc-300">Filter</span>
             </button>
           </div>
+
+          <button
+            type="submit"
+            className="px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 rounded-lg font-semibold transition-all duration-300 shadow-lg shadow-blue-700/30"
+          >
+            Search
+          </button>
         </motion.form>
 
         {selectedGenres.length > 0 && (
