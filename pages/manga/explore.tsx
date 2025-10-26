@@ -34,6 +34,7 @@ const fallbackGenres = [
 export default function ExploreMangaPage() {
   const router = useRouter()
   const { genre } = router.query
+
   const [genres, setGenres] = useState<any[]>([])
   const [mangaList, setMangaList] = useState<any[]>([])
   const [search, setSearch] = useState('')
