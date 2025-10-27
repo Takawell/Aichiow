@@ -179,7 +179,7 @@ export default function AichixiaPage() {
 
       <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-[#050b1b] via-[#0a1228] to-[#050b1b] text-sky-100">
         <div className="w-full max-w-4xl flex flex-col h-screen px-3 sm:px-6">
-          <header className="p-4 border-b border-sky-800 bg-black/20 backdrop-blur-md rounded-b-xl shadow-md flex items-center justify-between sticky top-0 z-20">
+          <header className="p-4 border-b border-sky-800/60 bg-black/30 backdrop-blur-lg rounded-b-xl shadow-md flex items-center justify-between sticky top-0 z-50 transition-all duration-300 animate-fade-down">
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-full ring-2 ring-sky-500 overflow-hidden shadow-lg">
                 <Image src="/aichixia.png" alt="Aichixia" fill className="object-cover" />
