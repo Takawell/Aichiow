@@ -347,9 +347,9 @@ export default function ExplorePage() {
 
                 <div className="text-center mb-6 mt-2">
                   <h2 className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-                    🔎 ANISCAN
+                    🔎 Anime Scanner
                   </h2>
-                  <p className="text-sm text-neutral-400 mt-1">Upload a screenshot to detect the anime instantly</p>
+                  <p className="text-sm text-neutral-400 mt-1">Disclaimer: May be inaccurate. Only works on anime scenes.</p>
                 </div>
 
                 <div className="flex justify-center w-full">
