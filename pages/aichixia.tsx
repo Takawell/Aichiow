@@ -177,9 +177,9 @@ export default function AichixiaPage() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-[#050b1b] via-[#0a1228] to-[#050b1b] text-sky-100">
+      <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-[#050b1b] via-[#0a1228] to-[#050b1b] text-sky-100 overflow-hidden">
         <div className="w-full max-w-4xl flex flex-col h-screen px-3 sm:px-6">
-          <header className="p-4 border-b border-sky-800 bg-black/20 backdrop-blur-md rounded-b-xl shadow-md flex items-center justify-between sticky top-0 z-20">
+          <header className="p-4 border-b border-sky-800 bg-black/20 backdrop-blur-md rounded-b-xl shadow-md flex items-center justify-between sticky top-0 z-30">
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-full ring-2 ring-sky-500 overflow-hidden shadow-lg">
                 <Image src="/aichixia.png" alt="Aichixia" fill className="object-cover" />
