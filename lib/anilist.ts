@@ -375,3 +375,62 @@ export async function fetchSimilarAnime(id: number): Promise<Anime[]> {
       ?.filter(Boolean) || []
   )
 }
+
+export async function fetchAnimeByGenre(
+  genre: string,
+  page = 1,
+  isAdult = false
+): Promise<Anime[]> {
+  const query = `
+    query ($genre: String, $page: Int, $isAdult: Boolean) {
+      Page(page: $page, perPage: 20) {
+        media(
+          genre_in: [$genre],
+          type: ANIME,
+          isAdult: $isAdult,
+          sort: [START_DATE_DESC, POPULARITY_DESC]
+        ) {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          coverImage {
+            large
+            medium
+            color
+          }
+          bannerImage
+          genres
+          averageScore
+          description
+          trailer {
+            id
+            site
+            thumbnail
+          }
+          nextAiringEpisode {
+            airingAt
+            episode
+          }
+          startDate {
+            year
+            month
+            day
+          }
+          status
+        }
+      }
+    }
+  `
+
+  const variables = {
+    genre: genre.replace(/-/g, ' '),
+    page,
+    isAdult
+  }
+
+  const data = await fetchFromAnilist(query, variables)
+  return data.Page.media || []
+}
