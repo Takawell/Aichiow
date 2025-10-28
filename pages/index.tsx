@@ -128,7 +128,7 @@ export default function LandingPage() {
   return (
     <>
       <Head>
-        <title>Aichiow – Anime, Manga, Manhwa & Light Novel Hub</title>
+        <title>Aichiow Anime, Manga, Manhwa & Light Novel Hub</title>
         <meta
           name="description"
           content="Aichiow your gateway to anime, manga, manhwa, and light novels."
