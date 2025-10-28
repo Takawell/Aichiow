@@ -10,7 +10,6 @@ import {
   getMangaByFilter,
 } from '@/lib/mangadex'
 import MangaGrid from '@/components/manga/MangaGrid'
-import SectionTitle from '@/components/shared/SectionTitle'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaSearch, FaSpinner, FaFilter, FaTimesCircle } from 'react-icons/fa'
 
@@ -112,9 +111,14 @@ export default function ExploreMangaPage() {
       </Head>
 
       <main className="relative min-h-screen bg-gradient-to-b from-[#0b0b10] via-[#0e1015] to-[#0a0a0f] text-white px-4 md:px-10 py-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <SectionTitle title="💫 Explore Manga" />
-        </motion.div>
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-4xl md:text-5xl font-extrabold mb-10 text-center bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(56,189,248,0.4)]"
+        >
+          💫 Explore Manga
+        </motion.h1>
 
         <motion.form
           onSubmit={handleSearch}
