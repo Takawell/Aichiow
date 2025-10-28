@@ -12,7 +12,7 @@ import {
 import MangaGrid from '@/components/manga/MangaGrid'
 import SectionTitle from '@/components/shared/SectionTitle'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaSearch, FaFilter, FaSpinner, FaTimesCircle } from 'react-icons/fa'
+import { FaSearch, FaSpinner, FaFilter, FaTimesCircle } from 'react-icons/fa'
 
 const fallbackGenres = [
   'Action',
@@ -112,14 +112,13 @@ export default function ExploreMangaPage() {
       </Head>
 
       <main className="relative min-h-screen bg-gradient-to-b from-[#0b0b10] via-[#0e1015] to-[#0a0a0f] text-white px-4 md:px-10 py-12">
-        <SectionTitle
-          title="💫 Explore Manga"
-          subtitle="Discover and search for manga by genre, popularity, and more."
-          gradient="from-sky-400 via-blue-500 to-indigo-400"
-        />
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <SectionTitle title="💫 Explore Manga" />
+        </motion.div>
+
         <motion.form
           onSubmit={handleSearch}
-          className="max-w-3xl mx-auto mb-10 flex flex-col sm:flex-row gap-3"
+          className="max-w-2xl mx-auto mb-8 flex flex-col sm:flex-row gap-3"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -131,7 +130,7 @@ export default function ExploreMangaPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search manga title..."
-              className="w-full pl-11 pr-24 py-3 bg-zinc-900/60 border border-zinc-700 rounded-xl text-white placeholder:text-zinc-500 focus:ring-2 focus:ring-sky-500 outline-none transition-all duration-300 backdrop-blur-sm"
+              className="w-full pl-11 pr-24 py-3 bg-zinc-900/60 border border-zinc-700 rounded-lg text-white placeholder:text-zinc-500 focus:ring-2 focus:ring-sky-500 outline-none transition-all duration-300 backdrop-blur-sm"
             />
             <button
               type="button"
@@ -145,7 +144,7 @@ export default function ExploreMangaPage() {
 
           <button
             type="submit"
-            className="px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-blue-700/30"
+            className="px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 rounded-lg font-semibold transition-all duration-300 shadow-lg shadow-blue-700/30"
           >
             Search
           </button>
