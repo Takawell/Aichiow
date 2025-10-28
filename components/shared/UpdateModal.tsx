@@ -7,20 +7,20 @@ import { FaGithub, FaTiktok } from 'react-icons/fa'
 
 export default function UpdateModal() {
   const [open, setOpen] = useState(false)
-  const [lang, setLang] = useState<'id' | 'en'>('id')
+  const [lang, setLang] = useState<'id' | 'en'>('en')
   const VERSION = '1.2.0'
 
   useEffect(() => {
     const seenVersion = localStorage.getItem('updateModalSeen')
     if (seenVersion !== VERSION) {
       setOpen(true)
-      localStorage.setItem('updateModalSeen', VERSION)
+      localStorage.setItem('updateModal', VERSION)
     }
   }, [])
 
   const handleClose = () => {
     setOpen(false)
-    localStorage.setItem('updateModalSeen', VERSION)
+    localStorage.setItem('updateModal', VERSION)
   }
 
   const t = {
@@ -102,17 +102,17 @@ export default function UpdateModal() {
                 />
                 <span
                   className={`z-10 w-1/2 text-center text-xs font-semibold ${
-                    lang === 'id' ? 'text-black' : 'text-neutral-400'
-                  }`}
-                >
-                  ID
-                </span>
-                <span
-                  className={`z-10 w-1/2 text-center text-xs font-semibold ${
                     lang === 'en' ? 'text-black' : 'text-neutral-400'
                   }`}
                 >
                   EN
+                </span>
+                <span
+                  className={`z-10 w-1/2 text-center text-xs font-semibold ${
+                    lang === 'id' ? 'text-black' : 'text-neutral-400'
+                  }`}
+                >
+                  ID
                 </span>
               </div>
             </div>
