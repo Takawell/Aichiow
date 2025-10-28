@@ -1,7 +1,6 @@
-// hooks/useAnimeByGenre.ts
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { fetchAnimeByGenre } from '@/lib/api'
+import { fetchAnimeByGenre } from '@/lib/anilist'
 import { Anime } from '@/types/anime'
 
 export function useAnimeByGenre() {
