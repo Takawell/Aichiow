@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import {
   fetchGenres,
   fetchPopularManga,
@@ -11,7 +12,7 @@ import {
 import MangaGrid from '@/components/manga/MangaGrid'
 import SectionTitle from '@/components/shared/SectionTitle'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaSearch, FaSpinner, FaFilter, FaTimesCircle } from 'react-icons/fa'
+import { FaSearch, FaFilter, FaSpinner, FaTimesCircle } from 'react-icons/fa'
 
 const fallbackGenres = [
   'Action',
@@ -32,10 +33,12 @@ const fallbackGenres = [
 ]
 
 export default function ExploreMangaPage() {
+  const router = useRouter()
+  const { genre } = router.query
+
   const [genres, setGenres] = useState<any[]>([])
   const [mangaList, setMangaList] = useState<any[]>([])
-  const [input, setInput] = useState('')
-  const [query, setQuery] = useState('')
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
   const [genreModalOpen, setGenreModalOpen] = useState(false)
   const [selectedGenres, setSelectedGenres] = useState<string[]>([])
@@ -80,12 +83,10 @@ export default function ExploreMangaPage() {
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault()
-    const q = input.trim()
-    if (!q) return
-    setQuery(q)
+    if (!search.trim()) return
     setLoading(true)
     try {
-      const result = await searchManga(q)
+      const result = await searchManga(search)
       setMangaList(result)
     } catch (e) {
       console.error('Search error:', e)
@@ -93,16 +94,6 @@ export default function ExploreMangaPage() {
       setLoading(false)
     }
   }
-
-  // Optional: memoize filtered by genres from the client-side if needed
-  const displayedManga = useMemo(() => {
-    if (selectedGenres.length === 0) return mangaList
-    return mangaList.filter((m) =>
-      (m.tags || m.genres || []).some((t: any) =>
-        selectedGenres.includes(t.id ?? t)
-      )
-    )
-  }, [mangaList, selectedGenres])
 
   function toggleGenre(id: string) {
     setSelectedGenres((prev) =>
@@ -120,64 +111,51 @@ export default function ExploreMangaPage() {
         />
       </Head>
 
-      <main className="bg-gradient-to-b from-[#0d0d10] via-[#111215] to-[#0a0a0a] min-h-screen text-white px-4 md:px-10 py-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <SectionTitle title="💫 Explore Manga" />
-        </motion.div>
-
+      <main className="relative min-h-screen bg-gradient-to-b from-[#0b0b10] via-[#0e1015] to-[#0a0a0f] text-white px-4 md:px-10 py-12">
+        <SectionTitle
+          title="💫 Explore Manga"
+          subtitle="Discover and search for manga by genre, popularity, and more."
+          gradient="from-sky-400 via-blue-500 to-indigo-400"
+        />
         <motion.form
           onSubmit={handleSearch}
-          className="mt-8 mb-6 flex flex-col sm:flex-row items-stretch gap-3 max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
+          className="max-w-3xl mx-auto mb-10 flex flex-col sm:flex-row gap-3"
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
+          transition={{ delay: 0.2 }}
         >
-          <div className="relative w-full flex-1">
+          <div className="relative flex-1">
+            <FaSearch className="absolute left-4 top-3.5 text-zinc-400" />
             <input
               type="text"
-              placeholder="Search for manga title..."
-              className="w-full pl-11 pr-28 py-3 bg-neutral-900/80 text-white rounded-lg border border-neutral-700 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-sky-600 transition-all duration-300 backdrop-blur-sm"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search manga title..."
+              className="w-full pl-11 pr-24 py-3 bg-zinc-900/60 border border-zinc-700 rounded-xl text-white placeholder:text-zinc-500 focus:ring-2 focus:ring-sky-500 outline-none transition-all duration-300 backdrop-blur-sm"
             />
-            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500" />
-            <div className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setGenreModalOpen(true)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/6 rounded-full hover:bg-white/8 transition text-sm"
-                title="Filter genres"
-              >
-                <FaFilter className="text-sm text-neutral-200" />
-                <span className="hidden sm:inline text-neutral-200">Filter</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setGenreModalOpen(true)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 transition text-sm"
+            >
+              <FaFilter className="text-sky-400" />
+              <span className="hidden sm:inline text-zinc-300">Filter</span>
+            </button>
           </div>
 
           <button
             type="submit"
-            className="px-6 py-3 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 rounded-lg text-white font-semibold transition-all duration-300 shadow-lg shadow-blue-700/30"
+            className="px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-blue-700/30"
           >
             Search
           </button>
         </motion.form>
 
-        {!query && selectedGenres.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="mb-4 flex justify-center"
-          >
-            <div className="text-sm text-neutral-400">No genre selected</div>
-          </motion.div>
-        )}
-
         {selectedGenres.length > 0 && (
           <motion.div
-            className="mb-6 flex flex-wrap gap-2 items-center justify-center"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 flex flex-wrap gap-2 justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
           >
             {selectedGenres.map((g) => (
               <motion.span
@@ -187,9 +165,10 @@ export default function ExploreMangaPage() {
               >
                 {genres.find((x) => x.id === g)?.attributes?.name?.en || g}
                 <button
-                  onClick={() => setSelectedGenres((prev) => prev.filter((x) => x !== g))}
+                  onClick={() =>
+                    setSelectedGenres((prev) => prev.filter((x) => x !== g))
+                  }
                   className="ml-1 text-xs text-white/80 rounded-full w-5 h-5 flex items-center justify-center"
-                  aria-label={`Remove ${g}`}
                 >
                   ✕
                 </button>
@@ -198,73 +177,83 @@ export default function ExploreMangaPage() {
           </motion.div>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 mt-2 max-w-6xl mx-auto">
+        <AnimatePresence mode="wait">
           {loading ? (
-            [...Array(12)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="h-[260px] bg-neutral-800 rounded-xl animate-pulse"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.02 }}
-              />
-            ))
-          ) : displayedManga.length > 0 ? (
-            displayedManga.map((m: any) => (
-              <motion.div
-                key={m.id || m.identifier || Math.random()}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                viewport={{ once: true }}
-              >
-                <MangaGrid mangaList={[m]} single />
-              </motion.div>
-            ))
-          ) : (
-            <motion.div className="col-span-full">
-              <div className="flex flex-col items-center gap-3 text-zinc-500 py-16">
-                <FaTimesCircle className="text-5xl text-zinc-600" />
-                <p className="text-lg font-medium">No manga found.</p>
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+            >
+              <div className="flex items-center justify-center gap-2 mb-6 text-sky-400">
+                <FaSpinner className="animate-spin" /> Loading manga...
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-48 bg-zinc-800/40 backdrop-blur-md rounded-xl animate-pulse border border-zinc-700/40"
+                  ></div>
+                ))}
               </div>
             </motion.div>
+          ) : mangaList.length > 0 ? (
+            <motion.div
+              key="manga"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5 }}
+            >
+              <MangaGrid mangaList={mangaList} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              className="flex flex-col items-center gap-3 text-zinc-500 py-16"
+            >
+              <FaTimesCircle className="text-5xl text-zinc-600" />
+              <p className="text-lg font-medium">No manga found.</p>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
 
         <AnimatePresence>
           {genreModalOpen && (
             <motion.div
-              className="fixed inset-0 bg-[rgba(8,8,12,0.6)] backdrop-blur-2xl flex items-center justify-center z-50 px-4"
+              className="fixed inset-0 bg-[rgba(8,8,12,0.6)] backdrop-blur-2xl flex items-center justify-center z-50 px-3 sm:px-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
               <motion.div
-                className="relative w-full max-w-3xl bg-white/6 border border-white/10 rounded-3xl shadow-[0_30px_80px_-30px_rgba(2,6,23,0.8)] p-6 sm:p-8 backdrop-blur-3xl max-h-[85vh] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600/50 scrollbar-track-transparent"
+                className="relative w-full max-w-3xl bg-white/6 border border-white/10 rounded-3xl shadow-[0_30px_80px_-30px_rgba(2,6,23,0.8)] p-5 sm:p-8 backdrop-blur-3xl max-h-[85vh] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500/40 scrollbar-track-transparent"
                 initial={{ y: 20, opacity: 0, scale: 0.98 }}
                 animate={{ y: 0, opacity: 1, scale: 1 }}
                 exit={{ y: 20, opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.28 }}
               >
-                <div className="absolute right-4 top-4">
-                  <button
-                    onClick={() => setGenreModalOpen(false)}
-                    className="text-neutral-300 hover:text-white text-2xl"
-                    aria-label="Close genre modal"
-                  >
-                    ✕
-                  </button>
-                </div>
+                <button
+                  onClick={() => setGenreModalOpen(false)}
+                  className="absolute right-5 top-5 text-neutral-300 hover:text-white text-2xl"
+                >
+                  ✕
+                </button>
 
-                <div className="text-center mb-4">
-                  <h3 className="text-xl sm:text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-300">
+                <div className="text-center mb-4 mt-2">
+                  <h3 className="text-xl sm:text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-300">
                     Select Genres
                   </h3>
-                  <p className="text-sm text-neutral-400 mt-1">Pick one or more genres to filter manga</p>
+                  <p className="text-sm text-neutral-400 mt-1">
+                    Pick one or more genres to filter manga
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {(genres.length ? genres : fallbackGenres.map((g) => ({ id: g, attributes: { name: { en: g } } }))).map((tag: any) => {
+                <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-3">
+                  {genres.map((tag) => {
                     const id = tag.id
                     const active = selectedGenres.includes(id)
                     return (
@@ -272,34 +261,26 @@ export default function ExploreMangaPage() {
                         key={id}
                         onClick={() => toggleGenre(id)}
                         whileTap={{ scale: 0.97 }}
-                        className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
                           active
-                            ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-[0_10px_30px_-12px_rgba(56,189,248,0.5)] transform-gpu scale-[1.02]'
+                            ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-[0_10px_30px_-12px_rgba(56,189,248,0.5)] scale-[1.02]'
                             : 'bg-white/4 text-neutral-200 hover:bg-white/6'
                         }`}
                       >
-                        {tag.attributes?.name?.en || tag.attributes?.name || id}
-                        {active && <span className="text-xs text-white/90">✓</span>}
+                        {tag.attributes.name.en}
+                        {active && (
+                          <span className="text-[10px] text-white/90">✓</span>
+                        )}
                       </motion.button>
                     )
                   })}
                 </div>
 
                 <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <div className="text-sm text-neutral-300">Selected: {selectedGenres.length}</div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        setSelectedGenres((prev) => {
-                          // quick pick: first 3 genres from list
-                          const firstThree = (genres.length ? genres : fallbackGenres.map((g) => ({ id: g }))).slice(0, 3).map((x: any) => x.id)
-                          return firstThree
-                        })
-                      }}
-                      className="px-4 py-2 rounded-lg bg-white/6 text-sm text-neutral-200 hover:bg-white/8 transition"
-                    >
-                      Quick: Top 3
-                    </button>
+                  <div className="text-sm text-neutral-300">
+                    Selected: {selectedGenres.length}
+                  </div>
+                  <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-end">
                     <button
                       onClick={() => setSelectedGenres([])}
                       className="px-4 py-2 rounded-lg bg-white/6 text-sm text-neutral-200 hover:bg-white/8 transition"
