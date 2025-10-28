@@ -153,7 +153,7 @@ export default function LandingPage() {
                   AICHIOW
                 </div>
                 <div className="text-xs sm:text-sm text-gray-400 -mt-1">
-                  The number one platform all in one.
+                  All you need, right here.
                 </div>
               </div>
             </Link>
