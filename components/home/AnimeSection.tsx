@@ -3,7 +3,7 @@ import { Anime } from '@/types/anime'
 import AnimeCard from '../anime/AnimeCard'
 
 interface AnimeSectionProps {
-  title: string
+  title: React.ReactNode
   anime?: Anime[]
   href?: string
 }
