@@ -27,7 +27,7 @@ export default function HomePage() {
         <title>Anime | Aichiow</title>
         <meta
           name="description"
-          content="Aichiow - explore trending anime, top rated, seasonal picks, and more!"
+          content="Aichiow explore trending anime, top rated, seasonal picks, and more!"
         />
       </Head>
 
