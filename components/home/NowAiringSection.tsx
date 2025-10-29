@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Anime } from '@/types/anime'
-import { SatelliteDish } from 'lucide-react'
 
 interface Props {
   anime: Anime[] | undefined
@@ -12,10 +11,7 @@ export default function NowAiringSection({ anime }: Props) {
 
   return (
     <div className="px-4 py-6">
-      <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-        <SatelliteDish className="w-5 h-5 text-indigo-400" />
-        Now Airing
-      </h2>
+      <h2 className="text-xl font-semibold text-white mb-4">⚡ Now Airing</h2>
       <div className="flex gap-4 overflow-x-auto scroll-smooth">
         {anime.slice(0, 10).map((item) => (
           <Link
