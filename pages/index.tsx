@@ -98,8 +98,8 @@ export default function LandingPage() {
       href: '/light-novel',
       desc:
         lang === 'EN'
-          ? 'Summaries, translations, and recommendations — from isekai to slice of life.'
-          : 'Ringkasan, terjemahan, dan rekomendasi — dari isekai hingga slice of life.',
+          ? 'Summaries, translations, and recommendations from isekai to slice of life.'
+          : 'Ringkasan, terjemahan, dan rekomendasi dari isekai hingga slice of life.',
       icon: <FaFeatherAlt className="w-8 h-8" />
     }
   ]
