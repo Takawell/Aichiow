@@ -49,7 +49,7 @@ export default function LandingPage() {
             x: [0, 15, -15]
           }}
           transition={{ repeat: Infinity, duration: 9 + i, delay: i * 0.5 }}
-          className="absolute bg-gradient-to-r from-sky-700 via-blue-800 to-sky-900 rounded-full blur-3xl opacity-20"
+          className="absolute bg-white rounded-full blur-3xl opacity-5"
           style={{
             width: 200 + i * 12,
             height: 200 + i * 12,
@@ -135,7 +135,7 @@ export default function LandingPage() {
         />
       </Head>
 
-      <main className="relative min-h-screen bg-gradient-to-b from-sky-700 via-blue-800 to-sky-900 text-white overflow-hidden">
+      <main className="relative min-h-screen bg-black text-white overflow-hidden">
         <BackgroundDots />
 
         <div className="relative z-20 w-full max-w-[100rem] mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-16 lg:py-20">
@@ -152,14 +152,14 @@ export default function LandingPage() {
                 <div className="font-extrabold text-xl sm:text-2xl tracking-tight">
                   AICHIOW
                 </div>
-                <div className="text-xs sm:text-sm text-sky-200 -mt-1">
+                <div className="text-xs sm:text-sm text-gray-400 -mt-1">
                   All you need, right here.
                 </div>
               </div>
             </Link>
 
             <div className="flex items-center gap-3 sm:gap-5">
-              <nav className="hidden md:flex gap-4 text-sm text-sky-100">
+              <nav className="hidden md:flex gap-4 text-sm text-gray-300">
                 <Link href="/home" className="hover:text-white">Home</Link>
                 <Link href="/manga" className="hover:text-white">Manga</Link>
                 <Link href="/manhwa" className="hover:text-white">Manhwa</Link>
@@ -171,11 +171,11 @@ export default function LandingPage() {
               <motion.button
                 onClick={() => setLang(lang === 'EN' ? 'ID' : 'EN')}
                 whileTap={{ scale: 0.9 }}
-                className="relative w-20 h-9 flex items-center bg-blue-900 rounded-full px-1 cursor-pointer overflow-hidden border border-blue-700"
+                className="relative w-20 h-9 flex items-center bg-gray-800 rounded-full px-1 cursor-pointer overflow-hidden border border-gray-700"
               >
                 <motion.div
                   layout
-                  className="absolute top-1 left-1 w-7 h-7 rounded-full bg-gradient-to-r from-sky-600 to-blue-700 shadow-lg"
+                  className="absolute top-1 left-1 w-7 h-7 rounded-full bg-gray-500 shadow-lg"
                   animate={{ x: lang === 'EN' ? 0 : 40 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 />
@@ -190,7 +190,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: -8, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.6 }}
-              className="p-2 pb-2 leading-[1.1] text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-300 via-blue-300 to-sky-100"
+              className="p-2 pb-2 leading-[1.1] text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-100 via-gray-300 to-gray-400"
             >
               {lang === 'EN'
                 ? 'The Ultimate Hub for Anime, Manga, Manhwa & Light Novels'
@@ -204,7 +204,7 @@ export default function LandingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.4 }}
-                className="mt-6 max-w-2xl mx-auto text-sky-100 px-2 sm:px-4 text-base sm:text-lg leading-relaxed"
+                className="mt-6 max-w-2xl mx-auto text-gray-300 px-2 sm:px-4 text-base sm:text-lg leading-relaxed"
               >
                 {heroTexts[lang][heroTextIndex]}
               </motion.p>
@@ -213,7 +213,7 @@ export default function LandingPage() {
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/explore"
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-sky-600 via-blue-700 to-sky-800 shadow-lg hover:scale-105 transform transition w-full sm:w-auto justify-center"
+                className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gray-800 shadow-lg hover:bg-gray-700 transition w-full sm:w-auto justify-center"
               >
                 <FaPlayCircle className="w-5 h-5" />
                 <span className="font-semibold">
@@ -223,7 +223,7 @@ export default function LandingPage() {
 
               <Link
                 href="/about"
-                className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl border border-white/10 text-sm hover:bg-white/10 transition w-full sm:w-auto justify-center"
+                className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl border border-white/10 text-sm hover:bg-white/5 transition w-full sm:w-auto justify-center"
               >
                 <FaUsers className="w-4 h-4" />
                 <span>{lang === 'EN' ? 'About' : 'Tentang'}</span>
@@ -244,18 +244,18 @@ export default function LandingPage() {
                     viewport={{ once: true }}
                     whileHover={{ scale: 1.03 }}
                     transition={{ duration: 0.45, delay: idx * 0.06 }}
-                    className="group relative rounded-2xl p-6 min-h-[180px] flex flex-col bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-sm hover:shadow-lg hover:shadow-sky-600/20 transition-all cursor-pointer"
+                    className="group relative rounded-2xl p-6 min-h-[180px] flex flex-col bg-gray-900 border border-white/10 backdrop-blur-sm hover:shadow-lg hover:shadow-gray-700/20 transition-all cursor-pointer"
                   >
                     <div className="flex items-start gap-4 mb-4">
-                      <div className="p-3 rounded-lg bg-gradient-to-br from-sky-600 to-blue-700 text-black shadow-md">
+                      <div className="p-3 rounded-lg bg-gray-800 text-white shadow-md">
                         {f.icon}
                       </div>
                       <div>
                         <div className="font-semibold text-lg">{f.title}</div>
                       </div>
                     </div>
-                    <div className="text-sm text-sky-100 line-clamp-3 flex-1">{f.desc}</div>
-                    <div className="mt-4 text-xs text-sky-300 group-hover:text-sky-200 transition">
+                    <div className="text-sm text-gray-300 line-clamp-3 flex-1">{f.desc}</div>
+                    <div className="mt-4 text-xs text-gray-400 group-hover:text-gray-200 transition">
                       {lang === 'EN' ? 'Learn more →' : 'Selengkapnya →'}
                     </div>
                   </motion.div>
@@ -270,7 +270,7 @@ export default function LandingPage() {
                 ? 'Meet Aichixia – Your AI Assistant'
                 : 'Kenalan dengan Aichixia – Asisten AI Kamu'}
             </h3>
-            <div className="max-w-2xl mx-auto bg-white/10 border border-white/10 rounded-2xl p-6 backdrop-blur-sm shadow-lg">
+            <div className="max-w-2xl mx-auto bg-gray-900 border border-white/10 rounded-2xl p-6 backdrop-blur-sm shadow-lg">
               <div className="space-y-4 text-sm">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -278,7 +278,7 @@ export default function LandingPage() {
                   transition={{ duration: 0.5 }}
                   className="flex items-start gap-3"
                 >
-                  <div className="px-4 py-2 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-700 text-white shadow">
+                  <div className="px-4 py-2 rounded-2xl bg-gray-800 text-white shadow">
                     {lang === 'EN'
                       ? 'Hi Aichixia, recommend me a new anime this season!'
                       : 'Hai Aichixia, rekomendasiin anime baru musim ini dong!'}
@@ -291,7 +291,7 @@ export default function LandingPage() {
                   transition={{ duration: 0.5, delay: 0.3 }}
                   className="flex items-start gap-3 justify-end"
                 >
-                  <div className="px-4 py-2 rounded-2xl bg-white/10 text-sky-100 shadow">
+                  <div className="px-4 py-2 rounded-2xl bg-white/10 text-gray-200 shadow">
                     {lang === 'EN'
                       ? 'Sure! How about Sousou no Frieren? It’s trending this season with amazing reviews.'
                       : 'Tentu! Gimana kalau Sousou no Frieren? Lagi trending musim ini dengan ulasan keren.'}
@@ -302,7 +302,7 @@ export default function LandingPage() {
               <div className="mt-6 flex justify-center">
                 <Link
                   href="/aichixia"
-                  className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-sky-600 via-blue-700 to-sky-800 shadow-lg hover:scale-105 transform transition font-semibold"
+                  className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gray-800 hover:bg-gray-700 shadow-lg transition font-semibold"
                 >
                   {lang === 'EN' ? 'Chat with Aichixia' : 'Ngobrol dengan Aichixia'}
                 </Link>
@@ -346,7 +346,7 @@ export default function LandingPage() {
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="px-4 pb-4 text-sky-100 text-sm leading-relaxed"
+                        className="px-4 pb-4 text-gray-300 text-sm leading-relaxed"
                       >
                         {f.a}
                       </motion.div>
@@ -357,8 +357,8 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <footer className="mt-20 text-sm text-sky-200">
-            <div className="h-px bg-gradient-to-r from-transparent via-sky-500 to-transparent mb-6" />
+          <footer className="mt-20 text-sm text-gray-400">
+            <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent mb-6" />
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div>© {new Date().getFullYear()} Aichiow Plus. All rights reserved.</div>
               <div className="flex items-center gap-4">
@@ -373,7 +373,7 @@ export default function LandingPage() {
           </footer>
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-sky-900 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none" />
       </main>
     </>
   )
