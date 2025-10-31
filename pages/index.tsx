@@ -244,7 +244,7 @@ export default function LandingPage() {
                     viewport={{ once: true }}
                     whileHover={{ scale: 1.03 }}
                     transition={{ duration: 0.45, delay: idx * 0.06 }}
-                    className="group relative rounded-2xl p-6 min-h-[220px] flex flex-col bg-gradient-to-b from-white/5 to-transparent border border-white/10 backdrop-blur-sm hover:shadow-lg hover:shadow-pink-500/20 transition-all cursor-pointer"
+                    className="group relative rounded-2xl p-6 min-h-[200px] flex flex-col bg-gradient-to-b from-white/5 to-transparent border border-white/10 backdrop-blur-sm hover:shadow-lg hover:shadow-pink-500/20 transition-all cursor-pointer"
                   >
                     <div className="flex items-start gap-4 mb-4">
                       <div className="p-3 rounded-lg bg-gradient-to-br from-pink-500 to-blue-500 text-black shadow-md">
