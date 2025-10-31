@@ -53,22 +53,22 @@ export default function AboutPage() {
       </Head>
 
       <main className="relative min-h-screen bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-black to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-sky-700/30 via-black to-black" />
         <div className="relative z-20 max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
-          <Link href="/home" className="font-bold text-lg">Aichiow</Link>
+          <Link href="/home" className="font-bold text-lg text-white">Home</Link>
           <motion.button
             onClick={() => setLang(lang === 'EN' ? 'ID' : 'EN')}
             whileTap={{ scale: 0.9 }}
-            className="relative w-20 h-9 flex items-center bg-gray-800 rounded-full px-1 cursor-pointer overflow-hidden border border-gray-700"
+            className="relative w-20 h-9 flex items-center bg-sky-900 rounded-full px-1 cursor-pointer overflow-hidden border border-sky-700 shadow-md shadow-sky-500/20"
           >
             <motion.div
               layout
-              className="absolute top-1 left-1 w-7 h-7 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg"
+              className="absolute top-1 left-1 w-7 h-7 rounded-full bg-gradient-to-r from-sky-400 to-sky-600 shadow-lg"
               animate={{ x: lang === 'EN' ? 0 : 40 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             />
-            <span className="flex-1 text-center text-xs">EN</span>
-            <span className="flex-1 text-center text-xs">ID</span>
+            <span className="flex-1 text-center text-xs text-white">EN</span>
+            <span className="flex-1 text-center text-xs text-white">ID</span>
           </motion.button>
         </div>
 
@@ -77,7 +77,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl sm:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400"
+            className="text-4xl sm:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-blue-400 to-sky-300"
           >
             {lang === 'EN' ? 'About Aichiow' : 'Tentang Aichiow'}
           </motion.h1>
@@ -130,28 +130,28 @@ export default function AboutPage() {
               viewport={{ once: true }}
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="p-6 bg-gradient-to-b from-white/5 to-transparent rounded-xl border border-white/10 hover:shadow-lg hover:shadow-pink-500/20"
+              className="p-6 bg-gradient-to-b from-sky-800/30 to-transparent rounded-xl border border-sky-700 hover:shadow-lg hover:shadow-sky-500/30"
             >
-              <div className="mb-3 text-pink-400">{f.icon}</div>
-              <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
+              <div className="mb-3 text-sky-400">{f.icon}</div>
+              <h3 className="font-semibold text-lg mb-2 text-white">{f.title}</h3>
               <p className="text-sm text-gray-300">{f.desc}</p>
             </motion.div>
           ))}
         </section>
 
         <section className="relative z-10 max-w-3xl mx-auto px-6 py-16">
-          <h2 className="text-2xl font-bold text-center mb-8">
+          <h2 className="text-2xl font-bold text-center mb-8 text-white">
             {lang === 'EN' ? 'Frequently Asked Questions' : 'Pertanyaan Umum'}
           </h2>
           <div className="space-y-4">
             {faq[lang].map((f, i) => (
               <div
                 key={i}
-                className="rounded-lg bg-white/5 border border-white/10 overflow-hidden"
+                className="rounded-lg bg-sky-900/20 border border-sky-800 overflow-hidden"
               >
                 <button
                   onClick={() => toggleFAQ(i)}
-                  className="w-full flex justify-between items-center px-4 py-3 text-left font-medium hover:bg-white/10 transition"
+                  className="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-white hover:bg-sky-800/30 transition"
                 >
                   <span>{f.q}</span>
                   <span>{openFAQ === i ? '-' : '+'}</span>
@@ -175,7 +175,7 @@ export default function AboutPage() {
         </section>
 
         <footer className="relative z-10 text-center text-sm text-gray-400 py-8">
-          <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent mb-6" />
+          <div className="h-px bg-gradient-to-r from-transparent via-sky-600 to-transparent mb-6" />
           © {new Date().getFullYear()} Aichiow Plus. All rights reserved.
         </footer>
       </main>
