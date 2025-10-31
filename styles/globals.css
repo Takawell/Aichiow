@@ -29,15 +29,18 @@ a {
   background: #1f2937;
 }
 
-div[style*="overflow-x: auto"],
 .overflow-x-auto {
-  -ms-overflow-style: none; 
-  scrollbar-width: none; 
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
 }
-div[style*="overflow-x: auto"]::-webkit-scrollbar,
 .overflow-x-auto::-webkit-scrollbar {
-  display: none; 
+  height: 0;
+  background: transparent;
+}
+div[style*="overflow-x: auto"]::-webkit-scrollbar {
+  height: 0;
+  background: transparent;
 }
 
 .nav-link {
