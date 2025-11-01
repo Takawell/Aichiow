@@ -17,7 +17,7 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** modern design, fa
 ## 📸 Screenshots
 
 ### Landing Page
-![Landing Page](https://i.ibb.co/213z6wMp/download-14.png)
+![Landing Page](https://github.com/user-attachments/assets/188c6775-7f92-4930-ad93-eeddcad8d410)
 
 <details>
 <summary>More Screenshot</summary>
@@ -38,6 +38,9 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** modern design, fa
 
 ### Light Novels
 ![Light Novels](https://i.ibb.co/DNxqYKf/1757297605643.jpg)
+
+### Reading Page
+![Reading](https://github.com/user-attachments/assets/cceb28c4-c0e7-41b7-bf15-84ff77571a4f)
 
 ### AND MUCH MORE
 
