@@ -6,7 +6,6 @@ import { fetchChapterImages } from '@/lib/mangadex'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { MdArrowBack, MdFullscreen, MdFullscreenExit, MdArrowUpward } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '@/lib/supabaseClient'
 
 export default function ReadPage() {
   const router = useRouter()
@@ -19,23 +18,10 @@ export default function ReadPage() {
   const [prevId, setPrevId] = useState<string | null>(null)
   const [mode, setMode] = useState<'scroll' | 'swipe'>('scroll')
   const [currentPage, setCurrentPage] = useState(0)
-  const [user, setUser] = useState<any>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/auth/login')
-      } else {
-        setUser(user)
-      }
-    }
-    checkUser()
-  }, [router])
-
-  useEffect(() => {
-    if (!router.isReady || !user) return
+    if (!router.isReady) return
     const raw = router.query.chapterId
     const chapterIdStr =
       typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] : ''
@@ -78,7 +64,7 @@ export default function ReadPage() {
     }
 
     loadImages()
-  }, [router.isReady, router.query.chapterId, user])
+  }, [router.isReady, router.query.chapterId])
 
   const handleNavigation = (targetId: string | null) => {
     if (targetId) {
@@ -119,7 +105,7 @@ export default function ReadPage() {
     return () => window.removeEventListener('keydown', handleKey)
   }, [mode, currentPage])
 
-  if (!user || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
         Loading...
