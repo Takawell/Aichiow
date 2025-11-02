@@ -63,7 +63,7 @@ export default function CommunityPage() {
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
     if (!newMessage.trim()) return;
-    if (!user && !anonName) return; // pastikan user sudah punya identitas
+    if (!user && !anonName) return; 
 
     const name =
       user?.user_metadata?.full_name ||
@@ -224,7 +224,7 @@ export default function CommunityPage() {
       {showModal && (
         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-20">
           <div className="bg-[#18181b] rounded-2xl p-6 w-80 text-center border border-gray-700 shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Masuk Sebagai Guest</h2>
+            <h2 className="text-lg font-semibold mb-4">Sign in as a Guest</h2>
             <input
               type="text"
               placeholder="Enter your name..."
