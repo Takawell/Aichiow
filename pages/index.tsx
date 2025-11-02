@@ -217,7 +217,7 @@ export default function LandingPage() {
               >
                 <FaPlayCircle className="w-5 h-5" />
                 <span className="font-semibold">
-                  {lang === 'EN' ? 'Explore Now' : 'Jelajahi Sekarang'}
+                  {lang === 'EN' ? 'Explore' : 'Jelajahi'}
                 </span>
               </Link>
 
