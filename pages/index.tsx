@@ -217,16 +217,16 @@ export default function LandingPage() {
               >
                 <FaPlayCircle className="w-5 h-5" />
                 <span className="font-semibold">
-                  {lang === 'EN' ? 'Explore' : 'Jelajahi'}
+                  {lang === 'EN' ? 'Explore Now' : 'Jelajahi Sekarang'}
                 </span>
               </Link>
 
               <Link
-                href="/about"
+                href="/community"
                 className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl border border-white/10 text-sm hover:bg-white/5 transition w-full sm:w-auto justify-center"
               >
                 <FaUsers className="w-4 h-4" />
-                <span>{lang === 'EN' ? 'About' : 'Tentang'}</span>
+                <span>{lang === 'EN' ? 'Community' : 'Komunitas'}</span>
               </Link>
             </div>
           </section>
