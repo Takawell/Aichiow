@@ -114,6 +114,7 @@ export default function CTACommunityFooter() {
               <li><Link href="/auth/register" className="hover:text-primary transition">Sign Up</Link></li>
               <li><Link href="/status" className="hover:text-primary transition">Status Server</Link></li>
               <li><Link href="/API" className="hover:text-primary transition">API for Developers</Link></li>
+              <li><Link href="/donate" className="hover:text-primary transition">Donate to support</Link></li>
             </ul>
           </motion.div>
 
