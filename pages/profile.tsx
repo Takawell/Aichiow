@@ -16,7 +16,6 @@ import {
   FaBook,
   FaBookOpen,
   FaDragon,
-  FaUpload,
 } from 'react-icons/fa'
 
 type TrailerHistoryRow = {
@@ -47,31 +46,28 @@ export default function ProfileDashboard() {
   useEffect(() => {
     const loadSession = async () => {
       try {
-        const sessionResp = await supabase.auth.getSession()
-        const sess = sessionResp?.data?.session ?? null
+        const { data: sessionData } = await supabase.auth.getSession()
+        const sess = sessionData?.session ?? null
         if (!sess) {
           router.replace('/auth/login')
           return
         }
         setSession(sess)
+        const authUser = sess.user
 
-        const userId = sess.user.id
-
+        const googleAvatar =
+          authUser.user_metadata?.avatar_url ||
+          authUser.user_metadata?.picture ||
+          '/default.png'
+        const googleUsername =
+          authUser.user_metadata?.full_name ||
+          authUser.user_metadata?.name ||
+          `Otaku Explorer ✨`
         const { data: profileData } = await supabase
           .from('users')
           .select('*')
-          .eq('id', userId)
+          .eq('id', authUser.id)
           .single()
-
-        let baseUser: UserRow =
-          profileData ?? {
-            id: userId,
-            username: 'Otaku Explorer ✨',
-            bio: 'Lover of anime, manga, manhwa & light novels.',
-            avatar_url: '/default.png',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }
 
         const localUsername =
           typeof window !== 'undefined' ? localStorage.getItem('username') : null
@@ -80,17 +76,19 @@ export default function ProfileDashboard() {
         const localAvatar =
           typeof window !== 'undefined' ? localStorage.getItem('avatar') : null
 
-        if (localUsername || localBio || localAvatar) {
-          baseUser = {
-            ...baseUser,
-            username: localUsername || baseUser.username,
-            bio: localBio || baseUser.bio,
-            avatar_url: localAvatar || baseUser.avatar_url,
-          }
+        const finalUser: UserRow = {
+          id: authUser.id,
+          username:
+            localUsername || profileData?.username || googleUsername || 'Otaku Explorer ✨',
+          bio:
+            localBio || profileData?.bio || 'Lover of anime, manga, manhwa & light novels.',
+          avatar_url: localAvatar || profileData?.avatar_url || googleAvatar || '/default.png',
+          created_at: profileData?.created_at || new Date().toISOString(),
+          updated_at: profileData?.updated_at || new Date().toISOString(),
         }
 
-        setUser(baseUser)
-        setSelectedAvatar(baseUser.avatar_url || '/default.png')
+        setUser(finalUser)
+        setSelectedAvatar(finalUser.avatar_url)
 
         const { data: rawHistoryData } = await supabase
           .from('trailer_watch_history')
@@ -108,7 +106,7 @@ export default function ProfileDashboard() {
               cover_image
             )
           `)
-          .eq('user_id', userId)
+          .eq('user_id', authUser.id)
           .order('watched_at', { ascending: false })
 
         if (rawHistoryData && Array.isArray(rawHistoryData)) {
@@ -126,10 +124,9 @@ export default function ProfileDashboard() {
               trailer_site: it.trailer_site,
               trailer_thumbnail: it.trailer_thumbnail ?? null,
               watched_at: it.watched_at,
-              watch_count:
-                typeof it.watch_count === 'number'
-                  ? it.watch_count
-                  : Number(it.watch_count) || 1,
+              watch_count: typeof it.watch_count === 'number'
+                ? it.watch_count
+                : Number(it.watch_count) || 1,
               anime: animeObj
                 ? {
                     title_romaji: animeObj.title_romaji ?? 'Unknown',
@@ -144,7 +141,7 @@ export default function ProfileDashboard() {
         const { data: favoritesData } = await supabase
           .from('favorites')
           .select('*')
-          .eq('user_id', userId)
+          .eq('user_id', authUser.id)
 
         if (favoritesData) setFavorites(favoritesData as FavoriteRow[])
       } catch (err) {
@@ -160,7 +157,6 @@ export default function ProfileDashboard() {
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
     const reader = new FileReader()
     reader.onload = () => {
       const base64 = reader.result as string
@@ -202,11 +198,11 @@ export default function ProfileDashboard() {
     setOpenEdit(false)
   }
 
-  if (!session || !user) return null
-
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     e.currentTarget.src = '/default.png'
   }
+
+  if (!session || !user) return null
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#121026] to-[#0f172a] p-4 md:p-8 text-white">
@@ -266,10 +262,7 @@ export default function ProfileDashboard() {
 
           <div className="flex gap-3">
             <motion.button
-              onClick={() => {
-                setSelectedAvatar(user.avatar_url || '/default.png')
-                setOpenEdit(true)
-              }}
+              onClick={() => setOpenEdit(true)}
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 font-semibold shadow-lg"
             >
@@ -303,9 +296,7 @@ export default function ProfileDashboard() {
               <h3 className="text-lg font-bold mb-4">Edit Profile</h3>
               <form onSubmit={handleSave} className="space-y-4">
                 <div>
-                  <label className="block mb-1 text-sm font-semibold">
-                    Username
-                  </label>
+                  <label className="block mb-1 text-sm font-semibold">Username</label>
                   <input
                     name="username"
                     defaultValue={user.username || ''}
@@ -321,11 +312,8 @@ export default function ProfileDashboard() {
                     className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
                   />
                 </div>
-
                 <div>
-                  <label className="block mb-2 text-sm font-semibold">
-                    Avatar
-                  </label>
+                  <label className="block mb-2 text-sm font-semibold">Avatar</label>
                   <div className="flex flex-col gap-2">
                     <input
                       type="file"
@@ -334,29 +322,25 @@ export default function ProfileDashboard() {
                       className="w-full rounded-lg bg-white/10 border border-white/20 text-sm p-2 cursor-pointer"
                     />
                     <div className="flex justify-between gap-2 mt-2">
-                      {['/default.png', '/v2.png', '/v3.png', '/v4.png'].map(
-                        (src) => (
-                          <button
-                            type="button"
-                            key={src}
-                            onClick={() => setSelectedAvatar(src)}
-                            className={`relative rounded-full overflow-hidden border-2 ${
-                              selectedAvatar === src
-                                ? 'border-blue-500'
-                                : 'border-transparent'
-                            }`}
-                          >
-                            <Image
-                              src={src}
-                              alt="avatar"
-                              width={60}
-                              height={60}
-                              onError={handleImageError}
-                              className="rounded-full object-cover"
-                            />
-                          </button>
-                        )
-                      )}
+                      {['/default.png', '/v2.png', '/v3.png', '/v4.png'].map((src) => (
+                        <button
+                          type="button"
+                          key={src}
+                          onClick={() => setSelectedAvatar(src)}
+                          className={`relative rounded-full overflow-hidden border-2 ${
+                            selectedAvatar === src ? 'border-blue-500' : 'border-transparent'
+                          }`}
+                        >
+                          <Image
+                            src={src}
+                            alt="avatar"
+                            width={60}
+                            height={60}
+                            onError={handleImageError}
+                            className="rounded-full object-cover"
+                          />
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -380,7 +364,7 @@ export default function ProfileDashboard() {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>  
 
       <section className="mb-12">
         <motion.h3
