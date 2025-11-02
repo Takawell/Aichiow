@@ -4,9 +4,9 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  FaHeart, FaCoffee, FaGem, FaCrown, 
-  FaPaypal, FaBitcoin, FaCreditCard, FaTimes 
+import {
+  FaHeart, FaCoffee, FaGem, FaCrown, FaGlobe,
+  FaPaypal, FaBitcoin, FaCreditCard, FaQrcode, FaTimes
 } from 'react-icons/fa'
 
 export default function DonatePage() {
@@ -17,20 +17,30 @@ export default function DonatePage() {
     EN: [
       { id: 'coffee', icon: <FaCoffee className="w-8 h-8 text-sky-400" />, title: 'Coffee Tier', amount: '$3', desc: 'A small gesture that keeps Aichiow awake and growing.' },
       { id: 'gem', icon: <FaGem className="w-8 h-8 text-sky-400" />, title: 'Gem Tier', amount: '$10', desc: 'Support our servers and help unlock new features.' },
-      { id: 'crown', icon: <FaCrown className="w-8 h-8 text-sky-400" />, title: 'Crown Tier', amount: '$25', desc: 'Be a premium supporter and get early feature access.' }
+      { id: 'crown', icon: <FaCrown className="w-8 h-8 text-sky-400" />, title: 'Crown Tier', amount: '$25', desc: 'Be a premium supporter and get early feature access.' },
+      { id: 'galaxy', icon: <FaGlobe className="w-8 h-8 text-sky-400" />, title: 'Galaxy Tier', amount: '$50', desc: 'Become a legendary supporter with exclusive acknowledgments.' }
     ],
     ID: [
       { id: 'coffee', icon: <FaCoffee className="w-8 h-8 text-sky-400" />, title: 'Tingkat Kopi', amount: 'Rp45.000', desc: 'Dukungan kecil yang menjaga Aichiow tetap hidup dan berkembang.' },
       { id: 'gem', icon: <FaGem className="w-8 h-8 text-sky-400" />, title: 'Tingkat Permata', amount: 'Rp150.000', desc: 'Bantu biaya server dan pengembangan fitur baru.' },
-      { id: 'crown', icon: <FaCrown className="w-8 h-8 text-sky-400" />, title: 'Tingkat Mahkota', amount: 'Rp350.000', desc: 'Jadilah pendukung premium dan dapatkan akses fitur lebih awal.' }
+      { id: 'crown', icon: <FaCrown className="w-8 h-8 text-sky-400" />, title: 'Tingkat Mahkota', amount: 'Rp350.000', desc: 'Jadilah pendukung premium dan dapatkan akses fitur lebih awal.' },
+      { id: 'galaxy', icon: <FaGlobe className="w-8 h-8 text-sky-400" />, title: 'Tingkat Galaksi', amount: 'Rp750.000', desc: 'Dukung penuh dan dapatkan pengakuan eksklusif di platform.' }
     ]
   }
 
   const payments = [
     { icon: <FaPaypal className="w-8 h-8 text-sky-400" />, name: 'PayPal' },
     { icon: <FaBitcoin className="w-8 h-8 text-sky-400" />, name: 'Crypto' },
-    { icon: <FaCreditCard className="w-8 h-8 text-sky-400" />, name: 'Card' }
+    { icon: <FaCreditCard className="w-8 h-8 text-sky-400" />, name: 'Card' },
+    { icon: <FaQrcode className="w-8 h-8 text-sky-400" />, name: 'QRIS' }
   ]
+
+  const tierLinks: Record<string, string> = {
+    coffee: 'https://ko-fi.com/aichiow?amount=3',
+    gem: 'https://ko-fi.com/aichiow?amount=10',
+    crown: 'https://ko-fi.com/aichiow?amount=25',
+    galaxy: 'https://ko-fi.com/aichiow?amount=50'
+  }
 
   return (
     <>
@@ -43,6 +53,7 @@ export default function DonatePage() {
 
       <main className="relative min-h-screen bg-black text-white overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-sky-700/30 via-black to-black" />
+
         <div className="relative z-20 max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
           <Link href="/home" className="font-bold text-lg text-white hover:text-sky-400 transition">Home</Link>
           <motion.button
@@ -77,7 +88,7 @@ export default function DonatePage() {
           </p>
         </section>
 
-        <section className="relative z-10 max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="relative z-10 max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {tiers[lang].map((tier, i) => (
             <motion.div
               key={i}
@@ -182,7 +193,7 @@ export default function DonatePage() {
                 <motion.a
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  href="#"
+                  href={tierLinks[selectedTier] || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block w-full py-2 mb-3 rounded-lg bg-gradient-to-r from-sky-600 to-blue-600 text-white font-semibold"
