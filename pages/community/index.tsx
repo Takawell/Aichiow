@@ -8,18 +8,21 @@ interface Message {
   id: string;
   message: string;
   created_at: string;
-  user_id: string;
-  user?: {
-    full_name?: string;
-    avatar_url?: string;
-  };
+  user_id: string | null;
+  username: string;
+  avatar_url: string;
 }
 
 export default function CommunityPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [user, setUser] = useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [anonName, setAnonName] = useState("");
+  const [anonAvatar, setAnonAvatar] = useState("/default.png");
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const randomAvatars = ["/default.png", "/v2.png", "/v3.png", "/v4.png"];
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -27,30 +30,16 @@ export default function CommunityPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
+
     fetchMessages();
 
     const channel = supabase
       .channel("community-room")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "community" },
-        async (payload) => {
+        { event: "INSERT", schema: "public", table: "community_messages" },
+        (payload) => {
           const newMsg = payload.new as Message;
-
-          const { data: profile } = await supabase
-            .from("auth.users")
-            .select("user_metadata")
-            .eq("id", newMsg.user_id)
-            .single();
-
-          if (profile) {
-            newMsg.user = {
-              full_name: profile.user_metadata?.full_name || "Anonymous",
-              avatar_url:
-                profile.user_metadata?.avatar_url || "/default.png",
-            };
-          }
-
           setMessages((prev) => [...prev, newMsg]);
         }
       )
@@ -63,81 +52,94 @@ export default function CommunityPage() {
 
   async function fetchMessages() {
     const { data } = await supabase
-      .from("community")
-      .select("id, message, created_at, user_id")
+      .from("community_messages")
+      .select("id, user_id, username, avatar_url, message, created_at")
       .order("created_at", { ascending: true });
 
-    if (!data) return;
-
-    const usersData: Record<string, any> = {};
-    for (const msg of data) {
-      if (!usersData[msg.user_id]) {
-        const { data: profile } = await supabase
-          .from("auth.users")
-          .select("user_metadata")
-          .eq("id", msg.user_id)
-          .single();
-        usersData[msg.user_id] = profile?.user_metadata || {};
-      }
-    }
-
-    const enriched = data.map((msg) => ({
-      ...msg,
-      user: {
-        full_name: usersData[msg.user_id]?.full_name || "Anonymous",
-        avatar_url: usersData[msg.user_id]?.avatar_url || "/default.png",
-      },
-    }));
-
-    setMessages(enriched);
+    setMessages((data as Message[]) || []);
   }
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
-    if (!newMessage.trim() || !user) return;
+    if (!newMessage.trim()) return;
 
-    await supabase.from("community").insert({
-      user_id: user.id,
+    const name =
+      user?.user_metadata?.full_name ||
+      anonName ||
+      `Guest-${Math.floor(Math.random() * 1000)}`;
+    const avatar =
+      user?.user_metadata?.avatar_url ||
+      anonAvatar ||
+      randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
+
+    await supabase.from("community_messages").insert({
+      user_id: user ? user.id : null,
+      username: name,
+      avatar_url: avatar,
       message: newMessage.trim(),
     });
 
     setNewMessage("");
   }
 
+  function handleAnonConfirm() {
+    if (anonName.trim()) {
+      setShowModal(false);
+    }
+  }
+
+  function handleImageError(e: React.SyntheticEvent<HTMLImageElement>) {
+    const el = e.currentTarget;
+    const next =
+      randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
+    el.src = next;
+  }
+
   return (
-    <div className="flex flex-col h-screen bg-[#0f0f11] text-white overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#0f0f11] text-white overflow-hidden relative">
       <header className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-[#121214] sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <Image src="/logo.png" alt="Aichiow Logo" width={36} height={36} />
-          <h1 className="text-xl font-bold tracking-wide">
-            Aichiow Community
-          </h1>
+          <h1 className="text-xl font-bold tracking-wide">Aichiow Community Beta</h1>
         </div>
+
+        {!user && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="text-sm bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg"
+          >
+            Change Profile
+          </button>
+        )}
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
         <AnimatePresence>
           {messages.map((msg) => {
             const isMine = msg.user_id === user?.id;
+            const safeAvatar =
+              msg.avatar_url ||
+              randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
+
             return (
               <motion.div
                 key={msg.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`flex gap-3 ${
-                  isMine ? "justify-end" : "justify-start"
-                }`}
+                transition={{ duration: 0.18 }}
+                className={`flex gap-3 ${isMine ? "justify-end" : "justify-start"}`}
               >
                 {!isMine && (
-                  <Image
-                    src={msg.user?.avatar_url || "/default.png"}
-                    alt={msg.user?.full_name || "User"}
+                  <img
+                    src={safeAvatar}
+                    alt={msg.username}
                     width={36}
                     height={36}
                     className="rounded-full w-9 h-9 object-cover"
+                    onError={handleImageError}
                   />
                 )}
+
                 <div
                   className={`max-w-[75%] text-sm flex flex-col ${
                     isMine ? "items-end" : "items-start"
@@ -145,18 +147,18 @@ export default function CommunityPage() {
                 >
                   {!isMine && (
                     <span className="text-xs text-gray-400 mb-1">
-                      {msg.user?.full_name || "Anonymous"}
+                      {msg.username}
                     </span>
                   )}
+
                   <div
                     className={`px-4 py-2 rounded-2xl shadow-md ${
-                      isMine
-                        ? "bg-blue-600 text-white rounded-br-none"
-                        : "bg-gray-800 text-gray-100 rounded-bl-none"
+                      isMine ? "bg-blue-600 text-white rounded-br-none" : "bg-gray-800 text-gray-100 rounded-bl-none"
                     }`}
                   >
                     {msg.message}
                   </div>
+
                   <span className="text-[10px] text-gray-500 mt-1">
                     {new Date(msg.created_at).toLocaleTimeString([], {
                       hour: "2-digit",
@@ -164,21 +166,26 @@ export default function CommunityPage() {
                     })}
                   </span>
                 </div>
+
                 {isMine && (
-                  <Image
+                  <img
                     src={
-                      user?.user_metadata?.avatar_url || "/default.png"
+                      user?.user_metadata?.avatar_url ||
+                      anonAvatar ||
+                      randomAvatars[Math.floor(Math.random() * randomAvatars.length)]
                     }
-                    alt={user?.user_metadata?.full_name || "You"}
+                    alt={user?.user_metadata?.full_name || anonName || "You"}
                     width={36}
                     height={36}
                     className="rounded-full w-9 h-9 object-cover"
+                    onError={handleImageError}
                   />
                 )}
               </motion.div>
             );
           })}
         </AnimatePresence>
+
         <div ref={bottomRef} />
       </main>
 
@@ -188,7 +195,7 @@ export default function CommunityPage() {
       >
         <input
           type="text"
-          placeholder="Ketik pesan..."
+          placeholder="Type a message..."
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           className="flex-1 bg-gray-900 border border-gray-700 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
@@ -200,6 +207,44 @@ export default function CommunityPage() {
           <Send className="w-5 h-5" />
         </button>
       </form>
+
+      {showModal && (
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-20">
+          <div className="bg-[#18181b] rounded-2xl p-6 w-80 text-center border border-gray-700 shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Sign in as a Guest</h2>
+
+            <input
+              type="text"
+              placeholder="Enter your name..."
+              value={anonName}
+              onChange={(e) => setAnonName(e.target.value)}
+              className="w-full p-2 rounded-lg bg-gray-900 border border-gray-700 mb-3 outline-none focus:ring-2 focus:ring-blue-600"
+            />
+
+            <div className="flex justify-center gap-3 mb-4">
+              {randomAvatars.map((src) => (
+                <img
+                  key={src}
+                  src={src}
+                  alt="avatar"
+                  width={40}
+                  height={40}
+                  onClick={() => setAnonAvatar(src)}
+                  className={`rounded-full w-10 h-10 cursor-pointer border-2 ${anonAvatar === src ? "border-blue-500 scale-110" : "border-transparent"} transition-transform`}
+                  onError={handleImageError}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={handleAnonConfirm}
+              className="w-full bg-blue-600 hover:bg-blue-700 rounded-lg py-2 font-medium transition-colors"
+            >
+              Start Chat
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
