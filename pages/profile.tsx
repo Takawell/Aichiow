@@ -63,6 +63,7 @@ export default function ProfileDashboard() {
           authUser.user_metadata?.full_name ||
           authUser.user_metadata?.name ||
           `Otaku Explorer ✨`
+       
         const { data: profileData } = await supabase
           .from('users')
           .select('*')
@@ -78,6 +79,7 @@ export default function ProfileDashboard() {
 
         const finalUser: UserRow = {
           id: authUser.id,
+          email: authUser.email,
           username:
             localUsername || profileData?.username || googleUsername || 'Otaku Explorer ✨',
           bio:
