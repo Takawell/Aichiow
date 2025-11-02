@@ -4,8 +4,19 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send } from "lucide-react";
 
+interface Message {
+  id: string;
+  message: string;
+  created_at: string;
+  user_id: string;
+  user?: {
+    full_name?: string;
+    avatar_url?: string;
+  };
+}
+
 export default function CommunityPage() {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [user, setUser] = useState<any>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -23,8 +34,24 @@ export default function CommunityPage() {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "community" },
-        (payload) => {
-          setMessages((prev) => [...prev, payload.new]);
+        async (payload) => {
+          const newMsg = payload.new as Message;
+
+          const { data: profile } = await supabase
+            .from("auth.users")
+            .select("user_metadata")
+            .eq("id", newMsg.user_id)
+            .single();
+
+          if (profile) {
+            newMsg.user = {
+              full_name: profile.user_metadata?.full_name || "Anonymous",
+              avatar_url:
+                profile.user_metadata?.avatar_url || "/default.png",
+            };
+          }
+
+          setMessages((prev) => [...prev, newMsg]);
         }
       )
       .subscribe();
@@ -39,7 +66,30 @@ export default function CommunityPage() {
       .from("community")
       .select("id, message, created_at, user_id")
       .order("created_at", { ascending: true });
-    setMessages(data || []);
+
+    if (!data) return;
+
+    const usersData: Record<string, any> = {};
+    for (const msg of data) {
+      if (!usersData[msg.user_id]) {
+        const { data: profile } = await supabase
+          .from("auth.users")
+          .select("user_metadata")
+          .eq("id", msg.user_id)
+          .single();
+        usersData[msg.user_id] = profile?.user_metadata || {};
+      }
+    }
+
+    const enriched = data.map((msg) => ({
+      ...msg,
+      user: {
+        full_name: usersData[msg.user_id]?.full_name || "Anonymous",
+        avatar_url: usersData[msg.user_id]?.avatar_url || "/default.png",
+      },
+    }));
+
+    setMessages(enriched);
   }
 
   async function sendMessage(e: React.FormEvent) {
@@ -65,36 +115,69 @@ export default function CommunityPage() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+      <main className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
         <AnimatePresence>
-          {messages.map((msg) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className={`flex mb-3 ${
-                msg.user_id === user?.id ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm shadow-md ${
-                  msg.user_id === user?.id
-                    ? "bg-blue-600 text-white rounded-br-none"
-                    : "bg-gray-800 text-gray-100 rounded-bl-none"
+          {messages.map((msg) => {
+            const isMine = msg.user_id === user?.id;
+            return (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+                className={`flex gap-3 ${
+                  isMine ? "justify-end" : "justify-start"
                 }`}
               >
-                <p>{msg.message}</p>
-                <span className="block text-[10px] text-gray-400 mt-1 text-right">
-                  {new Date(msg.created_at).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-              </div>
-            </motion.div>
-          ))}
+                {!isMine && (
+                  <Image
+                    src={msg.user?.avatar_url || "/default.png"}
+                    alt={msg.user?.full_name || "User"}
+                    width={36}
+                    height={36}
+                    className="rounded-full w-9 h-9 object-cover"
+                  />
+                )}
+                <div
+                  className={`max-w-[75%] text-sm flex flex-col ${
+                    isMine ? "items-end" : "items-start"
+                  }`}
+                >
+                  {!isMine && (
+                    <span className="text-xs text-gray-400 mb-1">
+                      {msg.user?.full_name || "Anonymous"}
+                    </span>
+                  )}
+                  <div
+                    className={`px-4 py-2 rounded-2xl shadow-md ${
+                      isMine
+                        ? "bg-blue-600 text-white rounded-br-none"
+                        : "bg-gray-800 text-gray-100 rounded-bl-none"
+                    }`}
+                  >
+                    {msg.message}
+                  </div>
+                  <span className="text-[10px] text-gray-500 mt-1">
+                    {new Date(msg.created_at).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+                {isMine && (
+                  <Image
+                    src={
+                      user?.user_metadata?.avatar_url || "/default.png"
+                    }
+                    alt={user?.user_metadata?.full_name || "You"}
+                    width={36}
+                    height={36}
+                    className="rounded-full w-9 h-9 object-cover"
+                  />
+                )}
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
         <div ref={bottomRef} />
       </main>
