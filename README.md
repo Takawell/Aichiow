@@ -17,7 +17,7 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** modern design, fa
 ## 📸 Screenshots
 
 ### Landing Page
-![Landing Page](https://github.com/user-attachments/assets/188c6775-7f92-4930-ad93-eeddcad8d410)
+![Landing Page](https://github.com/user-attachments/assets/a5b2d338-0dd2-4786-bb3c-ab46510b4fd0)
 
 <details>
 <summary>More Screenshot</summary>
