@@ -308,9 +308,9 @@ export default function ProfileDashboard() {
               <div className="rounded-3xl p-6 bg-gradient-to-br from-slate-900/70 to-black/80 border border-sky-700/10 shadow-[0_30px_80px_rgba(56,189,248,0.06)]">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold flex items-center gap-3 text-sky-100">
-                    <FaHistory /> Watch History
+                    <FaHistory /> History
                   </h2>
-                  <div className="text-sm text-slate-400">Most recent first</div>
+                  <div className="text-sm text-slate-400">Most recent</div>
                 </div>
 
                 {loading ? (
