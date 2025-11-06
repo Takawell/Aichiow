@@ -23,6 +23,10 @@ export default function CommunityPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const randomAvatars = ["/default.png", "/v2.png", "/v3.png", "/v4.png"];
+  const aichixia = {
+    name: "Aichixia",
+    avatar: "/aichixia.png",
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,7 +46,16 @@ export default function CommunityPage() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "community_messages" },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+          const newMsg = payload.new as Message;
+          setMessages((prev) => [...prev, newMsg]);
+
+          // Deteksi pesan untuk Aichixia
+          if (
+            newMsg.message.toLowerCase().startsWith("@aichixia") ||
+            newMsg.message.toLowerCase().startsWith("/aichixia")
+          ) {
+            handleAichixiaResponse(newMsg.message);
+          }
         }
       )
       .subscribe();
@@ -63,7 +76,7 @@ export default function CommunityPage() {
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
     if (!newMessage.trim()) return;
-    if (!user && !anonName) return; 
+    if (!user && !anonName) return;
 
     const name =
       user?.user_metadata?.full_name ||
@@ -75,14 +88,51 @@ export default function CommunityPage() {
       anonAvatar ||
       randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
 
+    const messageText = newMessage.trim();
+
     await supabase.from("community_messages").insert({
       user_id: user ? user.id : null,
       username: name,
       avatar_url: avatar,
-      message: newMessage.trim(),
+      message: messageText,
     });
 
     setNewMessage("");
+
+    // Trigger Aichixia langsung setelah user kirim pesan (biar cepat muncul)
+    if (
+      messageText.toLowerCase().startsWith("@aichixia") ||
+      messageText.toLowerCase().startsWith("/aichixia")
+    ) {
+      handleAichixiaResponse(messageText);
+    }
+  }
+
+  async function handleAichixiaResponse(prompt: string) {
+    try {
+      const res = await fetch("/api/aichixia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const data = await res.json();
+
+      // Tambahkan balasan AI ke chat
+      await supabase.from("community_messages").insert({
+        user_id: null,
+        username: aichixia.name,
+        avatar_url: aichixia.avatar,
+        message: data.reply || "Aichixia tidak bisa menjawab itu sekarang 💬",
+      });
+    } catch (error) {
+      console.error("Aichixia error:", error);
+      await supabase.from("community_messages").insert({
+        user_id: null,
+        username: aichixia.name,
+        avatar_url: aichixia.avatar,
+        message: "⚠️ Aichixia mengalami gangguan koneksi.",
+      });
+    }
   }
 
   function handleAnonConfirm() {
@@ -119,6 +169,7 @@ export default function CommunityPage() {
         <AnimatePresence>
           {messages.map((msg) => {
             const isMine = msg.user_id === user?.id;
+            const isAichixia = msg.username === aichixia.name;
             const safeAvatar =
               msg.avatar_url ||
               randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
@@ -137,7 +188,9 @@ export default function CommunityPage() {
                   <img
                     src={safeAvatar}
                     alt={msg.username}
-                    className="rounded-full w-9 h-9 object-cover"
+                    className={`rounded-full w-9 h-9 object-cover ${
+                      isAichixia ? "ring-2 ring-blue-500" : ""
+                    }`}
                     onError={handleImageError}
                   />
                 )}
@@ -148,7 +201,11 @@ export default function CommunityPage() {
                   }`}
                 >
                   {!isMine && (
-                    <span className="text-xs text-gray-400 mb-1">
+                    <span
+                      className={`text-xs mb-1 ${
+                        isAichixia ? "text-blue-400 font-semibold" : "text-gray-400"
+                      }`}
+                    >
                       {msg.username}
                     </span>
                   )}
@@ -156,6 +213,8 @@ export default function CommunityPage() {
                     className={`px-4 py-2 rounded-2xl shadow-md ${
                       isMine
                         ? "bg-blue-600 text-white rounded-br-none"
+                        : isAichixia
+                        ? "bg-blue-950 text-blue-100 border border-blue-600 rounded-bl-none"
                         : "bg-gray-800 text-gray-100 rounded-bl-none"
                     }`}
                   >
@@ -197,7 +256,9 @@ export default function CommunityPage() {
         <input
           type="text"
           placeholder={
-            canChat ? "Type a message..." : "Sign in or sign in as a guest to continue..."
+            canChat
+              ? "Type a message... use @aichixia or /aichixia to talk with AI"
+              : "Sign in or sign in as a guest to continue..."
           }
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
