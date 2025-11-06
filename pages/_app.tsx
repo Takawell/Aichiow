@@ -5,6 +5,7 @@ import { useState } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
+import UpdateModal from '@/components/shared/UpdateModal' 
 
 export default function App({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(() => new QueryClient())
@@ -19,12 +20,17 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>Aichiow Plus</title>
         <meta property="og:site_name" content="Aichiow Plus" />
         <meta property="og:title" content="Aichiow Plus" />
-        <meta name="google-site-verification" content="yFNWP1UDhvOSuM_tCxDQd_pzebb7ZhMEeYxGJj6Alok" />
+        <meta
+          name="google-site-verification"
+          content="yFNWP1UDhvOSuM_tCxDQd_pzebb7ZhMEeYxGJj6Alok"
+        />
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       {!isLanding && !isMaintenance && <Navbar />}
+
+      <UpdateModal />
 
       <main>
         <Component {...pageProps} />
