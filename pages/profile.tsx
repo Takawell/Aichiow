@@ -16,7 +16,6 @@ import {
   FaBook,
   FaBookOpen,
   FaDragon,
-  FaUpload,
 } from 'react-icons/fa'
 
 type TrailerHistoryRow = {
@@ -209,295 +208,298 @@ export default function ProfileDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-slate-900 to-black p-4 md:p-8 text-white">
-      <motion.div
-        className="relative overflow-hidden rounded-3xl p-6 md:p-10 backdrop-blur-xl border border-white/10 shadow-[0_30px_60px_rgba(56,189,248,0.06)] mb-10 bg-gradient-to-br from-black/60 via-sky-900/40 to-black/70"
-        initial={{ opacity: 0, y: -18 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <div className="absolute inset-0 opacity-40">
-          <Image
-            src="/background.png"
-            alt="bg"
-            fill
-            className="object-cover mix-blend-overlay blur-md"
-            onError={handleImageError}
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-sky-600/20 via-transparent to-sky-300/10 mix-blend-screen" />
+    <div className="min-h-screen bg-black text-slate-100 antialiased">
+      <div className="relative overflow-hidden">
+        <div className="absolute -top-40 -left-32 w-96 h-96 rounded-full blur-3xl bg-gradient-to-r from-sky-500/40 via-indigo-500/30 to-transparent opacity-70 transform rotate-12" />
+        <div className="absolute -bottom-36 -right-40 w-96 h-96 rounded-full blur-3xl bg-gradient-to-l from-sky-400/30 via-purple-500/20 to-transparent opacity-60 transform -rotate-6" />
+        <div className="container mx-auto px-4 md:px-8 lg:px-12 py-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <aside className="lg:col-span-3 flex flex-col items-center lg:items-start gap-6">
+              <div className="w-full">
+                <div className="relative rounded-2xl p-6 bg-gradient-to-br from-black/60 to-slate-900/60 border border-sky-700/10 shadow-[0_20px_60px_rgba(56,189,248,0.06)]">
+                  <div className="relative flex flex-col items-center gap-4">
+                    <div className="relative w-36 h-36 rounded-full p-1 bg-gradient-to-tr from-sky-400/30 to-indigo-500/20">
+                      <div className="absolute inset-0 rounded-full overflow-hidden border-2 border-sky-500/30 shadow-[0_12px_40px_rgba(56,189,248,0.12)]">
+                        <Image
+                          src={user.avatar_url || '/default.png'}
+                          alt="avatar"
+                          fill
+                          sizes="144px"
+                          onError={handleImageError}
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                    <div className="text-center lg:text-left">
+                      <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-200 to-white">
+                        {user.username || 'Otaku Explorer ✨'}
+                      </h1>
+                      <p className="text-xs text-sky-200/80 mt-1 max-w-[220px] truncate">
+                        {user.bio || 'Lover of anime, manga, manhwa & light novels.'}
+                      </p>
+                      <p className="text-[11px] text-slate-400 mt-2">{session.user.email}</p>
+                    </div>
+                  </div>
+                  <div className="mt-6 flex w-full gap-3">
+                    <button
+                      onClick={() => {
+                        setSelectedAvatar(user.avatar_url || '/default.png')
+                        setOpenEdit(true)
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 text-black font-semibold shadow-lg hover:scale-[1.01] transition"
+                    >
+                      <FaUserEdit /> Edit
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-sky-700/20 text-sky-200 hover:bg-white/2 transition"
+                    >
+                      <FaSignOutAlt /> Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-        <div className="relative flex flex-col md:flex-row items-center md:justify-between gap-6">
-          <motion.div
-            whileHover={{ rotate: 6, scale: 1.04 }}
-            transition={{ type: 'spring', stiffness: 200 }}
-            className="relative"
-          >
-            <span className="absolute -inset-1 rounded-full bg-gradient-to-tr from-sky-400/30 via-sky-300/20 to-transparent blur-xl" />
-            <div className="relative w-32 h-32 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-sky-400/50 shadow-[0_15px_40px_rgba(56,189,248,0.12)]">
-              <Image
-                src={user.avatar_url || '/default.png'}
-                alt="Avatar"
-                fill
-                sizes="(max-width: 768px) 120px, 144px"
-                onError={handleImageError}
-                className="object-cover"
-              />
-            </div>
-          </motion.div>
+              <div className="w-full">
+                <div className="rounded-2xl p-4 bg-gradient-to-br from-black/50 to-slate-900/50 border border-sky-700/8 shadow-lg">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="text-sm font-semibold text-sky-200 flex items-center gap-2">
+                      <FaHistory /> Activity
+                    </h3>
+                    <span className="text-xs text-slate-400">Realtime</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-lg bg-gradient-to-br from-sky-500/10 to-transparent border border-sky-700/8 text-center">
+                      <div className="text-xs text-slate-400">History</div>
+                      <div className="text-lg font-bold text-sky-300">{history.length}</div>
+                    </div>
+                    <div className="p-3 rounded-lg bg-gradient-to-br from-indigo-500/10 to-transparent border border-sky-700/8 text-center">
+                      <div className="text-xs text-slate-400">Favorites</div>
+                      <div className="text-lg font-bold text-sky-300">{favorites.length}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-          <div className="text-center md:text-left max-w-xl">
-            <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-200 to-white drop-shadow-lg">
-              {user.username || 'Otaku Explorer ✨'}
-            </h2>
-            <p className="text-sky-200/80 text-sm md:text-base italic mt-1">
-              {user.bio || 'Lover of anime, manga, manhwa & light novels.'}
-            </p>
-            <p className="text-xs md:text-sm text-slate-400 mt-2">
-              {session.user.email}
-            </p>
+              <div className="w-full hidden lg:block">
+                <div className="rounded-2xl p-4 bg-gradient-to-br from-black/50 to-slate-900/50 border border-sky-700/8 shadow-lg">
+                  <h4 className="text-sm font-semibold text-sky-200 flex items-center gap-2 mb-3">
+                    Quick Links
+                  </h4>
+                  <div className="flex flex-col gap-2">
+                    <button className="text-sm py-2 rounded-lg text-left px-3 bg-transparent border border-sky-700/8 hover:bg-sky-700/6 transition flex items-center gap-2">
+                      <FaTv /> Anime
+                    </button>
+                    <button className="text-sm py-2 rounded-lg text-left px-3 bg-transparent border border-sky-700/8 hover:bg-sky-700/6 transition flex items-center gap-2">
+                      <FaBook /> Manga
+                    </button>
+                    <button className="text-sm py-2 rounded-lg text-left px-3 bg-transparent border border-sky-700/8 hover:bg-sky-700/6 transition flex items-center gap-2">
+                      <FaDragon /> Manhwa
+                    </button>
+                    <button className="text-sm py-2 rounded-lg text-left px-3 bg-transparent border border-sky-700/8 hover:bg-sky-700/6 transition flex items-center gap-2">
+                      <FaBookOpen /> Light Novels
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </aside>
 
-            <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
-              <span className="px-3 py-1 rounded-full text-xs bg-black/40 border border-sky-600/20 backdrop-blur-sm">
-                History: <b className="text-sky-300">{history.length}</b>
-              </span>
-              <span className="px-3 py-1 rounded-full text-xs bg-black/40 border border-sky-600/20 backdrop-blur-sm">
-                Favorites: <b className="text-sky-300">{favorites.length}</b>
-              </span>
-            </div>
+            <main className="lg:col-span-6">
+              <div className="rounded-3xl p-6 bg-gradient-to-br from-slate-900/70 to-black/80 border border-sky-700/10 shadow-[0_30px_80px_rgba(56,189,248,0.06)]">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold flex items-center gap-3 text-sky-100">
+                    <FaHistory /> Watch History
+                  </h2>
+                  <div className="text-sm text-slate-400">Most recent first</div>
+                </div>
+
+                {loading ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="h-40 rounded-xl bg-gradient-to-br from-black/40 to-slate-900/40 animate-pulse" />
+                    ))}
+                  </div>
+                ) : history.length === 0 ? (
+                  <div className="py-20 text-center text-slate-400">No viewing history yet.</div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {history.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        whileHover={{ scale: 1.03 }}
+                        className="relative rounded-xl overflow-hidden border border-sky-700/10 bg-gradient-to-br from-black/40 to-slate-900/40 shadow-lg"
+                      >
+                        <div className="relative w-full h-36">
+                          <Image
+                            src={item.anime?.cover_image || item.trailer_thumbnail || '/default.png'}
+                            alt={item.anime?.title_romaji || 'Trailer'}
+                            fill
+                            sizes="(max-width: 768px) 160px, 320px"
+                            onError={handleImageError}
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="absolute left-3 top-3 px-2 py-0.5 rounded-full bg-black/60 border border-sky-700/20 text-[11px] text-sky-200">
+                          {item.watch_count}x
+                        </div>
+                        <div className="p-3 flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold truncate">
+                              {item.anime?.title_romaji ?? 'Unknown'}
+                            </div>
+                            <div className="text-[11px] text-slate-400">Watched at {new Date(item.watched_at).toLocaleString()}</div>
+                          </div>
+                          <button className="py-1 px-3 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 text-black text-xs font-bold">
+                            ▶
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </main>
+
+            <aside className="lg:col-span-3">
+              <div className="rounded-3xl p-6 bg-gradient-to-br from-black/60 to-slate-900/60 border border-sky-700/12 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-sky-100 flex items-center gap-2">
+                    <FaStar /> Favorites
+                  </h3>
+                  <div className="text-xs text-slate-400">Organized</div>
+                </div>
+
+                {loading ? (
+                  <div className="space-y-3">
+                    <div className="h-8 bg-gradient-to-r from-black/40 to-slate-900/40 rounded-md animate-pulse" />
+                    <div className="h-8 bg-gradient-to-r from-black/40 to-slate-900/40 rounded-md animate-pulse" />
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {[
+                      { key: 'anime', icon: <FaTv /> },
+                      { key: 'manga', icon: <FaBook /> },
+                      { key: 'manhwa', icon: <FaDragon /> },
+                      { key: 'light_novel', icon: <FaBookOpen /> },
+                    ].map(({ key, icon }) => {
+                      const list = favorites.filter((f: any) => f.media_type === key)
+                      return (
+                        <div key={key} className="rounded-xl p-3 bg-gradient-to-br from-black/30 to-slate-900/30 border border-sky-700/8">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2 text-sky-100 font-semibold">
+                              <span className="text-xl">{icon}</span>
+                              <span className="capitalize">{key.replace('_', ' ')}</span>
+                            </div>
+                            <div className="text-xs text-slate-400 px-2 py-1 rounded-md bg-black/30 border border-sky-700/8">
+                              {list.length}
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {list.length > 0 ? (
+                              list.map((fav: any) => (
+                                <span
+                                  key={fav.id}
+                                  title={String(fav.media_id)}
+                                  className="px-3 py-1 rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 text-black text-xs font-medium shadow-sm"
+                                >
+                                  {fav?.media_title ?? fav?.title ?? fav?.media_id}
+                                </span>
+                              ))
+                            ) : (
+                              <div className="text-xs text-slate-400 italic">No favorites yet</div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 hidden lg:block rounded-2xl p-4 bg-gradient-to-br from-black/50 to-slate-900/50 border border-sky-700/8 shadow-lg">
+                <h4 className="text-sm font-semibold text-sky-200 mb-3">Customization</h4>
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 shadow-lg" />
+                  <div className="flex-1">
+                    <div className="text-xs text-slate-400">Theme</div>
+                    <div className="text-sm font-medium text-sky-100">Futuristic Neon</div>
+                  </div>
+                </div>
+              </div>
+            </aside>
           </div>
-
-          <div className="flex gap-3">
-            <motion.button
-              onClick={() => {
-                setSelectedAvatar(user.avatar_url || '/default.png')
-                setOpenEdit(true)
-              }}
-              whileTap={{ scale: 0.96 }}
-              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-sky-500 to-sky-300 hover:opacity-95 font-semibold shadow-[0_10px_30px_rgba(56,189,248,0.12)]"
-            >
-              <FaUserEdit /> Edit
-            </motion.button>
-            <motion.button
-              onClick={handleLogout}
-              whileTap={{ scale: 0.96 }}
-              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-black/60 border border-sky-700/20 hover:bg-black/50 font-semibold shadow-md"
-            >
-              <FaSignOutAlt /> Logout
-            </motion.button>
-          </div>
         </div>
-      </motion.div>
+      </div>
 
       <AnimatePresence>
         {openEdit && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              initial={{ scale: 0.96, opacity: 0 }}
+              initial={{ scale: 0.98, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.96, opacity: 0 }}
-              className="bg-gradient-to-br from-slate-900/90 to-black/90 text-white p-6 rounded-2xl max-w-md w-full mx-4 border border-sky-700/10 shadow-2xl"
+              exit={{ scale: 0.98, opacity: 0 }}
+              className="w-full max-w-lg mx-4 rounded-2xl p-6 bg-gradient-to-br from-slate-900/90 to-black/90 border border-sky-700/12 shadow-2xl"
             >
-              <h3 className="text-lg font-bold mb-4 text-sky-200">Edit Profile</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-sky-200">Edit Profile</h3>
+                <button onClick={() => setOpenEdit(false)} className="text-slate-400">Close</button>
+              </div>
               <form onSubmit={handleSave} className="space-y-4">
                 <div>
-                  <label className="block mb-1 text-sm font-semibold text-sky-100">Username</label>
+                  <label className="text-xs text-slate-400 block mb-1">Username</label>
                   <input
                     name="username"
                     defaultValue={user.username || ''}
-                    className="w-full rounded-lg px-4 py-2 bg-black/40 border border-sky-700/30 focus:outline-none"
+                    className="w-full rounded-lg px-4 py-2 bg-black/40 border border-sky-700/20 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block mb-1 text-sm font-semibold text-sky-100">Bio</label>
+                  <label className="text-xs text-slate-400 block mb-1">Bio</label>
                   <textarea
                     name="bio"
                     defaultValue={user.bio || ''}
                     rows={3}
-                    className="w-full rounded-lg px-4 py-2 bg-black/40 border border-sky-700/30 focus:outline-none"
+                    className="w-full rounded-lg px-4 py-2 bg-black/40 border border-sky-700/20 focus:outline-none"
                   />
                 </div>
-
                 <div>
-                  <label className="block mb-2 text-sm font-semibold text-sky-100">Avatar</label>
-                  <div className="flex flex-col gap-2">
+                  <label className="text-xs text-slate-400 block mb-2">Avatar</label>
+                  <div className="flex flex-col gap-3">
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleAvatarUpload}
-                      className="w-full rounded-lg bg-black/30 border border-sky-700/20 text-sm p-2 cursor-pointer"
+                      className="w-full rounded-lg bg-black/30 border border-sky-700/12 text-sm p-2"
                     />
-                    <div className="flex justify-between gap-2 mt-2">
-                      {['/default.png', '/v2.png', '/v3.png', '/v4.png'].map(
-                        (src) => (
-                          <button
-                            type="button"
-                            key={src}
-                            onClick={() => setSelectedAvatar(src)}
-                            className={`relative rounded-full overflow-hidden border-2 ${
-                              selectedAvatar === src
-                                ? 'border-sky-400'
-                                : 'border-transparent'
-                            }`}
-                          >
-                            <Image
-                              src={src}
-                              alt="avatar"
-                              width={60}
-                              height={60}
-                              onError={handleImageError}
-                              className="rounded-full object-cover"
-                            />
-                          </button>
-                        )
-                      )}
+                    <div className="flex gap-3">
+                      {['/default.png', '/v2.png', '/v3.png', '/v4.png'].map((src) => (
+                        <button
+                          key={src}
+                          type="button"
+                          onClick={() => setSelectedAvatar(src)}
+                          className={`w-14 h-14 rounded-full overflow-hidden border-2 ${selectedAvatar === src ? 'border-sky-400' : 'border-transparent'}`}
+                        >
+                          <Image src={src} alt="avatar" width={56} height={56} onError={handleImageError} className="object-cover" />
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-3 mt-3">
-                  <button
-                    type="button"
-                    onClick={() => setOpenEdit(false)}
-                    className="flex-1 py-2 rounded-xl bg-black/50 hover:bg-black/40 font-semibold border border-sky-700/10"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-sky-300 hover:opacity-95 font-semibold"
-                  >
-                    Save
-                  </button>
+                <div className="flex gap-3">
+                  <button type="button" onClick={() => setOpenEdit(false)} className="flex-1 py-2 rounded-xl bg-transparent border border-sky-700/12 text-slate-300">Cancel</button>
+                  <button type="submit" className="flex-1 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 text-black font-semibold">Save</button>
                 </div>
               </form>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      <section className="mb-12">
-        <motion.h3
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="flex items-center gap-3 text-2xl font-bold mb-6 text-sky-100"
-        >
-          <FaHistory /> Watch History
-        </motion.h3>
-
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <div
-                key={i}
-                className="relative overflow-hidden rounded-2xl h-36 md:h-52 bg-black/40 border border-sky-700/10"
-              >
-                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-sky-700/10 to-transparent" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {history.map((item) => (
-              <motion.div
-                key={item.id}
-                whileHover={{ scale: 1.03 }}
-                className="group relative overflow-hidden rounded-2xl shadow-xl bg-gradient-to-br from-black/50 to-slate-900/70 backdrop-blur-md border border-sky-800/10"
-              >
-                <div className="relative w-full h-36 md:h-52">
-                  <Image
-                    src={item.anime?.cover_image || item.trailer_thumbnail || '/default.png'}
-                    alt={item.anime?.title_romaji || 'Trailer'}
-                    fill
-                    sizes="(max-width: 768px) 180px, 320px"
-                    onError={handleImageError}
-                    className="object-cover"
-                  />
-                </div>
-                <span className="absolute left-2 top-2 z-10 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide bg-black/60 border border-sky-700/20">
-                  {item.watch_count}x
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition">
-                </div>
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
-                  <button className="w-full py-1.5 rounded-lg bg-gradient-to-r from-sky-500 to-sky-300 text-black text-xs font-bold shadow">
-                    ▶ Continue
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-        {!loading && history.length === 0 && (
-          <div className="mt-6 text-center text-sm text-slate-400">No viewing history yet.</div>
-        )}
-      </section>
-
-      <section>
-        <motion.h3
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="flex items-center gap-3 text-2xl font-bold mb-6 text-sky-100"
-        >
-          <FaStar /> Favorites
-        </motion.h3>
-
-        {loading ? (
-          <div className="text-sm text-slate-400">Loading favorites...</div>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { key: 'anime', icon: <FaTv /> },
-              { key: 'manga', icon: <FaBook /> },
-              { key: 'manhwa', icon: <FaDragon /> },
-              { key: 'light_novel', icon: <FaBookOpen /> },
-            ].map(({ key, icon }) => {
-              const list = favorites.filter((f: any) => f.media_type === key)
-              return (
-                <motion.div
-                  key={key}
-                  whileHover={{ scale: 1.02 }}
-                  className="relative overflow-hidden rounded-2xl p-6 border border-sky-800/10 shadow-lg bg-gradient-to-br from-slate-900/70 to-black/80 backdrop-blur-xl"
-                >
-                  <div className="relative flex items-center justify-between mb-4">
-                    <h4 className="flex items-center gap-2 text-lg font-semibold capitalize text-sky-100">
-                      <span className="text-xl">{icon}</span> {key.replace('_', ' ')}
-                    </h4>
-                    <span className="px-2 py-0.5 rounded-full text-xs bg-black/40 border border-sky-700/20 text-sky-200">
-                      {list.length}
-                    </span>
-                  </div>
-
-                  <div className="relative flex flex-wrap gap-2 z-10">
-                    {list.length > 0 ? (
-                      list.map((fav: any) => (
-                        <span
-                          key={fav.id}
-                          title={String(fav.media_id)}
-                          className="px-3 py-1 rounded-full bg-gradient-to-r from-sky-500 to-sky-300 text-xs md:text-sm font-medium shadow-md hover:scale-105 transition border border-sky-700/10 text-black"
-                        >
-                          {fav?.media_title ?? fav?.title ?? fav?.media_id}
-                        </span>
-                      ))
-                    ) : (
-                      <div className="w-full text-xs text-slate-400 italic">No favorites yet</div>
-                    )}
-                  </div>
-                </motion.div>
-              )
-            })}
-          </div>
-        )}
-      </section>
     </div>
   )
 }
