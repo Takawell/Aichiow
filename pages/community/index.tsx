@@ -33,13 +33,20 @@ export default function CommunityPage() {
       if (data?.user) setUser(data.user);
       else setShowModal(true);
     });
+
     fetchMessages();
+
     const channel = supabase
       .channel("community-room")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "community_messages" }, (payload) => {
-        setMessages((prev) => [...prev, payload.new as Message]);
-      })
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "community_messages" },
+        (payload) => {
+          setMessages((prev) => [...prev, payload.new as Message]);
+        }
+      )
       .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
     };
@@ -56,42 +63,26 @@ export default function CommunityPage() {
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
     if (!newMessage.trim()) return;
-    if (!user && !anonName) return;
+    if (!user && !anonName) return; 
+
     const name =
       user?.user_metadata?.full_name ||
       anonName ||
       `Guest-${Math.floor(Math.random() * 1000)}`;
+
     const avatar =
       user?.user_metadata?.avatar_url ||
       anonAvatar ||
       randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
-    const text = newMessage.trim();
+
     await supabase.from("community_messages").insert({
       user_id: user ? user.id : null,
       username: name,
       avatar_url: avatar,
-      message: text,
+      message: newMessage.trim(),
     });
+
     setNewMessage("");
-    if (text.toLowerCase().includes("@aichixia") || text.toLowerCase().startsWith("/aichixia")) {
-      try {
-        const res = await fetch("/api/aichixia", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: text }),
-        });
-        const data = await res.json();
-        const aiReply = data.reply || data.message || "⚠️ Aichixia tidak merespons.";
-        await supabase.from("community_messages").insert({
-          user_id: "aichixia",
-          username: "Aichixia",
-          avatar_url: "/aichixia.png",
-          message: aiReply,
-        });
-      } catch (error) {
-        console.error("Aichixia gagal merespons:", error);
-      }
-    }
   }
 
   function handleAnonConfirm() {
@@ -101,7 +92,8 @@ export default function CommunityPage() {
   }
 
   function handleImageError(e: React.SyntheticEvent<HTMLImageElement>) {
-    e.currentTarget.src = randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
+    e.currentTarget.src =
+      randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
   }
 
   const canChat = !!user || !!anonName;
@@ -127,9 +119,10 @@ export default function CommunityPage() {
         <AnimatePresence>
           {messages.map((msg) => {
             const isMine = msg.user_id === user?.id;
-            const isAI = msg.username === "Aichixia";
             const safeAvatar =
-              msg.avatar_url || randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
+              msg.avatar_url ||
+              randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
+
             return (
               <motion.div
                 key={msg.id}
@@ -144,10 +137,11 @@ export default function CommunityPage() {
                   <img
                     src={safeAvatar}
                     alt={msg.username}
-                    className={`rounded-full w-9 h-9 object-cover ${isAI ? "ring-2 ring-pink-500" : ""}`}
+                    className="rounded-full w-9 h-9 object-cover"
                     onError={handleImageError}
                   />
                 )}
+
                 <div
                   className={`max-w-[75%] text-sm flex flex-col ${
                     isMine ? "items-end" : "items-start"
@@ -160,9 +154,7 @@ export default function CommunityPage() {
                   )}
                   <div
                     className={`px-4 py-2 rounded-2xl shadow-md ${
-                      isAI
-                        ? "bg-pink-700 text-white"
-                        : isMine
+                      isMine
                         ? "bg-blue-600 text-white rounded-br-none"
                         : "bg-gray-800 text-gray-100 rounded-bl-none"
                     }`}
@@ -176,12 +168,15 @@ export default function CommunityPage() {
                     })}
                   </span>
                 </div>
+
                 {isMine && (
                   <img
                     src={
                       user?.user_metadata?.avatar_url ||
                       anonAvatar ||
-                      randomAvatars[Math.floor(Math.random() * randomAvatars.length)]
+                      randomAvatars[
+                        Math.floor(Math.random() * randomAvatars.length)
+                      ]
                     }
                     alt={user?.user_metadata?.full_name || anonName || "You"}
                     className="rounded-full w-9 h-9 object-cover"
@@ -202,9 +197,7 @@ export default function CommunityPage() {
         <input
           type="text"
           placeholder={
-            canChat
-              ? "Type a message..."
-              : "Sign in or sign in as a guest to continue..."
+            canChat ? "Type a message..." : "Sign in or sign in as a guest to continue..."
           }
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
