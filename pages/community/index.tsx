@@ -1,313 +1,228 @@
+"use client";
+
 import { useEffect, useState, useRef } from "react";
+import { FaPaperPlane, FaSpinner } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { Send } from "lucide-react";
 
 interface Message {
-  id: string;
-  message: string;
-  created_at: string;
+  id?: string;
   user_id: string | null;
   username: string;
-  avatar_url: string;
+  message: string;
+  created_at?: string;
 }
 
 export default function CommunityPage() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [user, setUser] = useState<any>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [anonName, setAnonName] = useState("");
-  const [anonAvatar, setAnonAvatar] = useState("/default.png");
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  const randomAvatars = ["/default.png", "/v2.png", "/v3.png", "/v4.png"];
+  const [input, setInput] = useState("");
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data?.user) setUser(data.user);
-      else setShowModal(true);
-    });
-
-    fetchMessages();
+    const fetchSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session);
+    };
+    fetchSession();
 
     const channel = supabase
       .channel("community-room")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "community_messages" },
+        { event: "INSERT", schema: "public", table: "community" },
         (payload) => {
           setMessages((prev) => [...prev, payload.new as Message]);
         }
       )
       .subscribe();
 
+    loadMessages();
+
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
 
-  async function fetchMessages() {
+  const loadMessages = async () => {
     const { data } = await supabase
-      .from("community_messages")
-      .select("id, user_id, username, avatar_url, message, created_at")
+      .from("community")
+      .select("*")
       .order("created_at", { ascending: true });
-    setMessages(data || []);
-  }
+    if (data) setMessages(data);
+  };
 
-  async function sendMessage(e: React.FormEvent) {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
-    if (!user && !anonName) return;
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-    const messageText = newMessage.trim();
+  const sendMessage = async () => {
+    if (!input.trim()) return;
 
-    const name =
-      user?.user_metadata?.full_name ||
-      anonName ||
-      `Guest-${Math.floor(Math.random() * 1000)}`;
+    const messageText = input.trim();
+    setInput("");
 
-    const avatar =
-      user?.user_metadata?.avatar_url ||
-      anonAvatar ||
-      randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
-
-    await supabase.from("community_messages").insert({
-      user_id: user ? user.id : null,
-      username: name,
-      avatar_url: avatar,
+    const newMessage: Message = {
+      user_id: session?.user?.id ?? null,
+      username: session?.user?.user_metadata?.username || "Guest",
       message: messageText,
-    });
+    };
 
-    setNewMessage("");
+    await supabase.from("community").insert([newMessage]);
 
-    if (messageText.startsWith("/aichixia") || messageText.startsWith("@aichixia")) {
+    if (!messageText.match(/^\/aichixia|^@aichixia/i)) return;
+
+    setLoading(true);
+
+    try {
       const prompt = messageText.replace(/^\/aichixia|^@aichixia/, "").trim();
-      const body = JSON.stringify({ prompt });
 
-      try {
-        const res = await fetch("/api/aichixia", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body,
-        });
+      const body = JSON.stringify({
+        message: prompt,
+        history: messages.map((m) => ({
+          role:
+            m.user_id === null && m.username === "aichixia"
+              ? "assistant"
+              : "user",
+          content: m.message,
+        })),
+      });
 
-        const json = await res.json();
+      const res = await fetch("/api/aichixia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      });
 
-        let reply = "⚠️ No valid response.";
-        if (json.type === "text" && json.reply) {
-          reply = json.reply;
-        } else if (json.type === "anime" && Array.isArray(json.anime)) {
-          reply =
-            `🎬 Aku nemuin ${json.anime.length} anime nih:\n\n` +
-            json.anime
-              .map(
-                (a: any, i: number) =>
-                  `${i + 1}. ${a.title}\n⭐ Score: ${a.score}\n🔥 Popularity: ${a.popularity}\n🔗 ${a.url}\n`
-              )
-              .join("\n");
-        }
+      const json = await res.json();
 
-        await supabase.from("community_messages").insert({
-          user_id: null,
-          username: "aichixia",
-          avatar_url: "/aichixia.png",
-          message: reply,
-        });
-      } catch (err) {
-        console.error("Error from /api/aichixia:", err);
-        await supabase.from("community_messages").insert({
-          user_id: null,
-          username: "aichixia",
-          avatar_url: "/aichixia.png",
-          message: "Maaf, terjadi kesalahan saat memanggil aichixia.",
-        });
+      let reply = "⚠️ No valid response.";
+
+      if (json.type === "text" && json.reply) {
+        reply = json.reply;
+      } else if (json.type === "anime" && Array.isArray(json.anime)) {
+        reply =
+          `🎬 Aku nemuin ${json.anime.length} anime nih:\n\n` +
+          json.anime
+            .map(
+              (a: any, i: number) =>
+                `${i + 1}. ${a.title}\n⭐ Score: ${a.score}\n🔥 Popularity: ${
+                  a.popularity
+                }\n🔗 ${a.url}\n`
+            )
+            .join("\n");
       }
+
+      await supabase.from("community").insert([
+        {
+          user_id: null,
+          username: "aichixia",
+          message: reply,
+        },
+      ]);
+    } catch (err) {
+      console.error("Error from Aichixia:", err);
+      await supabase.from("community").insert([
+        {
+          user_id: null,
+          username: "aichixia",
+          message: "❌ Aichixia gagal merespons. Coba lagi nanti ya~",
+        },
+      ]);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  function handleAnonConfirm() {
-    if (anonName.trim()) {
-      setShowModal(false);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
-  }
-
-  function handleImageError(e: React.SyntheticEvent<HTMLImageElement>) {
-    e.currentTarget.src =
-      randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
-  }
-
-  const canChat = !!user || !!anonName;
+  };
 
   return (
-    <div className="flex flex-col h-screen bg-[#0f0f11] text-white overflow-hidden relative">
-      <header className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-[#121214] sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Aichiow Logo" width={36} height={36} />
-          <h1 className="text-xl font-bold tracking-wide">Community Beta</h1>
-        </div>
-        {!user && (
-          <button
-            onClick={() => setShowModal(true)}
-            className="text-sm bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg"
-          >
-            settings
-          </button>
-        )}
-      </header>
+    <main className="flex flex-col items-center min-h-screen bg-[#050b1b] text-sky-100">
+      <div className="w-full max-w-3xl flex flex-col h-screen px-4">
+        <header className="p-4 bg-black/30 backdrop-blur-md rounded-b-xl border-b border-sky-800 shadow-lg sticky top-0 z-10">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-sky-300 to-blue-500 bg-clip-text text-transparent">
+            Aichiow Community
+          </h1>
+          <p className="text-sm text-sky-400/80">
+            Chat with others or mention <span className="text-sky-300">@Aichixia</span> to talk to the AI assistant.
+          </p>
+        </header>
 
-      <main className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-        <AnimatePresence>
-          {messages.map((msg) => {
-            const isMine = msg.user_id === user?.id;
-            const safeAvatar =
-              msg.avatar_url ||
-              randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
-
-            return (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`flex gap-3 ${
-                  isMine ? "justify-end" : "justify-start"
-                }`}
-              >
-                {!isMine && (
-                  <img
-                    src={safeAvatar}
-                    alt={msg.username}
-                    className="rounded-full w-9 h-9 object-cover"
-                    onError={handleImageError}
-                  />
-                )}
-
-                <div
-                  className={`max-w-[75%] text-sm flex flex-col ${
-                    isMine ? "items-end" : "items-start"
-                  }`}
-                >
-                  {!isMine && (
-                    <span className="text-xs text-gray-400 mb-1">{msg.username}</span>
-                  )}
-                  <div
-                    className={`px-4 py-2 rounded-2xl shadow-md whitespace-pre-line ${
-                      isMine
-                        ? "bg-blue-600 text-white rounded-br-none"
-                        : "bg-gray-800 text-gray-100 rounded-bl-none"
-                    }`}
-                  >
-                    {msg.message}
-                  </div>
-                  <span className="text-[10px] text-gray-500 mt-1">
-                    {new Date(msg.created_at).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-
-                {isMine && (
-                  <img
-                    src={
-                      user?.user_metadata?.avatar_url ||
-                      anonAvatar ||
-                      randomAvatars[
-                        Math.floor(Math.random() * randomAvatars.length)
-                      ]
-                    }
-                    alt={user?.user_metadata?.full_name || anonName || "You"}
-                    className="rounded-full w-9 h-9 object-cover"
-                    onError={handleImageError}
-                  />
-                )}
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-        <div ref={bottomRef} />
-      </main>
-
-      <form
-        onSubmit={sendMessage}
-        className="flex items-center gap-2 p-3 border-t border-gray-800 bg-[#121214]"
-      >
-        <input
-          type="text"
-          placeholder={
-            canChat ? "Type a message..." : "Sign in or sign in as a guest to continue..."
-          }
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          disabled={!canChat}
-          className={`flex-1 text-sm rounded-xl px-4 py-3 border transition-all ${
-            canChat
-              ? "bg-gray-900 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              : "bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed"
-          }`}
-        />
-        <button
-          type="submit"
-          disabled={!canChat}
-          className={`p-3 rounded-xl flex items-center justify-center transition-colors ${
-            canChat
-              ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-gray-700 cursor-not-allowed"
-          }`}
-        >
-          <Send className="w-5 h-5" />
-        </button>
-      </form>
-
-      {showModal && (
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-20">
-          <div className="bg-[#18181b] rounded-2xl p-6 w-80 text-center border border-gray-700 shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Sign in as a Guest</h2>
-            <input
-              type="text"
-              placeholder="Enter your name..."
-              value={anonName}
-              onChange={(e) => setAnonName(e.target.value)}
-              className="w-full p-2 rounded-lg bg-gray-900 border border-gray-700 mb-3 outline-none focus:ring-2 focus:ring-blue-600"
-            />
-            <div className="flex justify-center gap-3 mb-4">
-              {randomAvatars.map((src) => (
-                <img
-                  key={src}
-                  src={src}
-                  alt="avatar"
-                  width={40}
-                  height={40}
-                  onClick={() => setAnonAvatar(src)}
-                  className={`rounded-full w-10 h-10 cursor-pointer border-2 ${
-                    anonAvatar === src
-                      ? "border-blue-500 scale-110"
-                      : "border-transparent"
-                  } transition-transform`}
-                  onError={handleImageError}
-                />
-              ))}
-            </div>
-            <button
-              onClick={handleAnonConfirm}
-              disabled={!anonName.trim()}
-              className={`w-full rounded-lg py-2 font-medium transition-colors ${
-                anonName.trim()
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-gray-700 cursor-not-allowed"
+        <section className="flex-1 overflow-y-auto py-4 space-y-4 scrollbar-thin scrollbar-thumb-sky-700/40 scrollbar-track-transparent">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex flex-col ${
+                msg.user_id === session?.user?.id
+                  ? "items-end"
+                  : msg.username === "aichixia"
+                  ? "items-start"
+                  : "items-start"
               }`}
             >
-              Start Chat
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+              <div
+                className={`px-4 py-3 rounded-2xl max-w-[80%] shadow-md text-sm ${
+                  msg.username === "aichixia"
+                    ? "bg-[#0b152e]/80 border border-sky-700/40 text-sky-100"
+                    : msg.user_id === session?.user?.id
+                    ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white"
+                    : "bg-[#0b182e]/60 border border-sky-700/30 text-sky-200"
+                }`}
+              >
+                <p className="text-xs mb-1 text-sky-400/80">
+                  {msg.username || "Unknown"}
+                </p>
+                <p className="whitespace-pre-wrap">{msg.message}</p>
+              </div>
+            </div>
+          ))}
+
+          {loading && (
+            <div className="flex items-center gap-2 text-sky-400 text-sm">
+              <FaSpinner className="animate-spin" />
+              <span>Aichixia is thinking...</span>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </section>
+
+        <footer className="p-3 bg-[#08142a]/70 backdrop-blur-md border-t border-sky-800/40 rounded-t-xl sticky bottom-0">
+          {!session ? (
+            <p className="text-center text-sky-400">
+              🔒 Please login to chat.
+            </p>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Type a message or /aichixia ..."
+                className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={loading}
+                className="p-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-105 transition shadow-lg disabled:opacity-50"
+              >
+                {loading ? (
+                  <FaSpinner className="animate-spin text-white" />
+                ) : (
+                  <FaPaperPlane className="text-white" />
+                )}
+              </button>
+            </div>
+          )}
+        </footer>
+      </div>
+    </main>
   );
 }
