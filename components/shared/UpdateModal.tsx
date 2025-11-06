@@ -7,8 +7,8 @@ import { FaGithub, FaTiktok } from 'react-icons/fa'
 
 export default function UpdateModal() {
   const [step, setStep] = useState<'update' | 'notice' | null>(null)
-  const [lang, setLang] = useState<'id' | 'en'>('id')
-  const VERSION = '1.4.0'
+  const [lang, setLang] = useState<'en' | 'id'>('en')
+  const VERSION = '1.2.0'
 
   useEffect(() => {
     const seenVersion = localStorage.getItem('updateModalSeen')
@@ -22,26 +22,6 @@ export default function UpdateModal() {
   const handleNext = () => setStep('notice')
 
   const t = {
-    id: {
-      update: {
-        title: 'Pembaruan',
-        updates: [
-          'Integrasi Aichixia ke komunitas.',
-          'Pembaruan tampilan profil menjadi lebih modern dan responsif.',
-          'Fitur baru: Anime Scanning dengan teknologi cerdas.',
-        ],
-        next: 'Lihat Pemberitahuan',
-      },
-      notice: {
-        title: 'Pemberitahuan',
-        notices: [
-          'Beberapa fitur masih dalam tahap pengujian beta.',
-          'Jika menemukan bug, laporkan melalui media sosial di bawah.',
-          'Terima kasih telah menggunakan Aichiow.',
-        ],
-        close: 'Tutup',
-      },
-    },
     en: {
       update: {
         title: 'Updates',
@@ -60,6 +40,26 @@ export default function UpdateModal() {
           'Thank you for using Aichiow.',
         ],
         close: 'Close',
+      },
+    },
+    id: {
+      update: {
+        title: 'Pembaruan',
+        updates: [
+          'Integrasi Aichixia ke komunitas.',
+          'Pembaruan tampilan profil menjadi lebih modern dan responsif.',
+          'Fitur baru: Anime Scanning dengan teknologi cerdas.',
+        ],
+        next: 'Lihat Pemberitahuan',
+      },
+      notice: {
+        title: 'Pemberitahuan',
+        notices: [
+          'Beberapa fitur masih dalam tahap pengujian beta.',
+          'Jika menemukan bug, laporkan melalui media sosial di bawah.',
+          'Terima kasih telah menggunakan Aichiow.',
+        ],
+        close: 'Tutup',
       },
     },
   }
@@ -99,27 +99,27 @@ export default function UpdateModal() {
               <div className="flex justify-center mt-4">
                 <div
                   className="relative flex items-center w-28 bg-sky-900/40 rounded-full p-1 cursor-pointer"
-                  onClick={() => setLang(lang === 'id' ? 'en' : 'id')}
+                  onClick={() => setLang(lang === 'en' ? 'id' : 'en')}
                 >
                   <motion.div
                     layout
                     className={`absolute w-1/2 h-6 bg-sky-500 rounded-full transition-all ${
-                      lang === 'id' ? 'left-0' : 'left-1/2'
+                      lang === 'en' ? 'left-0' : 'left-1/2'
                     }`}
                   />
-                  <span
-                    className={`z-10 w-1/2 text-center text-xs font-semibold ${
-                      lang === 'id' ? 'text-black' : 'text-sky-300'
-                    }`}
-                  >
-                    ID
-                  </span>
                   <span
                     className={`z-10 w-1/2 text-center text-xs font-semibold ${
                       lang === 'en' ? 'text-black' : 'text-sky-300'
                     }`}
                   >
                     EN
+                  </span>
+                  <span
+                    className={`z-10 w-1/2 text-center text-xs font-semibold ${
+                      lang === 'id' ? 'text-black' : 'text-sky-300'
+                    }`}
+                  >
+                    ID
                   </span>
                 </div>
               </div>
