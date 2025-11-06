@@ -16,7 +16,6 @@ import {
   FaBook,
   FaBookOpen,
   FaDragon,
-  FaUpload,
 } from 'react-icons/fa'
 
 type TrailerHistoryRow = {
@@ -40,7 +39,6 @@ export default function ProfileDashboard() {
   const [history, setHistory] = useState<TrailerHistoryRow[]>([])
   const [favorites, setFavorites] = useState<FavoriteRow[]>([])
   const [openEdit, setOpenEdit] = useState(false)
-  const [selectedAvatar, setSelectedAvatar] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -55,42 +53,22 @@ export default function ProfileDashboard() {
         }
         setSession(sess)
 
-        const userId = sess.user.id
+        const userData = sess.user
+        const avatarUrl =
+          userData?.user_metadata?.avatar_url ||
+          userData?.user_metadata?.picture ||
+          '/default.png'
 
-        const { data: profileData } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', userId)
-          .single()
-
-        let baseUser: UserRow =
-          profileData ?? {
-            id: userId,
-            username: 'Otaku Explorer ✨',
-            bio: 'Lover of anime, manga, manhwa & light novels.',
-            avatar_url: '/default.png',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }
-
-        const localUsername =
-          typeof window !== 'undefined' ? localStorage.getItem('username') : null
-        const localBio =
-          typeof window !== 'undefined' ? localStorage.getItem('bio') : null
-        const localAvatar =
-          typeof window !== 'undefined' ? localStorage.getItem('avatar') : null
-
-        if (localUsername || localBio || localAvatar) {
-          baseUser = {
-            ...baseUser,
-            username: localUsername || baseUser.username,
-            bio: localBio || baseUser.bio,
-            avatar_url: localAvatar || baseUser.avatar_url,
-          }
+        const baseUser: UserRow = {
+          id: userData.id,
+          username: userData.user_metadata?.username || userData.email || 'Otaku Explorer ✨',
+          bio: userData.user_metadata?.bio || 'Lover of anime, manga, manhwa & light novels.',
+          avatar_url: avatarUrl,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         }
 
         setUser(baseUser)
-        setSelectedAvatar(baseUser.avatar_url || '/default.png')
 
         const { data: rawHistoryData } = await supabase
           .from('trailer_watch_history')
@@ -108,7 +86,7 @@ export default function ProfileDashboard() {
               cover_image
             )
           `)
-          .eq('user_id', userId)
+          .eq('user_id', userData.id)
           .order('watched_at', { ascending: false })
 
         if (rawHistoryData && Array.isArray(rawHistoryData)) {
@@ -126,10 +104,7 @@ export default function ProfileDashboard() {
               trailer_site: it.trailer_site,
               trailer_thumbnail: it.trailer_thumbnail ?? null,
               watched_at: it.watched_at,
-              watch_count:
-                typeof it.watch_count === 'number'
-                  ? it.watch_count
-                  : Number(it.watch_count) || 1,
+              watch_count: Number(it.watch_count) || 1,
               anime: animeObj
                 ? {
                     title_romaji: animeObj.title_romaji ?? 'Unknown',
@@ -144,7 +119,7 @@ export default function ProfileDashboard() {
         const { data: favoritesData } = await supabase
           .from('favorites')
           .select('*')
-          .eq('user_id', userId)
+          .eq('user_id', userData.id)
 
         if (favoritesData) setFavorites(favoritesData as FavoriteRow[])
       } catch (err) {
@@ -157,49 +132,9 @@ export default function ProfileDashboard() {
     loadSession()
   }, [router])
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = () => {
-      const base64 = reader.result as string
-      localStorage.setItem('avatar', base64)
-      setSelectedAvatar(base64)
-      setUser((prev) => (prev ? { ...prev, avatar_url: base64 } : prev))
-    }
-    reader.readAsDataURL(file)
-  }
-
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.replace('/auth/login')
-  }
-
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!user) return
-
-    const formData = new FormData(e.currentTarget)
-    const newUsername = (formData.get('username') as string) || ''
-    const newBio = (formData.get('bio') as string) || ''
-    const newAvatar = selectedAvatar || user.avatar_url || '/default.png'
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('username', newUsername)
-      localStorage.setItem('bio', newBio)
-      if (newAvatar) localStorage.setItem('avatar', newAvatar)
-      else localStorage.removeItem('avatar')
-    }
-
-    setUser({
-      ...user,
-      username: newUsername || user.username,
-      bio: newBio || user.bio,
-      avatar_url: newAvatar || user.avatar_url,
-    })
-
-    setOpenEdit(false)
   }
 
   if (!session || !user) return null
@@ -245,10 +180,10 @@ export default function ProfileDashboard() {
 
           <div className="text-center md:text-left max-w-xl">
             <h2 className="text-2xl md:text-4xl font-extrabold tracking-wide drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
-              {user.username || 'Otaku Explorer ✨'}
+              {user.username}
             </h2>
             <p className="text-gray-300 text-sm md:text-base italic">
-              {user.bio || 'Lover of anime, manga, manhwa & light novels.'}
+              {user.bio}
             </p>
             <p className="text-xs md:text-sm text-gray-400 mt-1">
               {session.user.email}
@@ -266,16 +201,6 @@ export default function ProfileDashboard() {
 
           <div className="flex gap-3">
             <motion.button
-              onClick={() => {
-                setSelectedAvatar(user.avatar_url || '/default.png')
-                setOpenEdit(true)
-              }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 font-semibold shadow-lg"
-            >
-              <FaUserEdit /> Edit
-            </motion.button>
-            <motion.button
               onClick={handleLogout}
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-2 px-5 py-3 rounded-xl bg-red-600 hover:bg-red-500 font-semibold shadow-lg"
@@ -285,102 +210,6 @@ export default function ProfileDashboard() {
           </div>
         </div>
       </motion.div>
-
-      <AnimatePresence>
-        {openEdit && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#101827]/95 text-white p-6 rounded-2xl max-w-sm w-full mx-4 border border-white/10 shadow-xl"
-            >
-              <h3 className="text-lg font-bold mb-4">Edit Profile</h3>
-              <form onSubmit={handleSave} className="space-y-4">
-                <div>
-                  <label className="block mb-1 text-sm font-semibold">
-                    Username
-                  </label>
-                  <input
-                    name="username"
-                    defaultValue={user.username || ''}
-                    className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-sm font-semibold">Bio</label>
-                  <textarea
-                    name="bio"
-                    defaultValue={user.bio || ''}
-                    rows={3}
-                    className="w-full rounded-lg px-4 py-2 bg-white/10 border border-white/20 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-semibold">
-                    Avatar
-                  </label>
-                  <div className="flex flex-col gap-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleAvatarUpload}
-                      className="w-full rounded-lg bg-white/10 border border-white/20 text-sm p-2 cursor-pointer"
-                    />
-                    <div className="flex justify-between gap-2 mt-2">
-                      {['/default.png', '/v2.png', '/v3.png', '/v4.png'].map(
-                        (src) => (
-                          <button
-                            type="button"
-                            key={src}
-                            onClick={() => setSelectedAvatar(src)}
-                            className={`relative rounded-full overflow-hidden border-2 ${
-                              selectedAvatar === src
-                                ? 'border-blue-500'
-                                : 'border-transparent'
-                            }`}
-                          >
-                            <Image
-                              src={src}
-                              alt="avatar"
-                              width={60}
-                              height={60}
-                              onError={handleImageError}
-                              className="rounded-full object-cover"
-                            />
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 mt-3">
-                  <button
-                    type="button"
-                    onClick={() => setOpenEdit(false)}
-                    className="flex-1 py-2 rounded-xl bg-gray-600/90 hover:bg-gray-500 font-semibold"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 font-semibold"
-                  >
-                    Save
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <section className="mb-12">
         <motion.h3
@@ -398,10 +227,8 @@ export default function ProfileDashboard() {
             {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
-                className="relative overflow-hidden rounded-2xl h-36 md:h-52 bg-white/10 border border-white/10"
-              >
-                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-              </div>
+                className="relative overflow-hidden rounded-2xl h-36 md:h-52 bg-white/10 border border-white/10 animate-pulse"
+              />
             ))}
           </div>
         ) : (
@@ -413,7 +240,11 @@ export default function ProfileDashboard() {
                 className="group relative overflow-hidden rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-white/10"
               >
                 <Image
-                  src={item.anime?.cover_image || item.trailer_thumbnail || '/default.png'}
+                  src={
+                    item.anime?.cover_image ||
+                    item.trailer_thumbnail ||
+                    '/default.png'
+                  }
                   alt={item.anime?.title_romaji || 'Trailer'}
                   width={400}
                   height={500}
@@ -423,12 +254,6 @@ export default function ProfileDashboard() {
                 <span className="absolute left-2 top-2 z-10 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide bg-black/60 border border-white/10">
                   {item.watch_count}x
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
-                  <button className="w-full py-1.5 rounded-lg bg-white/90 text-black text-xs font-bold shadow">
-                    ▶ Continue
-                  </button>
-                </div>
               </motion.div>
             ))}
           </div>
@@ -471,7 +296,8 @@ export default function ProfileDashboard() {
                 >
                   <div className="relative flex items-center justify-between mb-4">
                     <h4 className="flex items-center gap-2 text-lg font-semibold capitalize">
-                      <span className="text-xl">{icon}</span> {key.replace('_', ' ')}
+                      <span className="text-xl">{icon}</span>{' '}
+                      {key.replace('_', ' ')}
                     </h4>
                     <span className="px-2 py-0.5 rounded-full text-xs bg-white/10 border border-white/10">
                       {list.length}
