@@ -63,7 +63,9 @@ export default function CommunityPage() {
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
     if (!newMessage.trim()) return;
-    if (!user && !anonName) return; 
+    if (!user && !anonName) return;
+
+    const messageText = newMessage.trim();
 
     const name =
       user?.user_metadata?.full_name ||
@@ -79,10 +81,37 @@ export default function CommunityPage() {
       user_id: user ? user.id : null,
       username: name,
       avatar_url: avatar,
-      message: newMessage.trim(),
+      message: messageText,
     });
 
     setNewMessage("");
+
+    if (messageText.startsWith("/aichixia") || messageText.startsWith("@aichixia")) {
+      const prompt = messageText.replace(/^\/aichixia|^@aichixia/, "").trim();
+      const body = JSON.stringify({ prompt });
+      try {
+        const res = await fetch("/api/aichixia", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+        });
+        const json = await res.json();
+        const reply = json?.reply || "Maaf, aichixia belum bisa merespon sekarang.";
+        await supabase.from("community_messages").insert({
+          user_id: null,
+          username: "aichixia",
+          avatar_url: "/aichixia.png",
+          message: reply,
+        });
+      } catch (err) {
+        await supabase.from("community_messages").insert({
+          user_id: null,
+          username: "aichixia",
+          avatar_url: "/aichixia.png",
+          message: "Maaf, terjadi kesalahan saat memanggil aichixia.",
+        });
+      }
+    }
   }
 
   function handleAnonConfirm() {
@@ -148,9 +177,7 @@ export default function CommunityPage() {
                   }`}
                 >
                   {!isMine && (
-                    <span className="text-xs text-gray-400 mb-1">
-                      {msg.username}
-                    </span>
+                    <span className="text-xs text-gray-400 mb-1">{msg.username}</span>
                   )}
                   <div
                     className={`px-4 py-2 rounded-2xl shadow-md ${
