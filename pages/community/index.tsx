@@ -89,14 +89,30 @@ export default function CommunityPage() {
     if (messageText.startsWith("/aichixia") || messageText.startsWith("@aichixia")) {
       const prompt = messageText.replace(/^\/aichixia|^@aichixia/, "").trim();
       const body = JSON.stringify({ prompt });
+
       try {
         const res = await fetch("/api/aichixia", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body,
         });
+
         const json = await res.json();
-        const reply = json?.reply || "Maaf, aichixia belum bisa merespon sekarang.";
+
+        let reply = "⚠️ No valid response.";
+        if (json.type === "text" && json.reply) {
+          reply = json.reply;
+        } else if (json.type === "anime" && Array.isArray(json.anime)) {
+          reply =
+            `🎬 Aku nemuin ${json.anime.length} anime nih:\n\n` +
+            json.anime
+              .map(
+                (a: any, i: number) =>
+                  `${i + 1}. ${a.title}\n⭐ Score: ${a.score}\n🔥 Popularity: ${a.popularity}\n🔗 ${a.url}\n`
+              )
+              .join("\n");
+        }
+
         await supabase.from("community_messages").insert({
           user_id: null,
           username: "aichixia",
@@ -104,6 +120,7 @@ export default function CommunityPage() {
           message: reply,
         });
       } catch (err) {
+        console.error("Error from /api/aichixia:", err);
         await supabase.from("community_messages").insert({
           user_id: null,
           username: "aichixia",
@@ -180,7 +197,7 @@ export default function CommunityPage() {
                     <span className="text-xs text-gray-400 mb-1">{msg.username}</span>
                   )}
                   <div
-                    className={`px-4 py-2 rounded-2xl shadow-md ${
+                    className={`px-4 py-2 rounded-2xl shadow-md whitespace-pre-line ${
                       isMine
                         ? "bg-blue-600 text-white rounded-br-none"
                         : "bg-gray-800 text-gray-100 rounded-bl-none"
