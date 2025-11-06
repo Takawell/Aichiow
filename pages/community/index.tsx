@@ -20,6 +20,7 @@ export default function CommunityPage() {
   const [showModal, setShowModal] = useState(false);
   const [anonName, setAnonName] = useState("");
   const [anonAvatar, setAnonAvatar] = useState("/default.png");
+  const [cooldown, setCooldown] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const randomAvatars = ["/default.png", "/v2.png", "/v3.png", "/v4.png"];
@@ -62,8 +63,12 @@ export default function CommunityPage() {
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
+    if (cooldown) return;
     if (!newMessage.trim()) return;
     if (!user && !anonName) return;
+
+    setCooldown(true);
+    setTimeout(() => setCooldown(false), 10000);
 
     const name =
       user?.user_metadata?.full_name ||
@@ -110,17 +115,17 @@ export default function CommunityPage() {
 
       const data = await res.json();
 
-      let aiReply = (data.reply || "⚠️ Aichixia didn’t respond properly.")
-        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$1")
-        .replace(/https?:\/\/\S+/g, "");
+      let aiReply = "⚠️ Aichixia didn’t respond properly.";
 
       if (data.data && Array.isArray(data.data)) {
         aiReply = data.data
           .map(
             (item: any, i: number) =>
-              `**${i + 1}.** ${item.title || "Untitled"}`
+              `**${i + 1}.** [${item.title || "Untitled"}](${item.url || "#"})`
           )
           .join("\n");
+      } else if (data.reply) {
+        aiReply = data.reply;
       }
 
       await supabase.from("community_messages").insert({
@@ -130,7 +135,6 @@ export default function CommunityPage() {
         message: aiReply,
       });
     } catch (error) {
-      console.error("Aichixia error:", error);
       await supabase.from("community_messages").insert({
         user_id: null,
         username: "Aichixia",
@@ -257,23 +261,25 @@ export default function CommunityPage() {
           type="text"
           placeholder={
             canChat
-              ? "Type a message... (try @aichixia or /aichixia)"
+              ? cooldown
+                ? "Please wait 10 seconds..."
+                : "Type a message... (try @aichixia or /aichixia)"
               : "Sign in or guest to chat..."
           }
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          disabled={!canChat}
+          disabled={!canChat || cooldown}
           className={`flex-1 text-sm rounded-xl px-4 py-3 border transition-all ${
-            canChat
+            canChat && !cooldown
               ? "bg-gray-900 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
               : "bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed"
           }`}
         />
         <button
           type="submit"
-          disabled={!canChat}
+          disabled={!canChat || cooldown}
           className={`p-3 rounded-xl flex items-center justify-center transition-colors ${
-            canChat
+            canChat && !cooldown
               ? "bg-blue-600 hover:bg-blue-700"
               : "bg-gray-700 cursor-not-allowed"
           }`}
