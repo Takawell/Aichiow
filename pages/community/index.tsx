@@ -110,17 +110,17 @@ export default function CommunityPage() {
 
       const data = await res.json();
 
-      let aiReply = "⚠️ Aichixia didn’t respond properly.";
+      let aiReply = (data.reply || "⚠️ Aichixia didn’t respond properly.")
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$1")
+        .replace(/https?:\/\/\S+/g, "");
 
       if (data.data && Array.isArray(data.data)) {
         aiReply = data.data
           .map(
             (item: any, i: number) =>
-              `**${i + 1}.** [${item.title || "Untitled"}](${item.url || "#"})`
+              `**${i + 1}.** ${item.title || "Untitled"}`
           )
           .join("\n");
-      } else if (data.reply) {
-        aiReply = data.reply;
       }
 
       await supabase.from("community_messages").insert({
@@ -214,7 +214,10 @@ export default function CommunityPage() {
                     dangerouslySetInnerHTML={{
                       __html: msg.message
                         .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-                        .replace(/\[(.*?)\]\((.*?)\)/g, `<a href='$2' class='text-blue-400 underline' target='_blank'>$1</a>`),
+                        .replace(
+                          /\[(.*?)\]\((.*?)\)/g,
+                          `<a href='$2' class='text-blue-400 underline' target='_blank'>$1</a>`
+                        ),
                     }}
                   />
                   <span className="text-[10px] text-gray-500 mt-1">
