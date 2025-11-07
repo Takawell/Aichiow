@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Menu, X, Users, Smile, Settings, Clock } from "lucide-react";
+import { Send, Menu, X, Hash, Smile, Settings, Clock } from "lucide-react";
 
 interface Message {
   id: string;
@@ -11,7 +11,16 @@ interface Message {
   user_id: string | null;
   username: string;
   avatar_url: string;
+  channel: string;
 }
+
+const channels = [
+  { id: "general", name: "General", icon: "💬", color: "blue" },
+  { id: "anime", name: "Anime", icon: "🎌", color: "pink" },
+  { id: "manga", name: "Manga", icon: "📚", color: "purple" },
+  { id: "manhwa", name: "Manhwa", icon: "🇰🇷", color: "red" },
+  { id: "light-novel", name: "Light Novel", icon: "📖", color: "yellow" }
+];
 
 export default function CommunityPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -23,8 +32,8 @@ export default function CommunityPage() {
   const [cooldown, setCooldown] = useState(false);
   const [cooldownTime, setCooldownTime] = useState(0);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [activeChannel, setActiveChannel] = useState("general");
   const [isTyping, setIsTyping] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState(1);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -46,23 +55,25 @@ export default function CommunityPage() {
     fetchMessages();
 
     const channel = supabase
-      .channel("community-room")
+      .channel(`community-${activeChannel}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "community_messages" },
+        { 
+          event: "INSERT", 
+          schema: "public", 
+          table: "community_messages",
+          filter: `channel=eq.${activeChannel}`
+        },
         (payload) => {
           setMessages((prev) => [...prev, payload.new as Message]);
         }
       )
       .subscribe();
 
-    const randomUsers = Math.floor(Math.random() * 50) + 10;
-    setOnlineUsers(randomUsers);
-
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [activeChannel]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -83,7 +94,8 @@ export default function CommunityPage() {
   async function fetchMessages() {
     const { data } = await supabase
       .from("community_messages")
-      .select("id, user_id, username, avatar_url, message, created_at")
+      .select("id, user_id, username, avatar_url, message, created_at, channel")
+      .eq("channel", activeChannel)
       .order("created_at", { ascending: true });
     setMessages(data || []);
   }
@@ -115,6 +127,7 @@ export default function CommunityPage() {
       username: name,
       avatar_url: avatar,
       message: messageContent,
+      channel: activeChannel
     });
 
     if (
@@ -162,6 +175,7 @@ export default function CommunityPage() {
         username: "Aichixia",
         avatar_url: "/aichixia.png",
         message: aiReply,
+        channel: activeChannel
       });
     } catch (error) {
       await supabase.from("community_messages").insert({
@@ -169,6 +183,7 @@ export default function CommunityPage() {
         username: "Aichixia",
         avatar_url: "/aichixia.png",
         message: "❌ Error while connecting to Aichixia.",
+        channel: activeChannel
       });
     }
   }
@@ -188,7 +203,14 @@ export default function CommunityPage() {
     inputRef.current?.focus();
   }
 
+  function switchChannel(channelId: string) {
+    setActiveChannel(channelId);
+    setMessages([]);
+    setShowSidebar(false);
+  }
+
   const canChat = !!user || !!anonName;
+  const currentChannel = channels.find(ch => ch.id === activeChannel);
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white overflow-hidden relative">
@@ -208,44 +230,53 @@ export default function CommunityPage() {
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               transition={{ type: "spring", damping: 25 }}
-              className="fixed left-0 top-0 h-full w-72 bg-gray-900/95 backdrop-blur-xl border-r border-gray-800 z-40 p-6 overflow-y-auto"
+              className="fixed left-0 top-0 h-full w-72 bg-gray-900/95 backdrop-blur-xl border-r border-gray-800 z-40 overflow-y-auto"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold">Community Info</h2>
-                <button onClick={() => setShowSidebar(false)} className="lg:hidden">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-2xl p-4 border border-blue-500/30">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Users className="w-5 h-5 text-blue-400" />
-                    <span className="font-semibold">Online Users</span>
-                  </div>
-                  <p className="text-3xl font-bold text-blue-400">{onlineUsers}</p>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-bold">Channels</h2>
+                  <button onClick={() => setShowSidebar(false)} className="lg:hidden">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                <div className="space-y-2">
+                  {channels.map((channel) => (
+                    <motion.button
+                      key={channel.id}
+                      whileHover={{ scale: 1.02, x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => switchChannel(channel.id)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+                        activeChannel === channel.id
+                          ? `bg-${channel.color}-600/20 border border-${channel.color}-500/50 text-${channel.color}-400`
+                          : "bg-gray-800/50 border border-transparent hover:bg-gray-800 text-gray-400"
+                      }`}
+                    >
+                      <span className="text-2xl">{channel.icon}</span>
+                      <div className="flex-1 text-left">
+                        <div className="flex items-center gap-2">
+                          <Hash className="w-4 h-4" />
+                          <span className="font-medium">{channel.name}</span>
+                        </div>
+                      </div>
+                      {activeChannel === channel.id && (
+                        <motion.div
+                          layoutId="activeIndicator"
+                          className={`w-2 h-2 rounded-full bg-${channel.color}-500`}
+                        />
+                      )}
+                    </motion.button>
+                  ))}
                 </div>
 
-                <div className="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Recent Activity
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-400">
-                    <p>💬 {messages.length} messages sent</p>
-                    <p>🤖 AI responses active</p>
-                    <p>⚡ Real-time updates</p>
+                <div className="mt-6 pt-6 border-t border-gray-800">
+                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+                    <h3 className="font-semibold mb-2 text-sm">Channel Info</h3>
+                    <p className="text-xs text-gray-400">
+                      Switch between channels to join different communities and topics
+                    </p>
                   </div>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
-                  <h3 className="font-semibold mb-3">Quick Tips</h3>
-                  <ul className="space-y-2 text-sm text-gray-400">
-                    <li>• Use @aichixia for AI</li>
-                    <li>• Click messages to react</li>
-                    <li>• 10s cooldown per msg</li>
-                    <li>• Be respectful!</li>
-                  </ul>
                 </div>
               </div>
             </motion.aside>
@@ -253,7 +284,52 @@ export default function CommunityPage() {
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col flex-1 w-full max-w-full lg:max-w-5xl mx-auto relative">
+      <aside className="hidden lg:flex flex-col w-72 bg-gray-900/80 backdrop-blur-xl border-r border-gray-800">
+        <div className="p-6">
+          <h2 className="text-lg font-bold mb-4">Channels</h2>
+          
+          <div className="space-y-2">
+            {channels.map((channel) => (
+              <motion.button
+                key={channel.id}
+                whileHover={{ scale: 1.02, x: 4 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => switchChannel(channel.id)}
+                className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+                  activeChannel === channel.id
+                    ? `bg-${channel.color}-600/20 border border-${channel.color}-500/50 text-${channel.color}-400`
+                    : "bg-gray-800/50 border border-transparent hover:bg-gray-800 text-gray-400"
+                }`}
+              >
+                <span className="text-2xl">{channel.icon}</span>
+                <div className="flex-1 text-left">
+                  <div className="flex items-center gap-2">
+                    <Hash className="w-4 h-4" />
+                    <span className="font-medium">{channel.name}</span>
+                  </div>
+                </div>
+                {activeChannel === channel.id && (
+                  <motion.div
+                    layoutId="activeIndicator"
+                    className={`w-2 h-2 rounded-full bg-${channel.color}-500`}
+                  />
+                )}
+              </motion.button>
+            ))}
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-gray-800">
+            <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+              <h3 className="font-semibold mb-2 text-sm">Channel Info</h3>
+              <p className="text-xs text-gray-400">
+                Switch between channels to join different communities and topics
+              </p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div className="flex flex-col flex-1 w-full max-w-full relative">
         
         <header className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-gray-800/50 bg-gray-900/80 backdrop-blur-xl sticky top-0 z-20 shadow-xl">
           <div className="flex items-center gap-3">
@@ -263,15 +339,19 @@ export default function CommunityPage() {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="relative">
-              <Image src="/logo.png" alt="Aichiow Logo" width={40} height={40} className="rounded-full" />
-              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900 animate-pulse" />
-            </div>
-            <div>
-              <h1 className="text-lg lg:text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-                Community Beta
-              </h1>
-              <p className="text-xs text-gray-500 hidden sm:block">{onlineUsers} online</p>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">{currentChannel?.icon}</span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <Hash className="w-4 h-4 text-gray-400" />
+                  <h1 className="text-lg lg:text-xl font-bold">
+                    {currentChannel?.name}
+                  </h1>
+                </div>
+                <p className="text-xs text-gray-500 hidden sm:block">
+                  Community Chat
+                </p>
+              </div>
             </div>
           </div>
           {!user && (
@@ -502,7 +582,7 @@ export default function CommunityPage() {
             >
               <div className="mb-6">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <Users className="w-8 h-8" />
+                  <Hash className="w-8 h-8" />
                 </div>
                 <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
                   Join the Community
