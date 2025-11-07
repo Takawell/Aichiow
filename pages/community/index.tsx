@@ -13,72 +13,6 @@ interface Message {
   avatar_url: string;
 }
 
-function Avatar(props: { src: string; alt?: string; size?: number; onError?: (e: any) => void }) {
-  const { src, alt = "avatar", size = 44, onError } = props;
-  return (
-    <div
-      style={{ width: size, height: size }}
-      className="rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-gradient-to-br from-sky-600/30 to-black/30 ring-1 ring-white/6"
-    >
-      <img src={src} alt={alt} className="w-full h-full object-cover" onError={onError} />
-    </div>
-  );
-}
-
-function TimeLabel({ time }: { time: string }) {
-  return <div className="text-[11px] text-gray-400 mt-2">{new Date(time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>;
-}
-
-function MessageBubble({
-  msg,
-  isMine,
-  safeAvatar,
-  userAvatar,
-  onImgError,
-}: {
-  msg: Message;
-  isMine: boolean;
-  safeAvatar: string;
-  userAvatar: string;
-  onImgError: (e: React.SyntheticEvent<HTMLImageElement>) => void;
-}) {
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.18 }}
-      className={`flex gap-3 w-full ${isMine ? "justify-end" : "justify-start"}`}
-    >
-      {!isMine && (
-        <div className="flex items-start">
-          <Avatar src={safeAvatar} alt={msg.username} size={44} onError={onImgError} />
-        </div>
-      )}
-
-      <div className={`max-w-[78%] flex flex-col ${isMine ? "items-end" : "items-start"}`}>
-        {!isMine && <div className="text-xs text-sky-200/70 mb-1 font-medium">{msg.username}</div>}
-        <div
-          className={`px-5 py-3 rounded-[18px] break-words whitespace-pre-wrap text-sm leading-relaxed shadow-xl ${isMine ? "bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-br-2xl rounded-tr-2xl rounded-tl-xl transform-gpu" : "bg-[#0b0b0d] text-gray-100 border border-gray-800"}`}
-          dangerouslySetInnerHTML={{
-            __html: msg.message
-              .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-              .replace(/\[(.*?)\]\((.*?)\)/g, `<a href='$2' class='underline text-sky-300' target='_blank' rel='noreferrer'>$1</a>`),
-          }}
-        />
-        <TimeLabel time={msg.created_at} />
-      </div>
-
-      {isMine && (
-        <div className="flex items-start">
-          <Avatar src={userAvatar} alt={"you"} size={44} onError={onImgError} />
-        </div>
-      )}
-    </motion.div>
-  );
-}
-
 export default function CommunityPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -215,127 +149,185 @@ export default function CommunityPage() {
   }
 
   function handleImageError(e: React.SyntheticEvent<HTMLImageElement>) {
-    e.currentTarget.src = randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
+    e.currentTarget.src =
+      randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
   }
 
   const canChat = !!user || !!anonName;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-black via-[#030615] to-[#071022] text-white antialiased">
-      <header className="sticky top-0 z-30 backdrop-blur-md bg-black/30 border-b border-sky-900/20">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-sky-500 to-blue-700 p-1 shadow-lg">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Image src="/logo.png" alt="Aichiow Logo" width={34} height={34} />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-lg sm:text-xl font-extrabold tracking-tight">Community Beta</h1>
-              <p className="text-xs text-sky-200/60">chat together • share • discover</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {!user && (
-              <button onClick={() => setShowModal(true)} className="px-3 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:scale-[1.02] transition transform shadow-md text-sm">
-                settings
-              </button>
-            )}
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gray-800 to-black border border-gray-800 flex items-center justify-center text-xs text-gray-300">
-              v
-            </div>
-          </div>
+    <div className="flex flex-col h-screen bg-[#0f0f11] text-white overflow-hidden relative">
+      <header className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-[#121214] sticky top-0 z-10">
+        <div className="flex items-center gap-3">
+          <Image src="/logo.png" alt="Aichiow Logo" width={36} height={36} />
+          <h1 className="text-xl font-bold tracking-wide">Community Beta</h1>
         </div>
+        {!user && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="text-sm bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg"
+          >
+            settings
+          </button>
+        )}
       </header>
 
-      <main className="flex-1 overflow-hidden py-6">
-        <div className="max-w-5xl mx-auto px-4 h-full grid rows-[1fr_auto]">
-          <div className="h-full overflow-y-auto rounded-2xl p-4" style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02)" }}>
-            <div className="grid gap-4">
-              <AnimatePresence initial={false} mode="popLayout">
-                {messages.map((msg) => {
-                  const isMine = msg.user_id === user?.id;
-                  const safeAvatar = msg.avatar_url || randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
-                  const userAvatar =
-                    user?.user_metadata?.avatar_url || anonAvatar || randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
+      <main className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+        <AnimatePresence>
+          {messages.map((msg) => {
+            const isMine = msg.user_id === user?.id;
+            const safeAvatar =
+              msg.avatar_url ||
+              randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
 
-                  return (
-                    <MessageBubble
-                      key={msg.id}
-                      msg={msg}
-                      isMine={isMine}
-                      safeAvatar={safeAvatar}
-                      userAvatar={userAvatar}
-                      onImgError={handleImageError}
-                    />
-                  );
-                })}
-              </AnimatePresence>
-              <div ref={bottomRef} />
-            </div>
-          </div>
+            return (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+                className={`flex gap-3 ${
+                  isMine ? "justify-end" : "justify-start"
+                }`}
+              >
+                {!isMine && (
+                  <img
+                    src={safeAvatar}
+                    alt={msg.username}
+                    className="rounded-full w-9 h-9 object-cover"
+                    onError={handleImageError}
+                  />
+                )}
 
-          <form onSubmit={sendMessage} className="mt-4 rounded-2xl p-4 bg-gradient-to-t from-black/40 to-transparent border border-sky-900/20 backdrop-blur-md flex items-center gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-600 to-blue-700 flex items-center justify-center shadow-inner hidden sm:flex">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 2L11 13" />
-                  <path d="M22 2L15 22L11 13L2 9L22 2Z" />
-                </svg>
-              </div>
-            </div>
+                <div
+                  className={`max-w-[75%] text-sm flex flex-col ${
+                    isMine ? "items-end" : "items-start"
+                  }`}
+                >
+                  {!isMine && (
+                    <span className="text-xs text-gray-400 mb-1">
+                      {msg.username}
+                    </span>
+                  )}
+                  <div
+                    className={`px-4 py-2 rounded-2xl shadow-md break-words whitespace-pre-wrap ${
+                      isMine
+                        ? "bg-blue-600 text-white rounded-br-none"
+                        : "bg-gray-800 text-gray-100 rounded-bl-none"
+                    }`}
+                    dangerouslySetInnerHTML={{
+                      __html: msg.message
+                        .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+                        .replace(
+                          /\[(.*?)\]\((.*?)\)/g,
+                          `<a href='$2' class='text-blue-400 underline' target='_blank'>$1</a>`
+                        ),
+                    }}
+                  />
+                  <span className="text-[10px] text-gray-500 mt-1">
+                    {new Date(msg.created_at).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
 
-            <input
-              type="text"
-              placeholder={
-                canChat
-                  ? cooldown
-                    ? "Please wait 10 seconds..."
-                    : "Type a message... (try @aichixia or /aichixia)"
-                  : "Sign in or guest to chat..."
-              }
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              disabled={!canChat || cooldown}
-              className={`flex-1 text-sm rounded-xl px-4 py-3 border transition-all outline-none ${canChat && !cooldown ? "bg-[#061025] border-sky-700 focus:ring-2 focus:ring-sky-400" : "bg-[#061025] border-gray-800 text-gray-500 cursor-not-allowed"}`}
-            />
-            <button
-              type="submit"
-              disabled={!canChat || cooldown}
-              className={`p-3 rounded-xl flex items-center justify-center transition-transform ${canChat && !cooldown ? "bg-gradient-to-br from-sky-400 to-blue-600 hover:scale-105 shadow-lg" : "bg-gray-700 cursor-not-allowed"}`}
-            >
-              <Send className="w-5 h-5" />
-            </button>
-          </form>
-        </div>
+                {isMine && (
+                  <img
+                    src={
+                      user?.user_metadata?.avatar_url ||
+                      anonAvatar ||
+                      randomAvatars[
+                        Math.floor(Math.random() * randomAvatars.length)
+                      ]
+                    }
+                    alt={user?.user_metadata?.full_name || anonName || "You"}
+                    className="rounded-full w-9 h-9 object-cover"
+                    onError={handleImageError}
+                  />
+                )}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+        <div ref={bottomRef} />
       </main>
 
+      <form
+        onSubmit={sendMessage}
+        className="flex items-center gap-2 p-3 border-t border-gray-800 bg-[#121214]"
+      >
+        <input
+          type="text"
+          placeholder={
+            canChat
+              ? cooldown
+                ? "Please wait 10 seconds..."
+                : "Type a message... (try @aichixia or /aichixia)"
+              : "Sign in or guest to chat..."
+          }
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          disabled={!canChat || cooldown}
+          className={`flex-1 text-sm rounded-xl px-4 py-3 border transition-all ${
+            canChat && !cooldown
+              ? "bg-gray-900 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              : "bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed"
+          }`}
+        />
+        <button
+          type="submit"
+          disabled={!canChat || cooldown}
+          className={`p-3 rounded-xl flex items-center justify-center transition-colors ${
+            canChat && !cooldown
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "bg-gray-700 cursor-not-allowed"
+          }`}
+        >
+          <Send className="w-5 h-5" />
+        </button>
+      </form>
+
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="w-[94%] max-w-md p-6 rounded-2xl bg-gradient-to-br from-[#071022] to-[#04060b] border border-sky-900 shadow-2xl">
-            <h2 className="text-lg font-bold mb-4 text-center">Sign in as a Guest</h2>
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-20">
+          <div className="bg-[#18181b] rounded-2xl p-6 w-80 text-center border border-gray-700 shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Sign in as a Guest</h2>
             <input
               type="text"
               placeholder="Enter your name..."
               value={anonName}
               onChange={(e) => setAnonName(e.target.value)}
-              className="w-full p-3 rounded-xl bg-[#061025] border border-sky-800 mb-4 outline-none focus:ring-2 focus:ring-sky-400"
+              className="w-full p-2 rounded-lg bg-gray-900 border border-gray-700 mb-3 outline-none focus:ring-2 focus:ring-blue-600"
             />
-            <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="flex justify-center gap-3 mb-4">
               {randomAvatars.map((src) => (
-                <button key={src} onClick={() => setAnonAvatar(src)} className="rounded-full p-0.5" aria-label="select avatar">
-                  <img src={src} alt="avatar" width={40} height={40} className={`w-10 h-10 rounded-full cursor-pointer ${anonAvatar === src ? "ring-2 ring-sky-400 scale-105" : ""}`} onError={handleImageError} />
-                </button>
+                <img
+                  key={src}
+                  src={src}
+                  alt="avatar"
+                  width={40}
+                  height={40}
+                  onClick={() => setAnonAvatar(src)}
+                  className={`rounded-full w-10 h-10 cursor-pointer border-2 ${
+                    anonAvatar === src
+                      ? "border-blue-500 scale-110"
+                      : "border-transparent"
+                  } transition-transform`}
+                  onError={handleImageError}
+                />
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <button onClick={handleAnonConfirm} disabled={!anonName.trim()} className={`w-full rounded-xl py-3 font-semibold ${anonName.trim() ? "bg-gradient-to-r from-sky-400 to-blue-600 hover:scale-[1.02]" : "bg-gray-700 cursor-not-allowed"}`}>
-                Start Chat
-              </button>
-              <button onClick={() => { setShowModal(false); setAnonName(""); setAnonAvatar("/default.png"); }} className="w-full rounded-xl py-3 font-semibold bg-transparent border border-gray-800">
-                Cancel
-              </button>
-            </div>
+            <button
+              onClick={handleAnonConfirm}
+              disabled={!anonName.trim()}
+              className={`w-full rounded-lg py-2 font-medium transition-colors ${
+                anonName.trim()
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-700 cursor-not-allowed"
+              }`}
+            >
+              Start Chat
+            </button>
           </div>
         </div>
       )}
