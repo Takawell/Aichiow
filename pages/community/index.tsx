@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send } from "lucide-react";
+import { Send, Sparkles, Users, Settings, X } from "lucide-react";
 
 interface Message {
   id: string;
@@ -21,7 +21,10 @@ export default function CommunityPage() {
   const [anonName, setAnonName] = useState("");
   const [anonAvatar, setAnonAvatar] = useState("/default.png");
   const [cooldown, setCooldown] = useState(false);
+  const [onlineCount, setOnlineCount] = useState(1);
+  const [isTyping, setIsTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const randomAvatars = ["/default.png", "/v2.png", "/v3.png", "/v4.png"];
 
@@ -46,7 +49,15 @@ export default function CommunityPage() {
           setMessages((prev) => [...prev, payload.new as Message]);
         }
       )
-      .subscribe();
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        setOnlineCount(Object.keys(state).length);
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({ online_at: new Date().toISOString() });
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -93,10 +104,13 @@ export default function CommunityPage() {
       messageContent.toLowerCase().startsWith("@aichixia") ||
       messageContent.toLowerCase().startsWith("/aichixia")
     ) {
+      setIsTyping(true);
       await handleAichixiaResponse(messageContent);
+      setIsTyping(false);
     }
 
     setNewMessage("");
+    inputRef.current?.focus();
   }
 
   async function handleAichixiaResponse(prompt: string) {
@@ -115,7 +129,7 @@ export default function CommunityPage() {
 
       const data = await res.json();
 
-      let aiReply = "⚠️ Aichixia didn’t respond properly.";
+      let aiReply = "⚠️ Aichixia didn't respond properly.";
 
       if (data.data && Array.isArray(data.data)) {
         aiReply = data.data
@@ -156,25 +170,43 @@ export default function CommunityPage() {
   const canChat = !!user || !!anonName;
 
   return (
-    <div className="flex flex-col h-screen bg-[#0f0f11] text-white overflow-hidden relative">
-      <header className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-[#121214] sticky top-0 z-10">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-[#0a0a0c] via-[#0f0f11] to-[#1a1a1f] text-white overflow-hidden relative">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent pointer-events-none" />
+      
+      <header className="relative flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-black/40 backdrop-blur-xl sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Aichiow Logo" width={36} height={36} />
-          <h1 className="text-xl font-bold tracking-wide">Community Beta</h1>
+          <motion.div
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Image src="/logo.png" alt="Aichiow Logo" width={40} height={40} className="drop-shadow-lg" />
+          </motion.div>
+          <div>
+            <h1 className="text-lg sm:text-xl font-bold tracking-wide bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+              Community Beta
+            </h1>
+            <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+              <Users className="w-3 h-3" />
+              <span>{onlineCount} online</span>
+            </div>
+          </div>
         </div>
         {!user && (
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setShowModal(true)}
-            className="text-sm bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg"
+            className="flex items-center gap-2 text-xs sm:text-sm bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-3 sm:px-4 py-2 rounded-full shadow-lg transition-all"
           >
-            settings
-          </button>
+            <Settings className="w-4 h-4" />
+            <span className="hidden sm:inline">Settings</span>
+          </motion.button>
         )}
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-        <AnimatePresence>
-          {messages.map((msg) => {
+      <main className="relative flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-3 sm:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+        <AnimatePresence mode="popLayout">
+          {messages.map((msg, idx) => {
             const isMine = msg.user_id === user?.id;
             const safeAvatar =
               msg.avatar_url ||
@@ -183,48 +215,51 @@ export default function CommunityPage() {
             return (
               <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`flex gap-3 ${
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3, delay: idx * 0.02 }}
+                className={`flex gap-2 sm:gap-3 ${
                   isMine ? "justify-end" : "justify-start"
                 }`}
               >
                 {!isMine && (
-                  <img
+                  <motion.img
+                    whileHover={{ scale: 1.1 }}
                     src={safeAvatar}
                     alt={msg.username}
-                    className="rounded-full w-9 h-9 object-cover"
+                    className="rounded-full w-8 h-8 sm:w-9 sm:h-9 object-cover ring-2 ring-white/10 shadow-lg"
                     onError={handleImageError}
                   />
                 )}
 
                 <div
-                  className={`max-w-[75%] text-sm flex flex-col ${
+                  className={`max-w-[80%] sm:max-w-[75%] text-sm flex flex-col ${
                     isMine ? "items-end" : "items-start"
                   }`}
                 >
                   {!isMine && (
-                    <span className="text-xs text-gray-400 mb-1">
+                    <span className="text-xs text-gray-400 mb-1 px-1 font-medium">
                       {msg.username}
                     </span>
                   )}
-                  <div
-                    className={`px-4 py-2 rounded-2xl shadow-md break-words whitespace-pre-wrap ${
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-lg break-words whitespace-pre-wrap backdrop-blur-sm ${
                       isMine
-                        ? "bg-blue-600 text-white rounded-br-none"
-                        : "bg-gray-800 text-gray-100 rounded-bl-none"
+                        ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-br-sm"
+                        : "bg-white/10 text-gray-100 rounded-bl-sm border border-white/5"
                     }`}
                     dangerouslySetInnerHTML={{
                       __html: msg.message
                         .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
                         .replace(
                           /\[(.*?)\]\((.*?)\)/g,
-                          `<a href='$2' class='text-blue-400 underline' target='_blank'>$1</a>`
+                          `<a href='$2' class='text-blue-300 underline hover:text-blue-200' target='_blank'>$1</a>`
                         ),
                     }}
                   />
-                  <span className="text-[10px] text-gray-500 mt-1">
+                  <span className="text-[10px] text-gray-500 mt-1 px-1">
                     {new Date(msg.created_at).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -233,7 +268,8 @@ export default function CommunityPage() {
                 </div>
 
                 {isMine && (
-                  <img
+                  <motion.img
+                    whileHover={{ scale: 1.1 }}
                     src={
                       user?.user_metadata?.avatar_url ||
                       anonAvatar ||
@@ -242,7 +278,7 @@ export default function CommunityPage() {
                       ]
                     }
                     alt={user?.user_metadata?.full_name || anonName || "You"}
-                    className="rounded-full w-9 h-9 object-cover"
+                    className="rounded-full w-8 h-8 sm:w-9 sm:h-9 object-cover ring-2 ring-blue-500/50 shadow-lg"
                     onError={handleImageError}
                   />
                 )}
@@ -250,87 +286,172 @@ export default function CommunityPage() {
             );
           })}
         </AnimatePresence>
+        
+        {isTyping && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex gap-3 items-center"
+          >
+            <img
+              src="/aichixia.png"
+              alt="Aichixia"
+              className="rounded-full w-9 h-9 object-cover ring-2 ring-purple-500/50"
+            />
+            <div className="flex gap-1 bg-white/10 px-4 py-3 rounded-2xl">
+              <motion.span
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1, repeat: Infinity, delay: 0 }}
+                className="w-2 h-2 bg-gray-400 rounded-full"
+              />
+              <motion.span
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
+                className="w-2 h-2 bg-gray-400 rounded-full"
+              />
+              <motion.span
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
+                className="w-2 h-2 bg-gray-400 rounded-full"
+              />
+            </div>
+          </motion.div>
+        )}
+        
         <div ref={bottomRef} />
       </main>
 
       <form
         onSubmit={sendMessage}
-        className="flex items-center gap-2 p-3 border-t border-gray-800 bg-[#121214]"
+        className="relative flex items-center gap-2 p-3 sm:p-4 border-t border-white/10 bg-black/40 backdrop-blur-xl"
       >
-        <input
-          type="text"
-          placeholder={
-            canChat
-              ? cooldown
-                ? "Please wait 10 seconds..."
-                : "Type a message... (try @aichixia or /aichixia)"
-              : "Sign in or guest to chat..."
-          }
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          disabled={!canChat || cooldown}
-          className={`flex-1 text-sm rounded-xl px-4 py-3 border transition-all ${
-            canChat && !cooldown
-              ? "bg-gray-900 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              : "bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed"
-          }`}
-        />
-        <button
+        <div className="relative flex-1">
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder={
+              canChat
+                ? cooldown
+                  ? "Please wait 10 seconds..."
+                  : "Type a message..."
+                : "Sign in or guest to chat..."
+            }
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            disabled={!canChat || cooldown}
+            className={`w-full text-sm rounded-2xl pl-4 pr-12 py-3 sm:py-3.5 border transition-all backdrop-blur-sm ${
+              canChat && !cooldown
+                ? "bg-white/5 border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                : "bg-white/5 border-white/5 text-gray-500 cursor-not-allowed"
+            }`}
+          />
+          {newMessage && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+            >
+              <Sparkles className="w-4 h-4 text-blue-400" />
+            </motion.div>
+          )}
+        </div>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           type="submit"
           disabled={!canChat || cooldown}
-          className={`p-3 rounded-xl flex items-center justify-center transition-colors ${
+          className={`p-3 sm:p-3.5 rounded-2xl flex items-center justify-center transition-all shadow-lg ${
             canChat && !cooldown
-              ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-gray-700 cursor-not-allowed"
+              ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+              : "bg-white/5 cursor-not-allowed"
           }`}
         >
           <Send className="w-5 h-5" />
-        </button>
+        </motion.button>
       </form>
 
-      {showModal && (
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-20">
-          <div className="bg-[#18181b] rounded-2xl p-6 w-80 text-center border border-gray-700 shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Sign in as a Guest</h2>
-            <input
-              type="text"
-              placeholder="Enter your name..."
-              value={anonName}
-              onChange={(e) => setAnonName(e.target.value)}
-              className="w-full p-2 rounded-lg bg-gray-900 border border-gray-700 mb-3 outline-none focus:ring-2 focus:ring-blue-600"
-            />
-            <div className="flex justify-center gap-3 mb-4">
-              {randomAvatars.map((src) => (
-                <img
-                  key={src}
-                  src={src}
-                  alt="avatar"
-                  width={40}
-                  height={40}
-                  onClick={() => setAnonAvatar(src)}
-                  className={`rounded-full w-10 h-10 cursor-pointer border-2 ${
-                    anonAvatar === src
-                      ? "border-blue-500 scale-110"
-                      : "border-transparent"
-                  } transition-transform`}
-                  onError={handleImageError}
-                />
-              ))}
-            </div>
-            <button
-              onClick={handleAnonConfirm}
-              disabled={!anonName.trim()}
-              className={`w-full rounded-lg py-2 font-medium transition-colors ${
-                anonName.trim()
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-gray-700 cursor-not-allowed"
-              }`}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-20 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-gradient-to-br from-[#18181b] to-[#1a1a1f] rounded-3xl p-6 sm:p-8 w-full max-w-md text-center border border-white/10 shadow-2xl relative"
             >
-              Start Chat
-            </button>
-          </div>
-        </div>
-      )}
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </motion.button>
+              
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="mb-4"
+              >
+                <Sparkles className="w-12 h-12 mx-auto text-blue-500" />
+              </motion.div>
+              
+              <h2 className="text-xl sm:text-2xl font-bold mb-2 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                Join as Guest
+              </h2>
+              <p className="text-sm text-gray-400 mb-6">Choose your identity</p>
+              
+              <input
+                type="text"
+                placeholder="Enter your name..."
+                value={anonName}
+                onChange={(e) => setAnonName(e.target.value)}
+                className="w-full p-3 sm:p-3.5 rounded-xl bg-white/5 border border-white/10 mb-4 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+              
+              <div className="flex justify-center gap-3 mb-6">
+                {randomAvatars.map((src) => (
+                  <motion.img
+                    key={src}
+                    whileHover={{ scale: 1.15 }}
+                    whileTap={{ scale: 0.95 }}
+                    src={src}
+                    alt="avatar"
+                    width={48}
+                    height={48}
+                    onClick={() => setAnonAvatar(src)}
+                    className={`rounded-full w-12 h-12 sm:w-14 sm:h-14 cursor-pointer border-2 transition-all ${
+                      anonAvatar === src
+                        ? "border-blue-500 ring-4 ring-blue-500/30 scale-110"
+                        : "border-white/10 hover:border-white/30"
+                    }`}
+                    onError={handleImageError}
+                  />
+                ))}
+              </div>
+              
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleAnonConfirm}
+                disabled={!anonName.trim()}
+                className={`w-full rounded-xl py-3 sm:py-3.5 font-semibold transition-all shadow-lg ${
+                  anonName.trim()
+                    ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                    : "bg-white/5 cursor-not-allowed text-gray-500"
+                }`}
+              >
+                Start Chatting
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
