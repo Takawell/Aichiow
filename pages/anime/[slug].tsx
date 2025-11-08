@@ -36,7 +36,7 @@ export default function AnimeDetailPage() {
           priority
         />
         <p className="text-xl font-bold text-white animate-pulse tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
-          Loading your anime world...
+          Loading...
         </p>
       </div>
     );
