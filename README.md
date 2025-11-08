@@ -28,9 +28,15 @@ Discover anime, manga, manhwa, and light novels on **Aichiow** modern design, fa
 ### Schedule & Upcoming
 ![preview](https://i.ibb.co/p6HQJm0p/1757298018286.jpg)
 
+### Explore Anime
+![explore anime](https://github.com/user-attachments/assets/0313bbe2-da34-4e1d-8f4a-fba47181752a)
+
 ### Manga
 ![Manga](https://i.ibb.co/BKjQZrL7/1755945661098.jpg)
 ![My wife](https://i.ibb.co/PGchDv5q/68f3ae832623b11e2511ee3f.jpg)
+### Explore Manga
+![Explore manga](https://github.com/user-attachments/assets/499e14fd-e376-4d28-96ce-fcd0ea953b5f)
+
 
 ### Manhwa
 ![Manhwa](https://i.ibb.co/SXrx3PLY/undefined.png)
