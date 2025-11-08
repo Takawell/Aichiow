@@ -75,7 +75,7 @@ function AnimeModal({ anime, onClose }: { anime: Anime | null; onClose: () => vo
         <div className="overflow-y-auto max-h-[90vh] custom-scrollbar">
           <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden">
             <Image
-              src={anime.bannerImage || anime.coverImage.extraLarge || anime.coverImage.large}
+              src={anime.bannerImage || anime.coverImage.large}
               alt={anime.title.english || anime.title.romaji}
               fill
               className="object-cover"
@@ -83,7 +83,7 @@ function AnimeModal({ anime, onClose }: { anime: Anime | null; onClose: () => vo
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/60 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row gap-4 sm:gap-6">
               <Image
-                src={anime.coverImage.extraLarge || anime.coverImage.large}
+                src={anime.coverImage.large}
                 alt={anime.title.english || anime.title.romaji}
                 width={150}
                 height={220}
@@ -130,7 +130,7 @@ function AnimeModal({ anime, onClose }: { anime: Anime | null; onClose: () => vo
 
             {anime.nextAiringEpisode && (
               <div className="p-4 bg-gradient-to-r from-sky-600/10 to-sky-700/10 border border-sky-600/30 rounded-2xl">
-                <p className="flex items-center gap-2 text-sky-400 font-bold">
+                <p className="flex items-center gap-2 text-sky-400 font-bold flex-wrap">
                   <FaRegClock />
                   Next Episode {anime.nextAiringEpisode.episode}
                   <span className="text-zinc-300">•</span>
