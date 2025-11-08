@@ -169,22 +169,12 @@ function AnimeModal({ anime, onClose }: { anime: Anime | null; onClose: () => vo
               </div>
             )}
 
-            {(anime.studios?.nodes || anime.season || anime.seasonYear) && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {anime.studios?.nodes && anime.studios.nodes.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-bold text-zinc-400 mb-2">Studio</h3>
-                    <p className="text-white font-medium">{anime.studios.nodes[0].name}</p>
-                  </div>
-                )}
-                {(anime.season || anime.seasonYear) && (
-                  <div>
-                    <h3 className="text-sm font-bold text-zinc-400 mb-2">Season</h3>
-                    <p className="text-white font-medium">
-                      {anime.season} {anime.seasonYear}
-                    </p>
-                  </div>
-                )}
+            {(anime.season || anime.seasonYear) && (
+              <div>
+                <h3 className="text-sm font-bold text-zinc-400 mb-2">Season</h3>
+                <p className="text-white font-medium">
+                  {anime.season} {anime.seasonYear}
+                </p>
               </div>
             )}
 
