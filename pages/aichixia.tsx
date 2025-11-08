@@ -177,98 +177,122 @@ export default function AichixiaPage() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-[#050b1b] via-[#0a1228] to-[#050b1b] text-sky-100">
-        <div className="w-full max-w-4xl flex flex-col h-screen px-3 sm:px-6">
-          <header className="p-4 border-b border-sky-800 bg-black/20 backdrop-blur-md rounded-b-xl shadow-md flex items-center justify-between sticky top-0 z-20">
-            <div className="flex items-center gap-3">
-              <div className="relative w-10 h-10 rounded-full ring-2 ring-sky-500 overflow-hidden shadow-lg">
-                <Image src="/aichixia.png" alt="Aichixia" fill className="object-cover" />
+      <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none"></div>
+        
+        <div className="w-full max-w-6xl flex flex-col h-screen px-3 sm:px-6 lg:px-8 relative z-10">
+          <header className="p-4 sm:p-5 border-b border-blue-500/20 bg-slate-900/40 backdrop-blur-2xl rounded-b-2xl shadow-2xl flex items-center justify-between sticky top-0 z-20 mt-2 sm:mt-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ring-2 ring-blue-400/50 overflow-hidden shadow-2xl shadow-blue-500/30 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-600/20 group-hover:scale-110 transition-transform duration-500"></div>
+                <Image src="/aichixia.png" alt="Aichixia" fill className="object-cover relative z-10" />
               </div>
               <div>
-                <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-sky-300 to-blue-500 bg-clip-text text-transparent">
-                  Aichixia Assistant
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent tracking-tight">
+                  Aichixia
                 </h1>
-                <p className="text-xs text-sky-300/80">
-                  Chat, Explore, or Identify Anime from Screenshot
+                <p className="text-[10px] sm:text-xs text-blue-300/70 font-light tracking-wide">
+                  AI-Powered Anime Assistant
                 </p>
               </div>
             </div>
             <button
               onClick={() => setScanOpen(true)}
-              className="bg-gradient-to-r from-blue-600 to-sky-500 p-2 rounded-full hover:scale-105 shadow-md transition"
+              className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
             >
-              <LuScanLine className="text-lg" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <LuScanLine className="text-lg sm:text-xl relative z-10" />
             </button>
           </header>
 
-          <section className="flex-1 overflow-y-auto py-4 space-y-4 scrollbar-thin scrollbar-thumb-sky-700/50 scrollbar-track-transparent">
+          <section className="flex-1 overflow-y-auto py-6 space-y-5 scrollbar-thin scrollbar-thumb-blue-500/30 scrollbar-track-transparent px-1">
             {messages.map((msg, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
                 className={`flex flex-col gap-2 ${
                   msg.role === "user" ? "items-end" : "items-start"
                 }`}
               >
                 {msg.type === "text" && (
                   <div
-                    className={`px-4 py-3 rounded-2xl max-w-[80%] text-sm shadow-md ${
+                    className={`px-5 py-4 rounded-3xl max-w-[85%] sm:max-w-[75%] text-sm sm:text-base shadow-xl backdrop-blur-xl ${
                       msg.role === "user"
-                        ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white"
-                        : "bg-[#0b152e]/80 border border-sky-700/40 backdrop-blur-sm"
+                        ? "bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 text-white shadow-blue-500/30"
+                        : "bg-slate-800/60 border border-blue-500/20 text-slate-100 shadow-slate-900/50"
                     }`}
                   >
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      className="prose prose-invert prose-sm sm:prose-base max-w-none prose-headings:text-blue-300 prose-a:text-cyan-400 prose-strong:text-blue-200"
+                    >
                       {msg.content as string}
                     </ReactMarkdown>
                   </div>
                 )}
 
                 {msg.type === "image" && typeof msg.content === "string" && (
-                  <div className="relative w-40 h-40 rounded-xl overflow-hidden border border-sky-700/50 shadow-md">
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-3xl overflow-hidden border-2 border-blue-400/30 shadow-2xl shadow-blue-500/20 hover:border-blue-400/50 transition-all duration-300"
+                  >
                     <Image
                       src={msg.content}
                       alt="preview"
                       fill
                       className="object-cover"
                     />
-                  </div>
+                  </motion.div>
                 )}
 
                 {msg.type === "scan" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 w-full">
                     {(msg.content as any[]).map((r, idx) => (
-                      <div
+                      <motion.div
                         key={idx}
-                        className="bg-[#0b1724]/80 border border-sky-700/40 rounded-xl overflow-hidden shadow-lg hover:border-sky-500/50 transition flex flex-col"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="group bg-slate-800/50 border border-blue-500/20 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-400/40 transition-all duration-300 flex flex-col backdrop-blur-xl"
                       >
-                        <video
-                          src={r.video}
-                          className="w-full aspect-video object-cover"
-                          controls
-                          muted
-                        />
-                        <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div className="relative overflow-hidden">
+                          <video
+                            src={r.video}
+                            className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500"
+                            controls
+                            muted
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+                        <div className="p-5 flex-1 flex flex-col justify-between">
                           <div>
-                            <h3 className="font-semibold text-sky-200 text-sm line-clamp-2">
+                            <h3 className="font-bold text-blue-100 text-sm sm:text-base line-clamp-2 group-hover:text-cyan-300 transition-colors">
                               {r.title?.romaji || r.title?.english || "Unknown"}
                             </h3>
-                            <p className="text-xs text-sky-400 mt-1">
-                              Episode {r.episode || "?"} · {(r.similarity * 100).toFixed(1)}%
-                            </p>
+                            <div className="flex items-center gap-3 mt-2">
+                              <span className="text-xs px-2.5 py-1 bg-blue-500/20 text-blue-300 rounded-full border border-blue-400/30">
+                                Ep {r.episode || "?"}
+                              </span>
+                              <span className="text-xs px-2.5 py-1 bg-cyan-500/20 text-cyan-300 rounded-full border border-cyan-400/30">
+                                {(r.similarity * 100).toFixed(1)}%
+                              </span>
+                            </div>
                           </div>
                           {r.anilist && (
                             <Link
                               href={`/anime/${r.anilist}`}
-                              className="text-xs text-sky-400 hover:text-sky-200 underline mt-2 block"
+                              className="text-sm text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/30 hover:decoration-cyan-300 underline-offset-4 mt-3 inline-flex items-center gap-1 group/link transition-all"
                             >
-                              → View Anime Detail
+                              View Details
+                              <span className="group-hover/link:translate-x-1 transition-transform">→</span>
                             </Link>
                           )}
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 )}
@@ -276,30 +300,34 @@ export default function AichixiaPage() {
             ))}
 
             {loading && (
-              <div className="flex items-center gap-2 text-sky-300 text-sm">
-                <FaSpinner className="animate-spin" />
-                <span>Aichixia is thinking...</span>
-              </div>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center gap-3 text-blue-300 text-sm bg-slate-800/40 px-5 py-3 rounded-full w-fit backdrop-blur-xl border border-blue-500/20"
+              >
+                <FaSpinner className="animate-spin text-lg" />
+                <span className="font-medium">Aichixia is thinking...</span>
+              </motion.div>
             )}
 
             <div ref={messagesEndRef} />
           </section>
 
-          <footer className="p-3 bg-[#071026]/60 backdrop-blur-sm sticky bottom-0 rounded-t-xl border-t border-sky-800/30">
+          <footer className="p-3 sm:p-4 bg-slate-900/40 backdrop-blur-2xl sticky bottom-0 rounded-t-2xl border-t border-blue-500/20 mb-2 sm:mb-4 shadow-2xl">
             {!session ? (
               <Link
                 href="/auth/login"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-sky-600 to-blue-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300"
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-[1.02] active:scale-95 text-sm sm:text-base"
               >
-                <FaPaperPlane className="text-white" />
+                <FaPaperPlane />
                 <span>Login to access Aichixia</span>
               </Link>
             ) : (
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 sm:gap-3 items-center">
                 <input
                   type="text"
-                  placeholder="Type your message..."
-                  className="flex-1 px-4 py-3 rounded-lg bg-[#041020]/70 border border-sky-700/40 placeholder-sky-300 text-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+                  placeholder="Ask me anything about anime..."
+                  className="flex-1 px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-slate-800/50 border border-blue-500/20 placeholder-blue-300/40 text-white focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl text-sm sm:text-base"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -308,12 +336,13 @@ export default function AichixiaPage() {
                 <button
                   onClick={sendMessage}
                   disabled={loading}
-                  className="p-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:scale-105 transition shadow-lg disabled:opacity-50"
+                  className="relative group p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
                 >
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   {loading ? (
-                    <FaSpinner className="animate-spin text-white" />
+                    <FaSpinner className="animate-spin text-white text-lg relative z-10" />
                   ) : (
-                    <FaPaperPlane className="text-white" />
+                    <FaPaperPlane className="text-white text-lg relative z-10" />
                   )}
                 </button>
               </div>
@@ -324,35 +353,42 @@ export default function AichixiaPage() {
         <AnimatePresence>
           {scanOpen && (
             <motion.div
-              className="fixed inset-0 bg-black/70 backdrop-blur-xl flex items-center justify-center z-50"
+              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              onClick={() => setScanOpen(false)}
             >
               <motion.div
-                className="bg-[#0d111a]/95 rounded-3xl p-8 w-[90%] max-w-md text-center shadow-2xl border border-sky-800/50 relative"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
+                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                transition={{ type: "spring", bounce: 0.3 }}
+                onClick={(e) => e.stopPropagation()}
               >
-                <h2 className="text-2xl font-bold text-sky-300 mb-3">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
+                  <LuScanLine className="text-2xl text-white" />
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
                   Upload Screenshot
                 </h2>
-                <p className="text-sky-400 text-sm mb-6">
-                  Aichixia will detect which anime it's from!
+                <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light">
+                  Aichixia will detect which anime it's from instantly!
                 </p>
 
                 {!session ? (
                   <Link
                     href="/auth/login"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-sky-600 to-blue-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300"
+                    className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
                   >
-                    <LuScanLine className="text-lg" />
-                    <span>Login to access Aichixia</span>
+                    <LuScanLine className="text-xl" />
+                    <span>Login to Scan</span>
                   </Link>
                 ) : (
-                  <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:scale-105 text-white rounded-xl font-semibold transition-all duration-300">
-                    <LuScanLine className="text-lg" />
+                  <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
+                    <LuScanLine className="text-xl" />
                     <span>Choose Image</span>
                     <input
                       type="file"
@@ -364,8 +400,12 @@ export default function AichixiaPage() {
                 )}
 
                 {pendingImage && (
-                  <div className="mt-5 relative w-full flex justify-center">
-                    <div className="relative w-48 h-48 border border-sky-700/50 rounded-xl overflow-hidden shadow-md">
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="mt-8 relative w-full flex justify-center"
+                  >
+                    <div className="relative w-56 h-56 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20">
                       <Image
                         src={pendingImage}
                         alt="preview"
@@ -374,36 +414,36 @@ export default function AichixiaPage() {
                       />
                       <button
                         onClick={() => setPendingImage(null)}
-                        className="absolute top-1 right-1 bg-black/50 rounded-full p-1 hover:bg-black/70 transition"
+                        className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-xl rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg"
                       >
                         <FaTimes className="text-white text-sm" />
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
 
-                <div className="mt-6 flex justify-center gap-3">
+                <div className="mt-8 flex justify-center gap-3">
                   <button
                     onClick={() => setScanOpen(false)}
-                    className="px-4 py-2 bg-sky-800/60 hover:bg-sky-700/70 rounded-xl text-sky-200 transition"
+                    className="px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
                   >
                     Cancel
                   </button>
                   {session && pendingImage && (
                     <button
                       onClick={sendMessage}
-                      className="px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 text-white rounded-xl hover:scale-105 transition"
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
                     >
-                      Scan
+                      Scan Now
                     </button>
                   )}
                 </div>
 
                 <button
                   onClick={() => setScanOpen(false)}
-                  className="absolute top-3 right-3 text-sky-300 hover:text-white transition"
+                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
                 >
-                  <FaTimes className="text-lg" />
+                  <FaTimes className="text-xl" />
                 </button>
               </motion.div>
             </motion.div>
