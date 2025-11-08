@@ -16,7 +16,7 @@ function CardSkeleton({ type }: { type: 'schedule' | 'upcoming' }) {
   if (type === 'schedule') {
     return (
       <div className="relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-br from-zinc-900/90 via-zinc-900/70 to-zinc-800/90 rounded-2xl border border-zinc-700/50 backdrop-blur-sm overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-r from-sky-500/5 to-sky-600/5 animate-pulse" />
         <div className="relative w-12 h-16 sm:w-14 sm:h-20 bg-gradient-to-br from-zinc-700 to-zinc-600 rounded-xl shadow-lg" />
         <div className="relative flex flex-col gap-2 flex-1">
           <div className="w-full max-w-[200px] h-4 bg-gradient-to-r from-zinc-700 to-zinc-600 rounded-full" />
@@ -28,7 +28,7 @@ function CardSkeleton({ type }: { type: 'schedule' | 'upcoming' }) {
 
   return (
     <div className="group relative bg-gradient-to-br from-zinc-900 via-zinc-900/95 to-zinc-800 rounded-2xl border border-zinc-700/50 overflow-hidden backdrop-blur-sm">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-pulse" />
+      <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 via-sky-600/10 to-sky-700/10 animate-pulse" />
       <div className="relative w-full h-56 sm:h-64 bg-gradient-to-br from-zinc-700 via-zinc-600 to-zinc-700" />
       <div className="relative p-3 sm:p-4 space-y-3">
         <div className="w-4/5 h-4 bg-gradient-to-r from-zinc-700 to-zinc-600 rounded-full" />
@@ -75,15 +75,15 @@ export default function UpcomingPage() {
       <Head>
         <title>Anime Schedule & Upcoming | Aichiow</title>
       </Head>
-      <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-black px-4 sm:px-6 md:px-10 py-8 sm:py-12 text-white">
+      <main className="min-h-screen bg-black px-4 sm:px-6 md:px-10 py-8 sm:py-12 text-white">
         <div className="max-w-7xl mx-auto">
           <section className="mb-12 sm:mb-16">
             <div className="relative inline-block mb-6 sm:mb-8">
-              <h2 className="flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                <AiOutlineCalendar className="text-blue-500 drop-shadow-lg" size={32} /> 
+              <h2 className="flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-sky-400 to-sky-600 bg-clip-text text-transparent">
+                <AiOutlineCalendar className="text-sky-500 drop-shadow-lg" size={32} /> 
                 <span>Weekly Schedule</span>
               </h2>
-              <div className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-blue-500/50 via-purple-500/50 to-pink-500/50 rounded-full blur-sm" />
+              <div className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-sky-500/50 to-sky-600/50 rounded-full blur-sm" />
             </div>
 
             <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8">
@@ -93,13 +93,13 @@ export default function UpcomingPage() {
                   onClick={() => setSelectedDay(day)}
                   className={`group relative px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all duration-300 transform hover:scale-105 overflow-hidden
                     ${selectedDay === day
-                      ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white shadow-xl shadow-blue-500/40'
+                      ? 'bg-gradient-to-r from-sky-600 to-sky-700 text-white shadow-xl shadow-sky-500/40'
                       : 'bg-zinc-800/50 text-zinc-300 border border-zinc-700/50 hover:bg-zinc-700/50 hover:border-zinc-600'
                     }`}
                 >
                   <span className="relative z-10">{day}</span>
                   {selectedDay === day && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-30 blur-xl animate-pulse" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-sky-600 opacity-30 blur-xl animate-pulse" />
                   )}
                 </button>
               ))}
@@ -129,16 +129,16 @@ export default function UpcomingPage() {
                     <Link
                       key={anime.id}
                       href={`/anime/${anime.id}`}
-                      className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-5 bg-gradient-to-br from-zinc-900/90 via-zinc-900/70 to-zinc-800/90 rounded-2xl border border-zinc-700/50 hover:border-blue-500/50 backdrop-blur-sm overflow-hidden transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/20"
+                      className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-5 bg-gradient-to-br from-zinc-900/90 via-zinc-900/70 to-zinc-800/90 rounded-2xl border border-zinc-700/50 hover:border-sky-500/50 backdrop-blur-sm overflow-hidden transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl hover:shadow-sky-500/20"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-blue-500/10 group-hover:via-purple-500/10 group-hover:to-pink-500/10 transition-all duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-sky-500/0 to-sky-600/0 group-hover:from-sky-500/10 group-hover:to-sky-600/10 transition-all duration-500" />
                       <div className="relative">
                         <Image
                           src={anime.coverImage.large}
                           alt={anime.title.english || anime.title.romaji}
                           width={60}
                           height={80}
-                          className="w-12 h-16 sm:w-16 sm:h-24 object-cover rounded-xl shadow-xl border border-zinc-700/50 group-hover:border-blue-500/50 transition-all duration-300"
+                          className="w-12 h-16 sm:w-16 sm:h-24 object-cover rounded-xl shadow-xl border border-zinc-700/50 group-hover:border-sky-500/50 transition-all duration-300"
                         />
                       </div>
                       <div className="relative flex flex-col justify-center gap-1.5 sm:gap-2 flex-1 min-w-0">
@@ -146,10 +146,10 @@ export default function UpcomingPage() {
                           {anime.title.english || anime.title.romaji}
                         </h3>
                         <p className="flex items-center gap-1.5 text-zinc-400 text-xs sm:text-sm flex-wrap">
-                          <FaRegClock className="text-blue-400 flex-shrink-0" />
+                          <FaRegClock className="text-sky-400 flex-shrink-0" />
                           <span className="font-semibold">Episode {episode}</span>
                           <span className="hidden sm:inline">•</span>
-                          <span className="text-blue-400 font-medium">{dateText}</span>
+                          <span className="text-sky-400 font-medium">{dateText}</span>
                         </p>
                       </div>
                     </Link>
@@ -161,11 +161,11 @@ export default function UpcomingPage() {
 
           <section>
             <div className="relative inline-block mb-6 sm:mb-8">
-              <h1 className="flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                <BiMoviePlay className="text-pink-500 drop-shadow-lg" size={32} /> 
+              <h1 className="flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-sky-400 to-sky-600 bg-clip-text text-transparent">
+                <BiMoviePlay className="text-sky-500 drop-shadow-lg" size={32} /> 
                 <span>Upcoming Anime</span>
               </h1>
-              <div className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-pink-500/50 via-purple-500/50 to-blue-500/50 rounded-full blur-sm" />
+              <div className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-sky-500/50 to-sky-600/50 rounded-full blur-sm" />
             </div>
 
             {loading ? (
@@ -180,9 +180,9 @@ export default function UpcomingPage() {
                   <Link
                     key={anime.id}
                     href={`/anime/${anime.id}`}
-                    className="group relative bg-gradient-to-br from-zinc-900 via-zinc-900/95 to-zinc-800 rounded-2xl overflow-hidden border border-zinc-700/50 hover:border-purple-500/50 backdrop-blur-sm transform hover:scale-[1.05] transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/30"
+                    className="group relative bg-gradient-to-br from-zinc-900 via-zinc-900/95 to-zinc-800 rounded-2xl overflow-hidden border border-zinc-700/50 hover:border-sky-500/50 backdrop-blur-sm transform hover:scale-[1.05] transition-all duration-300 hover:shadow-2xl hover:shadow-sky-500/30"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-blue-500/20 group-hover:via-purple-500/20 group-hover:to-pink-500/20 transition-all duration-500 z-10 pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-sky-500/0 to-sky-600/0 group-hover:from-sky-500/20 group-hover:to-sky-600/20 transition-all duration-500 z-10 pointer-events-none" />
                     <div className="relative overflow-hidden">
                       <Image
                         src={anime.coverImage.large}
@@ -192,13 +192,13 @@ export default function UpcomingPage() {
                         className="w-full h-56 sm:h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent opacity-60" />
-                      <div className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 sm:py-1.5 rounded-full flex items-center gap-1 sm:gap-1.5 font-bold shadow-lg backdrop-blur-sm">
+                      <div className="absolute top-2 right-2 bg-gradient-to-r from-sky-600 to-sky-700 text-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 sm:py-1.5 rounded-full flex items-center gap-1 sm:gap-1.5 font-bold shadow-lg backdrop-blur-sm">
                         <AiOutlineCalendar className="flex-shrink-0" /> 
                         <span>Soon</span>
                       </div>
                     </div>
                     <div className="relative p-3 sm:p-4">
-                      <h2 className="text-xs sm:text-sm font-bold line-clamp-2 text-white group-hover:text-purple-300 transition-colors">
+                      <h2 className="text-xs sm:text-sm font-bold line-clamp-2 text-white group-hover:text-sky-300 transition-colors">
                         {anime.title.english || anime.title.romaji}
                       </h2>
                     </div>
