@@ -8,8 +8,8 @@ import { useSearchAnime } from '@/hooks/useSearchAnime'
 import AnimeCard from '@/components/anime/AnimeCard'
 import SectionTitle from '@/components/shared/SectionTitle'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaSearch, FaArrowDown, FaSpinner, FaFilter } from 'react-icons/fa'
-import { LuScanLine } from 'react-icons/lu'
+import { FaSearch, FaArrowDown, FaSpinner, FaFilter, FaTimes } from 'react-icons/fa'
+import { LuScanLine, LuSparkles } from 'react-icons/lu'
 import { searchAnimeByFile } from '@/lib/traceMoe'
 
 const genreList = [
@@ -43,6 +43,8 @@ export default function ExplorePage() {
   const [genreModalOpen, setGenreModalOpen] = useState(false)
   const [scanResults, setScanResults] = useState<any[]>([])
   const [scanLoading, setScanLoading] = useState(false)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isHoveringSearch, setIsHoveringSearch] = useState(false)
 
   const { anime: exploreAnime, isLoading, loadMore, hasMore } = useExploreAnime()
   const { anime: searchAnime, isLoading: searchLoading } = useSearchAnime(query)
@@ -52,6 +54,14 @@ export default function ExplorePage() {
     selectedGenres.length > 0
       ? animeData.filter((a) => a.genres && a.genres.some((g: string) => selectedGenres.includes(g)))
       : animeData
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY })
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -89,233 +99,345 @@ export default function ExplorePage() {
         <meta name="description" content="Discover and search for anime by genre, popularity, and more." />
       </Head>
 
-      <main className="bg-gradient-to-b from-[#0d0d10] via-[#111215] to-[#0a0a0a] min-h-screen text-white px-4 md:px-10 py-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <SectionTitle title="💫 Explore Anime" />
-        </motion.div>
-
-        <motion.form
-          onSubmit={handleSubmit}
-          className="mt-8 mb-6 flex flex-col sm:flex-row items-stretch gap-3"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        >
-          <div className="relative w-full flex-1">
-            <input
-              type="text"
-              placeholder="Search for anime title..."
-              className="w-full pl-11 pr-28 py-3 bg-neutral-900/80 text-white rounded-lg border border-neutral-700 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all duration-300 backdrop-blur-sm"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-            />
-            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500" />
-            <div className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setGenreModalOpen(true)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/6 rounded-full hover:bg-white/8 transition text-sm"
-                title="Filter genres"
-              >
-                <FaFilter className="text-sm text-neutral-200" />
-                <span className="hidden sm:inline text-neutral-200">Filter</span>
-              </button>
-            </div>
-            <button
-              type="button"
-              onClick={() => setScanOpen(true)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-400 hover:text-blue-300 transition"
-              title="Scan anime from image"
-            >
-              <LuScanLine className="text-2xl animate-pulse" />
-            </button>
-          </div>
-
-          <button
-            type="submit"
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-lg text-white font-semibold transition-all duration-300 shadow-lg shadow-blue-700/30"
-          >
-            Search
-          </button>
-        </motion.form>
-
-        {!query && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="mb-4 flex flex-wrap gap-2 items-center"
-          >
-            {selectedGenres.length === 0 ? (
-              <div className="text-sm text-neutral-400">No genre selected</div>
-            ) : (
-              selectedGenres.map((g) => (
-                <motion.span
-                  key={g}
-                  whileHover={{ scale: 1.03 }}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm shadow-[0_6px_18px_-8px_rgba(59,130,246,0.6)]"
-                >
-                  {g}
-                  <button
-                    onClick={() => setSelectedGenres((prev) => prev.filter((x) => x !== g))}
-                    className="ml-1 text-xs text-white/80 rounded-full w-5 h-5 flex items-center justify-center"
-                    aria-label={`Remove ${g}`}
-                  >
-                    ✕
-                  </button>
-                </motion.span>
-              ))
-            )}
-          </motion.div>
-        )}
-
+      <main className="relative bg-gradient-to-br from-[#0a0a0f] via-[#0d0d14] to-[#050508] min-h-screen text-white overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent pointer-events-none" />
+        
         <motion.div
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 mt-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
-          {(isLoading || searchLoading) && animeData.length === 0
-            ? [...Array(15)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="h-[240px] bg-neutral-800 rounded-xl animate-pulse"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.03 }}
-                />
-              ))
-            : filtered.map((a) => (
-                <motion.div
-                  key={a.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  viewport={{ once: true }}
-                >
-                  <AnimeCard anime={a} />
-                </motion.div>
-              ))}
-        </motion.div>
+          className="absolute inset-0 opacity-30 pointer-events-none"
+          style={{
+            background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.15), transparent 40%)`
+          }}
+        />
 
-        {query && !searchLoading && filtered.length === 0 && (
-          <motion.p
-            className="text-center text-zinc-400 mt-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            No results found for <span className="text-white font-semibold">"{query}"</span>.
-          </motion.p>
-        )}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-[140px] animate-pulse delay-1000" />
 
-        {!query && hasMore && (
+        <div className="relative z-10 px-4 md:px-10 lg:px-16 py-8 md:py-16 max-w-[1600px] mx-auto">
           <motion.div
-            className="mt-12 flex justify-center"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-12"
+          >
+            <motion.div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 mb-6"
+              whileHover={{ scale: 1.05 }}
+            >
+              <LuSparkles className="text-blue-400" />
+              <span className="text-sm text-blue-300 font-medium">Discover Your Next Adventure</span>
+            </motion.div>
+            
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight">
+              Explore Anime
+            </h1>
+            <p className="text-neutral-400 text-base md:text-lg max-w-2xl mx-auto">
+              Search thousands of anime titles, filter by genre, or scan images to find what you're looking for
+            </p>
+          </motion.div>
+
+          <motion.form
+            onSubmit={handleSubmit}
+            className="mb-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            onMouseEnter={() => setIsHoveringSearch(true)}
+            onMouseLeave={() => setIsHoveringSearch(false)}
           >
-            <button
-              onClick={loadMore}
-              disabled={isLoading}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 transition-all duration-300 shadow-lg shadow-blue-700/30"
-            >
-              <FaArrowDown className="text-white" />
-              {isLoading ? 'Loading...' : 'Load More'}
-            </button>
-          </motion.div>
-        )}
+            <div className="relative max-w-4xl mx-auto">
+              <motion.div
+                className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300"
+                animate={isHoveringSearch ? { scale: 1.02 } : { scale: 1 }}
+              />
+              
+              <div className="relative flex flex-col sm:flex-row gap-3 bg-neutral-900/90 backdrop-blur-xl rounded-2xl p-2 border border-white/10">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder="Search anime titles, characters, studios..."
+                    className="w-full pl-12 pr-32 py-4 bg-transparent text-white rounded-xl placeholder-neutral-500 focus:outline-none transition-all duration-300"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                  />
+                  <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-lg" />
+                  
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    <motion.button
+                      type="button"
+                      onClick={() => setGenreModalOpen(true)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg hover:from-blue-600/30 hover:to-purple-600/30 transition border border-blue-500/30"
+                    >
+                      <FaFilter className="text-blue-400" />
+                      <span className="hidden sm:inline text-sm font-medium text-blue-300">
+                        {selectedGenres.length > 0 ? `${selectedGenres.length}` : 'Filter'}
+                      </span>
+                    </motion.button>
+                    
+                    <motion.button
+                      type="button"
+                      onClick={() => setScanOpen(true)}
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="p-2 text-purple-400 hover:text-purple-300 transition"
+                    >
+                      <LuScanLine className="text-2xl" />
+                    </motion.button>
+                  </div>
+                </div>
 
-        {!query && !hasMore && exploreAnime.length > 0 && (
-          <motion.p
-            className="text-center text-sm text-neutral-400 mt-8"
+                <motion.button
+                  type="submit"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-blue-600/30 relative overflow-hidden group"
+                >
+                  <span className="relative z-10">Search</span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  />
+                </motion.button>
+              </div>
+            </div>
+          </motion.form>
+
+          <AnimatePresence>
+            {selectedGenres.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-8 overflow-hidden"
+              >
+                <div className="flex flex-wrap gap-2 justify-center items-center">
+                  <span className="text-sm text-neutral-400 mr-2">Active Filters:</span>
+                  {selectedGenres.map((g, i) => (
+                    <motion.div
+                      key={g}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ delay: i * 0.05 }}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      className="group relative"
+                    >
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-40 group-hover:opacity-70 transition" />
+                      <div className="relative flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/90 to-purple-600/90 rounded-full text-white text-sm font-medium">
+                        {g}
+                        <button
+                          onClick={() => toggleGenreLocal(g)}
+                          className="hover:rotate-90 transition-transform duration-200"
+                        >
+                          <FaTimes className="text-xs" />
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                  <motion.button
+                    onClick={clearGenres}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-4 py-2 text-sm text-red-400 hover:text-red-300 font-medium transition"
+                  >
+                    Clear All
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
           >
-            You're reached the end of the list.
-          </motion.p>
-        )}
+            {(isLoading || searchLoading) && animeData.length === 0
+              ? [...Array(18)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="aspect-[2/3] bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 rounded-2xl animate-pulse border border-white/5"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.03 }}
+                  />
+                ))
+              : filtered.map((a, i) => (
+                  <motion.div
+                    key={a.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.02 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    whileHover={{ y: -8 }}
+                  >
+                    <AnimeCard anime={a} />
+                  </motion.div>
+                ))}
+          </motion.div>
+
+          {query && !searchLoading && filtered.length === 0 && (
+            <motion.div
+              className="text-center py-20"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="text-6xl mb-4">🔍</div>
+              <p className="text-neutral-400 text-lg">
+                No results found for <span className="text-white font-bold">"{query}"</span>
+              </p>
+              <p className="text-neutral-500 text-sm mt-2">Try searching with different keywords</p>
+            </motion.div>
+          )}
+
+          {!query && hasMore && (
+            <motion.div
+              className="mt-16 flex justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <motion.button
+                onClick={loadMore}
+                disabled={isLoading}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+              >
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                />
+                <span className="relative z-10 flex items-center gap-3 font-bold">
+                  {isLoading ? (
+                    <>
+                      <FaSpinner className="animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <FaArrowDown className="group-hover:animate-bounce" />
+                      Load More Anime
+                    </>
+                  )}
+                </span>
+              </motion.button>
+            </motion.div>
+          )}
+
+          {!query && !hasMore && exploreAnime.length > 0 && (
+            <motion.div
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <div className="text-4xl mb-3">✨</div>
+              <p className="text-neutral-400">You've reached the end of the list</p>
+            </motion.div>
+          )}
+        </div>
 
         <AnimatePresence>
           {genreModalOpen && (
             <motion.div
-              className="fixed inset-0 bg-[rgba(8,8,12,0.6)] backdrop-blur-2xl flex items-center justify-center z-50 px-4"
+              className="fixed inset-0 bg-black/70 backdrop-blur-2xl flex items-center justify-center z-50 px-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              onClick={() => setGenreModalOpen(false)}
             >
               <motion.div
-                className="relative w-full max-w-3xl bg-white/6 border border-white/10 rounded-3xl shadow-[0_30px_80px_-30px_rgba(2,6,23,0.8)] p-6 sm:p-8 backdrop-blur-3xl"
-                initial={{ y: 20, opacity: 0, scale: 0.98 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                exit={{ y: 20, opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.28 }}
+                className="relative w-full max-w-4xl bg-gradient-to-br from-neutral-900/95 to-neutral-950/95 border border-white/10 rounded-3xl shadow-2xl p-6 md:p-10 backdrop-blur-3xl max-h-[90vh] overflow-y-auto"
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute right-4 top-4">
-                  <button
-                    onClick={() => setGenreModalOpen(false)}
-                    className="text-neutral-300 hover:text-white text-2xl"
-                    aria-label="Close genre modal"
-                  >
-                    ✕
-                  </button>
-                </div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur-xl opacity-20" />
+                
+                <motion.button
+                  onClick={() => setGenreModalOpen(false)}
+                  whileHover={{ rotate: 90, scale: 1.1 }}
+                  className="absolute right-6 top-6 text-neutral-400 hover:text-white transition z-10"
+                >
+                  <FaTimes className="text-2xl" />
+                </motion.button>
 
-                <div className="text-center mb-4">
-                  <h3 className="text-xl sm:text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
+                <div className="text-center mb-8 relative">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring" }}
+                    className="inline-block text-5xl mb-4"
+                  >
+                    🎭
+                  </motion.div>
+                  <h3 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
                     Select Genres
                   </h3>
-                  <p className="text-sm text-neutral-400 mt-1">Pick one or more genres to filter the list</p>
+                  <p className="text-neutral-400">Choose your favorite genres to filter results</p>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {genreList.map((g) => {
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
+                  {genreList.map((g, i) => {
                     const active = selectedGenres.includes(g)
                     return (
                       <motion.button
                         key={g}
-                        onClick={() =>
-                          setSelectedGenres((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]))
-                        }
-                        whileTap={{ scale: 0.97 }}
-                        className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          active
-                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_10px_30px_-12px_rgba(59,130,246,0.5)] transform-gpu scale-[1.02]'
-                            : 'bg-white/4 text-neutral-200 hover:bg-white/6'
-                        }`}
+                        onClick={() => toggleGenreLocal(g)}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.02 }}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="group relative"
                       >
-                        <span className="truncate">{g}</span>
-                        {active && <span className="text-xs text-white/90">✓</span>}
+                        <div className={`absolute -inset-0.5 rounded-xl blur transition-opacity duration-300 ${
+                          active 
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 opacity-60' 
+                            : 'bg-gradient-to-r from-neutral-600 to-neutral-700 opacity-0 group-hover:opacity-30'
+                        }`} />
+                        <div className={`relative px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                          active
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                            : 'bg-neutral-800/50 text-neutral-300 hover:bg-neutral-700/50'
+                        }`}>
+                          <span className="block truncate">{g}</span>
+                          {active && (
+                            <motion.span
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-xs"
+                            >
+                              ✓
+                            </motion.span>
+                          )}
+                        </div>
                       </motion.button>
                     )
                   })}
                 </div>
 
-                <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <div className="text-sm text-neutral-300">Selected: {selectedGenres.length}</div>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10">
+                  <div className="text-neutral-400 font-medium">
+                    <span className="text-white text-lg font-bold">{selectedGenres.length}</span> genres selected
+                  </div>
                   <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        setSelectedGenres(genreList.slice(0, 3))
-                      }}
-                      className="px-4 py-2 rounded-lg bg-white/6 text-sm text-neutral-200 hover:bg-white/8 transition"
+                    <motion.button
+                      onClick={clearGenres}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-6 py-3 rounded-xl bg-neutral-800/50 hover:bg-neutral-700/50 text-neutral-300 font-medium transition"
                     >
-                      Quick: Top 3
-                    </button>
-                    <button
-                      onClick={() => clearGenres()}
-                      className="px-4 py-2 rounded-lg bg-white/6 text-sm text-neutral-200 hover:bg-white/8 transition"
-                    >
-                      Clear
-                    </button>
-                    <button
+                      Clear All
+                    </motion.button>
+                    <motion.button
                       onClick={() => setGenreModalOpen(false)}
-                      className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-sm text-white font-medium hover:scale-[1.02] transition"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold shadow-lg transition"
                     >
-                      Apply
-                    </button>
+                      Apply Filters
+                    </motion.button>
                   </div>
                 </div>
               </motion.div>
@@ -324,88 +446,166 @@ export default function ExplorePage() {
 
           {scanOpen && (
             <motion.div
-              className="fixed inset-0 bg-[rgba(10,10,15,0.6)] backdrop-blur-2xl flex items-center justify-center z-50"
+              className="fixed inset-0 bg-black/70 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              onClick={() => setScanOpen(false)}
             >
               <motion.div
-                className="relative w-[92%] sm:w-[80%] md:w-[70%] lg:w-[50%] bg-white/10 border border-white/20 rounded-3xl shadow-[0_0_50px_-10px_rgba(59,130,246,0.4)] p-6 sm:p-8 backdrop-blur-3xl flex flex-col items-center transition-all duration-300"
+                className="relative w-full max-w-3xl bg-gradient-to-br from-neutral-900/95 to-neutral-950/95 border border-white/10 rounded-3xl shadow-2xl p-6 md:p-10 backdrop-blur-3xl max-h-[90vh] overflow-y-auto"
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                transition={{ duration: 0.25 }}
+                onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-400/5 to-transparent pointer-events-none rounded-3xl" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl blur-xl opacity-20" />
 
-                <button
+                <motion.button
                   onClick={() => setScanOpen(false)}
-                  className="absolute right-5 top-5 text-neutral-300 hover:text-white transition text-2xl"
+                  whileHover={{ rotate: 90, scale: 1.1 }}
+                  className="absolute right-6 top-6 text-neutral-400 hover:text-white transition z-10"
                 >
-                  ✕
-                </button>
+                  <FaTimes className="text-2xl" />
+                </motion.button>
 
-                <div className="text-center mb-6 mt-2">
-                  <h2 className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-                    🔎 Anime Scanner
+                <div className="text-center mb-8 relative">
+                  <motion.div
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                    className="inline-block text-5xl mb-4"
+                  >
+                    🔎
+                  </motion.div>
+                  <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-2">
+                    Anime Scene Scanner
                   </h2>
-                  <p className="text-sm text-neutral-400 mt-1">Disclaimer: May be inaccurate. Only works on anime scenes.</p>
+                  <p className="text-neutral-400 text-sm">Upload an anime screenshot to identify the source</p>
+                  <p className="text-yellow-500/80 text-xs mt-2">⚠️ Results may vary in accuracy</p>
                 </div>
 
-                <div className="flex justify-center w-full">
-                  <label className="relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-blue-700/30">
-                    <LuScanLine className="text-lg" />
-                    <span>Choose Image</span>
-                    <input type="file" accept="image/*" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                <div className="flex justify-center mb-8">
+                  <label className="group relative cursor-pointer">
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="relative px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold shadow-lg shadow-purple-600/30 transition-all overflow-hidden"
+                    >
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-pink-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      />
+                      <span className="relative z-10 flex items-center gap-3">
+                        <LuScanLine className="text-xl" />
+                        Choose Image File
+                      </span>
+                    </motion.div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
                   </label>
                 </div>
 
-                {scanLoading && (
-                  <motion.div className="flex flex-col items-center justify-center mt-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    <FaSpinner className="animate-spin text-blue-400 text-3xl mb-2" />
-                    <p className="text-neutral-400 text-sm">Analyzing your image...</p>
-                  </motion.div>
-                )}
-
-                {!scanLoading && scanResults.length > 0 && (
-                  <motion.div
-                    className="mt-6 grid gap-5 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-600/50 scrollbar-track-transparent w-full"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    {scanResults.map((r, i) => (
+                <AnimatePresence mode="wait">
+                  {scanLoading && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex flex-col items-center justify-center py-12"
+                    >
                       <motion.div
-                        key={i}
-                        className="relative p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/40 transition-all duration-300 hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.3)] group"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
+                        animate={{ rotate: 360 }}
+                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                        className="text-6xl mb-4"
                       >
-                        <div className="overflow-hidden rounded-xl">
-                          <video src={r.video} className="rounded-xl w-full group-hover:scale-[1.02] transition-all duration-300" controls autoPlay muted loop />
-                        </div>
-
-                        <div className="mt-3">
-                          <p className="font-semibold text-white">{r.title?.romaji || r.title?.english || 'Unknown Title'}</p>
-                          <p className="text-sm text-neutral-400">Episode {r.episode || '?'} · Accuracy {(r.similarity * 100).toFixed(1)}%</p>
-
-                          {r.anilist && (
-                            <Link href={`/anime/${r.anilist}`} onClick={() => setScanOpen(false)} className="inline-block mt-3 text-blue-400 hover:text-blue-300 font-medium transition-all">
-                              → View Anime Detail
-                            </Link>
-                          )}
-                        </div>
+                        <LuScanLine className="text-purple-400" />
                       </motion.div>
-                    ))}
-                  </motion.div>
-                )}
+                      <p className="text-neutral-300 font-medium">Analyzing your image...</p>
+                      <p className="text-neutral-500 text-sm mt-2">This may take a few seconds</p>
+                    </motion.div>
+                  )}
 
-                {!scanLoading && scanResults.length === 0 && (
-                  <motion.p className="text-neutral-400 mt-6 text-sm text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    No results yet. Try uploading an image!
-                  </motion.p>
-                )}
+                  {!scanLoading && scanResults.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="space-y-4"
+                    >
+                      <h3 className="text-xl font-bold text-center mb-6 text-white">
+                        Found {scanResults.length} match{scanResults.length !== 1 ? 'es' : ''}
+                      </h3>
+                      {scanResults.map((r, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                          className="group relative p-4 rounded-2xl bg-neutral-800/30 border border-white/5 hover:border-purple-500/40 transition-all duration-300"
+                        >
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
+                          
+                          <div className="relative">
+                            <div className="overflow-hidden rounded-xl mb-4">
+                              <video
+                                src={r.video}
+                                className="w-full rounded-xl group-hover:scale-105 transition-transform duration-300"
+                                controls
+                                autoPlay
+                                muted
+                                loop
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <h4 className="font-bold text-lg text-white">
+                                {r.title?.romaji || r.title?.english || 'Unknown Title'}
+                              </h4>
+                              
+                              <div className="flex items-center gap-4 text-sm">
+                                <span className="px-3 py-1 rounded-full bg-blue-600/20 text-blue-300 border border-blue-500/30">
+                                  Episode {r.episode || '?'}
+                                </span>
+                                <span className="px-3 py-1 rounded-full bg-green-600/20 text-green-300 border border-green-500/30">
+                                  {(r.similarity * 100).toFixed(1)}% Match
+                                </span>
+                              </div>
+
+                              {r.anilist && (
+                                <Link
+                                  href={`/anime/${r.anilist}`}
+                                  onClick={() => setScanOpen(false)}
+                                >
+                                  <motion.button
+                                    whileHover={{ scale: 1.02, x: 5 }}
+                                    className="mt-3 px-6 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold transition-all inline-flex items-center gap-2"
+                                  >
+                                    View Details
+                                    <span>→</span>
+                                  </motion.button>
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+
+                  {!scanLoading && scanResults.length === 0 && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-12"
+                    >
+                      <div className="text-6xl mb-4">📸</div>
+                      <p className="text-neutral-400">No results yet</p>
+                      <p className="text-neutral-500 text-sm mt-2">Upload an anime screenshot to get started</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             </motion.div>
           )}
