@@ -606,3 +606,4 @@ export default function ExplorePage() {
       </main>
     </>
   )
+}
