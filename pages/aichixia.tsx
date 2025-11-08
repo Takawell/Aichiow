@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner, FaTimes } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner, FaTimes, FaPlay } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
 import Image from "next/image";
 import Link from "next/link";
@@ -259,21 +259,22 @@ export default function AichixiaPage() {
                         transition={{ delay: idx * 0.1 }}
                         className="group bg-slate-800/50 border border-blue-500/20 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-400/40 transition-all duration-300 flex flex-col backdrop-blur-xl"
                       >
-                        <div className="relative overflow-hidden">
+                        <div className="relative overflow-hidden aspect-video">
                           <video
                             src={r.video}
-                            className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             controls
-                            muted
+                            playsInline
+                            preload="metadata"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                         </div>
                         <div className="p-5 flex-1 flex flex-col justify-between">
                           <div>
                             <h3 className="font-bold text-blue-100 text-sm sm:text-base line-clamp-2 group-hover:text-cyan-300 transition-colors">
                               {r.title?.romaji || r.title?.english || "Unknown"}
                             </h3>
-                            <div className="flex items-center gap-3 mt-2">
+                            <div className="flex items-center gap-3 mt-2 flex-wrap">
                               <span className="text-xs px-2.5 py-1 bg-blue-500/20 text-blue-300 rounded-full border border-blue-400/30">
                                 Ep {r.episode || "?"}
                               </span>
