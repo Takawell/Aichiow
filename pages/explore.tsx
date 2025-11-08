@@ -99,18 +99,18 @@ export default function ExplorePage() {
         <meta name="description" content="Discover and search for anime by genre, popularity, and more." />
       </Head>
 
-      <main className="relative bg-gradient-to-br from-[#0a0a0f] via-[#0d0d14] to-[#050508] min-h-screen text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent pointer-events-none" />
+      <main className="relative bg-gradient-to-br from-[#0a0e1a] via-[#0d1117] to-[#050810] min-h-screen text-white overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-900/20 via-transparent to-transparent pointer-events-none" />
         
         <motion.div
           className="absolute inset-0 opacity-30 pointer-events-none"
           style={{
-            background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.15), transparent 40%)`
+            background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(14, 165, 233, 0.15), transparent 40%)`
           }}
         />
 
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-[140px] animate-pulse delay-1000" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-sky-500/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-sky-600/10 rounded-full blur-[140px] animate-pulse delay-1000" />
 
         <div className="relative z-10 px-4 md:px-10 lg:px-16 py-8 md:py-16 max-w-[1600px] mx-auto">
           <motion.div
@@ -120,14 +120,14 @@ export default function ExplorePage() {
             className="text-center mb-12"
           >
             <motion.div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 mb-6"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-sky-500/20 to-sky-600/20 border border-sky-500/30 mb-6"
               whileHover={{ scale: 1.05 }}
             >
-              <LuSparkles className="text-blue-400" />
-              <span className="text-sm text-blue-300 font-medium">Discover Your Next Adventure</span>
+              <LuSparkles className="text-sky-400" />
+              <span className="text-sm text-sky-300 font-medium">Discover Your Next Adventure</span>
             </motion.div>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4 bg-gradient-to-r from-sky-400 via-sky-300 to-sky-500 bg-clip-text text-transparent leading-tight">
               Explore Anime
             </h1>
             <p className="text-neutral-400 text-base md:text-lg max-w-2xl mx-auto">
@@ -146,7 +146,7 @@ export default function ExplorePage() {
           >
             <div className="relative max-w-4xl mx-auto">
               <motion.div
-                className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300"
+                className="absolute -inset-1 bg-gradient-to-r from-sky-600 via-sky-500 to-sky-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300"
                 animate={isHoveringSearch ? { scale: 1.02 } : { scale: 1 }}
               />
               
@@ -167,10 +167,10 @@ export default function ExplorePage() {
                       onClick={() => setGenreModalOpen(true)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg hover:from-blue-600/30 hover:to-purple-600/30 transition border border-blue-500/30"
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-600/20 to-sky-500/20 rounded-lg hover:from-sky-600/30 hover:to-sky-500/30 transition border border-sky-500/30"
                     >
-                      <FaFilter className="text-blue-400" />
-                      <span className="hidden sm:inline text-sm font-medium text-blue-300">
+                      <FaFilter className="text-sky-400" />
+                      <span className="hidden sm:inline text-sm font-medium text-sky-300">
                         {selectedGenres.length > 0 ? `${selectedGenres.length}` : 'Filter'}
                       </span>
                     </motion.button>
@@ -180,7 +180,7 @@ export default function ExplorePage() {
                       onClick={() => setScanOpen(true)}
                       whileHover={{ scale: 1.1, rotate: 5 }}
                       whileTap={{ scale: 0.9 }}
-                      className="p-2 text-purple-400 hover:text-purple-300 transition"
+                      className="p-2 text-sky-400 hover:text-sky-300 transition"
                     >
                       <LuScanLine className="text-2xl" />
                     </motion.button>
@@ -191,11 +191,11 @@ export default function ExplorePage() {
                   type="submit"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-blue-600/30 relative overflow-hidden group"
+                  className="px-8 py-4 bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-sky-600/30 relative overflow-hidden group"
                 >
                   <span className="relative z-10">Search</span>
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className="absolute inset-0 bg-gradient-to-r from-sky-500 to-sky-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   />
                 </motion.button>
               </div>
@@ -222,8 +222,8 @@ export default function ExplorePage() {
                       whileHover={{ scale: 1.05, y: -2 }}
                       className="group relative"
                     >
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-40 group-hover:opacity-70 transition" />
-                      <div className="relative flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/90 to-purple-600/90 rounded-full text-white text-sm font-medium">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-sky-600 to-sky-500 rounded-full blur opacity-40 group-hover:opacity-70 transition" />
+                      <div className="relative flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-600/90 to-sky-500/90 rounded-full text-white text-sm font-medium">
                         {g}
                         <button
                           onClick={() => toggleGenreLocal(g)}
@@ -283,7 +283,9 @@ export default function ExplorePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="text-6xl mb-4">🔍</div>
+              <div className="text-6xl mb-4">
+                <FaSearch className="inline-block text-neutral-600" />
+              </div>
               <p className="text-neutral-400 text-lg">
                 No results found for <span className="text-white font-bold">"{query}"</span>
               </p>
@@ -302,10 +304,10 @@ export default function ExplorePage() {
                 disabled={isLoading}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+                className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-sky-600 to-sky-500 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
               >
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  className="absolute inset-0 bg-gradient-to-r from-sky-500 to-sky-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 />
                 <span className="relative z-10 flex items-center gap-3 font-bold">
                   {isLoading ? (
@@ -330,7 +332,6 @@ export default function ExplorePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <div className="text-4xl mb-3">✨</div>
               <p className="text-neutral-400">You've reached the end of the list</p>
             </motion.div>
           )}
@@ -352,7 +353,7 @@ export default function ExplorePage() {
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur-xl opacity-20" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-sky-600 via-sky-500 to-sky-600 rounded-3xl blur-xl opacity-20" />
                 
                 <motion.button
                   onClick={() => setGenreModalOpen(false)}
@@ -363,15 +364,7 @@ export default function ExplorePage() {
                 </motion.button>
 
                 <div className="text-center mb-8 relative">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring" }}
-                    className="inline-block text-5xl mb-4"
-                  >
-                    🎭
-                  </motion.div>
-                  <h3 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+                  <h3 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-sky-400 via-sky-300 to-sky-500 bg-clip-text text-transparent mb-2">
                     Select Genres
                   </h3>
                   <p className="text-neutral-400">Choose your favorite genres to filter results</p>
@@ -393,12 +386,12 @@ export default function ExplorePage() {
                       >
                         <div className={`absolute -inset-0.5 rounded-xl blur transition-opacity duration-300 ${
                           active 
-                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 opacity-60' 
+                            ? 'bg-gradient-to-r from-sky-600 to-sky-500 opacity-60' 
                             : 'bg-gradient-to-r from-neutral-600 to-neutral-700 opacity-0 group-hover:opacity-30'
                         }`} />
                         <div className={`relative px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
                           active
-                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                            ? 'bg-gradient-to-r from-sky-600 to-sky-500 text-white shadow-lg'
                             : 'bg-neutral-800/50 text-neutral-300 hover:bg-neutral-700/50'
                         }`}>
                           <span className="block truncate">{g}</span>
@@ -434,7 +427,7 @@ export default function ExplorePage() {
                       onClick={() => setGenreModalOpen(false)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold shadow-lg transition"
+                      className="px-8 py-3 rounded-xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-bold shadow-lg transition"
                     >
                       Apply Filters
                     </motion.button>
@@ -459,7 +452,7 @@ export default function ExplorePage() {
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl blur-xl opacity-20" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-sky-600 via-sky-500 to-sky-600 rounded-3xl blur-xl opacity-20" />
 
                 <motion.button
                   onClick={() => setScanOpen(false)}
@@ -475,13 +468,13 @@ export default function ExplorePage() {
                     transition={{ repeat: Infinity, duration: 2 }}
                     className="inline-block text-5xl mb-4"
                   >
-                    🔎
+                    <LuScanLine className="text-sky-400" />
                   </motion.div>
-                  <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-2">
+                  <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-sky-400 via-sky-300 to-sky-500 bg-clip-text text-transparent mb-2">
                     Anime Scene Scanner
                   </h2>
                   <p className="text-neutral-400 text-sm">Upload an anime screenshot to identify the source</p>
-                  <p className="text-yellow-500/80 text-xs mt-2">⚠️ Results may vary in accuracy</p>
+                  <p className="text-yellow-500/80 text-xs mt-2">Results may vary in accuracy</p>
                 </div>
 
                 <div className="flex justify-center mb-8">
@@ -489,10 +482,10 @@ export default function ExplorePage() {
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="relative px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold shadow-lg shadow-purple-600/30 transition-all overflow-hidden"
+                      className="relative px-8 py-4 rounded-2xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-bold shadow-lg shadow-sky-600/30 transition-all overflow-hidden"
                     >
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-pink-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        className="absolute inset-0 bg-gradient-to-r from-sky-500 to-sky-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       />
                       <span className="relative z-10 flex items-center gap-3">
                         <LuScanLine className="text-xl" />
@@ -521,7 +514,7 @@ export default function ExplorePage() {
                         transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                         className="text-6xl mb-4"
                       >
-                        <LuScanLine className="text-purple-400" />
+                        <LuScanLine className="text-sky-400" />
                       </motion.div>
                       <p className="text-neutral-300 font-medium">Analyzing your image...</p>
                       <p className="text-neutral-500 text-sm mt-2">This may take a few seconds</p>
@@ -543,9 +536,9 @@ export default function ExplorePage() {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 0.1 }}
-                          className="group relative p-4 rounded-2xl bg-neutral-800/30 border border-white/5 hover:border-purple-500/40 transition-all duration-300"
+                          className="group relative p-4 rounded-2xl bg-neutral-800/30 border border-white/5 hover:border-sky-500/40 transition-all duration-300"
                         >
-                          <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-sky-600 to-sky-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
                           
                           <div className="relative">
                             <div className="overflow-hidden rounded-xl mb-4">
@@ -565,7 +558,7 @@ export default function ExplorePage() {
                               </h4>
                               
                               <div className="flex items-center gap-4 text-sm">
-                                <span className="px-3 py-1 rounded-full bg-blue-600/20 text-blue-300 border border-blue-500/30">
+                                <span className="px-3 py-1 rounded-full bg-sky-600/20 text-sky-300 border border-sky-500/30">
                                   Episode {r.episode || '?'}
                                 </span>
                                 <span className="px-3 py-1 rounded-full bg-green-600/20 text-green-300 border border-green-500/30">
@@ -580,7 +573,7 @@ export default function ExplorePage() {
                                 >
                                   <motion.button
                                     whileHover={{ scale: 1.02, x: 5 }}
-                                    className="mt-3 px-6 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold transition-all inline-flex items-center gap-2"
+                                    className="mt-3 px-6 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-semibold transition-all inline-flex items-center gap-2"
                                   >
                                     View Details
                                     <span>→</span>
@@ -600,7 +593,7 @@ export default function ExplorePage() {
                       animate={{ opacity: 1 }}
                       className="text-center py-12"
                     >
-                      <div className="text-6xl mb-4">📸</div>
+                      <LuScanLine className="inline-block text-6xl mb-4 text-neutral-600" />
                       <p className="text-neutral-400">No results yet</p>
                       <p className="text-neutral-500 text-sm mt-2">Upload an anime screenshot to get started</p>
                     </motion.div>
@@ -613,4 +606,3 @@ export default function ExplorePage() {
       </main>
     </>
   )
-}
