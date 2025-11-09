@@ -735,14 +735,24 @@ export default function CommunityPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8 }}
+                  className="grid grid-cols-2 gap-3"
                 >
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowAichixiaProfile(false)}
-                    className="w-full rounded-2xl py-4 font-bold bg-gradient-to-r from-sky-600 via-blue-600 to-cyan-600 hover:from-sky-700 hover:via-blue-700 hover:to-cyan-700 transition-all shadow-lg shadow-sky-500/25 text-white"
+                    className="rounded-2xl py-4 font-bold bg-gradient-to-r from-sky-600 via-blue-600 to-cyan-600 hover:from-sky-700 hover:via-blue-700 hover:to-cyan-700 transition-all shadow-lg shadow-sky-500/25 text-white text-sm"
                   >
-                    Start Chatting with Aichixia
+                    Chat Here
+                  </motion.button>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => window.location.href = '/aichixia'}
+                    className="rounded-2xl py-4 font-bold bg-gradient-to-r from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-sky-500/30 hover:border-sky-500/50 transition-all shadow-lg text-white text-sm"
+                  >
+                    Private Chat
                   </motion.button>
                 </motion.div>
               </div>
