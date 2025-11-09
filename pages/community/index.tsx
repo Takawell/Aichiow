@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Sparkles, Users, Settings, X } from "lucide-react";
+import { Send, Sparkles, Users, Settings, X, Zap, Brain, Globe, Clock } from "lucide-react";
 
 interface Message {
   id: string;
@@ -23,6 +23,7 @@ export default function CommunityPage() {
   const [cooldown, setCooldown] = useState(false);
   const [onlineCount, setOnlineCount] = useState(1);
   const [isTyping, setIsTyping] = useState(false);
+  const [showAichixiaProfile, setShowAichixiaProfile] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -228,7 +229,14 @@ export default function CommunityPage() {
                     whileHover={{ scale: 1.1 }}
                     src={safeAvatar}
                     alt={msg.username}
-                    className="rounded-full w-8 h-8 sm:w-9 sm:h-9 object-cover ring-2 ring-white/10 shadow-lg"
+                    className={`rounded-full w-8 h-8 sm:w-9 sm:h-9 object-cover ring-2 ring-white/10 shadow-lg ${
+                      msg.username === "Aichixia" ? "cursor-pointer ring-purple-500/50" : ""
+                    }`}
+                    onClick={() => {
+                      if (msg.username === "Aichixia") {
+                        setShowAichixiaProfile(true);
+                      }
+                    }}
                     onError={handleImageError}
                   />
                 )}
@@ -448,6 +456,296 @@ export default function CommunityPage() {
               >
                 Start Chatting
               </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showAichixiaProfile && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 backdrop-blur-xl flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
+            onClick={() => setShowAichixiaProfile(false)}
+          >
+            <motion.div
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-gradient-to-br from-[#0f0f14] via-[#1a1a24] to-[#0f0f14] rounded-t-3xl sm:rounded-3xl w-full sm:max-w-lg max-h-[90vh] sm:max-h-[85vh] overflow-y-auto border-t border-x sm:border border-purple-500/20 shadow-2xl relative"
+            >
+              <div className="sticky top-0 z-10 bg-gradient-to-b from-[#0f0f14] to-transparent backdrop-blur-xl pb-2 px-4 sm:px-6 pt-4 sm:pt-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1" />
+                  <motion.button
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setShowAichixiaProfile(false)}
+                    className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all"
+                  >
+                    <X className="w-5 h-5" />
+                  </motion.button>
+                </div>
+
+                <div className="text-center mb-6">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", delay: 0.1 }}
+                    className="relative inline-block mb-4"
+                  >
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 opacity-20 blur-2xl scale-110"
+                    />
+                    <motion.div
+                      animate={{ 
+                        boxShadow: [
+                          "0 0 20px rgba(168, 85, 247, 0.4)",
+                          "0 0 40px rgba(236, 72, 153, 0.4)",
+                          "0 0 20px rgba(59, 130, 246, 0.4)",
+                          "0 0 40px rgba(168, 85, 247, 0.4)"
+                        ]
+                      }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                      className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500"
+                    >
+                      <div className="w-full h-full rounded-full bg-[#0f0f14] p-1.5">
+                        <img
+                          src="/aichixia.png"
+                          alt="Aichixia"
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      </div>
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="absolute bottom-1 right-1 w-7 h-7 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-4 border-[#0f0f14] shadow-lg flex items-center justify-center"
+                      >
+                        <motion.div
+                          animate={{ scale: [0.8, 1, 0.8] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="w-2.5 h-2.5 bg-white rounded-full"
+                        />
+                      </motion.div>
+                    </motion.div>
+                  </motion.div>
+
+                  <motion.h2
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-3xl sm:text-4xl font-black mb-2 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent"
+                  >
+                    Aichixia
+                  </motion.h2>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 backdrop-blur-sm"
+                  >
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    >
+                      <Sparkles className="w-4 h-4 text-purple-400" />
+                    </motion.div>
+                    <span className="text-sm font-semibold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                      AI Assistant
+                    </span>
+                  </motion.div>
+                </div>
+              </div>
+
+              <div className="px-4 sm:px-6 pb-6 space-y-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl p-4 border border-white/10 backdrop-blur-sm"
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30">
+                      <Brain className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-white mb-1 text-sm">About Me</h3>
+                      <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                        Hi! I'm your intelligent AI companion in the Aichiow community. I'm here 24/7 to help answer your questions, provide insights, and make conversations more engaging.
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="grid grid-cols-2 gap-3"
+                >
+                  <div className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 rounded-2xl p-4 border border-purple-500/20 backdrop-blur-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <Clock className="w-5 h-5 text-purple-400" />
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="w-2 h-2 bg-green-400 rounded-full shadow-lg shadow-green-400/50"
+                      />
+                    </div>
+                    <div className="text-2xl font-bold text-white mb-0.5">24/7</div>
+                    <div className="text-xs text-gray-400">Always Available</div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-2xl p-4 border border-blue-500/20 backdrop-blur-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <Zap className="w-5 h-5 text-blue-400" />
+                      <motion.div
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="text-blue-400"
+                      >
+                        <Sparkles className="w-3 h-3" />
+                      </motion.div>
+                    </div>
+                    <div className="text-2xl font-bold text-white mb-0.5">Fast</div>
+                    <div className="text-xs text-gray-400">Quick Response</div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-pink-500/10 to-pink-500/5 rounded-2xl p-4 border border-pink-500/20 backdrop-blur-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <Brain className="w-5 h-5 text-pink-400" />
+                      <motion.div
+                        animate={{ rotate: [0, 360] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Brain className="w-3 h-3 text-pink-400" />
+                      </motion.div>
+                    </div>
+                    <div className="text-2xl font-bold text-white mb-0.5">Smart</div>
+                    <div className="text-xs text-gray-400">AI Powered</div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 rounded-2xl p-4 border border-emerald-500/20 backdrop-blur-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <Globe className="w-5 h-5 text-emerald-400" />
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="w-2 h-2 bg-emerald-400 rounded-full shadow-lg shadow-emerald-400/50"
+                      />
+                    </div>
+                    <div className="text-2xl font-bold text-white mb-0.5">Online</div>
+                    <div className="text-xs text-gray-400">Active Now</div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl p-4 border border-white/10 backdrop-blur-sm"
+                >
+                  <h3 className="font-bold text-white mb-3 text-sm flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                    How to Use
+                  </h3>
+                  <div className="space-y-2.5">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-purple-400">1</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-300">
+                          Mention me with <code className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono text-xs">@aichixia</code> in your message
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-blue-400">2</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-300">
+                          Or use command <code className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-xs">/aichixia</code> followed by your question
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-lg bg-pink-500/20 border border-pink-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-pink-400">3</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-300">
+                          I'll respond instantly with helpful information!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 }}
+                  className="space-y-3"
+                >
+                  <h3 className="font-bold text-white text-sm flex items-center gap-2 px-1">
+                    <Zap className="w-4 h-4 text-yellow-400" />
+                    Quick Commands
+                  </h3>
+                  <div className="grid grid-cols-1 gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.02, x: 5 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all text-left group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500/30 transition-colors">
+                        <Sparkles className="w-4 h-4 text-purple-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-white mb-0.5">@aichixia help</div>
+                        <div className="text-xs text-gray-400">Get started guide</div>
+                      </div>
+                    </motion.button>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.02, x: 5 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-transparent border border-blue-500/20 hover:border-blue-500/40 transition-all text-left group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/30 transition-colors">
+                        <Brain className="w-4 h-4 text-blue-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-white mb-0.5">@aichixia search</div>
+                        <div className="text-xs text-gray-400">Search information</div>
+                      </div>
+                    </motion.button>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowAichixiaProfile(false)}
+                    className="w-full rounded-2xl py-4 font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 transition-all shadow-lg shadow-purple-500/25 text-white"
+                  >
+                    Start Chatting with Aichixia
+                  </motion.button>
+                </motion.div>
+              </div>
             </motion.div>
           </motion.div>
         )}
