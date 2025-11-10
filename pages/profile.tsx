@@ -43,6 +43,8 @@ export default function ProfileDashboard() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
+  const randomAvatars = ['/default.png', '/v2.png', '/v3.png', '/v4.png']
+
   useEffect(() => {
     const loadSession = async () => {
       try {
@@ -55,6 +57,7 @@ export default function ProfileDashboard() {
         setSession(sess)
 
         const userId = sess.user.id
+        const userMetadata = sess.user.user_metadata || {}
 
         const { data: profileData } = await supabase
           .from('users')
@@ -62,15 +65,23 @@ export default function ProfileDashboard() {
           .eq('id', userId)
           .single()
 
-        let baseUser: UserRow =
-          profileData ?? {
-            id: userId,
-            username: 'Otaku Explorer ✨',
-            bio: 'Lover of anime, manga, manhwa & light novels.',
-            avatar_url: '/default.png',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
+        let baseUser: UserRow = {
+          id: userId,
+          username: userMetadata.full_name || userMetadata.name || 'Otaku Explorer ✨',
+          bio: 'Lover of anime, manga, manhwa & light novels.',
+          avatar_url: userMetadata.avatar_url || userMetadata.picture || '/default.png',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+
+        if (profileData) {
+          baseUser = {
+            ...baseUser,
+            username: profileData.username || baseUser.username,
+            bio: profileData.bio || baseUser.bio,
+            avatar_url: profileData.avatar_url || baseUser.avatar_url,
           }
+        }
 
         const localUsername =
           typeof window !== 'undefined' ? localStorage.getItem('username') : null
@@ -201,11 +212,12 @@ export default function ProfileDashboard() {
     setOpenEdit(false)
   }
 
-  if (!session || !user) return null
-
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = '/default.png'
+    const fallback = randomAvatars[Math.floor(Math.random() * randomAvatars.length)]
+    e.currentTarget.src = fallback
   }
+
+  if (!session || !user) return null
 
   return (
     <div className="min-h-screen bg-black text-slate-100 antialiased">
@@ -220,13 +232,11 @@ export default function ProfileDashboard() {
                   <div className="relative flex flex-col items-center gap-4">
                     <div className="relative w-36 h-36 rounded-full p-1 bg-gradient-to-tr from-sky-400/30 to-indigo-500/20">
                       <div className="absolute inset-0 rounded-full overflow-hidden border-2 border-sky-500/30 shadow-[0_12px_40px_rgba(56,189,248,0.12)]">
-                        <Image
+                        <img
                           src={user.avatar_url || '/default.png'}
                           alt="avatar"
-                          fill
-                          sizes="144px"
                           onError={handleImageError}
-                          className="object-cover"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     </div>
@@ -330,13 +340,11 @@ export default function ProfileDashboard() {
                         className="relative rounded-xl overflow-hidden border border-sky-700/10 bg-gradient-to-br from-black/40 to-slate-900/40 shadow-lg"
                       >
                         <div className="relative w-full h-36">
-                          <Image
+                          <img
                             src={item.anime?.cover_image || item.trailer_thumbnail || '/default.png'}
                             alt={item.anime?.title_romaji || 'Trailer'}
-                            fill
-                            sizes="(max-width: 768px) 160px, 320px"
                             onError={handleImageError}
-                            className="object-cover"
+                            className="w-full h-full object-cover"
                           />
                         </div>
                         <div className="absolute left-3 top-3 px-2 py-0.5 rounded-full bg-black/60 border border-sky-700/20 text-[11px] text-sky-200">
@@ -477,14 +485,14 @@ export default function ProfileDashboard() {
                       className="w-full rounded-lg bg-black/30 border border-sky-700/12 text-sm p-2"
                     />
                     <div className="flex gap-3">
-                      {['/default.png', '/v2.png', '/v3.png', '/v4.png'].map((src) => (
+                      {randomAvatars.map((src) => (
                         <button
                           key={src}
                           type="button"
                           onClick={() => setSelectedAvatar(src)}
                           className={`w-14 h-14 rounded-full overflow-hidden border-2 ${selectedAvatar === src ? 'border-sky-400' : 'border-transparent'}`}
                         >
-                          <Image src={src} alt="avatar" width={56} height={56} onError={handleImageError} className="object-cover" />
+                          <img src={src} alt="avatar" onError={handleImageError} className="w-full h-full object-cover" />
                         </button>
                       ))}
                     </div>
