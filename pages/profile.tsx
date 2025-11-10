@@ -67,6 +67,7 @@ export default function ProfileDashboard() {
 
         let baseUser: UserRow = {
           id: userId,
+          email: sess.user.email || '',
           username: userMetadata.full_name || userMetadata.name || 'Otaku Explorer ✨',
           bio: 'Lover of anime, manga, manhwa & light novels.',
           avatar_url: userMetadata.avatar_url || userMetadata.picture || '/default.png',
@@ -80,6 +81,7 @@ export default function ProfileDashboard() {
             username: profileData.username || baseUser.username,
             bio: profileData.bio || baseUser.bio,
             avatar_url: profileData.avatar_url || baseUser.avatar_url,
+            email: profileData.email || baseUser.email,
           }
         }
 
@@ -446,22 +448,24 @@ export default function ProfileDashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={() => setOpenEdit(false)}
           >
             <motion.div
               initial={{ scale: 0.98, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.98, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
               className="w-full max-w-lg mx-4 rounded-2xl p-6 bg-gradient-to-br from-slate-900/90 to-black/90 border border-sky-700/12 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-sky-200">Edit Profile</h3>
                 <button onClick={() => setOpenEdit(false)} className="text-slate-400">Close</button>
               </div>
-              <form onSubmit={handleSave} className="space-y-4">
+              <div className="space-y-4">
                 <div>
                   <label className="text-xs text-slate-400 block mb-1">Username</label>
                   <input
-                    name="username"
+                    id="edit-username"
                     defaultValue={user.username || ''}
                     className="w-full rounded-lg px-4 py-2 bg-black/40 border border-sky-700/20 focus:outline-none"
                   />
@@ -469,7 +473,7 @@ export default function ProfileDashboard() {
                 <div>
                   <label className="text-xs text-slate-400 block mb-1">Bio</label>
                   <textarea
-                    name="bio"
+                    id="edit-bio"
                     defaultValue={user.bio || ''}
                     rows={3}
                     className="w-full rounded-lg px-4 py-2 bg-black/40 border border-sky-700/20 focus:outline-none"
@@ -501,9 +505,35 @@ export default function ProfileDashboard() {
 
                 <div className="flex gap-3">
                   <button type="button" onClick={() => setOpenEdit(false)} className="flex-1 py-2 rounded-xl bg-transparent border border-sky-700/12 text-slate-300">Cancel</button>
-                  <button type="submit" className="flex-1 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 text-black font-semibold">Save</button>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      const newUsername = (document.getElementById('edit-username') as HTMLInputElement)?.value || ''
+                      const newBio = (document.getElementById('edit-bio') as HTMLTextAreaElement)?.value || ''
+                      const newAvatar = selectedAvatar || user.avatar_url || '/default.png'
+
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('username', newUsername)
+                        localStorage.setItem('bio', newBio)
+                        if (newAvatar) localStorage.setItem('avatar', newAvatar)
+                        else localStorage.removeItem('avatar')
+                      }
+
+                      setUser({
+                        ...user,
+                        username: newUsername || user.username,
+                        bio: newBio || user.bio,
+                        avatar_url: newAvatar || user.avatar_url,
+                      })
+
+                      setOpenEdit(false)
+                    }}
+                    className="flex-1 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 text-black font-semibold"
+                  >
+                    Save
+                  </button>
                 </div>
-              </form>
+              </div>
             </motion.div>
           </motion.div>
         )}
