@@ -5,6 +5,7 @@ import { useState } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
+import UpdateModal from '@/components/shared/UpdateModal'
 
 export default function App({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(() => new QueryClient())
@@ -28,6 +29,8 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       {!isLanding && !isMaintenance && <Navbar />}
+
+      {isLanding && <UpdateModal />}
 
       <main>
         <Component {...pageProps} />
