@@ -578,7 +578,7 @@ export default function CommunityPage() {
                     <div className="flex-1">
                       <h3 className="font-bold text-white mb-1 text-sm">About Me</h3>
                       <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                        Hi! I'm your intelligent AI companion in the Aichiow community. I'm here 24/7 to help answer your questions, provide insights, and make conversations more engaging.
+                        Hi I'm Aichixia, your AI assistant for anime, manga, manhwa, manhua, and light novels.
                       </p>
                     </div>
                   </div>
