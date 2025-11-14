@@ -7,8 +7,13 @@ import { classNames } from '@/utils/classNames'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import BottomNav from './BottomNav'
+
 import { PiSparkleFill } from 'react-icons/pi'
 import { FaRegUserCircle } from 'react-icons/fa'
+import { FaBars } from 'react-icons/fa6'
+import { MdMenuOpen, MdMenuBook } from 'react-icons/md'
+import { IoClose } from 'react-icons/io5'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const navItems = [
   { href: '/home', label: 'HOME' },
@@ -22,9 +27,25 @@ const navItems = [
 
 export default function Navbar() {
   const router = useRouter()
+
   const [scrolled, setScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [navMode, setNavMode] = useState<'floating' | 'hamburger'>('floating')
+  const [hamburgerOpen, setHamburgerOpen] = useState(false)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('nav-mode')
+    if (saved === 'floating' || saved === 'hamburger') {
+      setNavMode(saved)
+    }
+  }, [])
+
+  const toggleMode = () => {
+    const next = navMode === 'floating' ? 'hamburger' : 'floating'
+    setNavMode(next)
+    localStorage.setItem('nav-mode', next)
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -46,18 +67,15 @@ export default function Navbar() {
           data: { user },
         } = await supabase.auth.getUser()
 
-        if (!user) {
-          setAvatarUrl(null)
-          return
-        }
+        if (!user) return
 
-        const { data: userData, error: userErr } = await supabase
+        const { data: userData } = await supabase
           .from('users')
           .select('avatar_url')
           .eq('id', user.id)
           .single()
 
-        if (!userErr && userData?.avatar_url) {
+        if (userData?.avatar_url) {
           setAvatarUrl(userData.avatar_url)
           return
         }
@@ -72,23 +90,10 @@ export default function Navbar() {
           setAvatarUrl(profileData.avatar_url)
           return
         }
-
-        setAvatarUrl(null)
-      } catch (err) {
-        console.error('Error loading avatar:', err)
-        setAvatarUrl(null)
-      }
+      } catch {}
     }
 
     loadAvatar()
-
-    const handleStorageChange = () => {
-      const newAvatar = localStorage.getItem('avatar')
-      setAvatarUrl(newAvatar || null)
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
   const isReadPage = router.pathname.startsWith('/read/')
@@ -98,7 +103,7 @@ export default function Navbar() {
     <>
       <header
         className={classNames(
-          'sticky top-0 z-50 transition-all duration-300 backdrop-blur-lg animate-fade-down',
+          'sticky top-0 z-50 transition-all duration-300 backdrop-blur-lg',
           scrolled ? 'bg-neutral-900/80 shadow-lg' : 'bg-neutral-900/50',
           mounted ? 'opacity-100' : 'opacity-0'
         )}
@@ -117,13 +122,12 @@ export default function Navbar() {
                 const isActive =
                   router.pathname === item.href ||
                   router.pathname.startsWith(item.href + '/')
-
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={classNames(
-                      'nav-link hover:text-sky-400 transition-colors duration-200',
+                      'nav-link hover:text-sky-400 transition duration-200',
                       isActive ? 'text-sky-400' : 'text-white'
                     )}
                   >
@@ -132,53 +136,98 @@ export default function Navbar() {
                 )
               })}
             </nav>
+
             <ThemeToggle />
-
-            <Link href="/profile" className="hover:scale-105 transition-transform">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt="Profile"
-                  onError={(e) => (e.currentTarget.src = '/default.png')}
-                  className="w-10 h-10 rounded-full border-2 border-sky-400 object-cover"
-                />
-              ) : (
-                <FaRegUserCircle className="text-3xl text-sky-400 hover:text-sky-300" />
-              )}
-            </Link>
-          </div>
-
-          <div className="md:hidden flex items-center gap-3">
-            {!isAIPage && (
-              <Link
-                href="/aichixia"
-                className="text-sky-400 hover:text-sky-300 active:scale-95 transition-transform"
-                title="AI Assistant"
-              >
-                <PiSparkleFill className="text-2xl" />
-              </Link>
-            )}
 
             <Link href="/profile">
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
-                  alt="Profile"
-                  onError={(e) => (e.currentTarget.src = '/default.png')}
-                  className="w-9 h-9 rounded-full border-2 border-sky-400 object-cover"
+                  className="w-10 h-10 rounded-full border-2 border-sky-400 object-cover"
+                  alt="avatar"
                 />
               ) : (
-                <FaRegUserCircle className="text-2xl text-sky-400 hover:text-sky-300" />
+                <FaRegUserCircle className="text-3xl text-sky-400" />
+              )}
+            </Link>
+          </div>
+
+          <div className="md:hidden flex items-center gap-4">
+
+            {!isAIPage && (
+              <Link href="/aichixia" title="AI Assistant">
+                <PiSparkleFill className="text-2xl text-sky-400" />
+              </Link>
+            )}
+
+            <button
+              onClick={toggleMode}
+              className="text-sky-400 text-3xl active:scale-90 transition"
+              title="Switch Navigation Mode"
+            >
+              {navMode === 'floating' ? <MdMenuBook /> : <MdMenuOpen />}
+            </button>
+
+            <Link href="/profile">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  className="w-9 h-9 rounded-full border-2 border-sky-400 object-cover"
+                  alt="profile"
+                />
+              ) : (
+                <FaRegUserCircle className="text-2xl text-sky-400" />
               )}
             </Link>
           </div>
         </div>
       </header>
 
-      {!isReadPage && !isAIPage && (
+      {!isReadPage && !isAIPage && navMode === 'floating' && (
         <div className="md:hidden">
           <BottomNav />
         </div>
+      )}
+
+      <AnimatePresence>
+        {navMode === 'hamburger' && hamburgerOpen && (
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', stiffness: 200, damping: 22 }}
+            className="fixed inset-y-0 left-0 w-72 bg-neutral-900/95 backdrop-blur-xl z-[999] p-6 border-r border-sky-400/10 shadow-xl"
+          >
+            <button
+              onClick={() => setHamburgerOpen(false)}
+              className="text-sky-400 text-3xl mb-6"
+            >
+              <IoClose />
+            </button>
+
+            <nav className="flex flex-col gap-5">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setHamburgerOpen(false)}
+                  className="text-lg text-white hover:text-sky-400 transition font-medium"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {navMode === 'hamburger' && !hamburgerOpen && (
+        <button
+          onClick={() => setHamburgerOpen(true)}
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-xl bg-neutral-900/85 border border-sky-400/25 shadow-lg flex items-center justify-center z-[900]"
+        >
+          <FaBars className="text-2xl text-sky-400" />
+        </button>
       )}
     </>
   )
