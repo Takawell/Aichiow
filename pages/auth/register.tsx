@@ -12,8 +12,9 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
   const [progress, setProgress] = useState(0)
   
   const [pattern, setPattern] = useState<number[]>([])
-  const [targetPattern, setTargetPattern] = useState<number[]>([])
   const [displayNumbers, setDisplayNumbers] = useState<number[]>([])
+  const [patternCount, setPatternCount] = useState(4)
+  const [isAscending, setIsAscending] = useState(true)
   
   const [sliderValue, setSliderValue] = useState(0)
   const [sliderStartX, setSliderStartX] = useState(0)
@@ -26,16 +27,11 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
     const shuffled = numbers.sort(() => Math.random() - 0.5)
     setDisplayNumbers(shuffled)
     
-    const patternLength = 4
-    const selectedIndices: number[] = []
-    while (selectedIndices.length < patternLength) {
-      const randomIndex = Math.floor(Math.random() * 8)
-      if (!selectedIndices.includes(randomIndex)) {
-        selectedIndices.push(randomIndex)
-      }
-    }
-    selectedIndices.sort((a, b) => a - b)
-    setTargetPattern(selectedIndices)
+    const count = Math.floor(Math.random() * 3) + 3
+    setPatternCount(count)
+    
+    const ascending = Math.random() > 0.5
+    setIsAscending(ascending)
   }
 
   const generateMath = () => {
@@ -47,8 +43,7 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
     let answer = 0
     if (operation === '+') answer = num1 + num2
     else if (operation === '-') answer = num1 - num2
-    else answer = num1 * num2
-    
+    else answer = num1 * num2    
     setMathQuestion({ num1, num2, answer })
   }
 
@@ -71,12 +66,16 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
     }
   }, [isOpen])
 
-  const handlePatternClick = (index: number) => {
-    const newPattern = [...pattern, index]
+  const handlePatternClick = (num: number) => {
+    if (pattern.includes(num)) return
+    
+    const newPattern = [...pattern, num]
     setPattern(newPattern)
     
-    if (newPattern.length === targetPattern.length) {
-      verifyChallenge(JSON.stringify(newPattern) === JSON.stringify(targetPattern))
+    if (newPattern.length === patternCount) {
+      const sortedPattern = [...newPattern].sort((a, b) => isAscending ? a - b : b - a)
+      const isCorrect = JSON.stringify(newPattern) === JSON.stringify(sortedPattern)
+      verifyChallenge(isCorrect)
     }
   }
 
@@ -191,19 +190,21 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
               {challengeType === 'pattern' && (
                 <div>
                   <p className="text-white/80 text-xs sm:text-sm mb-4 text-center">
-                    Tap boxes from smallest to largest until you see{' '}
-                    <span className="text-sky-400 font-bold">{targetPattern.length}</span> dots below
+                    Click numbers from{' '}
+                    <span className="text-sky-400 font-bold">
+                      {isAscending ? 'smallest to largest' : 'largest to smallest'}
+                    </span>
                   </p>
                   <div className="grid grid-cols-4 gap-2 sm:gap-3">
                     {displayNumbers.map((num, i) => (
                       <motion.button
                         key={i}
-                        onClick={() => handlePatternClick(i)}
-                        disabled={pattern.includes(i)}
-                        whileHover={{ scale: 1.05 }}
+                        onClick={() => handlePatternClick(num)}
+                        disabled={pattern.includes(num)}
+                        whileHover={{ scale: pattern.includes(num) ? 1 : 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className={`aspect-square rounded-xl flex items-center justify-center text-base sm:text-lg font-bold transition-all ${
-                          pattern.includes(i)
+                          pattern.includes(num)
                             ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/50'
                             : 'bg-white/10 text-white/60 hover:bg-white/20'
                         }`}
@@ -213,7 +214,7 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
                     ))}
                   </div>
                   <div className="flex justify-center gap-2 mt-4">
-                    {targetPattern.map((_, i) => (
+                    {Array.from({ length: patternCount }).map((_, i) => (
                       <div
                         key={i}
                         className={`w-2 h-2 rounded-full ${
@@ -222,6 +223,11 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
                       />
                     ))}
                   </div>
+                  {pattern.length > 0 && (
+                    <p className="text-white/60 text-xs text-center mt-3">
+                      Selected: {pattern.join(' → ')}
+                    </p>
+                  )}
                 </div>
               )}
 
