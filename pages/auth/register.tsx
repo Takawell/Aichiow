@@ -4,36 +4,77 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/router'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Eye, EyeOff, Shield, CheckCircle2, XCircle, Sparkles, Zap, Lock } from 'lucide-react'
+import { Eye, EyeOff, Shield, CheckCircle2, XCircle, Sparkles, Zap, Target } from 'lucide-react'
 
 function VerificationModal({ isOpen, onVerified, onClose }: any) {
   const [stage, setStage] = useState<'challenge' | 'verifying' | 'success' | 'failed'>('challenge')
-  const [challengeType, setChallengeType] = useState<'pattern' | 'slider' | 'puzzle'>('pattern')
+  const [challengeType, setChallengeType] = useState<'pattern' | 'slider' | 'math'>('pattern')
   const [progress, setProgress] = useState(0)
   
   const [pattern, setPattern] = useState<number[]>([])
-  const [targetPattern] = useState([1, 3, 5, 7])
+  const [targetPattern, setTargetPattern] = useState<number[]>([])
+  const [displayNumbers, setDisplayNumbers] = useState<number[]>([])
   
   const [sliderValue, setSliderValue] = useState(0)
   const [sliderStartX, setSliderStartX] = useState(0)
   
-  const [puzzlePositions, setPuzzlePositions] = useState([0, 1, 2, 3])
-  const [targetPuzzle] = useState([2, 0, 3, 1])
+  const [mathAnswer, setMathAnswer] = useState('')
+  const [mathQuestion, setMathQuestion] = useState({ num1: 0, num2: 0, answer: 0 })
+
+  const generatePattern = () => {
+    const numbers = Array.from({ length: 8 }, (_, i) => i + 1)
+    const shuffled = numbers.sort(() => Math.random() - 0.5)
+    setDisplayNumbers(shuffled)
+    
+    const patternLength = 4
+    const selectedIndices: number[] = []
+    while (selectedIndices.length < patternLength) {
+      const randomIndex = Math.floor(Math.random() * 8)
+      if (!selectedIndices.includes(randomIndex)) {
+        selectedIndices.push(randomIndex)
+      }
+    }
+    selectedIndices.sort((a, b) => a - b)
+    setTargetPattern(selectedIndices)
+  }
+
+  const generateMath = () => {
+    const num1 = Math.floor(Math.random() * 10) + 1
+    const num2 = Math.floor(Math.random() * 10) + 1
+    const operations = ['+', '-', '×']
+    const operation = operations[Math.floor(Math.random() * operations.length)]
+    
+    let answer = 0
+    if (operation === '+') answer = num1 + num2
+    else if (operation === '-') answer = num1 - num2
+    else answer = num1 * num2
+    
+    setMathQuestion({ num1, num2, answer })
+  }
 
   useEffect(() => {
     if (isOpen) {
       setStage('challenge')
       setPattern([])
       setSliderValue(0)
-      setPuzzlePositions([0, 1, 2, 3])
-      const types: ('pattern' | 'slider' | 'puzzle')[] = ['pattern', 'slider', 'puzzle']
-      setChallengeType(types[Math.floor(Math.random() * types.length)])
+      setMathAnswer('')
+      
+      const types: ('pattern' | 'slider' | 'math')[] = ['pattern', 'slider', 'math']
+      const selectedType = types[Math.floor(Math.random() * types.length)]
+      setChallengeType(selectedType)
+      
+      if (selectedType === 'pattern') {
+        generatePattern()
+      } else if (selectedType === 'math') {
+        generateMath()
+      }
     }
   }, [isOpen])
 
   const handlePatternClick = (index: number) => {
     const newPattern = [...pattern, index]
-    setPattern(newPattern)    
+    setPattern(newPattern)
+    
     if (newPattern.length === targetPattern.length) {
       verifyChallenge(JSON.stringify(newPattern) === JSON.stringify(targetPattern))
     }
@@ -62,18 +103,9 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
     }
   }
 
-  const handlePuzzleSwap = (index: number) => {
-    if (index < puzzlePositions.length - 1) {
-      const newPositions = [...puzzlePositions]
-      const temp = newPositions[index]
-      newPositions[index] = newPositions[index + 1]
-      newPositions[index + 1] = temp
-      setPuzzlePositions(newPositions)
-      
-      if (JSON.stringify(newPositions) === JSON.stringify(targetPuzzle)) {
-        verifyChallenge(true)
-      }
-    }
+  const handleMathSubmit = () => {
+    const userAnswer = parseInt(mathAnswer)
+    verifyChallenge(userAnswer === mathQuestion.answer)
   }
 
   const verifyChallenge = (success: boolean) => {
@@ -95,7 +127,9 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
               setStage('challenge')
               setPattern([])
               setSliderValue(0)
-              setPuzzlePositions([0, 1, 2, 3])
+              setMathAnswer('')
+              if (challengeType === 'pattern') generatePattern()
+              else if (challengeType === 'math') generateMath()
             }, 2000)
           }
           return 100
@@ -106,6 +140,12 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
   }
 
   if (!isOpen) return null
+
+  const getOperationSymbol = () => {
+    if (mathQuestion.num1 + mathQuestion.num2 === mathQuestion.answer) return '+'
+    if (mathQuestion.num1 - mathQuestion.num2 === mathQuestion.answer) return '-'
+    return '×'
+  }
 
   return (
     <AnimatePresence>
@@ -151,10 +191,11 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
               {challengeType === 'pattern' && (
                 <div>
                   <p className="text-white/80 text-xs sm:text-sm mb-4 text-center">
-                    Tap the boxes in order: 2 → 4 → 6 → 8
+                    Tap boxes from smallest to largest until you see{' '}
+                    <span className="text-sky-400 font-bold">{targetPattern.length}</span> dots below
                   </p>
                   <div className="grid grid-cols-4 gap-2 sm:gap-3">
-                    {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                    {displayNumbers.map((num, i) => (
                       <motion.button
                         key={i}
                         onClick={() => handlePatternClick(i)}
@@ -167,7 +208,7 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
                             : 'bg-white/10 text-white/60 hover:bg-white/20'
                         }`}
                       >
-                        {i + 1}
+                        {num}
                       </motion.button>
                     ))}
                   </div>
@@ -211,27 +252,39 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
                 </div>
               )}
 
-              {challengeType === 'puzzle' && (
-                <div>
-                  <p className="text-white/80 text-xs sm:text-sm mb-4 text-center">
-                    Arrange colors: Red → Green → Blue → Yellow
+              {challengeType === 'math' && (
+                <div className="space-y-4">
+                  <p className="text-white/80 text-xs sm:text-sm text-center">
+                    Solve the math problem
                   </p>
-                  <div className="grid grid-cols-4 gap-2 sm:gap-3">
-                    {puzzlePositions.map((pos, index) => {
-                      const colors = ['bg-red-500', 'bg-green-500', 'bg-blue-500', 'bg-yellow-500']
-                      return (
-                        <motion.button
-                          key={index}
-                          onClick={() => handlePuzzleSwap(index)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`aspect-square rounded-xl ${colors[pos]} shadow-lg flex items-center justify-center`}
-                        >
-                          <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-white/80" />
-                        </motion.button>
-                      )
-                    })}
+                  <div className="bg-white/5 rounded-2xl p-6 text-center">
+                    <div className="text-3xl sm:text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+                      <span>{mathQuestion.num1}</span>
+                      <span className="text-sky-400">{getOperationSymbol()}</span>
+                      <span>{mathQuestion.num2}</span>
+                      <span className="text-sky-400">=</span>
+                      <span className="text-sky-400">?</span>
+                    </div>
+                    <input
+                      type="number"
+                      value={mathAnswer}
+                      onChange={(e) => setMathAnswer(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleMathSubmit()
+                      }}
+                      placeholder="Answer"
+                      className="w-full bg-white/10 text-white text-center text-xl sm:text-2xl border border-sky-500/30 rounded-xl p-3 placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+                      autoFocus
+                    />
                   </div>
+                  <motion.button
+                    onClick={handleMathSubmit}
+                    disabled={!mathAnswer}
+                    whileTap={{ scale: 0.97 }}
+                    className="w-full rounded-xl p-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold shadow-lg shadow-sky-500/30 hover:opacity-90 transition disabled:opacity-50"
+                  >
+                    Submit Answer
+                  </motion.button>
                 </div>
               )}
             </motion.div>
