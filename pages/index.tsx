@@ -160,12 +160,12 @@ export default function LandingPage() {
 
             <div className="flex items-center gap-3 sm:gap-5">
               <nav className="hidden md:flex gap-4 text-sm text-gray-300">
-                <Link href="/home" className="hover:text-white">Home</Link>
-                <Link href="/manga" className="hover:text-white">Manga</Link>
-                <Link href="/manhwa" className="hover:text-white">Manhwa</Link>
-                <Link href="/light-novel" className="hover:text-white">Light Novel</Link>
-                <Link href="/explore" className="hover:text-white">Explore</Link>
-                <Link href="/profile" className="hover:text-white">Profile</Link>
+                <Link href="/home" className="hover:text-white">ANIME</Link>
+                <Link href="/manga" className="hover:text-white">MANGA</Link>
+                <Link href="/manhwa" className="hover:text-white">MANHWA</Link>
+                <Link href="/light-novel" className="hover:text-white">LIGHT NOVEL</Link>
+                <Link href="/explore" className="hover:text-white">EXPLORE</Link>
+                <Link href="/profile" className="hover:text-white">PROFILE</Link>
               </nav>
 
               <motion.button
@@ -365,10 +365,10 @@ export default function LandingPage() {
               <div>© {new Date().getFullYear()} Aichiow Plus. All rights reserved.</div>
               <div className="flex items-center gap-4">
                 <Link href="/terms" className="hover:text-white">
-                  Terms
+                  Terms of Service
                 </Link>
                 <Link href="/privacy" className="hover:text-white">
-                  Privacy
+                  Privacy Policy
                 </Link>
               </div>
             </div>
