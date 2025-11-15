@@ -33,8 +33,7 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
 
   const handlePatternClick = (index: number) => {
     const newPattern = [...pattern, index]
-    setPattern(newPattern)
-    
+    setPattern(newPattern)    
     if (newPattern.length === targetPattern.length) {
       verifyChallenge(JSON.stringify(newPattern) === JSON.stringify(targetPattern))
     }
@@ -125,21 +124,21 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
           initial={{ scale: 0.9, y: 20 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.9, y: 20 }}
-          className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-purple-500/30"
+          className="bg-gradient-to-br from-slate-950 via-sky-950 to-black rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-sky-500/30"
         >
           <div className="flex items-center justify-center mb-6">
             <motion.div
               animate={{ rotate: stage === 'verifying' ? 360 : 0 }}
               transition={{ duration: 2, repeat: stage === 'verifying' ? Infinity : 0, ease: 'linear' }}
             >
-              <Shield className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400" />
+              <Shield className="w-10 h-10 sm:w-12 sm:h-12 text-sky-400" />
             </motion.div>
           </div>
 
           <h2 className="text-xl sm:text-2xl font-bold text-white text-center mb-2">
             Security Verification
           </h2>
-          <p className="text-purple-300 text-center text-xs sm:text-sm mb-6">
+          <p className="text-sky-300 text-center text-xs sm:text-sm mb-6">
             Complete the challenge to prove you're human
           </p>
 
@@ -164,7 +163,7 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
                         whileTap={{ scale: 0.95 }}
                         className={`aspect-square rounded-xl flex items-center justify-center text-base sm:text-lg font-bold transition-all ${
                           pattern.includes(i)
-                            ? 'bg-purple-500 text-white'
+                            ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/50'
                             : 'bg-white/10 text-white/60 hover:bg-white/20'
                         }`}
                       >
@@ -177,7 +176,7 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
                       <div
                         key={i}
                         className={`w-2 h-2 rounded-full ${
-                          i < pattern.length ? 'bg-purple-400' : 'bg-white/20'
+                          i < pattern.length ? 'bg-sky-400' : 'bg-white/20'
                         }`}
                       />
                     ))}
@@ -198,7 +197,7 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
                       onTouchMove={handleSliderDrag}
                       onMouseUp={handleSliderEnd}
                       onTouchEnd={handleSliderEnd}
-                      className="absolute left-1 top-1 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center shadow-lg"
+                      className="absolute left-1 top-1 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-sky-500 to-blue-600 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center shadow-lg shadow-sky-500/50"
                       style={{ left: `${sliderValue * 0.01 * (100 - 15)}%` }}
                     >
                       <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -249,13 +248,13 @@ function VerificationModal({ isOpen, onVerified, onClose }: any) {
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                 >
-                  <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-purple-400" />
+                  <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-sky-400" />
                 </motion.div>
               </div>
               <p className="text-white text-center font-medium text-sm sm:text-base">Verifying...</p>
               <div className="bg-white/10 rounded-full h-2 overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+                  className="h-full bg-gradient-to-r from-sky-500 to-blue-600"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -360,7 +359,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-purple-950 to-black p-4 sm:p-6 text-white relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-slate-950 to-black p-4 sm:p-6 text-white relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           animate={{
@@ -372,7 +371,7 @@ export default function RegisterPage() {
             repeat: Infinity,
             ease: 'linear',
           }}
-          className="absolute -top-1/2 -left-1/2 w-full h-full bg-purple-500/10 rounded-full blur-3xl"
+          className="absolute -top-1/2 -left-1/2 w-full h-full bg-sky-500/10 rounded-full blur-3xl"
         />
         <motion.div
           animate={{
@@ -384,13 +383,13 @@ export default function RegisterPage() {
             repeat: Infinity,
             ease: 'linear',
           }}
-          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-pink-500/10 rounded-full blur-3xl"
+          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-blue-600/10 rounded-full blur-3xl"
         />
       </div>
 
       <motion.form
         onSubmit={handleFormSubmit}
-        className="w-full max-w-md space-y-5 sm:space-y-6 p-6 sm:p-8 rounded-2xl bg-white/10 backdrop-blur-md shadow-xl border border-white/10 relative z-10"
+        className="w-full max-w-md space-y-5 sm:space-y-6 p-6 sm:p-8 rounded-2xl bg-white/5 backdrop-blur-md shadow-xl border border-sky-500/20 relative z-10"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -402,16 +401,16 @@ export default function RegisterPage() {
             transition={{ type: 'spring', stiffness: 200, damping: 10 }}
             className="inline-block"
           >
-            <Shield className="w-12 h-12 sm:w-16 sm:h-16 text-purple-400 mx-auto mb-2" />
+            <Shield className="w-12 h-12 sm:w-16 sm:h-16 text-sky-400 mx-auto mb-2" />
           </motion.div>
           <h1 className="text-2xl sm:text-3xl font-semibold text-white">
             Create your Account
           </h1>
-          <p className="text-purple-300 text-xs sm:text-sm">Join us with secure verification</p>
+          <p className="text-sky-300 text-xs sm:text-sm">Join us with secure verification</p>
         </div>
 
         <motion.input
-          className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white transition text-sm sm:text-base"
+          className="w-full bg-white/5 text-white border border-sky-500/30 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-sky-500 transition text-sm sm:text-base"
           placeholder="Username"
           value={username}
           onChange={e => setUsername(e.target.value)}
@@ -420,7 +419,7 @@ export default function RegisterPage() {
         />
 
         <motion.input
-          className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white transition text-sm sm:text-base"
+          className="w-full bg-white/5 text-white border border-sky-500/30 rounded-xl p-3 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-sky-500 transition text-sm sm:text-base"
           type="email"
           placeholder="Email"
           value={email}
@@ -431,7 +430,7 @@ export default function RegisterPage() {
 
         <div className="relative">
           <motion.input
-            className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 pr-12 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white transition text-sm sm:text-base"
+            className="w-full bg-white/5 text-white border border-sky-500/30 rounded-xl p-3 pr-12 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-sky-500 transition text-sm sm:text-base"
             type={showPass ? 'text' : 'password'}
             placeholder="Password"
             value={password}
@@ -450,7 +449,7 @@ export default function RegisterPage() {
 
         <motion.button
           disabled={loading}
-          className="w-full rounded-xl p-3 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-semibold shadow-md hover:opacity-90 transition disabled:opacity-50 text-sm sm:text-base"
+          className="w-full rounded-xl p-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 hover:opacity-90 transition disabled:opacity-50 text-sm sm:text-base"
           type="submit"
           whileTap={{ scale: 0.97 }}
         >
@@ -479,7 +478,7 @@ export default function RegisterPage() {
         <p className="text-xs sm:text-sm text-center text-white/70">
           Already have an account?{' '}
           <a
-            className="underline text-blue-400 hover:text-blue-300 transition"
+            className="underline text-sky-400 hover:text-sky-300 transition"
             href="/auth/login"
           >
             Login
