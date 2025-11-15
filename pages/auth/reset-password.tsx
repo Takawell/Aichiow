@@ -60,16 +60,6 @@ export default function ResetPassword() {
             <Shield className="w-14 h-14 sm:w-16 sm:h-16 text-sky-400 mx-auto opacity-90" />
           </motion.div>
 
-          <div className="flex justify-center">
-            <Image
-              src="https://aichiow.vercel.app/logo.png"
-              width={60}
-              height={60}
-              alt="logo"
-              className="opacity-90"
-            />
-          </div>
-
           <h1 className="text-2xl sm:text-3xl font-semibold text-white">
             Reset Password
           </h1>
