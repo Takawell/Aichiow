@@ -214,7 +214,7 @@ export default function LoginPage() {
         </p>
 
         <div className="pt-4 border-t border-sky-500/10">
-          <a href="#" className="text-xs text-sky-400/60 hover:text-sky-400 transition block text-center">
+          <a href="/auth/reset-password" className="text-xs text-sky-400/60 hover:text-sky-400 transition block text-center">
             Forgot password?
           </a>
         </div>
