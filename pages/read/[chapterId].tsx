@@ -3,7 +3,7 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { fetchChapterImages } from '@/lib/mangadex'
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi'
 import { MdArrowBack, MdFullscreen, MdFullscreenExit, MdArrowUpward } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabaseClient'
@@ -21,12 +21,13 @@ export default function ReadPage() {
   const [currentPage, setCurrentPage] = useState(0)
   const [user, setUser] = useState<any>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        router.push('/auth/login')
+        setShowAuthModal(true)
       } else {
         setUser(user)
       }
@@ -76,7 +77,6 @@ export default function ReadPage() {
         setLoading(false)
       }
     }
-
     loadImages()
   }, [router.isReady, router.query.chapterId, user])
 
@@ -119,10 +119,133 @@ export default function ReadPage() {
     return () => window.removeEventListener('keydown', handleKey)
   }, [mode, currentPage])
 
+  if (!user && showAuthModal) {
+    return (
+      <>
+        <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/10 to-neutral-950"></div>
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500 rounded-full blur-[120px] animate-pulse delay-700"></div>
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {showAuthModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+              onClick={() => router.back()}
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-full max-w-md bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 rounded-3xl shadow-2xl overflow-hidden border border-neutral-700/50"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-transparent"></div>
+                
+                <button
+                  onClick={() => router.back()}
+                  className="absolute top-4 right-4 z-10 p-2 rounded-full bg-neutral-800/80 hover:bg-neutral-700 transition-colors backdrop-blur-sm"
+                >
+                  <FiX size={20} className="text-neutral-300" />
+                </button>
+
+                <div className="relative p-8 sm:p-10">
+                  <div className="flex flex-col items-center text-center mb-8">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                      className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30"
+                    >
+                      <span className="text-4xl">🔒</span>
+                    </motion.div>
+                    
+                    <motion.h2
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-2xl sm:text-3xl font-bold text-white mb-3 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+                    >
+                      Login Required
+                    </motion.h2>
+                    
+                    <motion.p
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                      className="text-neutral-400 text-sm sm:text-base leading-relaxed"
+                    >
+                      You need to be logged in to continue reading this chapter. Please login or create a new account to access premium content.
+                    </motion.p>
+                  </div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="space-y-3"
+                  >
+                    <button
+                      onClick={() => router.push('/auth/login')}
+                      className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group"
+                    >
+                      <span>Login to Continue</span>
+                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </button>
+
+                    <button
+                      onClick={() => router.push('/auth/register')}
+                      className="w-full py-4 px-6 bg-neutral-800 hover:bg-neutral-700 text-white font-semibold rounded-xl transition-all duration-300 border border-neutral-700 hover:border-neutral-600 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group"
+                    >
+                      <span>Create New Account</span>
+                      <svg className="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                      </svg>
+                    </button>
+
+                    <button
+                      onClick={() => router.back()}
+                      className="w-full py-3 px-6 text-neutral-400 hover:text-neutral-300 font-medium transition-colors text-sm"
+                    >
+                      Go Back
+                    </button>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="mt-6 pt-6 border-t border-neutral-700/50"
+                  >
+                    <p className="text-center text-xs text-neutral-500">
+                      By continuing, you agree to our Terms of Service and Privacy Policy
+                    </p>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </>
+    )
+  }
+
   if (!user || loading) {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
-        Loading...
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-neutral-400">Loading chapter...</p>
+        </div>
       </div>
     )
   }
