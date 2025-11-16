@@ -3,8 +3,8 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { fetchChapterImages } from '@/lib/mangadex'
-import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi'
-import { MdArrowBack, MdFullscreen, MdFullscreenExit, MdArrowUpward } from 'react-icons/md'
+import { FiChevronLeft, FiChevronRight, FiX, FiLogIn, FiUserPlus } from 'react-icons/fi'
+import { MdArrowBack, MdFullscreen, MdFullscreenExit, MdArrowUpward, MdLock } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -28,6 +28,7 @@ export default function ReadPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         setShowAuthModal(true)
+        setLoading(false)
       } else {
         setUser(user)
       }
@@ -77,6 +78,7 @@ export default function ReadPage() {
         setLoading(false)
       }
     }
+
     loadImages()
   }, [router.isReady, router.query.chapterId, user])
 
@@ -119,102 +121,100 @@ export default function ReadPage() {
     return () => window.removeEventListener('keydown', handleKey)
   }, [mode, currentPage])
 
-  if (!user && showAuthModal) {
+  if (loading && !showAuthModal) {
     return (
-      <>
-        <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/10 to-neutral-950"></div>
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-[120px] animate-pulse"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500 rounded-full blur-[120px] animate-pulse delay-700"></div>
-          </div>
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-neutral-400">Loading...</p>
         </div>
+      </div>
+    )
+  }
 
-        <AnimatePresence>
-          {showAuthModal && (
+  return (
+    <div className="min-h-screen bg-neutral-950 text-white flex flex-col">
+      <AnimatePresence>
+        {showAuthModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl"
+            onClick={() => router.back()}
+          >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-              onClick={() => router.back()}
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-md mx-auto"
             >
-              <motion.div
-                initial={{ scale: 0.9, y: 20, opacity: 0 }}
-                animate={{ scale: 1, y: 0, opacity: 1 }}
-                exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-md bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 rounded-3xl shadow-2xl overflow-hidden border border-neutral-700/50"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-pink-600/20 rounded-3xl blur-2xl"></div>
+              
+              <div className="relative bg-gradient-to-br from-neutral-900/95 via-neutral-900/98 to-neutral-800/95 backdrop-blur-2xl rounded-3xl border border-neutral-700/50 shadow-2xl overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
                 
                 <button
                   onClick={() => router.back()}
-                  className="absolute top-4 right-4 z-10 p-2 rounded-full bg-neutral-800/80 hover:bg-neutral-700 transition-colors backdrop-blur-sm"
+                  className="absolute top-4 right-4 z-10 p-2.5 rounded-xl bg-neutral-800/80 hover:bg-neutral-700/80 transition-all duration-300 backdrop-blur-sm border border-neutral-700/50 hover:scale-110 active:scale-95 group"
                 >
-                  <FiX size={20} className="text-neutral-300" />
+                  <FiX size={20} className="text-neutral-300 group-hover:text-white transition-colors" />
                 </button>
 
-                <div className="relative p-8 sm:p-10">
-                  <div className="flex flex-col items-center text-center mb-8">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                      className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30"
-                    >
-                      <span className="text-4xl">🔒</span>
-                    </motion.div>
-                    
-                    <motion.h2
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="text-2xl sm:text-3xl font-bold text-white mb-3 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
-                    >
-                      Login Required
-                    </motion.h2>
-                    
-                    <motion.p
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
-                      className="text-neutral-400 text-sm sm:text-base leading-relaxed"
-                    >
-                      You need to be logged in to continue reading this chapter. Please login or create a new account to access premium content.
-                    </motion.p>
-                  </div>
+                <div className="p-8 sm:p-10 lg:p-12">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                    className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 relative overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+                    <MdLock className="text-white text-4xl sm:text-5xl relative z-10" />
+                  </motion.div>
 
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="space-y-3"
+                    transition={{ delay: 0.3 }}
+                    className="text-center mb-8"
+                  >
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                      Authentication Required
+                    </h2>
+                    <p className="text-neutral-400 text-sm sm:text-base leading-relaxed px-2">
+                      Login or create an account to continue reading premium content
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="space-y-3 sm:space-y-4"
                   >
                     <button
                       onClick={() => router.push('/auth/login')}
-                      className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group"
+                      className="group w-full relative overflow-hidden py-4 sm:py-5 px-6 bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 hover:from-blue-500 hover:via-blue-400 hover:to-purple-500 text-white font-bold rounded-xl sm:rounded-2xl transition-all duration-300 shadow-lg shadow-blue-500/40 hover:shadow-blue-500/60 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3"
                     >
-                      <span>Login to Continue</span>
-                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
+                      <FiLogIn className="text-xl sm:text-2xl relative z-10 group-hover:rotate-12 transition-transform" />
+                      <span className="relative z-10 text-base sm:text-lg">Login to Continue</span>
                     </button>
 
                     <button
                       onClick={() => router.push('/auth/register')}
-                      className="w-full py-4 px-6 bg-neutral-800 hover:bg-neutral-700 text-white font-semibold rounded-xl transition-all duration-300 border border-neutral-700 hover:border-neutral-600 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group"
+                      className="group w-full relative overflow-hidden py-4 sm:py-5 px-6 bg-neutral-800/80 hover:bg-neutral-700/80 backdrop-blur-sm text-white font-semibold rounded-xl sm:rounded-2xl transition-all duration-300 border-2 border-neutral-700/50 hover:border-neutral-600 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3"
                     >
-                      <span>Create New Account</span>
-                      <svg className="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                      </svg>
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/0 via-purple-600/10 to-purple-600/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
+                      <FiUserPlus className="text-xl sm:text-2xl relative z-10 group-hover:scale-110 transition-transform" />
+                      <span className="relative z-10 text-base sm:text-lg">Create Account</span>
                     </button>
 
                     <button
                       onClick={() => router.back()}
-                      className="w-full py-3 px-6 text-neutral-400 hover:text-neutral-300 font-medium transition-colors text-sm"
+                      className="w-full py-3 sm:py-4 text-neutral-400 hover:text-white font-medium transition-all duration-300 text-sm sm:text-base hover:bg-neutral-800/30 rounded-xl"
                     >
                       Go Back
                     </button>
@@ -224,35 +224,21 @@ export default function ReadPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.6 }}
-                    className="mt-6 pt-6 border-t border-neutral-700/50"
+                    className="mt-8 pt-6 border-t border-neutral-700/50"
                   >
-                    <p className="text-center text-xs text-neutral-500">
-                      By continuing, you agree to our Terms of Service and Privacy Policy
-                    </p>
+                    <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-neutral-500">
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                      <span>Secure authentication powered by Supabase</span>
+                    </div>
                   </motion.div>
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </>
-    )
-  }
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-  if (!user || loading) {
-    return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-neutral-400">Loading chapter...</p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="min-h-screen bg-neutral-950 text-white flex flex-col">
-      {mode === 'swipe' && (
+      {mode === 'swipe' && user && (
         <motion.div
           className="fixed top-0 left-0 h-1 bg-blue-500 z-50"
           style={{ width: `${((currentPage + 1) / images.length) * 100}%` }}
@@ -262,155 +248,159 @@ export default function ReadPage() {
         />
       )}
 
-      <header className="sticky top-0 z-40 flex items-center justify-between bg-neutral-900/80 backdrop-blur px-4 py-3 border-b border-neutral-800 shadow-md">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300 transition"
-        >
-          <MdArrowBack size={18} />
-          Back
-        </button>
-        <span className="text-sm tracking-wide text-neutral-400">
-          📖 Chapter Reader
-        </span>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setMode('scroll')}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition ${
-              mode === 'scroll'
-                ? 'bg-blue-500 text-white'
-                : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-            }`}
-          >
-            Scroll
-          </button>
-          <button
-            onClick={() => setMode('swipe')}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition ${
-              mode === 'swipe'
-                ? 'bg-blue-500 text-white'
-                : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-            }`}
-          >
-            Swipe
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-1 max-w-5xl mx-auto px-4 py-6 w-full">
-        {error && (
-          <div className="text-center py-16 text-red-500 font-semibold text-lg">
-            {error}
-          </div>
-        )}
-
-        {images.length > 0 && (
-          <>
-            {mode === 'scroll' && (
-              <div className="space-y-6">
-                {images.map((src, idx) => (
-                  <motion.img
-                    key={idx}
-                    src={src}
-                    alt={`Page ${idx + 1}`}
-                    loading="lazy"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="w-full h-auto object-contain rounded-lg shadow-lg border border-neutral-800 hover:scale-[1.01] transition-transform"
-                  />
-                ))}
-              </div>
-            )}
-
-            {mode === 'swipe' && (
-              <div
-                className="relative w-full flex items-center justify-center overflow-hidden"
-                style={{ perspective: '2000px' }}
+      {user && (
+        <>
+          <header className="sticky top-0 z-40 flex items-center justify-between bg-neutral-900/80 backdrop-blur px-4 py-3 border-b border-neutral-800 shadow-md">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300 transition"
+            >
+              <MdArrowBack size={18} />
+              Back
+            </button>
+            <span className="text-sm tracking-wide text-neutral-400">
+              📖 Chapter Reader
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setMode('scroll')}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition ${
+                  mode === 'scroll'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+                }`}
               >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentPage}
-                    className="relative w-full max-w-4xl"
-                    initial={{ rotateY: 90, opacity: 0 }}
-                    animate={{ rotateY: 0, opacity: 1 }}
-                    exit={{ rotateY: -90, opacity: 0 }}
-                    transition={{ duration: 0.6, ease: 'easeInOut' }}
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    onDragEnd={(_, info) => {
-                      if (info.offset.x < -100) handleSwipe('left')
-                      if (info.offset.x > 100) handleSwipe('right')
-                    }}
-                    style={{
-                      transformOrigin: 'center left',
-                      boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-                      borderRadius: '12px',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <img
-                      src={images[currentPage]}
-                      alt={`Page ${currentPage + 1}`}
-                      className="w-full h-auto object-contain"
-                    />
-                  </motion.div>
-                </AnimatePresence>
+                Scroll
+              </button>
+              <button
+                onClick={() => setMode('swipe')}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition ${
+                  mode === 'swipe'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+                }`}
+              >
+                Swipe
+              </button>
+            </div>
+          </header>
 
-                <div className="absolute bottom-4 right-4 bg-black/60 text-xs px-3 py-1 rounded-full">
-                  {currentPage + 1} / {images.length}
-                </div>
+          <main className="flex-1 max-w-5xl mx-auto px-4 py-6 w-full">
+            {error && (
+              <div className="text-center py-16 text-red-500 font-semibold text-lg">
+                {error}
               </div>
             )}
-          </>
-        )}
 
-        <div className="flex justify-between items-center gap-4 mt-12">
-          <button
-            onClick={() => handleNavigation(prevId)}
-            disabled={!prevId}
-            className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold rounded-lg transition ${
-              prevId
-                ? 'bg-zinc-800 hover:bg-zinc-700 text-white shadow-md'
-                : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
-            }`}
-          >
-            <FiChevronLeft size={18} />
-            Previous Chapter
-          </button>
-          <button
-            onClick={() => handleNavigation(nextId)}
-            disabled={!nextId}
-            className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold rounded-lg transition ${
-              nextId
-                ? 'bg-zinc-800 hover:bg-zinc-700 text-white shadow-md'
-                : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
-            }`}
-          >
-            Next Chapter
-            <FiChevronRight size={18} />
-          </button>
-        </div>
-      </main>
+            {images.length > 0 && (
+              <>
+                {mode === 'scroll' && (
+                  <div className="space-y-6">
+                    {images.map((src, idx) => (
+                      <motion.img
+                        key={idx}
+                        src={src}
+                        alt={`Page ${idx + 1}`}
+                        loading="lazy"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="w-full h-auto object-contain rounded-lg shadow-lg border border-neutral-800 hover:scale-[1.01] transition-transform"
+                      />
+                    ))}
+                  </div>
+                )}
 
-      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
-        <button
-          onClick={toggleFullscreen}
-          className="p-3 rounded-full bg-neutral-800 hover:bg-neutral-700 shadow-lg"
-        >
-          {isFullscreen ? <MdFullscreenExit size={20} /> : <MdFullscreen size={20} />}
-        </button>
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="p-3 rounded-full bg-neutral-800 hover:bg-neutral-700 shadow-lg"
-        >
-          <MdArrowUpward size={20} />
-        </button>
-      </div>
+                {mode === 'swipe' && (
+                  <div
+                    className="relative w-full flex items-center justify-center overflow-hidden"
+                    style={{ perspective: '2000px' }}
+                  >
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={currentPage}
+                        className="relative w-full max-w-4xl"
+                        initial={{ rotateY: 90, opacity: 0 }}
+                        animate={{ rotateY: 0, opacity: 1 }}
+                        exit={{ rotateY: -90, opacity: 0 }}
+                        transition={{ duration: 0.6, ease: 'easeInOut' }}
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        onDragEnd={(_, info) => {
+                          if (info.offset.x < -100) handleSwipe('left')
+                          if (info.offset.x > 100) handleSwipe('right')
+                        }}
+                        style={{
+                          transformOrigin: 'center left',
+                          boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <img
+                          src={images[currentPage]}
+                          alt={`Page ${currentPage + 1}`}
+                          className="w-full h-auto object-contain"
+                        />
+                      </motion.div>
+                    </AnimatePresence>
 
-      <footer className="text-center text-xs text-neutral-600 py-6 border-t border-neutral-800">
-        ✨ End of Chapter ✨
-      </footer>
+                    <div className="absolute bottom-4 right-4 bg-black/60 text-xs px-3 py-1 rounded-full">
+                      {currentPage + 1} / {images.length}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            <div className="flex justify-between items-center gap-4 mt-12">
+              <button
+                onClick={() => handleNavigation(prevId)}
+                disabled={!prevId}
+                className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold rounded-lg transition ${
+                  prevId
+                    ? 'bg-zinc-800 hover:bg-zinc-700 text-white shadow-md'
+                    : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                }`}
+              >
+                <FiChevronLeft size={18} />
+                Previous Chapter
+              </button>
+              <button
+                onClick={() => handleNavigation(nextId)}
+                disabled={!nextId}
+                className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold rounded-lg transition ${
+                  nextId
+                    ? 'bg-zinc-800 hover:bg-zinc-700 text-white shadow-md'
+                    : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                }`}
+              >
+                Next Chapter
+                <FiChevronRight size={18} />
+              </button>
+            </div>
+          </main>
+
+          <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+            <button
+              onClick={toggleFullscreen}
+              className="p-3 rounded-full bg-neutral-800 hover:bg-neutral-700 shadow-lg"
+            >
+              {isFullscreen ? <MdFullscreenExit size={20} /> : <MdFullscreen size={20} />}
+            </button>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="p-3 rounded-full bg-neutral-800 hover:bg-neutral-700 shadow-lg"
+            >
+              <MdArrowUpward size={20} />
+            </button>
+          </div>
+
+          <footer className="text-center text-xs text-neutral-600 py-6 border-t border-neutral-800">
+            ✨ End of Chapter ✨
+          </footer>
+        </>
+      )}
     </div>
   )
 }
