@@ -41,8 +41,12 @@ export default function AichixiaPage() {
   const [session, setSession] = useState<any>(null);
   const [scanOpen, setScanOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+  const [chatCooldown, setChatCooldown] = useState(0);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const chatCooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -60,8 +64,44 @@ export default function AichixiaPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (cooldown > 0) {
+      cooldownTimerRef.current = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current);
+    };
+  }, [cooldown]);
+
+  useEffect(() => {
+    if (chatCooldown > 0) {
+      chatCooldownTimerRef.current = setInterval(() => {
+        setChatCooldown((prev) => {
+          if (prev <= 1) {
+            if (chatCooldownTimerRef.current) clearInterval(chatCooldownTimerRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (chatCooldownTimerRef.current) clearInterval(chatCooldownTimerRef.current);
+    };
+  }, [chatCooldown]);
+
   const sendMessage = async () => {
     if (!input.trim() && !pendingImage) return;
+    if (chatCooldown > 0 && !pendingImage) return;
+    if (cooldown > 0 && pendingImage) return;
 
     let newMessages = [...messages];
     if (input.trim()) {
@@ -96,6 +136,9 @@ export default function AichixiaPage() {
           ...prev,
           { role: "assistant", type: "scan", content: scanRes },
         ]);
+        
+        setScanOpen(false);
+        setCooldown(30);
       } else {
         const res = await fetch("/api/aichixia", {
           method: "POST",
@@ -127,6 +170,7 @@ export default function AichixiaPage() {
             },
           ]);
         }
+        setChatCooldown(30);
       }
     } catch (err) {
       console.error(err);
@@ -199,10 +243,16 @@ export default function AichixiaPage() {
             </div>
             <button
               onClick={() => setScanOpen(true)}
-              className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+              disabled={cooldown > 0}
+              className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <LuScanLine className="text-lg sm:text-xl relative z-10" />
+              {cooldown > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {cooldown}
+                </span>
+              )}
             </button>
           </header>
 
@@ -324,28 +374,35 @@ export default function AichixiaPage() {
                 <span>Login to access Aichixia</span>
               </Link>
             ) : (
-              <div className="flex gap-2 sm:gap-3 items-center">
-                <input
-                  type="text"
-                  placeholder="Ask me anything about anime..."
-                  className="flex-1 px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-slate-800/50 border border-blue-500/20 placeholder-blue-300/40 text-white focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl text-sm sm:text-base"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={loading}
-                />
-                <button
-                  onClick={sendMessage}
-                  disabled={loading}
-                  className="relative group p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  {loading ? (
-                    <FaSpinner className="animate-spin text-white text-lg relative z-10" />
-                  ) : (
-                    <FaPaperPlane className="text-white text-lg relative z-10" />
-                  )}
-                </button>
+              <div className="flex flex-col gap-2">
+                {chatCooldown > 0 && (
+                  <div className="text-center text-xs text-blue-300/70 bg-blue-500/10 py-2 px-3 rounded-xl border border-blue-500/20">
+                    Wait {chatCooldown}s before sending another message
+                  </div>
+                )}
+                <div className="flex gap-2 sm:gap-3 items-center">
+                  <input
+                    type="text"
+                    placeholder="Ask me anything about anime..."
+                    className="flex-1 px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-slate-800/50 border border-blue-500/20 placeholder-blue-300/40 text-white focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={loading || chatCooldown > 0}
+                  />
+                  <button
+                    onClick={sendMessage}
+                    disabled={loading || chatCooldown > 0}
+                    className="relative group p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    {loading ? (
+                      <FaSpinner className="animate-spin text-white text-lg relative z-10" />
+                    ) : (
+                      <FaPaperPlane className="text-white text-lg relative z-10" />
+                    )}
+                  </button>
+                </div>
               </div>
             )}
           </footer>
@@ -361,90 +418,137 @@ export default function AichixiaPage() {
               onClick={() => setScanOpen(false)}
             >
               <motion.div
-                className="bg-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
+                className="bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-lg text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl overflow-hidden"
                 initial={{ scale: 0.8, opacity: 0, y: 50 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.8, opacity: 0, y: 50 }}
                 transition={{ type: "spring", bounce: 0.3 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
-                  <LuScanLine className="text-2xl text-white" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent pointer-events-none"></div>
+                
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/50 border-4 border-slate-900/50">
+                  <LuScanLine className="text-3xl text-white" />
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
-                  Upload Screenshot
-                </h2>
-                <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light">
-                  Aichixia will detect which anime it's from instantly!
-                </p>
+                <div className="relative z-10 mt-6">
+                  <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-300 bg-clip-text mb-3">
+                    Scan Anime
+                  </h2>
+                  <p className="text-blue-300/80 text-sm sm:text-base mb-8 font-light leading-relaxed max-w-md mx-auto">
+                    Upload a screenshot and let AI identify the anime instantly with precision
+                  </p>
 
-                {!session ? (
-                  <Link
-                    href="/auth/login"
-                    className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <LuScanLine className="text-xl" />
-                    <span>Login to Scan</span>
-                  </Link>
-                ) : (
-                  <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
-                    <LuScanLine className="text-xl" />
-                    <span>Choose Image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileSelect}
-                    />
-                  </label>
-                )}
-
-                {pendingImage && (
-                  <motion.div 
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="mt-8 relative w-full flex justify-center"
-                  >
-                    <div className="relative w-56 h-56 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20">
-                      <Image
-                        src={pendingImage}
-                        alt="preview"
-                        fill
-                        className="object-cover"
-                      />
-                      <button
-                        onClick={() => setPendingImage(null)}
-                        className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-xl rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg"
-                      >
-                        <FaTimes className="text-white text-sm" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-
-                <div className="mt-8 flex justify-center gap-3">
-                  <button
-                    onClick={() => setScanOpen(false)}
-                    className="px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
-                  >
-                    Cancel
-                  </button>
-                  {session && pendingImage && (
-                    <button
-                      onClick={sendMessage}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
+                  {!session ? (
+                    <Link
+                      href="/auth/login"
+                      className="inline-flex items-center justify-center gap-3 px-10 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/50 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
                     >
-                      Scan Now
-                    </button>
+                      <LuScanLine className="text-xl" />
+                      <span>Login to Scan</span>
+                    </Link>
+                  ) : cooldown > 0 ? (
+                    <div className="inline-flex flex-col items-center gap-3 px-10 py-6 bg-slate-800/50 rounded-2xl border border-blue-500/20">
+                      <div className="relative w-20 h-20">
+                        <svg className="w-full h-full -rotate-90">
+                          <circle
+                            cx="40"
+                            cy="40"
+                            r="36"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                            className="text-blue-900/30"
+                          />
+                          <circle
+                            cx="40"
+                            cy="40"
+                            r="36"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                            strokeDasharray={226}
+                            strokeDashoffset={226 - (226 * (30 - cooldown)) / 30}
+                            className="text-blue-400 transition-all duration-1000"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-2xl font-black text-blue-300">
+                          {cooldown}
+                        </span>
+                      </div>
+                      <p className="text-blue-300/70 text-sm font-medium">
+                        Cooldown Active
+                      </p>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-10 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/50 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
+                      <LuScanLine className="text-xl" />
+                      <span>Choose Image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleFileSelect}
+                      />
+                    </label>
                   )}
+
+                  {pendingImage && (
+                    <motion.div 
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="mt-8 relative w-full flex justify-center"
+                    >
+                      <div className="relative w-64 h-64 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/30 group">
+                        <Image
+                          src={pendingImage}
+                          alt="preview"
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <button
+                          onClick={() => setPendingImage(null)}
+                          className="absolute top-3 right-3 bg-red-500/90 backdrop-blur-xl rounded-full p-2.5 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg z-10"
+                        >
+                          <FaTimes className="text-white text-sm" />
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  <div className="mt-8 flex justify-center gap-3 flex-wrap">
+                    <button
+                      onClick={() => setScanOpen(false)}
+                      className="px-8 py-3 bg-slate-800/70 hover:bg-slate-800/90 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
+                    >
+                      Cancel
+                    </button>
+                    {session && pendingImage && cooldown === 0 && (
+                      <button
+                        onClick={sendMessage}
+                        disabled={loading}
+                        className="px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105 active:scale-95 font-semibold disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                      >
+                        {loading ? (
+                          <span className="flex items-center gap-2">
+                            <FaSpinner className="animate-spin" />
+                            Scanning...
+                          </span>
+                        ) : (
+                          "Scan Now"
+                        )}
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <button
                   onClick={() => setScanOpen(false)}
-                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
+                  className="absolute top-5 right-5 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300 z-20"
                 >
-                  <FaTimes className="text-xl" />
+                  <FaTimes className="text-2xl" />
                 </button>
               </motion.div>
             </motion.div>
