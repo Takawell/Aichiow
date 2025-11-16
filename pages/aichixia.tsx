@@ -43,7 +43,6 @@ export default function AichixiaPage() {
   const [pendingImage, setPendingImage] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
   const [chatCooldown, setChatCooldown] = useState(0);
-
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
   const chatCooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -139,6 +138,7 @@ export default function AichixiaPage() {
         
         setScanOpen(false);
         setCooldown(30);
+        setPendingImage(null);
       } else {
         const res = await fetch("/api/aichixia", {
           method: "POST",
@@ -184,7 +184,6 @@ export default function AichixiaPage() {
       ]);
     } finally {
       setLoading(false);
-      setPendingImage(null);
     }
   };
 
@@ -249,7 +248,7 @@ export default function AichixiaPage() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <LuScanLine className="text-lg sm:text-xl relative z-10" />
               {cooldown > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
                   {cooldown}
                 </span>
               )}
@@ -376,7 +375,7 @@ export default function AichixiaPage() {
             ) : (
               <div className="flex flex-col gap-2">
                 {chatCooldown > 0 && (
-                  <div className="text-center text-xs text-blue-300/70 bg-blue-500/10 py-2 px-3 rounded-xl border border-blue-500/20">
+                  <div className="text-center text-xs text-blue-300/70 bg-blue-500/10 py-2 px-3 rounded-xl border border-blue-500/20 backdrop-blur-xl">
                     Wait {chatCooldown}s before sending another message
                   </div>
                 )}
@@ -411,14 +410,17 @@ export default function AichixiaPage() {
         <AnimatePresence>
           {scanOpen && (
             <motion.div
-              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-3 sm:p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setScanOpen(false)}
+              onClick={() => {
+                setScanOpen(false);
+                setPendingImage(null);
+              }}
             >
               <motion.div
-                className="bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-lg text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl overflow-hidden"
+                className="bg-gradient-to-br from-slate-900/98 via-blue-950/98 to-slate-900/98 rounded-3xl p-5 sm:p-8 md:p-10 w-full max-w-[95vw] sm:max-w-md md:max-w-lg text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
                 initial={{ scale: 0.8, opacity: 0, y: 50 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -427,63 +429,63 @@ export default function AichixiaPage() {
               >
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent pointer-events-none"></div>
                 
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/50 border-4 border-slate-900/50">
-                  <LuScanLine className="text-3xl text-white" />
+                <div className="absolute -top-6 sm:-top-8 left-1/2 -translate-x-1/2 w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/50 border-4 border-slate-900/50">
+                  <LuScanLine className="text-xl sm:text-3xl text-white" />
                 </div>
 
-                <div className="relative z-10 mt-6">
-                  <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-300 bg-clip-text mb-3">
+                <div className="relative z-10 mt-4 sm:mt-6">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-300 bg-clip-text mb-2 sm:mb-3">
                     Scan Anime
                   </h2>
-                  <p className="text-blue-300/80 text-sm sm:text-base mb-8 font-light leading-relaxed max-w-md mx-auto">
+                  <p className="text-blue-300/80 text-xs sm:text-sm md:text-base mb-6 sm:mb-8 font-light leading-relaxed max-w-md mx-auto px-2">
                     Upload a screenshot and let AI identify the anime instantly with precision
                   </p>
 
                   {!session ? (
                     <Link
                       href="/auth/login"
-                      className="inline-flex items-center justify-center gap-3 px-10 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/50 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
+                      className="inline-flex items-center justify-center gap-2 sm:gap-3 px-8 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/50 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95 text-sm sm:text-base"
                     >
-                      <LuScanLine className="text-xl" />
+                      <LuScanLine className="text-lg sm:text-xl" />
                       <span>Login to Scan</span>
                     </Link>
                   ) : cooldown > 0 ? (
-                    <div className="inline-flex flex-col items-center gap-3 px-10 py-6 bg-slate-800/50 rounded-2xl border border-blue-500/20">
-                      <div className="relative w-20 h-20">
+                    <div className="inline-flex flex-col items-center gap-3 px-8 sm:px-10 py-5 sm:py-6 bg-slate-800/50 rounded-2xl border border-blue-500/20">
+                      <div className="relative w-16 h-16 sm:w-20 sm:h-20">
                         <svg className="w-full h-full -rotate-90">
                           <circle
-                            cx="40"
-                            cy="40"
-                            r="36"
+                            cx="50%"
+                            cy="50%"
+                            r="30"
                             stroke="currentColor"
                             strokeWidth="4"
                             fill="none"
                             className="text-blue-900/30"
                           />
                           <circle
-                            cx="40"
-                            cy="40"
-                            r="36"
+                            cx="50%"
+                            cy="50%"
+                            r="30"
                             stroke="currentColor"
                             strokeWidth="4"
                             fill="none"
-                            strokeDasharray={226}
-                            strokeDashoffset={226 - (226 * (30 - cooldown)) / 30}
+                            strokeDasharray={188.4}
+                            strokeDashoffset={188.4 - (188.4 * (30 - cooldown)) / 30}
                             className="text-blue-400 transition-all duration-1000"
                             strokeLinecap="round"
                           />
                         </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-2xl font-black text-blue-300">
+                        <span className="absolute inset-0 flex items-center justify-center text-xl sm:text-2xl font-black text-blue-300">
                           {cooldown}
                         </span>
                       </div>
-                      <p className="text-blue-300/70 text-sm font-medium">
+                      <p className="text-blue-300/70 text-xs sm:text-sm font-medium">
                         Cooldown Active
                       </p>
                     </div>
                   ) : (
-                    <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-10 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/50 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
-                      <LuScanLine className="text-xl" />
+                    <label className="cursor-pointer inline-flex items-center justify-center gap-2 sm:gap-3 px-8 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/50 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95 text-sm sm:text-base">
+                      <LuScanLine className="text-lg sm:text-xl" />
                       <span>Choose Image</span>
                       <input
                         type="file"
@@ -498,9 +500,9 @@ export default function AichixiaPage() {
                     <motion.div 
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      className="mt-8 relative w-full flex justify-center"
+                      className="mt-6 sm:mt-8 relative w-full flex justify-center"
                     >
-                      <div className="relative w-64 h-64 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/30 group">
+                      <div className="relative w-full max-w-[280px] sm:max-w-xs md:max-w-sm aspect-square border-2 border-blue-400/40 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/30 group">
                         <Image
                           src={pendingImage}
                           alt="preview"
@@ -510,18 +512,21 @@ export default function AichixiaPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <button
                           onClick={() => setPendingImage(null)}
-                          className="absolute top-3 right-3 bg-red-500/90 backdrop-blur-xl rounded-full p-2.5 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg z-10"
+                          className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-red-500/90 backdrop-blur-xl rounded-full p-2 sm:p-2.5 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg z-10"
                         >
-                          <FaTimes className="text-white text-sm" />
+                          <FaTimes className="text-white text-xs sm:text-sm" />
                         </button>
                       </div>
                     </motion.div>
                   )}
 
-                  <div className="mt-8 flex justify-center gap-3 flex-wrap">
+                  <div className="mt-6 sm:mt-8 flex justify-center gap-2 sm:gap-3 flex-wrap px-2">
                     <button
-                      onClick={() => setScanOpen(false)}
-                      className="px-8 py-3 bg-slate-800/70 hover:bg-slate-800/90 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
+                      onClick={() => {
+                        setScanOpen(false);
+                        setPendingImage(null);
+                      }}
+                      className="px-6 sm:px-8 py-2.5 sm:py-3 bg-slate-800/70 hover:bg-slate-800/90 rounded-xl sm:rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20 text-sm sm:text-base"
                     >
                       Cancel
                     </button>
@@ -529,7 +534,7 @@ export default function AichixiaPage() {
                       <button
                         onClick={sendMessage}
                         disabled={loading}
-                        className="px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105 active:scale-95 font-semibold disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                        className="px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl sm:rounded-2xl hover:shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105 active:scale-95 font-semibold disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed text-sm sm:text-base"
                       >
                         {loading ? (
                           <span className="flex items-center gap-2">
@@ -545,10 +550,13 @@ export default function AichixiaPage() {
                 </div>
 
                 <button
-                  onClick={() => setScanOpen(false)}
-                  className="absolute top-5 right-5 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300 z-20"
+                  onClick={() => {
+                    setScanOpen(false);
+                    setPendingImage(null);
+                  }}
+                  className="absolute top-3 right-3 sm:top-5 sm:right-5 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300 z-20"
                 >
-                  <FaTimes className="text-2xl" />
+                  <FaTimes className="text-xl sm:text-2xl" />
                 </button>
               </motion.div>
             </motion.div>
