@@ -2,7 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Sparkles, Users, Settings, X, Zap, Brain, Globe, Clock } from "lucide-react";
+import { Send, Sparkles, Users, Settings, X, Zap, Brain, Globe, Clock, LogIn, UserPlus } from "lucide-react";
+import { useRouter } from "next/router";
 
 interface Message {
   id: string;
@@ -14,6 +15,7 @@ interface Message {
 }
 
 export default function CommunityPage() {
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [user, setUser] = useState<any>(null);
@@ -410,13 +412,41 @@ export default function CommunityPage() {
               </motion.div>
               
               <h2 className="text-xl sm:text-2xl font-bold mb-2 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                Join as Guest
+                Join the Community
               </h2>
-              <p className="text-sm text-gray-400 mb-6">Choose your identity</p>
+              <p className="text-sm text-gray-400 mb-6">Choose how you want to continue</p>
+              
+              <div className="space-y-3 mb-6">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/auth/login')}
+                  className="w-full rounded-xl py-3 sm:py-3.5 font-semibold transition-all shadow-lg bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 flex items-center justify-center gap-2"
+                >
+                  <LogIn className="w-5 h-5" />
+                  Login to Account
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/auth/register')}
+                  className="w-full rounded-xl py-3 sm:py-3.5 font-semibold transition-all shadow-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 flex items-center justify-center gap-2"
+                >
+                  <UserPlus className="w-5 h-5" />
+                  Create New Account
+                </motion.button>
+              </div>
+
+              <div className="relative flex items-center gap-3 mb-6">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-xs text-gray-500 uppercase tracking-wider">or continue as</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
               
               <input
                 type="text"
-                placeholder="Enter your name..."
+                placeholder="Enter guest name..."
                 value={anonName}
                 onChange={(e) => setAnonName(e.target.value)}
                 className="w-full p-3 sm:p-3.5 rounded-xl bg-white/5 border border-white/10 mb-4 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -450,11 +480,11 @@ export default function CommunityPage() {
                 disabled={!anonName.trim()}
                 className={`w-full rounded-xl py-3 sm:py-3.5 font-semibold transition-all shadow-lg ${
                   anonName.trim()
-                    ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-                    : "bg-white/5 cursor-not-allowed text-gray-500"
+                    ? "bg-white/10 hover:bg-white/15 border border-white/20"
+                    : "bg-white/5 cursor-not-allowed text-gray-500 border border-white/5"
                 }`}
               >
-                Start Chatting
+                Continue as Guest
               </motion.button>
             </motion.div>
           </motion.div>
