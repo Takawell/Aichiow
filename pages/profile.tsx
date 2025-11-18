@@ -297,37 +297,6 @@ export default function ProfileDashboard() {
                   </div>
                 </div>
               </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="hidden lg:block rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 bg-gradient-to-br from-slate-950/90 via-black/90 to-slate-950/90 border border-sky-500/20 backdrop-blur-xl shadow-2xl"
-              >
-                <h4 className="text-sm sm:text-base md:text-lg font-bold text-sky-200 flex items-center gap-2 mb-3 sm:mb-4">
-                  <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-                  Quick Access
-                </h4>
-                <div className="grid grid-cols-1 gap-2">
-                  {[
-                    { icon: <FaTv />, label: 'Anime', color: 'from-red-500 to-pink-500' },
-                    { icon: <FaBook />, label: 'Manga', color: 'from-orange-500 to-yellow-500' },
-                    { icon: <FaDragon />, label: 'Manhwa', color: 'from-green-500 to-emerald-500' },
-                    { icon: <FaBookOpen />, label: 'Light Novels', color: 'from-blue-500 to-cyan-500' },
-                  ].map((item, idx) => (
-                    <button
-                      key={idx}
-                      className="group relative overflow-hidden text-xs sm:text-sm py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl bg-white/5 border border-sky-500/20 hover:border-sky-500/40 text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      <div className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-                      <div className="relative flex items-center gap-2 sm:gap-3">
-                        <span className="text-base sm:text-lg md:text-xl text-slate-400 group-hover:text-white transition-colors">{item.icon}</span>
-                        <span className="font-semibold text-slate-300 group-hover:text-white transition-colors">{item.label}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
             </aside>
 
             <main className="lg:col-span-8 xl:col-span-6">
@@ -416,11 +385,11 @@ export default function ProfileDashboard() {
                 className="rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 lg:p-8 bg-gradient-to-br from-slate-950/90 via-black/90 to-slate-950/90 border border-sky-500/20 backdrop-blur-xl shadow-2xl"
               >
                 <div className="flex items-center justify-between mb-5 sm:mb-6">
-                  <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300 flex items-center gap-2">
-                    <FaStar className="text-yellow-400 text-lg sm:text-xl md:text-2xl" /> 
+                  <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-blue-300 flex items-center gap-2">
+                    <FaStar className="text-sky-400 text-lg sm:text-xl md:text-2xl" /> 
                     <span>Favorites</span>
                   </h3>
-                  <div className="px-2 sm:px-3 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 text-[10px] sm:text-xs font-bold">
+                  <div className="px-2 sm:px-3 py-1 rounded-full bg-sky-500/20 border border-sky-500/30 text-sky-400 text-[10px] sm:text-xs font-bold">
                     {favorites.length}
                   </div>
                 </div>
@@ -434,10 +403,10 @@ export default function ProfileDashboard() {
                 ) : (
                   <div className="space-y-3 sm:space-y-4">
                     {[
-                      { key: 'anime', icon: <FaTv />, label: 'Anime', color: 'from-red-500 to-pink-500' },
-                      { key: 'manga', icon: <FaBook />, label: 'Manga', color: 'from-orange-500 to-yellow-500' },
-                      { key: 'manhwa', icon: <FaDragon />, label: 'Manhwa', color: 'from-green-500 to-emerald-500' },
-                      { key: 'light_novel', icon: <FaBookOpen />, label: 'Light Novels', color: 'from-blue-500 to-cyan-500' },
+                      { key: 'anime', icon: <FaTv />, label: 'Anime', color: 'from-sky-500 to-blue-500' },
+                      { key: 'manga', icon: <FaBook />, label: 'Manga', color: 'from-sky-600 to-blue-600' },
+                      { key: 'manhwa', icon: <FaDragon />, label: 'Manhwa', color: 'from-blue-500 to-sky-500' },
+                      { key: 'light_novel', icon: <FaBookOpen />, label: 'Light Novels', color: 'from-blue-600 to-sky-600' },
                     ].map(({ key, icon, label, color }) => {
                       const list = favorites.filter((f: any) => f.media_type === key)
                       return (
@@ -478,8 +447,7 @@ export default function ProfileDashboard() {
                               </div>
                             )}
                             {list.length > 3 && (
-                              <span className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl
-                                bg-white/10 border border-white/20 text-white text-[10px] sm:text-xs font-bold">
+                              <span className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/10 border border-white/20 text-white text-[10px] sm:text-xs font-bold">
                                 +{list.length - 3} more
                               </span>
                             )}
@@ -671,60 +639,6 @@ export default function ProfileDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 hidden xl:block">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ delay: 0.5, type: "spring", damping: 20 }}
-          className="relative group"
-        >
-          <div className="absolute -inset-1 bg-gradient-to-r from-sky-500 to-blue-600 rounded-2xl blur-lg opacity-40 group-hover:opacity-70 transition" />
-          <div className="relative rounded-2xl p-4 bg-gradient-to-br from-slate-950/95 to-black/95 border border-sky-500/30 backdrop-blur-xl shadow-2xl">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 shadow-lg flex items-center justify-center">
-                <span className="text-white text-lg">🎨</span>
-              </div>
-              <div>
-                <div className="text-xs text-slate-400 font-medium">Active Theme</div>
-                <div className="text-sm font-bold text-white">Neon Sky</div>
-              </div>
-            </div>
-            <button className="w-full py-2 px-4 rounded-lg bg-white/5 border border-sky-500/20 text-xs font-semibold text-slate-300 hover:bg-white/10 hover:text-white hover:border-sky-500/40 active:scale-95 transition-all">
-              Customize
-            </button>
-          </div>
-        </motion.div>
-      </div>
-
-      <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="relative"
-        >
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-sky-500 to-blue-600 rounded-2xl blur opacity-40" />
-          <div className="relative rounded-2xl p-3 bg-gradient-to-br from-slate-950/95 to-black/95 border border-sky-500/30 backdrop-blur-xl shadow-2xl">
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { icon: <FaTv />, label: 'Anime' },
-                { icon: <FaBook />, label: 'Manga' },
-                { icon: <FaDragon />, label: 'Manhwa' },
-                { icon: <FaBookOpen />, label: 'Novels' },
-              ].map((item, idx) => (
-                <button
-                  key={idx}
-                  className="flex flex-col items-center gap-1 py-2 rounded-xl bg-white/5 border border-sky-500/20 hover:bg-white/10 hover:border-sky-500/40 active:scale-95 transition-all"
-                >
-                  <span className="text-lg text-sky-400">{item.icon}</span>
-                  <span className="text-[10px] font-semibold text-slate-300">{item.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      </div>
     </div>
   )
 }
