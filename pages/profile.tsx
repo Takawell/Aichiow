@@ -588,7 +588,7 @@ export default function ProfileDashboard() {
                               />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <span className="text-xs sm:text-sm text-slate-400 block">Custom upload</span>
+                              <span className="text-xs sm:text-sm text-slate-400 block">Custom profile</span>
                               <span className="text-[10px] sm:text-xs text-slate-500 block mt-0.5">Image selected</span>
                             </div>
                           </div>
