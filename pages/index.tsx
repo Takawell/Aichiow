@@ -23,12 +23,12 @@ export default function LandingPage() {
   const heroTexts = {
     EN: [
       'Your gateway to anime, manga, manhwa, and light novels — discover the stories you love, anytime, anywhere.',
-      'Aichiow: where recommendations, reading, and community meet. Trending lists, new releases, and an immersive reading experience.',
+      'Where recommendations, reading, and community meet. Trending lists, new releases, and an immersive reading experience.',
       'Dive into endless imagination from classics to the freshest chapters you can’t miss.'
     ],
     ID: [
       'Gerbangmu ke anime, manga, manhwa, dan light novel — temukan cerita yang kamu sukai, kapan saja, di mana saja.',
-      'Aichiow: tempat rekomendasi, membaca, dan komunitas berkumpul. Daftar tren, rilisan baru, dan pengalaman membaca yang imersif.',
+      'Tempat rekomendasi, membaca, dan komunitas berkumpul. Daftar tren, rilisan baru, dan pengalaman membaca yang imersif.',
       'Menyelam dalam imajinasi tanpa batas dari klasik hingga chapter terbaru yang wajib kamu baca.'
     ]
   }
