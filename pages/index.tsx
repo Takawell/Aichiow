@@ -24,7 +24,7 @@ export default function LandingPage() {
     EN: [
       'Your gateway to anime, manga, manhwa, and light novels — discover the stories you love, anytime, anywhere.',
       'Aichiow: where recommendations, reading, and community meet. Trending lists, new releases, and an immersive reading experience.',
-      'Dive into endless imagination from classics to the freshest chapters you can't miss.'
+      'Dive into endless imagination from classics to the freshest chapters you cannot miss.'
     ],
     ID: [
       'Gerbangmu ke anime, manga, manhwa, dan light novel — temukan cerita yang kamu sukai, kapan saja, di mana saja.',
@@ -172,7 +172,7 @@ export default function LandingPage() {
 
             <div className="flex items-center gap-2 sm:gap-4">
               <nav className="hidden lg:flex gap-5 text-sm font-medium">
-                {['ANIME', 'MANGA', 'MANHWA', 'LIGHT NOVEL', 'EXPLORE', 'PROFILE'].map((item, idx) => (
+                {['ANIME', 'MANGA', 'MANHWA', 'LIGHT NOVEL', 'EXPLORE', 'PROFILE'].map((item) => (
                   <Link
                     key={item}
                     href={item === 'ANIME' ? '/home' : item === 'LIGHT NOVEL' ? '/light-novel' : `/${item.toLowerCase()}`}
@@ -192,7 +192,7 @@ export default function LandingPage() {
                 <motion.div
                   layout
                   className="absolute top-1 left-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-r from-sky-400 to-sky-600 shadow-lg shadow-sky-500/50"
-                  animate={{ x: lang === 'EN' ? 0 : lang === 'EN' ? 32 : 40 }}
+                  animate={{ x: lang === 'EN' ? 0 : 40 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 />
                 <span className="flex-1 text-center text-[10px] sm:text-xs font-semibold z-10">EN</span>
@@ -355,7 +355,7 @@ export default function LandingPage() {
                 >
                   <div className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-white/10 backdrop-blur-md text-gray-200 shadow-lg max-w-[85%]">
                     {lang === 'EN'
-                      ? 'Sure! How about Sousou no Frieren? It's trending this season with amazing reviews.'
+                      ? 'Sure! How about Sousou no Frieren? It is trending this season with amazing reviews.'
                       : 'Tentu! Gimana kalau Sousou no Frieren? Lagi trending musim ini dengan ulasan keren.'}
                   </div>
                 </motion.div>
