@@ -174,8 +174,8 @@ export default function ComingSoonPage() {
           }}
         >
           {[
-            { icon: <FaGithub />, url: 'https://github.com/aichiow', color: 'hover:bg-gray-700', glow: 'hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]' },
-            { icon: <FaTiktok />, url: 'https://tiktok.com/@aichiow', color: 'hover:bg-sky-500', glow: 'hover:shadow-[0_0_30px_rgba(56,189,248,0.6)]' },
+            { icon: <FaGithub />, url: 'https://github.com/Takawell/Aichiow', color: 'hover:bg-gray-700', glow: 'hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]' },
+            { icon: <FaTiktok />, url: 'https://tiktok.com/@putrawangyyy', color: 'hover:bg-sky-500', glow: 'hover:shadow-[0_0_30px_rgba(56,189,248,0.6)]' },
           ].map((social, idx) => (
             <motion.a
               key={idx}
