@@ -8,15 +8,18 @@ export default function UpdateModal() {
   const VERSION = '1.2.0'
 
   useEffect(() => {
-    const seenVersion = localStorage.getItem('updateModalSeen')
+    const seenVersion = typeof window !== 'undefined' ? localStorage.getItem('updateModalSeen') : null
     if (seenVersion !== VERSION) {
       setStep('notice')
-      localStorage.setItem('updateModalSeen', VERSION)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('updateModalSeen', VERSION)
+      }
     }
   }, [])
 
   const handleClose = () => setStep(null)
   const handleNext = () => setStep(step === 'notice' ? 'update' : null)
+
   const t = {
     en: {
       update: {
@@ -61,7 +64,6 @@ export default function UpdateModal() {
   }
 
   if (!step) return null
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 sm:p-6 animate-in fade-in duration-300"
@@ -122,7 +124,6 @@ export default function UpdateModal() {
                 <li
                   key={i}
                   className="flex items-start gap-3 text-sm sm:text-base text-slate-300 p-3 rounded-lg bg-slate-800/30 border border-blue-500/10 hover:border-blue-500/30 hover:bg-slate-800/50 transition-all duration-200"
-                  style={{ animationDelay: `${i * 100}ms` }}
                 >
                   <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-blue-400 mt-2" />
                   <span>{item}</span>
@@ -188,7 +189,6 @@ export default function UpdateModal() {
                 <li
                   key={i}
                   className="flex items-start gap-3 text-sm sm:text-base text-slate-300 p-3 rounded-lg bg-slate-800/30 border border-blue-500/10 hover:border-blue-500/30 hover:bg-slate-800/50 transition-all duration-200"
-                  style={{ animationDelay: `${i * 100}ms` }}
                 >
                   <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-cyan-400 mt-2" />
                   <span>{item}</span>
