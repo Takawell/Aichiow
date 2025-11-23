@@ -314,6 +314,7 @@ export default function AnimeDetailHeader({ anime }: Props) {
                   </div>
                 </div>
               </div>
+
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -324,8 +325,8 @@ export default function AnimeDetailHeader({ anime }: Props) {
               </div>
               <div className="bg-gradient-to-br from-sky-500/10 to-blue-600/10 backdrop-blur-sm border border-sky-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300">
                 <Star className="w-6 h-6 text-yellow-400 fill-yellow-400 mx-auto mb-2" />
-                <p className="text-xs text-slate-400">Favorites</p>
-                <p className="text-white font-bold text-sm">{(anime.favourites || 0) > 1000 ? `${(anime.favourites / 1000).toFixed(1)}K` : anime.favourites || 0}</p>
+                <p className="text-xs text-slate-400">Rating</p>
+                <p className="text-white font-bold text-sm">{score}%</p>
               </div>
               <div className="bg-gradient-to-br from-purple-500/10 to-pink-600/10 backdrop-blur-sm border border-purple-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300">
                 <Tv className="w-6 h-6 text-purple-400 mx-auto mb-2" />
@@ -334,8 +335,8 @@ export default function AnimeDetailHeader({ anime }: Props) {
               </div>
               <div className="bg-gradient-to-br from-green-500/10 to-emerald-600/10 backdrop-blur-sm border border-green-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300">
                 <TrendingUp className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                <p className="text-xs text-slate-400">Trending</p>
-                <p className="text-white font-bold text-sm">#{anime.trending || "-"}</p>
+                <p className="text-xs text-slate-400">Episodes</p>
+                <p className="text-white font-bold text-sm">{anime.episodes || "-"}</p>
               </div>
             </div>
 
