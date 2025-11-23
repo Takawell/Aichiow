@@ -37,7 +37,7 @@ export default function AnimeDetailHeader({ anime }: Props) {
           src={
             anime.bannerImage ??
             anime.coverImage.extraLarge ??
-            "/default-banner.jpg"
+            "/background.png"
           }
           alt={anime.title.romaji || "Anime Banner"}
           fill
