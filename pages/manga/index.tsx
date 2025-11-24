@@ -123,7 +123,7 @@ export default function MangaLandingPage() {
                     tracking-tighter leading-[0.9] drop-shadow-2xl"
                   style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
                 >
-                  Aichiow
+                  AICHIOW
                 </motion.h1>
 
                 <motion.div
