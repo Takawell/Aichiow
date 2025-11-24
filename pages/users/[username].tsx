@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'
 import { supabase } from '@/lib/supabaseClient'
 import { motion } from 'framer-motion'
 import { UserRow, FavoriteRow } from '@/types/supabase'
@@ -35,9 +35,8 @@ type TrailerHistoryRow = {
 const fallbackAvatars = ['/default.png', '/v2.png', '/v3.png', '/v4.png']
 
 export default function PublicUserPage() {
-  const params = useParams()
   const router = useRouter()
-  const username = params?.username as string
+  const { username } = router.query
 
   const [user, setUser] = useState<UserRow | null>(null)
   const [history, setHistory] = useState<TrailerHistoryRow[]>([])
@@ -46,8 +45,10 @@ export default function PublicUserPage() {
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
+    if (!router.isReady) return
+
     const loadUserProfile = async () => {
-      if (!username) {
+      if (!username || typeof username !== 'string') {
         setNotFound(true)
         setLoading(false)
         return
@@ -57,7 +58,7 @@ export default function PublicUserPage() {
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('*')
-          .ilike('username', username as string)
+          .ilike('username', username)
           .single()
 
         if (userError || !userData) {
@@ -134,7 +135,7 @@ export default function PublicUserPage() {
     }
 
     loadUserProfile()
-  }, [username])
+  }, [router.isReady, username])
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const fallback = fallbackAvatars[Math.floor(Math.random() * fallbackAvatars.length)]
