@@ -1,55 +1,44 @@
-import { GetServerSideProps, NextPage } from "next"
-import { supabase } from "@/lib/supabaseClient"
-import { UserRow, FavoriteRow } from "@/types/supabase"
-import { motion } from "framer-motion"
-import Link from "next/link"
-import {
-  FaHistory,
-  FaStar,
-  FaTv,
-  FaBook,
-  FaDragon,
-  FaBookOpen,
-  FaUserPlus,
-  FaEnvelope,
-} from "react-icons/fa"
+import { GetServerSideProps, NextPage } from "next";
+import { supabase } from "@/lib/supabaseClient";
+import { UserRow, FavoriteRow } from "@/types/supabase";
+import { motion } from "framer-motion";
 
 interface HistoryItem {
-  id: number
-  user_id: string
-  anime_id: number
-  trailer_id: string
-  trailer_site: string
-  trailer_thumbnail: string | null
-  watched_at: string
-  watch_count: number
+  id: number;
+  user_id: string;
+  anime_id: number;
+  trailer_id: string;
+  trailer_site: string;
+  trailer_thumbnail: string | null;
+  watched_at: string;
+  watch_count: number;
   anime: {
-    title_romaji?: string
-    cover_image?: string
-  } | null
+    title_romaji?: string;
+    cover_image?: string;
+  } | null;
 }
 
 interface Props {
-  user: UserRow
-  history: HistoryItem[]
-  favorites: FavoriteRow[]
+  user: UserRow;
+  history: HistoryItem[];
+  favorites: FavoriteRow[];
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
-  const usernameParam = context.params?.username
-  const username = Array.isArray(usernameParam) ? usernameParam[0] : usernameParam
+  const usernameParam = context.params?.username;
+  const username = Array.isArray(usernameParam) ? usernameParam[0] : usernameParam;
 
-  if (!username) return { notFound: true }
+  if (!username) return { notFound: true };
 
   const { data: userData } = await supabase
     .from("users")
     .select("*")
     .ilike("username", username)
-    .single()
+    .single();
 
-  if (!userData) return { notFound: true }
+  if (!userData) return { notFound: true };
 
-  const userId = userData.id
+  const userId = userData.id;
 
   const { data: rawHistory } = await supabase
     .from("trailer_watch_history")
@@ -70,7 +59,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
     `
     )
     .eq("user_id", userId)
-    .order("watched_at", { ascending: false })
+    .order("watched_at", { ascending: false });
 
   const history: HistoryItem[] = Array.isArray(rawHistory)
     ? rawHistory.map((it: any) => ({
@@ -89,12 +78,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
             }
           : null,
       }))
-    : []
+    : [];
 
   const { data: favorites } = await supabase
     .from("favorites")
     .select("*")
-    .eq("user_id", userId)
+    .eq("user_id", userId);
 
   return {
     props: {
@@ -102,22 +91,22 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
       history: history || [],
       favorites: favorites || [],
     },
-  }
-}
+  };
+};
 
-const fallbackAvatars = ["/default.png", "/v2.png", "/v3.png", "/v4.png"]
+const fallbackAvatars = ["/default.png", "/v2.png", "/v3.png", "/v4.png"];
 
 const PublicUserPage: NextPage<Props> = ({ user, history, favorites }) => {
-  const avatar = user.avatar_url || "/default.png"
-  const username = user.username || "Unknown"
-  const bio = user.bio || "Anime • Manga • Manhwa • Light Novels"
+  const avatar = user.avatar_url || "/default.png";
+  const username = user.username || "Unknown";
+  const bio = user.bio || "Anime • Manga • Manhwa • Light Novels";
 
   const groupedFavs = {
     anime: favorites.filter((f) => f.media_type === "anime"),
     manga: favorites.filter((f) => f.media_type === "manga"),
     manhwa: favorites.filter((f) => f.media_type === "manhwa"),
     light_novel: favorites.filter((f) => f.media_type === "light_novel"),
-  }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -135,8 +124,8 @@ const PublicUserPage: NextPage<Props> = ({ user, history, favorites }) => {
                   src={avatar}
                   alt={username}
                   onError={(e) => {
-                    const f = fallbackAvatars[Math.floor(Math.random() * fallbackAvatars.length)]
-                    e.currentTarget.src = f
+                    const f = fallbackAvatars[Math.floor(Math.random() * fallbackAvatars.length)];
+                    e.currentTarget.src = f;
                   }}
                   className="w-full h-full object-cover rounded-full border-4 border-black/60"
                 />
@@ -150,11 +139,8 @@ const PublicUserPage: NextPage<Props> = ({ user, history, favorites }) => {
                 </h1>
 
                 <div className="flex gap-2">
-                  <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold flex items-center gap-2">
-                    <FaUserPlus /> Follow
-                  </button>
-                  <button className="px-4 py-2 rounded-xl bg-white/10 border border-sky-500/20 text-sky-200 hidden md:flex items-center gap-2">
-                    <FaEnvelope /> Message
+                  <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold">
+                    Follow
                   </button>
                 </div>
               </div>
@@ -234,9 +220,7 @@ const PublicUserPage: NextPage<Props> = ({ user, history, favorites }) => {
                       whileHover={{ scale: 1.05 }}
                       className="rounded-xl p-4 bg-gradient-to-br from-slate-900/40 to-black/40 border border-slate-800"
                     >
-                      <p className="text-sm font-bold truncate">
-                        {fav.media_title || fav.title || `#${fav.media_id}`}
-                      </p>
+                      <p className="text-sm font-bold truncate">{`#${fav.media_id}`}</p>
                       <p className="text-xs text-slate-500 mt-1">{fav.media_type}</p>
                     </motion.div>
                   ))}
@@ -265,7 +249,7 @@ const PublicUserPage: NextPage<Props> = ({ user, history, favorites }) => {
                         key={fav.id}
                         className="px-3 py-1 rounded-lg text-xs bg-gradient-to-r from-sky-500 to-blue-600 text-white max-w-[160px] truncate"
                       >
-                        {fav.media_title || `#${fav.media_id}`}
+                        {`#${fav.media_id}`}
                       </span>
                     ))
                   )}
@@ -276,7 +260,7 @@ const PublicUserPage: NextPage<Props> = ({ user, history, favorites }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PublicUserPage
+export default PublicUserPage;
