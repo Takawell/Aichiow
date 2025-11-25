@@ -277,7 +277,9 @@ export default function AnimeDetailPage() {
         </div>
 
         <section className="mt-10 px-4 max-w-7xl mx-auto">
-          <h2 className="text-xl md:text-2xl font-semibold mb-6 text-white">More like this</h2>
+          <h2 className="text-xl md:text-2xl font-semibold mb-6 !text-white" style={{ color: '#ffffff' }}>
+            More like this
+          </h2>
           {loadingSimilar ? (
             <MiniLoader text="Finding more anime for you..." />
           ) : similarAnime.length > 0 ? (
@@ -287,7 +289,7 @@ export default function AnimeDetailPage() {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">No recommendations found.</p>
+            <p className="text-center text-white">No recommendations found.</p>
           )}
         </section>
       </main>
