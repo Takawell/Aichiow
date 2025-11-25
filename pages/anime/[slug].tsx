@@ -142,6 +142,7 @@ export default function AnimeDetailPage() {
   const router = useRouter();
   const { slug } = router.query;
   const id = parseInt(slug as string);
+
   const { anime, isLoading, isError } = useAnimeDetail(id);
 
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
@@ -219,36 +220,37 @@ export default function AnimeDetailPage() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="relative mb-8 overflow-hidden rounded-2xl border border-white/10"
+                  className="mb-8"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10"></div>
-                  <div className="relative backdrop-blur-sm px-6 py-4">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-400/30">
-                          <Calendar className="w-6 h-6 text-blue-400" />
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl opacity-20 group-hover:opacity-30 blur transition duration-500"></div>
+                    <div className="relative bg-neutral-900/90 backdrop-blur-xl rounded-2xl p-5 md:p-6 border border-white/10">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                        <div className="flex items-center gap-4 flex-1">
+                          <motion.div 
+                            className="relative flex-shrink-0"
+                            animate={{ scale: [1, 1.05, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            <div className="absolute inset-0 bg-blue-500/30 rounded-xl blur-md"></div>
+                            <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-400/30">
+                              <Calendar className="w-7 h-7 md:w-8 md:h-8 text-blue-400" />
+                            </div>
+                          </motion.div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-neutral-400 font-medium mb-1">NEXT EPISODE</p>
+                            <p className="text-xl md:text-2xl font-bold text-white">Episode {anime.nextAiringEpisode.episode}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Next Episode</p>
-                          <p className="text-lg font-bold text-white">Episode {anime.nextAiringEpisode.episode}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 md:text-right">
-                        <div className="hidden md:block w-px h-10 bg-white/10"></div>
-                        <div>
-                          <p className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Airs On</p>
-                          <p className="text-sm md:text-base font-semibold text-blue-300">
+                        <div className="w-full sm:w-auto sm:text-right pl-[4.5rem] sm:pl-0">
+                          <p className="text-xs text-neutral-400 font-medium mb-1">AIRS ON</p>
+                          <p className="text-sm md:text-base font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
                             {format(fromUnixTime(anime.nextAiringEpisode.airingAt), "PPpp")}
                           </p>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent"
-                    animate={{ x: ['-100%', '100%'] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  />
                 </motion.div>
               )}
 
@@ -277,7 +279,7 @@ export default function AnimeDetailPage() {
         </div>
 
         <section className="mt-10 px-4 max-w-7xl mx-auto">
-          <h2 className="text-xl md:text-2xl font-semibold mb-6 text-white">Maybe you like it</h2>
+          <h2 className="text-xl md:text-2xl font-semibold mb-6 text-black">More like this</h2>
           {loadingSimilar ? (
             <MiniLoader text="Finding more anime for you..." />
           ) : similarAnime.length > 0 ? (
