@@ -219,16 +219,36 @@ export default function AnimeDetailPage() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col sm:flex-row items-center justify-center gap-2 text-center mb-6 py-3"
+                  className="relative mb-8 overflow-hidden rounded-2xl border border-white/10"
                 >
-                  <div className="flex items-center gap-2 text-blue-400">
-                    <Calendar className="w-4 h-4" />
-                    <span className="font-semibold text-sm">Next Episode {anime.nextAiringEpisode.episode}</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10"></div>
+                  <div className="relative backdrop-blur-sm px-6 py-4">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-400/30">
+                          <Calendar className="w-6 h-6 text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Next Episode</p>
+                          <p className="text-lg font-bold text-white">Episode {anime.nextAiringEpisode.episode}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 md:text-right">
+                        <div className="hidden md:block w-px h-10 bg-white/10"></div>
+                        <div>
+                          <p className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Airs On</p>
+                          <p className="text-sm md:text-base font-semibold text-blue-300">
+                            {format(fromUnixTime(anime.nextAiringEpisode.airingAt), "PPpp")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <span className="hidden sm:inline text-neutral-500">•</span>
-                  <p className="text-neutral-300 text-sm">
-                    {format(fromUnixTime(anime.nextAiringEpisode.airingAt), "PPpp")}
-                  </p>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent"
+                    animate={{ x: ['-100%', '100%'] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                  />
                 </motion.div>
               )}
 
@@ -256,8 +276,8 @@ export default function AnimeDetailPage() {
           </section>
         </div>
 
-        <section className="mt-10 px-4">
-          <h2 className="text-xl font-semibold mb-4">Maybe you like it</h2>
+        <section className="mt-10 px-4 max-w-7xl mx-auto">
+          <h2 className="text-xl md:text-2xl font-semibold mb-6 text-black">Maybe you like it</h2>
           {loadingSimilar ? (
             <MiniLoader text="Finding more anime for you..." />
           ) : similarAnime.length > 0 ? (
