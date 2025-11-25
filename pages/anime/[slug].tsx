@@ -142,7 +142,6 @@ export default function AnimeDetailPage() {
   const router = useRouter();
   const { slug } = router.query;
   const id = parseInt(slug as string);
-
   const { anime, isLoading, isError } = useAnimeDetail(id);
 
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
@@ -175,78 +174,87 @@ export default function AnimeDetailPage() {
       <Head>
         <title>{anime.title.english || anime.title.romaji} | Aichiow</title>
       </Head>
-      <main className="bg-neutral-900 text-white pb-20">
-        <AnimeDetailHeader anime={anime} />
-        {anime.trailer?.site === "youtube" && <AnimeTrailer trailer={anime.trailer} />}
-        {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
-          <CharacterList characters={anime.characters.edges} />
-        )}
+      <main className="relative w-full bg-neutral-900 text-white pb-20">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black" />
+        </div>
+        
+        <div className="relative z-10">
+          <AnimeDetailHeader anime={anime} />
+          {anime.trailer?.site === "youtube" && <AnimeTrailer trailer={anime.trailer} />}
+          {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
+            <CharacterList characters={anime.characters.edges} />
+          )}
 
-        <section className="mt-10 px-4 max-w-7xl mx-auto">
-          <div className="bg-gradient-to-br from-neutral-800/80 to-neutral-900/80 backdrop-blur-xl rounded-2xl p-6 md:p-8 border border-white/10 shadow-2xl">
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
-              <div
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl ${statusBadgeColor} shadow-lg`}
-              >
-                <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
-                {anime.status === "RELEASING"
-                  ? "Ongoing"
-                  : anime.status === "FINISHED"
-                  ? "Completed"
-                  : "Upcoming"}
-              </div>
-
-              <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
-                <Tv className="w-4 h-4 text-blue-400" />
-                <span className="text-sm text-neutral-300">
-                  {totalEpisodes ? `${totalEpisodes} Episodes` : "? Episodes"}
-                </span>
-              </div>
-
-              {duration && (
-                <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
-                  <Clock className="w-4 h-4 text-purple-400" />
-                  <span className="text-sm text-neutral-300">{duration} min/ep</span>
+          <section className="mt-10 px-4 max-w-7xl mx-auto">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 md:p-8 border border-white/10 shadow-2xl">
+              <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+                <div
+                  className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl ${statusBadgeColor} shadow-lg`}
+                >
+                  <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                  {anime.status === "RELEASING"
+                    ? "Ongoing"
+                    : anime.status === "FINISHED"
+                    ? "Completed"
+                    : "Upcoming"}
                 </div>
+
+                <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                  <Tv className="w-4 h-4 text-blue-400" />
+                  <span className="text-sm text-neutral-300">
+                    {totalEpisodes ? `${totalEpisodes} Episodes` : "? Episodes"}
+                  </span>
+                </div>
+
+                {duration && (
+                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                    <Clock className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm text-neutral-300">{duration} min/ep</span>
+                  </div>
+                )}
+              </div>
+
+              {anime.nextAiringEpisode && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col sm:flex-row items-center justify-center gap-2 text-center mb-6 py-3"
+                >
+                  <div className="flex items-center gap-2 text-blue-400">
+                    <Calendar className="w-4 h-4" />
+                    <span className="font-semibold text-sm">Next Episode {anime.nextAiringEpisode.episode}</span>
+                  </div>
+                  <span className="hidden sm:inline text-neutral-500">•</span>
+                  <p className="text-neutral-300 text-sm">
+                    {format(fromUnixTime(anime.nextAiringEpisode.airingAt), "PPpp")}
+                  </p>
+                </motion.div>
+              )}
+
+              <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-6 text-center">Episodes</h2>
+
+              {totalEpisodes ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {Array.from({ length: totalEpisodes }).map((_, idx) => {
+                    const ep = idx + 1;
+                    return (
+                      <a
+                        key={ep}
+                        href={`/watch/soon`}
+                        className="bg-white/5 hover:bg-white/10 text-white p-3 rounded-lg border border-white/10 hover:border-blue-400/50 text-center transition shadow-lg"
+                      >
+                        Episode {ep}
+                      </a>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-center text-neutral-400">Episode list not available</p>
               )}
             </div>
-
-            {anime.nextAiringEpisode && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 px-4 py-3 rounded-xl border border-blue-400/30 mb-6"
-              >
-                <Calendar className="w-4 h-4 text-blue-400" />
-                <p className="text-blue-300 text-sm text-center">
-                  <span className="font-semibold">Next Episode {anime.nextAiringEpisode.episode}</span> airs on{" "}
-                  {format(fromUnixTime(anime.nextAiringEpisode.airingAt), "PPpp")}
-                </p>
-              </motion.div>
-            )}
-
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-6 text-center">Episodes</h2>
-
-            {totalEpisodes ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {Array.from({ length: totalEpisodes }).map((_, idx) => {
-                  const ep = idx + 1;
-                  return (
-                    <a
-                      key={ep}
-                      href={`/watch/soon`}
-                      className="bg-white/5 hover:bg-white/10 text-white p-3 rounded-lg border border-white/10 hover:border-blue-400/50 text-center transition shadow-lg"
-                    >
-                      Episode {ep}
-                    </a>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-center text-neutral-400">Episode list not available</p>
-            )}
-          </div>
-        </section>
+          </section>
+        </div>
 
         <section className="mt-10 px-4">
           <h2 className="text-xl font-semibold mb-4">Maybe you like it</h2>
