@@ -271,7 +271,7 @@ export default function AnimeDetailPage() {
         </section>
 
         <section className="mt-10 px-4">
-          <h2 className="text-xl font-semibold mb-4 text-white">Maybe you like it</h2>
+          <h2 className="text-xl font-semibold mb-4 text-white">More like this</h2>
           {loadingSimilar ? (
             <MiniLoader text="Finding more anime for you..." />
           ) : similarAnime.length > 0 ? (
