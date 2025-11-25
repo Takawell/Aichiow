@@ -11,11 +11,12 @@ import AnimeCard from "@/components/anime/AnimeCard";
 import { format, fromUnixTime } from "date-fns";
 import slugify from "slugify";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock, Calendar, Tv } from "lucide-react";
 
 const ModernLoader = ({ text = "Loading..." }: { text?: string }) => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black relative overflow-hidden">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black" />
       <motion.div
         className="absolute top-1/4 right-1/4 w-72 h-72 md:w-96 md:h-96 bg-sky-500/10 rounded-full blur-3xl"
         animate={{
@@ -174,58 +175,77 @@ export default function AnimeDetailPage() {
       <Head>
         <title>{anime.title.english || anime.title.romaji} | Aichiow</title>
       </Head>
-      <main className="bg-dark text-white pb-20">
+      <main className="bg-neutral-900 text-white pb-20">
         <AnimeDetailHeader anime={anime} />
         {anime.trailer?.site === "youtube" && <AnimeTrailer trailer={anime.trailer} />}
         {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
           <CharacterList characters={anime.characters.edges} />
         )}
 
-        <section className="mt-10 px-4 text-center">
-          <div className="mb-4">
-            <span
-              className={`inline-block px-4 py-1 text-sm font-semibold rounded-full ${statusBadgeColor}`}
-            >
-              {anime.status === "RELEASING"
-                ? "Ongoing"
-                : anime.status === "FINISHED"
-                ? "Completed"
-                : "Upcoming"}
-            </span>
-          </div>
+        <section className="mt-10 px-4 max-w-7xl mx-auto">
+          <div className="bg-gradient-to-br from-neutral-800/80 to-neutral-900/80 backdrop-blur-xl rounded-2xl p-6 md:p-8 border border-white/10 shadow-2xl">
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+              <div
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl ${statusBadgeColor} shadow-lg`}
+              >
+                <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                {anime.status === "RELEASING"
+                  ? "Ongoing"
+                  : anime.status === "FINISHED"
+                  ? "Completed"
+                  : "Upcoming"}
+              </div>
 
-          <p className="text-gray-300 text-sm mb-2">
-            {totalEpisodes ? `Total Episodes: ${totalEpisodes}` : "Total Episodes: ?"} |{" "}
-            {duration ? `Duration: ${duration} min/ep` : "Duration: ?"}
-          </p>
+              <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                <Tv className="w-4 h-4 text-blue-400" />
+                <span className="text-sm text-neutral-300">
+                  {totalEpisodes ? `${totalEpisodes} Episodes` : "? Episodes"}
+                </span>
+              </div>
 
-          {anime.nextAiringEpisode && (
-            <p className="text-blue-400 text-sm mb-6">
-              Next Episode {anime.nextAiringEpisode.episode} airs on{" "}
-              {format(fromUnixTime(anime.nextAiringEpisode.airingAt), "PPpp")}
-            </p>
-          )}
-
-          <h2 className="text-2xl font-extrabold text-white mb-6">Episodes</h2>
-
-          {totalEpisodes ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {Array.from({ length: totalEpisodes }).map((_, idx) => {
-                const ep = idx + 1;
-                return (
-                  <a
-                    key={ep}
-                    href={`/watch/soon`}
-                    className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow text-center transition"
-                  >
-                    Episode {ep}
-                  </a>
-                );
-              })}
+              {duration && (
+                <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                  <Clock className="w-4 h-4 text-purple-400" />
+                  <span className="text-sm text-neutral-300">{duration} min/ep</span>
+                </div>
+              )}
             </div>
-          ) : (
-            <p className="text-gray-400">Episode list not available</p>
-          )}
+
+            {anime.nextAiringEpisode && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 px-4 py-3 rounded-xl border border-blue-400/30 mb-6"
+              >
+                <Calendar className="w-4 h-4 text-blue-400" />
+                <p className="text-blue-300 text-sm text-center">
+                  <span className="font-semibold">Next Episode {anime.nextAiringEpisode.episode}</span> airs on{" "}
+                  {format(fromUnixTime(anime.nextAiringEpisode.airingAt), "PPpp")}
+                </p>
+              </motion.div>
+            )}
+
+            <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-6 text-center">Episodes</h2>
+
+            {totalEpisodes ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {Array.from({ length: totalEpisodes }).map((_, idx) => {
+                  const ep = idx + 1;
+                  return (
+                    <a
+                      key={ep}
+                      href={`/watch/soon`}
+                      className="bg-white/5 hover:bg-white/10 text-white p-3 rounded-lg border border-white/10 hover:border-blue-400/50 text-center transition shadow-lg"
+                    >
+                      Episode {ep}
+                    </a>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-center text-neutral-400">Episode list not available</p>
+            )}
+          </div>
         </section>
 
         <section className="mt-10 px-4">
