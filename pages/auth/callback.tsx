@@ -37,7 +37,7 @@ export default function AuthCallback() {
     checkSession()
   }, [router])
 
-  const handleNavigation = (path) => {
+  const handleNavigation = (path: string) => {
     router.push(path)
   }
 
