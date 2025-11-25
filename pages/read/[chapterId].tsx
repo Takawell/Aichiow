@@ -8,6 +8,12 @@ import { MdArrowBack, MdFullscreen, MdFullscreenExit, MdArrowUpward, MdClose } f
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabaseClient'
 
+interface Chapter {
+  id: string
+  number: string
+  title: string
+}
+
 export default function ReadPage() {
   const router = useRouter()
   const { chapterId } = router.query
@@ -22,6 +28,8 @@ export default function ReadPage() {
   const [user, setUser] = useState<any>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [mangaId, setMangaId] = useState<string>('')
+  const [chapterList, setChapterList] = useState<Chapter[]>([])
 
   useEffect(() => {
     const checkUser = async () => {
@@ -35,6 +43,32 @@ export default function ReadPage() {
     }
     checkUser()
   }, [])
+
+  useEffect(() => {
+    const fetchChapterList = async () => {
+      if (!mangaId) return
+      
+      try {
+        const res = await fetch(`/api/manga/chapters?mangaId=${mangaId}`)
+        const data = await res.json()
+        
+        if (data.chapters) {
+          setChapterList(data.chapters)
+          
+          const currentIndex = data.chapters.findIndex((ch: Chapter) => ch.id === chapterId)
+          
+          if (currentIndex !== -1) {
+            setNextId(currentIndex < data.chapters.length - 1 ? data.chapters[currentIndex + 1].id : null)
+            setPrevId(currentIndex > 0 ? data.chapters[currentIndex - 1].id : null)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch chapter list:', err)
+      }
+    }
+
+    fetchChapterList()
+  }, [mangaId, chapterId])
 
   useEffect(() => {
     if (!router.isReady || !user) return
@@ -57,6 +91,13 @@ export default function ReadPage() {
           throw new Error('Invalid chapter data')
         }
 
+        if (chapter.relationships) {
+          const mangaRelation = chapter.relationships.find((rel: any) => rel.type === 'manga')
+          if (mangaRelation) {
+            setMangaId(mangaRelation.id)
+          }
+        }
+
         const fileList = chapter.data?.length ? chapter.data : chapter.dataSaver
         const modeStr = chapter.data?.length ? 'data' : 'data-saver'
 
@@ -69,8 +110,9 @@ export default function ReadPage() {
         )
 
         setImages(full)
-        setNextId(chapter.next ?? null)
-        setPrevId(chapter.prev ?? null)
+        
+        if (chapter.next) setNextId(chapter.next)
+        if (chapter.prev) setPrevId(chapter.prev)
       } catch (err: any) {
         console.error(err)
         setError('Failed to load chapter.')
@@ -354,7 +396,7 @@ export default function ReadPage() {
             className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold rounded-lg transition ${
               prevId
                 ? 'bg-zinc-800 hover:bg-zinc-700 text-white shadow-md'
-                : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                : 'bg-zinc-800 text-zinc-500 cursor-not-allowed opacity-50'
             }`}
           >
             <FiChevronLeft size={18} />
@@ -366,7 +408,7 @@ export default function ReadPage() {
             className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold rounded-lg transition ${
               nextId
                 ? 'bg-zinc-800 hover:bg-zinc-700 text-white shadow-md'
-                : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                : 'bg-zinc-800 text-zinc-500 cursor-not-allowed opacity-50'
             }`}
           >
             Next Chapter
