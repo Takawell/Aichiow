@@ -20,6 +20,7 @@ export default function AuthCallback() {
     const checkSession = async () => {
       try {
         const { data, error } = await supabase.auth.getSession()
+
         if (error) throw error
 
         if (data?.session) {
@@ -275,28 +276,30 @@ export default function AuthCallback() {
         )}
       </AnimatePresence>
 
-      {[...Array(20)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1 h-1 md:w-2 md:h-2 rounded-full bg-sky-400/40"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-          }}
-          animate={{
-            y: [0, -30, 0],
-            x: [0, Math.random() * 40 - 20, 0],
-            opacity: [0.2, 0.8, 0.2],
-            scale: [0.5, 1.5, 0.5],
-          }}
-          transition={{
-            duration: 4 + Math.random() * 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: Math.random() * 2,
-          }}
-        />
-      ))}
-    </motion.div>
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 md:w-2 md:h-2 rounded-full bg-sky-400/40"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, Math.random() * 40 - 20, 0],
+              opacity: [0.2, 0.8, 0.2],
+              scale: [0.5, 1.5, 0.5],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+    </div>
   )
 }
