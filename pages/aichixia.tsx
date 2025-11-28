@@ -71,11 +71,11 @@ export default function AichixiaPage() {
     if (!input.trim() && !pendingImage) return;
 
     let newMessages = [...messages];
-    if (input.trim()) {
-      newMessages.push({ role: "user", type: "text", content: input });
-    }
-
+    
     if (pendingImage) {
+      setScanCooldown(30);
+      setScanOpen(false);
+      
       newMessages.push({
         role: "user",
         type: "image",
@@ -84,8 +84,12 @@ export default function AichixiaPage() {
       newMessages.push({
         role: "user",
         type: "text",
-        content: "What anime is this?",
+        content: "What is this anime?",
       });
+    }
+    
+    if (input.trim()) {
+      newMessages.push({ role: "user", type: "text", content: input });
     }
 
     setMessages(newMessages);
@@ -103,8 +107,6 @@ export default function AichixiaPage() {
           ...prev,
           { role: "assistant", type: "scan", content: scanRes },
         ]);
-        setScanCooldown(30);
-        setScanOpen(false);
       } else {
         const res = await fetch("/api/aichixia", {
           method: "POST",
