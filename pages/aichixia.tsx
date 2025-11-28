@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner, FaTimes, FaPlay } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner, FaTimes } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
 import Image from "next/image";
 import Link from "next/link";
@@ -41,6 +41,7 @@ export default function AichixiaPage() {
   const [session, setSession] = useState<any>(null);
   const [scanOpen, setScanOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [scanCooldown, setScanCooldown] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -59,6 +60,13 @@ export default function AichixiaPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (scanCooldown > 0) {
+      const timer = setTimeout(() => setScanCooldown(scanCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [scanCooldown]);
+
   const sendMessage = async () => {
     if (!input.trim() && !pendingImage) return;
 
@@ -76,7 +84,7 @@ export default function AichixiaPage() {
       newMessages.push({
         role: "user",
         type: "text",
-        content: "Detecting for this image...",
+        content: "What anime is this?",
       });
     }
 
@@ -95,6 +103,8 @@ export default function AichixiaPage() {
           ...prev,
           { role: "assistant", type: "scan", content: scanRes },
         ]);
+        setScanCooldown(30);
+        setScanOpen(false);
       } else {
         const res = await fetch("/api/aichixia", {
           method: "POST",
@@ -198,10 +208,15 @@ export default function AichixiaPage() {
             </div>
             <button
               onClick={() => setScanOpen(true)}
-              className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+              disabled={scanCooldown > 0}
+              className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <LuScanLine className="text-lg sm:text-xl relative z-10" />
+              {scanCooldown > 0 ? (
+                <span className="text-xs sm:text-sm font-bold relative z-10">{scanCooldown}s</span>
+              ) : (
+                <LuScanLine className="text-lg sm:text-xl relative z-10" />
+              )}
             </button>
           </header>
 
