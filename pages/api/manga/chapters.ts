@@ -26,14 +26,14 @@ export default async function handler(
           limit,
           offset,
           translatedLanguage: ['en', 'id'],
-          order: { chapter: 'desc' },
+          order: { chapter: 'desc' }, 
         },
       })
 
       chapters.push(...data.data)
 
-      hasMore = data.data.length === limit
       offset += limit
+      hasMore = offset < data.total
     }
 
     return res.status(200).json(chapters)
