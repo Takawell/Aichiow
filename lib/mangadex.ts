@@ -24,9 +24,7 @@ export async function fetchChapterImages(chapterId: string) {
     const res = await axios.get(`/api/manga/chapter-images?chapterId=${chapterId}`)
     const { baseUrl, chapter } = res.data
 
-    if (!baseUrl || !chapter?.hash) {
-      throw new Error('Invalid chapter response')
-    }
+    if (!baseUrl || !chapter?.hash) throw new Error('Invalid chapter response')
 
     const cleanBaseUrl = baseUrl.replace(/\\/g, '')
 
@@ -36,10 +34,10 @@ export async function fetchChapterImages(chapterId: string) {
 
     let next: string | null = null
     let prev: string | null = null
-    
+
     if (mangaId && currentChapter) {
       const listRes = await axios.get(
-        `https://api.mangadex.org/chapter?manga=${mangaId}&order[chapter]=asc&limit=500&translatedLanguage[]=en&translatedLanguage[]=id`
+        `https://api.mangadex.org/chapter?manga=${mangaId}&order[chapter]=asc&limit=500`
       )
 
       const all = listRes.data?.data || []
@@ -59,7 +57,7 @@ export async function fetchChapterImages(chapterId: string) {
     }
   } catch (error) {
     console.error('fetchChapterImages error:', error)
-    throw error 
+    return null
   }
 }
 
