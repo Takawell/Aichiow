@@ -1,7 +1,8 @@
+Ini sebelum aku pake offset aman kayak gini
 import type { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 
-const BASE_URL = 'https://api.mangadex.org'
+const BASE_URL = 'https://api.mangadex.org/'
 
 export default async function handler(
   req: NextApiRequest,
@@ -14,31 +15,18 @@ export default async function handler(
   }
 
   try {
-    const limit = 100
-    let offset = 0
-    let chapters: any[] = []
-    let hasMore = true
+    const response = await axios.get(`${BASE_URL}/chapter`, {
+      params: {
+        manga: mangaId,
+        limit: 500,
+        translatedLanguage: ['en', 'id'],
+        order: { chapter: 'desc' },
+      },
+    })
 
-    while (hasMore) {
-      const { data } = await axios.get(`${BASE_URL}/chapter`, {
-        params: {
-          manga: mangaId,
-          limit,
-          offset,
-          translatedLanguage: ['en', 'id'],
-          order: { chapter: 'desc' }, 
-        },
-      })
-
-      chapters.push(...data.data)
-
-      offset += limit
-      hasMore = offset < data.total
-    }
-
-    return res.status(200).json(chapters)
+    res.status(200).json(response.data.data)
   } catch (error: any) {
-    console.error('[API ERROR] /api/manga/chapters:', error.message)
-    return res.status(500).json({ message: 'Failed to fetch chapters' })
+    console.error('[API] /api/manga/chapters error:', error.message)
+    res.status(500).json({ message: 'Failed to fetch chapters' })
   }
 }
