@@ -143,6 +143,7 @@ export default function ManhwaDetailPage() {
   const [mangaDexId, setMangaDexId] = useState<string | null>(null)
   const [chapters, setChapters] = useState<any[]>([])
   const [loadingChapters, setLoadingChapters] = useState(false)
+  const [langFilter, setLangFilter] = useState<'all' | 'en' | 'id'>('all')
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: id ? Number(id) : undefined,
     mediaType: 'manhwa',
@@ -180,6 +181,11 @@ export default function ManhwaDetailPage() {
       })
     }
   }, [manhwa])
+
+  const filteredChapters = chapters.filter(ch => {
+    if (langFilter === 'all') return true
+    return ch.attributes.translatedLanguage === langFilter
+  })
 
   if (loading) return <LoadingSkeleton />
 
@@ -313,37 +319,83 @@ export default function ManhwaDetailPage() {
       </div>
 
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="relative z-10 max-w-6xl mx-auto px-3 sm:px-5 md:px-8 mt-8 sm:mt-10">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 bg-sky-500/20 rounded-lg flex items-center justify-center">
-            <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-sky-500/20 rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <h2 className="text-base sm:text-lg font-bold">Chapters</h2>
+            {filteredChapters.length > 0 && <span className="text-xs text-gray-500">({filteredChapters.length})</span>}
           </div>
-          <h2 className="text-base sm:text-lg font-bold">Chapters</h2>
-          {chapters.length > 0 && <span className="text-xs text-gray-500">({chapters.length})</span>}
+
+          {chapters.length > 0 && (
+            <div className="relative inline-flex items-center bg-gray-900/80 backdrop-blur-sm rounded-full p-1 border border-gray-800/50 shadow-lg">
+              <motion.div
+                className="absolute inset-1 bg-gradient-to-r from-sky-500 to-sky-600 rounded-full shadow-lg shadow-sky-500/50"
+                initial={false}
+                animate={{
+                  x: langFilter === 'all' ? 0 : langFilter === 'en' ? '100%' : '200%',
+                }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                style={{ width: '33.333%' }}
+              />
+              <button
+                onClick={() => setLangFilter('all')}
+                className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${langFilter === 'all' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setLangFilter('en')}
+                className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${langFilter === 'en' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => setLangFilter('id')}
+                className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${langFilter === 'id' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
+              >
+                ID
+              </button>
+            </div>
+          )}
         </div>
+
         {loadingChapters ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="h-11 bg-gray-900/60 rounded-lg border border-gray-800/50 animate-pulse" />
             ))}
           </div>
-        ) : chapters.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            {chapters.map((ch, i) => (
-              <motion.div key={ch.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 + i * 0.02 }}>
-                <Link href={`/read/${ch.id}`} className="group flex items-center justify-between px-3 py-2.5 bg-gray-900/60 hover:bg-gray-800/80 rounded-lg border border-gray-800/50 hover:border-sky-500/30 transition">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-xs sm:text-sm font-semibold text-sky-400 group-hover:text-sky-400 whitespace-nowrap">Ch. {ch.attributes.chapter || '?'}</span>
-                    {ch.attributes.title && <span className="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300 truncate">- {ch.attributes.title}</span>}
-                  </div>
-                  <span className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap ml-2">{new Date(ch.attributes.publishAt).toLocaleDateString()}</span>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
         ) : (
-          <p className="text-gray-500 text-sm">No chapters found.</p>
+          <AnimatePresence mode="wait">
+            {filteredChapters.length > 0 ? (
+              <motion.div key={langFilter} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="flex flex-col gap-2">
+                {filteredChapters.map((ch, i) => (
+                  <motion.div key={ch.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02 }}>
+                    <Link href={`/read/${ch.id}`} className="group flex items-center justify-between px-3 py-2.5 bg-gray-900/60 hover:bg-gray-800/80 rounded-lg border border-gray-800/50 hover:border-sky-500/30 transition">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span className="text-xs sm:text-sm font-semibold text-sky-400 group-hover:text-sky-400 whitespace-nowrap">Ch. {ch.attributes.chapter || '?'}</span>
+                        {ch.attributes.title && <span className="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300 truncate">- {ch.attributes.title}</span>}
+                      </div>
+                      <div className="flex items-center gap-2 ml-2">
+                        <span className="text-[10px] px-1.5 py-0.5 bg-gray-800/80 text-gray-500 rounded">{ch.attributes.translatedLanguage?.toUpperCase()}</span>
+                        <span className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{new Date(ch.attributes.publishAt).toLocaleDateString()}</span>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : chapters.length > 0 ? (
+              <motion.p key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-gray-500 text-sm text-center py-8">
+                No chapters available for this language.
+              </motion.p>
+            ) : (
+              <p className="text-gray-500 text-sm">No chapters found.</p>
+            )}
+          </AnimatePresence>
         )}
       </motion.section>
 
