@@ -17,7 +17,7 @@ export default async function handler(
     const response = await axios.get(`${BASE_URL}/chapter`, {
       params: {
         manga: mangaId,
-        limit: 500,
+        limit: 100,
         translatedLanguage: ['en', 'id'],
         order: { chapter: 'desc' },
       },
