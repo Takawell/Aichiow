@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 
-const BASE_URL = 'https://api.mangadex.org'
+const BASE_URL = 'https://api.mangadex.org/'
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,7 +19,7 @@ export default async function handler(
         manga: mangaId,
         limit: 500,
         translatedLanguage: ['en', 'id'],
-        'order[chapter]': 'desc',
+        order: { chapter: 'desc' },
       },
     })
 
