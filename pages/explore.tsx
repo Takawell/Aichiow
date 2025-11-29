@@ -345,17 +345,16 @@ export default function ExplorePage() {
                 exit={{ scale: 1, opacity: 0, y: 100 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute -inset-1 bg-gradient-to-r from-sky-600 via-sky-500 to-sky-600 rounded-t-3xl md:rounded-3xl blur-xl opacity-20 hidden md:block" />
                 
                 <motion.button
                   onClick={() => setGenreModalOpen(false)}
                   whileHover={{ rotate: 90, scale: 1.1 }}
-                  className="absolute right-4 top-4 md:right-6 md:top-6 text-neutral-400 hover:text-white transition z-10"
+                  className="absolute right-4 top-4 md:right-6 md:top-6 text-neutral-400 hover:text-white transition z-50"
                 >
                   <FaTimes className="text-xl md:text-2xl" />
                 </motion.button>
 
-                <div className="text-center mb-6 md:mb-8 relative">
+                <div className="text-center mb-6 md:mb-8">
                   <h3 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-sky-400 via-sky-300 to-sky-500 bg-clip-text text-transparent mb-1 md:mb-2">
                     Select Genres
                   </h3>
@@ -374,7 +373,7 @@ export default function ExplorePage() {
                         transition={{ delay: i * 0.01 }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="group relative"
+                        className="group relative z-10"
                       >
                         <div className={`absolute -inset-0.5 rounded-lg md:rounded-xl blur transition ${
                           active 
@@ -406,7 +405,7 @@ export default function ExplorePage() {
                   <div className="text-neutral-400 text-xs md:text-sm font-medium">
                     <span className="text-white font-bold">{selectedGenres.length}</span> selected
                   </div>
-                  <div className="flex items-center gap-2 md:gap-3">
+                  <div className="flex items-center gap-2 md:gap-3 relative z-50">
                     <motion.button
                       onClick={clearGenres}
                       whileHover={{ scale: 1.05 }}
@@ -444,17 +443,16 @@ export default function ExplorePage() {
                 exit={{ scale: 1, opacity: 0, y: 100 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute -inset-1 bg-gradient-to-r from-sky-600 via-sky-500 to-sky-600 rounded-t-3xl md:rounded-3xl blur-xl opacity-20 hidden md:block" />
-
+                
                 <motion.button
                   onClick={() => setScanOpen(false)}
                   whileHover={{ rotate: 90, scale: 1.1 }}
-                  className="absolute right-4 top-4 md:right-6 md:top-6 text-neutral-400 hover:text-white transition z-10"
+                  className="absolute right-4 top-4 md:right-6 md:top-6 text-neutral-400 hover:text-white transition z-50"
                 >
                   <FaTimes className="text-xl md:text-2xl" />
                 </motion.button>
 
-                <div className="text-center mb-6 md:mb-8 relative">
+                <div className="text-center mb-6 md:mb-8">
                   <motion.div
                     animate={{ rotate: [0, 5, -5, 0] }}
                     transition={{ repeat: Infinity, duration: 2 }}
@@ -470,7 +468,7 @@ export default function ExplorePage() {
                 </div>
 
                 <div className="flex justify-center mb-6 md:mb-8">
-                  <label className="group relative cursor-pointer">
+                  <label className="group relative cursor-pointer z-10">
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -562,8 +560,7 @@ export default function ExplorePage() {
                                 >
                                   <motion.button
                                     whileHover={{ scale: 1.02, x: 3 }}
-                                    className="mt-2 md:mt-3 px-4 md:px-6 py-1.5 md:py-2 rounded-lg md:rounded-xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white text-xs md:text-sm font-semibold transition-all inline-flex items-center gap-1.5"
-                                  >
+                                    className="mt-2 md:mt-3 px-4 md:px-6 py-1.5 md:py-2 rounded-lg md:rounded-xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white text-xs md:text-sm font-semibold transition-all inline-flex items-center gap-1.5">
                                     View Details
                                     <span>→</span>
                                   </motion.button>
