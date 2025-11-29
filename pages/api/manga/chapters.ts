@@ -26,24 +26,14 @@ export default async function handler(
           limit,
           offset,
           translatedLanguage: ['en', 'id'],
-          'order[chapter]': 'desc',
+          order: { chapter: 'desc' },
         },
       })
 
-      const validChapters = data.data.filter((chapter: any) => {
-        const attr = chapter.attributes
-        return (
-          chapter.id &&
-          !attr?.externalUrl &&
-          attr?.hash &&
-          (attr?.data?.length > 0 || attr?.dataSaver?.length > 0)
-        )
-      })
+      chapters.push(...data.data)
 
-      chapters.push(...validChapters)
-
+      hasMore = data.data.length === limit
       offset += limit
-      hasMore = offset < data.total
     }
 
     return res.status(200).json(chapters)
