@@ -1,4 +1,3 @@
-Ini sebelum aku pake offset aman kayak gini
 import type { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 
@@ -9,7 +8,6 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { mangaId } = req.query
-
   if (!mangaId || typeof mangaId !== 'string') {
     return res.status(400).json({ message: 'Manga ID is required' })
   }
