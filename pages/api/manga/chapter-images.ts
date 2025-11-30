@@ -9,19 +9,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const response = await axios.get(`https://api.mangadex.org/at-home/server/${chapterId}`)    
-    const { baseUrl, chapter } = response.data
-    const images = chapter.data.map((file: string) => ({
-      url: `${baseUrl}/data/${chapter.hash}/${file}`,
-      file,
-    }))
-
-    res.status(200).json({
-      baseUrl,
-      hash: chapter.hash,
-      images,
-    })
-
+    const response = await axios.get(`https://api.mangadex.org/at-home/server/${chapterId}`)
+    res.status(200).json(response.data)
   } catch (error: any) {
     console.error('[API] /api/manga/chapter-images error:', error.message)
     res.status(500).json({ message: 'Failed to fetch chapter images' })
