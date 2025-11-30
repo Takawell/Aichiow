@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 
-const BASE_URL = 'https://api.mangadex.org'
-const MAX_PAGES = 10
+const BASE_URL = 'https://api.mangadex.org/'
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,37 +14,16 @@ export default async function handler(
   }
 
   try {
-    let allChapters: any[] = []
-    let offset = 0
-    const limit = 100
-    let page = 0
+    const response = await axios.get(`${BASE_URL}/chapter`, {
+      params: {
+        manga: mangaId,
+        limit: 100,
+        translatedLanguage: ['en', 'id'],
+        order: { chapter: 'asc' },
+      },
+    })
 
-    while (page < MAX_PAGES) {
-      const response = await axios.get(`${BASE_URL}/chapter`, {
-        params: {
-          manga: mangaId,
-          limit: limit,
-          offset: offset,
-          translatedLanguage: ['en', 'id'],
-          order: { chapter: 'desc' },
-          contentRating: ['safe', 'suggestive', 'erotica'],
-          includeFutureUpdates: '0',
-        },
-      })
-
-      const chapters = response.data.data
-      if (chapters.length === 0) break
-
-      allChapters = [...allChapters, ...chapters]
-
-      const total = response.data.total
-      offset += limit
-      page++
-
-      if (offset >= total) break
-    }
-
-    res.status(200).json(allChapters)
+    res.status(200).json(response.data.data)
   } catch (error: any) {
     console.error('[API] /api/manga/chapters error:', error.message)
     res.status(500).json({ message: 'Failed to fetch chapters' })
