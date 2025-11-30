@@ -108,6 +108,8 @@ export default function MangaDetailPage() {
   const [showFullDesc, setShowFullDesc] = useState(false)
   const [showShare, setShowShare] = useState(false)
   const [langFilter, setLangFilter] = useState<'all' | 'en' | 'id'>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: manga?.id ? parseInt(manga.id, 36) : undefined,
@@ -150,10 +152,22 @@ export default function MangaDetailPage() {
     load()
   }, [slug])
 
-  const filteredChapters = chapters.filter(ch => {
-    if (langFilter === 'all') return true
-    return ch.attributes.translatedLanguage === langFilter
-  })
+  const filteredChapters = chapters
+    .filter(ch => {
+      if (langFilter !== 'all' && ch.attributes.translatedLanguage !== langFilter) return false
+      if (searchQuery) {
+        const chNum = ch.attributes.chapter || ''
+        const chTitle = ch.attributes.title || ''
+        const query = searchQuery.toLowerCase()
+        return chNum.includes(query) || chTitle.toLowerCase().includes(query)
+      }
+      return true
+    })
+    .sort((a, b) => {
+      const numA = parseFloat(a.attributes.chapter || '0')
+      const numB = parseFloat(b.attributes.chapter || '0')
+      return sortOrder === 'asc' ? numA - numB : numB - numA
+    })
 
   if (loading) return <LoadingSkeleton />
 
@@ -248,51 +262,59 @@ export default function MangaDetailPage() {
           </motion.div>
 
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mt-8 sm:mt-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-sky-500/20 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
+            <div className="flex flex-col gap-4 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-sky-500/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <h2 className="text-base sm:text-lg font-bold">Chapters</h2>
+                  <span className="text-xs text-gray-500">({filteredChapters.length})</span>
                 </div>
-                <h2 className="text-base sm:text-lg font-bold">Chapters</h2>
-                <span className="text-xs text-gray-500">({filteredChapters.length})</span>
+
+                <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900/80 hover:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-gray-800/50 hover:border-sky-500/30 transition text-xs sm:text-sm text-gray-300 hover:text-sky-400">
+                  <svg className={`w-4 h-4 transition-transform ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                  </svg>
+                  <span className="hidden sm:inline">{sortOrder === 'asc' ? 'Oldest' : 'Newest'}</span>
+                </button>
               </div>
 
-              <div className="relative inline-flex items-center bg-gray-900/80 backdrop-blur-sm rounded-full p-1 border border-gray-800/50 shadow-lg">
-                <motion.div
-                  className="absolute inset-1 bg-gradient-to-r from-sky-500 to-sky-600 rounded-full shadow-lg shadow-sky-500/50"
-                  initial={false}
-                  animate={{
-                    x: langFilter === 'all' ? 0 : langFilter === 'en' ? '100%' : '200%',
-                  }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                  style={{ width: '33.333%' }}
-                />
-                <button
-                  onClick={() => setLangFilter('all')}
-                  className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${langFilter === 'all' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setLangFilter('en')}
-                  className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${langFilter === 'en' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
-                >
-                  EN
-                </button>
-                <button
-                  onClick={() => setLangFilter('id')}
-                  className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${langFilter === 'id' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
-                >
-                  ID
-                </button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search chapters..." className="w-full px-4 py-2.5 pl-10 bg-gray-900/80 backdrop-blur-sm border border-gray-800/50 focus:border-sky-500/50 rounded-lg text-sm text-gray-300 placeholder-gray-500 outline-none transition" />
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+
+                <div className="relative inline-flex items-center bg-gray-900/80 backdrop-blur-sm rounded-lg p-1 border border-gray-800/50 shadow-lg">
+                  <motion.div className="absolute inset-1 bg-gradient-to-r from-sky-500 to-sky-600 rounded-md shadow-lg shadow-sky-500/50" initial={false} animate={{ x: langFilter === 'all' ? 0 : langFilter === 'en' ? '100%' : '200%' }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} style={{ width: '33.333%' }} />
+                  <button onClick={() => setLangFilter('all')} className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${langFilter === 'all' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}>
+                    All
+                  </button>
+                  <button onClick={() => setLangFilter('en')} className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${langFilter === 'en' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}>
+                    EN
+                  </button>
+                  <button onClick={() => setLangFilter('id')} className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${langFilter === 'id' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}>
+                    ID
+                  </button>
+                </div>
               </div>
             </div>
 
             <AnimatePresence mode="wait">
               {filteredChapters.length > 0 ? (
-                <motion.ul key={langFilter} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <motion.ul key={`${langFilter}-${searchQuery}-${sortOrder}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {filteredChapters.map((chapter, i) => {
                     const chapterNumber = chapter.attributes.chapter || '?'
                     const chapterTitle = chapter.attributes.title || `Chapter ${chapterNumber}`
@@ -309,9 +331,15 @@ export default function MangaDetailPage() {
                   })}
                 </motion.ul>
               ) : (
-                <motion.p key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-gray-500 text-sm text-center py-8">
-                  No chapters available for this language.
-                </motion.p>
+                <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-12">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-900/80 rounded-2xl border border-gray-800/50 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-500 text-sm mb-2">No chapters found</p>
+                  <p className="text-gray-600 text-xs">Try adjusting your filters or search query</p>
+                </motion.div>
               )}
             </AnimatePresence>
           </motion.section>
