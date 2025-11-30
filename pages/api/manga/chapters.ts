@@ -8,7 +8,6 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { mangaId } = req.query
-
   if (!mangaId || typeof mangaId !== 'string') {
     return res.status(400).json({ message: 'Manga ID is required' })
   }
@@ -19,7 +18,7 @@ export default async function handler(
         manga: mangaId,
         limit: 100,
         translatedLanguage: ['en', 'id'],
-        order: { chapter: 'asc' },
+        order: { chapter: 'desc' },
       },
     })
 
