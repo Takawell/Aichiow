@@ -136,9 +136,6 @@ export default function ManhwaDetailPage() {
   const { id } = router.query
   const [manhwa, setManhwa] = useState<ManhwaDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showCard, setShowCard] = useState(false)
-  const [dontShowAgain, setDontShowAgain] = useState(false)
-  const [lang, setLang] = useState<'en' | 'id'>('en')
   const [showShare, setShowShare] = useState(false)
   const [mangaDexId, setMangaDexId] = useState<string | null>(null)
   const [chapters, setChapters] = useState<any[]>([])
@@ -148,11 +145,6 @@ export default function ManhwaDetailPage() {
     mediaId: id ? Number(id) : undefined,
     mediaType: 'manhwa',
   })
-
-  useEffect(() => {
-    const stored = localStorage.getItem('hideNotice')
-    if (!stored) setShowCard(true)
-  }, [])
 
   useEffect(() => {
     if (id) {
@@ -188,7 +180,6 @@ export default function ManhwaDetailPage() {
   })
 
   if (loading) return <LoadingSkeleton />
-
   if (!manhwa) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-950 text-white relative overflow-hidden">
@@ -200,7 +191,7 @@ export default function ManhwaDetailPage() {
             </svg>
           </div>
           <p className="text-gray-400 text-sm sm:text-base mb-4">Manhwa not found.</p>
-          <Link href="/manhwa" className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/20 hover:bg-sky-500/20 border border-sky-500/30 rounded-lg text-sky-400 text-sm transition">
+          <Link href="/manhwa" className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/30 rounded-lg text-sky-400 text-sm transition">
             <FaArrowLeft className="w-3 h-3" />
             Back to Manhwa
           </Link>
@@ -212,47 +203,11 @@ export default function ManhwaDetailPage() {
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const shareTitle = manhwa.title.english || manhwa.title.romaji || 'Manhwa'
 
-  const handleCloseModal = () => {
-    if (dontShowAgain) localStorage.setItem('hideNotice', 'true')
-    setShowCard(false)
-  }
-
   return (
     <div className="bg-gray-950 min-h-screen text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-black via-gray-950 to-gray-950" />
       <div className="absolute top-20 right-10 w-72 h-72 bg-sky-500/20 rounded-full blur-3xl" />
       <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-sky-500/20 rounded-full blur-3xl" />
-
-      <AnimatePresence>
-        {showCard && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-sky-500/20/70 backdrop-blur-sm px-4">
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} transition={{ duration: 0.3 }} className="relative max-w-sm w-full p-5 sm:p-6 rounded-2xl bg-gray-900/90 backdrop-blur-xl border border-sky-500/30 text-center shadow-xl shadow-sky-500/20">
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-sky-500/50 to-transparent" />
-              <div className="w-12 h-12 mx-auto mb-3 bg-sky-500/20 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h2 className="text-lg sm:text-xl font-bold mb-2 text-white">{lang === 'en' ? 'Notice' : 'Pemberitahuan'}</h2>
-              <p className="text-gray-400 mb-4 text-sm">{lang === 'en' ? 'Now the reading feature is available, happy reading :)' : 'Sekarang fitur membaca sudah hadir, selamat membaca :)'}</p>
-              <label className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
-                <input type="checkbox" checked={dontShowAgain} onChange={(e) => setDontShowAgain(e.target.checked)} className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-sky-400 focus:ring-sky-500/30" />
-                <span className="text-xs text-gray-400">{lang === 'en' ? "Don't remind me again" : 'Jangan ingatkan lagi'}</span>
-              </label>
-              <button onClick={handleCloseModal} className="w-full px-4 py-2 bg-sky-500/20 hover:bg-sky-500/20 border border-sky-500/30 rounded-lg text-sky-400 text-sm font-medium transition">
-                {lang === 'en' ? 'Got it!' : 'Mengerti!'}
-              </button>
-              <div className="mt-4 flex items-center justify-center gap-2 text-xs">
-                <span className={lang === 'en' ? 'text-sky-400 font-medium' : 'text-gray-500'}>EN</span>
-                <button onClick={() => setLang(lang === 'en' ? 'id' : 'en')} className="relative w-10 h-5 bg-gray-800 rounded-full border border-gray-700 transition">
-                  <div className={`absolute top-0.5 w-4 h-4 bg-sky-500/20 rounded-full transition-transform ${lang === 'id' ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                </button>
-                <span className={lang === 'id' ? 'text-sky-400 font-medium' : 'text-gray-500'}>ID</span>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <div className="relative w-full h-[280px] sm:h-[320px] md:h-[400px] overflow-hidden">
         {manhwa.bannerImage ? (
@@ -264,7 +219,7 @@ export default function ManhwaDetailPage() {
         
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="absolute bottom-4 left-3 right-3 sm:bottom-6 sm:left-5 md:bottom-8 md:left-8 z-10 flex flex-col sm:flex-row items-start sm:items-end gap-3 sm:gap-4">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="relative flex-shrink-0">
-            <div className="absolute -inset-1 bg-gradient-to-r from-black to-black rounded-xl blur-md" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/30 to-sky-600/30 rounded-xl blur-md" />
             <div className="relative w-[100px] sm:w-[120px] md:w-[160px] aspect-[2/3] rounded-xl overflow-hidden border border-sky-500/30 shadow-xl shadow-sky-500/20">
               <Image src={manhwa.coverImage.extraLarge || manhwa.coverImage.large} alt={manhwa.title.english || manhwa.title.romaji || 'cover'} fill className="object-cover" />
             </div>
@@ -282,7 +237,7 @@ export default function ManhwaDetailPage() {
             )}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="hidden sm:flex flex-wrap gap-1.5 mt-2">
               {manhwa.genres?.slice(0, 4).map((genre, i) => (
-                <Link key={genre} href={`/manhwa/genre/${encodeURIComponent(genre)}`} className="px-2.5 py-1 rounded-full bg-sky-500/20 hover:bg-sky-500/20 border border-sky-500/30 text-sky-400 text-xs transition">
+                <Link key={genre} href={`/manhwa/genre/${encodeURIComponent(genre)}`} className="px-2.5 py-1 rounded-full bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 hover:border-sky-500/40 text-sky-400 text-xs transition">
                   {genre}
                 </Link>
               ))}
@@ -307,7 +262,7 @@ export default function ManhwaDetailPage() {
         {manhwa.genres && manhwa.genres.length > 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-wrap gap-1.5 mb-3 sm:hidden">
             {manhwa.genres.map((genre) => (
-              <Link key={genre} href={`/manhwa/genre/${encodeURIComponent(genre)}`} className="px-2.5 py-1 rounded-full bg-sky-500/20 border border-sky-500/30 text-sky-400 text-xs">
+              <Link key={genre} href={`/manhwa/genre/${encodeURIComponent(genre)}`} className="px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs">
                 {genre}
               </Link>
             ))}
@@ -319,7 +274,7 @@ export default function ManhwaDetailPage() {
       </div>
 
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="relative z-10 max-w-6xl mx-auto px-3 sm:px-5 md:px-8 mt-8 sm:mt-10">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-sky-500/20 rounded-lg flex items-center justify-center">
               <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -331,33 +286,68 @@ export default function ManhwaDetailPage() {
           </div>
 
           {chapters.length > 0 && (
-            <div className="relative inline-flex items-center bg-gray-900/80 backdrop-blur-sm rounded-full p-1 border border-gray-800/50 shadow-lg">
+            <div className="relative inline-flex items-center bg-gradient-to-r from-gray-900/90 to-gray-800/90 backdrop-blur-xl rounded-2xl p-1.5 border border-gray-800/50 shadow-2xl shadow-sky-500/10">
               <motion.div
-                className="absolute inset-1 bg-gradient-to-r from-sky-500 to-sky-600 rounded-full shadow-lg shadow-sky-500/50"
+                className="absolute inset-1.5 bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 rounded-xl shadow-lg shadow-sky-500/50"
+                layoutId="activeTab"
                 initial={false}
                 animate={{
-                  x: langFilter === 'all' ? 0 : langFilter === 'en' ? '100%' : '200%',
+                  x: langFilter === 'all' ? 0 : langFilter === 'en' ? 'calc(100% + 4px)' : 'calc(200% + 8px)',
                 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                style={{ width: '33.333%' }}
+                transition={{ 
+                  type: 'spring', 
+                  stiffness: 400, 
+                  damping: 30,
+                  mass: 0.8
+                }}
+                style={{ 
+                  width: 'calc(33.333% - 4px)',
+                }}
               />
               <button
                 onClick={() => setLangFilter('all')}
-                className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${langFilter === 'all' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
+                className={`relative z-10 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 whitespace-nowrap ${
+                  langFilter === 'all' 
+                    ? 'text-white scale-105' 
+                    : 'text-gray-400 hover:text-gray-300 hover:scale-105'
+                }`}
               >
-                All
+               <span className="relative z-10 flex items-center gap-1.5">
+                  <svg className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${langFilter === 'all' ? 'rotate-0' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  All
+                </span>
               </button>
               <button
                 onClick={() => setLangFilter('en')}
-                className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${langFilter === 'en' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
+                className={`relative z-10 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 whitespace-nowrap ${
+                  langFilter === 'en' 
+                    ? 'text-white scale-105' 
+                    : 'text-gray-400 hover:text-gray-300 hover:scale-105'
+                }`}
               >
-                EN
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <svg className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${langFilter === 'en' ? 'scale-110' : 'scale-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                  </svg>
+                  EN
+                </span>
               </button>
               <button
                 onClick={() => setLangFilter('id')}
-                className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${langFilter === 'id' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
+                className={`relative z-10 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 whitespace-nowrap ${
+                  langFilter === 'id' 
+                    ? 'text-white scale-105' 
+                    : 'text-gray-400 hover:text-gray-300 hover:scale-105'
+                }`}
               >
-                ID
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <svg className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${langFilter === 'id' ? 'scale-110' : 'scale-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                  </svg>
+                  ID
+                </span>
               </button>
             </div>
           )}
@@ -377,7 +367,7 @@ export default function ManhwaDetailPage() {
                   <motion.div key={ch.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02 }}>
                     <Link href={`/read/${ch.id}`} className="group flex items-center justify-between px-3 py-2.5 bg-gray-900/60 hover:bg-gray-800/80 rounded-lg border border-gray-800/50 hover:border-sky-500/30 transition">
                       <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <span className="text-xs sm:text-sm font-semibold text-sky-400 group-hover:text-sky-400 whitespace-nowrap">Ch. {ch.attributes.chapter || '?'}</span>
+                        <span className="text-xs sm:text-sm font-semibold text-sky-400 group-hover:text-sky-300 whitespace-nowrap">Ch. {ch.attributes.chapter || '?'}</span>
                         {ch.attributes.title && <span className="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300 truncate">- {ch.attributes.title}</span>}
                       </div>
                       <div className="flex items-center gap-2 ml-2">
@@ -458,7 +448,7 @@ export default function ManhwaDetailPage() {
       </motion.section>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="relative z-10 max-w-6xl mx-auto px-3 sm:px-5 md:px-8 pb-8">
-        <Link href="/manhwa" className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-black to-black hover:from-black hover:to-black rounded-lg text-white text-sm font-medium shadow-lg shadow-sky-500/20 transition">
+        <Link href="/manhwa" className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-400 hover:to-sky-500 rounded-lg text-white text-sm font-medium shadow-lg shadow-sky-500/20 transition">
           <FaArrowLeft className="w-3 h-3" />
           Back to Manhwa
         </Link>
