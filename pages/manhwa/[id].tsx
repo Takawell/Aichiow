@@ -85,9 +85,6 @@ export default function ManhwaDetailPage() {
   const { id } = router.query
   const [manhwa, setManhwa] = useState<ManhwaDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showCard, setShowCard] = useState(false)
-  const [dontShowAgain, setDontShowAgain] = useState(false)
-  const [lang, setLang] = useState<'en' | 'id'>('en')
   const [showShare, setShowShare] = useState(false)
   const [mangaDexId, setMangaDexId] = useState<string | null>(null)
   const [chapters, setChapters] = useState<any[]>([])
@@ -101,11 +98,6 @@ export default function ManhwaDetailPage() {
     mediaId: id ? Number(id) : undefined,
     mediaType: 'manhwa',
   })
-
-  useEffect(() => {
-    const stored = localStorage.getItem('hideNotice')
-    if (!stored) setShowCard(true)
-  }, [])
 
   useEffect(() => {
     if (id) {
@@ -185,11 +177,6 @@ export default function ManhwaDetailPage() {
   const shareTitle = manhwa.title.english || manhwa.title.romaji || 'Manhwa'
   const description = manhwa.description?.replace(/<[^>]+>/g, '') || 'No description available.'
 
-  const handleCloseModal = () => {
-    if (dontShowAgain) localStorage.setItem('hideNotice', 'true')
-    setShowCard(false)
-  }
-
   return (
     <main className="relative min-h-screen bg-gray-950 text-white overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-900/20 via-gray-950 to-gray-950" />
@@ -198,37 +185,6 @@ export default function ManhwaDetailPage() {
       </div>
       <div className="absolute top-0 right-0 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-sky-400/5 rounded-full blur-3xl" />
-
-      <AnimatePresence>
-        {showCard && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} transition={{ duration: 0.3 }} className="relative max-w-sm w-full p-5 sm:p-6 rounded-2xl bg-gray-900/90 backdrop-blur-xl border border-sky-500/30 text-center shadow-xl shadow-sky-500/20">
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-sky-500/50 to-transparent" />
-              <div className="w-12 h-12 mx-auto mb-3 bg-sky-500/20 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h2 className="text-lg sm:text-xl font-bold mb-2 text-white">{lang === 'en' ? 'Notice' : 'Pemberitahuan'}</h2>
-              <p className="text-gray-400 mb-4 text-sm">{lang === 'en' ? 'Now the reading feature is available, happy reading :)' : 'Sekarang fitur membaca sudah hadir, selamat membaca :)'}</p>
-              <label className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
-                <input type="checkbox" checked={dontShowAgain} onChange={(e) => setDontShowAgain(e.target.checked)} className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-sky-500 focus:ring-sky-500/30" />
-                <span className="text-xs text-gray-400">{lang === 'en' ? "Don't remind me again" : 'Jangan ingatkan lagi'}</span>
-              </label>
-              <button onClick={handleCloseModal} className="w-full px-4 py-2 bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/30 rounded-lg text-sky-400 text-sm font-medium transition">
-                {lang === 'en' ? 'Got it!' : 'Mengerti!'}
-              </button>
-              <div className="mt-4 flex items-center justify-center gap-2 text-xs">
-                <span className={lang === 'en' ? 'text-sky-400 font-medium' : 'text-gray-500'}>EN</span>
-                <button onClick={() => setLang(lang === 'en' ? 'id' : 'en')} className="relative w-10 h-5 bg-gray-800 rounded-full border border-gray-700 transition">
-                  <div className={`absolute top-0.5 w-4 h-4 bg-sky-500 rounded-full transition-transform ${lang === 'id' ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                </button>
-                <span className={lang === 'id' ? 'text-sky-400 font-medium' : 'text-gray-500'}>ID</span>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <div className="relative z-10">
         <section className="px-3 sm:px-5 md:px-6 lg:px-8 py-6 sm:py-8 max-w-6xl mx-auto">
