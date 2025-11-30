@@ -262,83 +262,82 @@ export default function MangaDetailPage() {
           </motion.div>
 
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mt-8 sm:mt-10">
-            <div className="flex flex-col gap-4 mb-4">
+            <div className="flex flex-col gap-4 mb-4 sm:mb-5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-sky-500/20 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-sky-500/20 to-sky-600/20 rounded-xl border border-sky-500/20 flex items-center justify-center shadow-lg shadow-sky-500/10">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                   </div>
-                  <h2 className="text-base sm:text-lg font-bold">Chapters</h2>
-                  <span className="text-xs text-gray-500">({filteredChapters.length})</span>
+                  <div>
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">Chapters</h2>
+                    <span className="text-xs sm:text-sm text-gray-500">({filteredChapters.length})</span>
+                  </div>
                 </div>
 
-                <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900/80 hover:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-gray-800/50 hover:border-sky-500/30 transition text-xs sm:text-sm text-gray-300 hover:text-sky-400">
-                  <svg className={`w-4 h-4 transition-transform ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gray-900/80 hover:bg-gray-800/90 backdrop-blur-sm rounded-xl border border-gray-800/50 hover:border-sky-500/30 transition-all group shadow-lg">
+                  <svg className={`w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-sky-400 transition-all duration-300 ${sortOrder === 'asc' ? 'rotate-180' : 'rotate-0'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
                   </svg>
-                  <span className="hidden sm:inline">{sortOrder === 'asc' ? 'Oldest' : 'Newest'}</span>
                 </button>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search chapters..." className="w-full px-4 py-2.5 pl-10 bg-gray-900/80 backdrop-blur-sm border border-gray-800/50 focus:border-sky-500/50 rounded-lg text-sm text-gray-300 placeholder-gray-500 outline-none transition" />
-                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
+              <div className="relative">
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search chapters..." className="w-full px-4 sm:px-5 py-3.5 sm:py-4 pl-11 sm:pl-12 bg-gray-900/60 backdrop-blur-sm border border-gray-800/50 focus:border-sky-500/50 focus:bg-gray-900/80 rounded-xl text-sm sm:text-base text-gray-200 placeholder-gray-500 outline-none transition-all shadow-lg" />
+                <svg className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')} className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition p-1 hover:bg-gray-800/50 rounded-lg">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
 
-                <div className="relative inline-flex items-center bg-gray-900/80 backdrop-blur-sm rounded-lg p-1 border border-gray-800/50 shadow-lg">
-                  <motion.div className="absolute inset-1 bg-gradient-to-r from-sky-500 to-sky-600 rounded-md shadow-lg shadow-sky-500/50" initial={false} animate={{ x: langFilter === 'all' ? 0 : langFilter === 'en' ? '100%' : '200%' }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} style={{ width: '33.333%' }} />
-                  <button onClick={() => setLangFilter('all')} className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${langFilter === 'all' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}>
-                    All
-                  </button>
-                  <button onClick={() => setLangFilter('en')} className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${langFilter === 'en' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}>
-                    EN
-                  </button>
-                  <button onClick={() => setLangFilter('id')} className={`relative z-10 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${langFilter === 'id' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}>
-                    ID
-                  </button>
-                </div>
+              <div className="relative inline-flex items-center w-full bg-gray-900/60 backdrop-blur-sm rounded-xl p-1.5 border border-gray-800/50 shadow-lg">
+                <motion.div className="absolute inset-1.5 bg-gradient-to-r from-sky-500 to-sky-600 rounded-lg shadow-lg shadow-sky-500/30" initial={false} animate={{ x: langFilter === 'all' ? 0 : langFilter === 'en' ? '100%' : '200%' }} transition={{ type: 'spring', stiffness: 400, damping: 35 }} style={{ width: '33.333%' }} />
+                <button onClick={() => setLangFilter('all')} className={`relative z-10 flex-1 px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors ${langFilter === 'all' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}>
+                  All
+                </button>
+                <button onClick={() => setLangFilter('en')} className={`relative z-10 flex-1 px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors ${langFilter === 'en' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}>
+                  EN
+                </button>
+                <button onClick={() => setLangFilter('id')} className={`relative z-10 flex-1 px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors ${langFilter === 'id' ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}>
+                  ID
+                </button>
               </div>
             </div>
 
             <AnimatePresence mode="wait">
               {filteredChapters.length > 0 ? (
-                <motion.ul key={`${langFilter}-${searchQuery}-${sortOrder}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <motion.ul key={`${langFilter}-${searchQuery}-${sortOrder}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   {filteredChapters.map((chapter, i) => {
                     const chapterNumber = chapter.attributes.chapter || '?'
                     const chapterTitle = chapter.attributes.title || `Chapter ${chapterNumber}`
                     const lang = chapter.attributes.translatedLanguage?.toUpperCase()
                     return (
                       <motion.li key={chapter.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02 }}>
-                        <Link href={`/read/${chapter.id}`} className="group flex items-center gap-3 px-3 py-2.5 bg-gray-900/60 hover:bg-gray-800/80 rounded-lg border border-gray-800/50 hover:border-sky-500/30 transition">
-                          <span className="text-xs sm:text-sm font-semibold text-sky-400 group-hover:text-sky-300 whitespace-nowrap">Ch. {chapterNumber}</span>
-                          <span className="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300 truncate flex-1">{chapterTitle}</span>
-                          <span className="text-[10px] px-1.5 py-0.5 bg-gray-800/80 text-gray-500 rounded">{lang}</span>
+                        <Link href={`/read/${chapter.id}`} className="group flex items-center gap-3 px-3 sm:px-4 py-3 sm:py-3.5 bg-gray-900/60 hover:bg-gray-800/80 rounded-xl border border-gray-800/50 hover:border-sky-500/30 transition-all shadow-lg hover:shadow-sky-500/10">
+                          <span className="text-xs sm:text-sm font-bold text-sky-400 group-hover:text-sky-300 whitespace-nowrap min-w-[60px] sm:min-w-[70px]">Ch. {chapterNumber}</span>
+                          <span className="text-xs sm:text-sm text-gray-400 group-hover:text-gray-200 truncate flex-1">{chapterTitle}</span>
+                          <span className="text-[10px] sm:text-xs px-2 py-1 bg-gray-800/80 text-gray-400 rounded-md font-medium">{lang}</span>
                         </Link>
                       </motion.li>
                     )
                   })}
                 </motion.ul>
               ) : (
-                <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-900/80 rounded-2xl border border-gray-800/50 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-12 sm:py-16">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 bg-gray-900/80 rounded-2xl border border-gray-800/50 flex items-center justify-center">
+                    <svg className="w-8 h-8 sm:w-10 sm:h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <p className="text-gray-500 text-sm mb-2">No chapters found</p>
-                  <p className="text-gray-600 text-xs">Try adjusting your filters or search query</p>
+                  <p className="text-gray-400 text-sm sm:text-base font-medium mb-2">No chapters found</p>
+                  <p className="text-gray-600 text-xs sm:text-sm">Try adjusting your filters or search query</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -346,18 +345,18 @@ export default function MangaDetailPage() {
 
           {characters.length > 0 && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-8 sm:mt-10">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-sky-500/20 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-sky-500/20 to-sky-600/20 rounded-xl border border-sky-500/20 flex items-center justify-center shadow-lg shadow-sky-500/10">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <h2 className="text-base sm:text-lg font-bold">Characters</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">Characters</h2>
               </div>
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3">
                 {characters.map((char: any, i: number) => (
-                  <motion.div key={i} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.55 + i * 0.03 }} className="group bg-gray-900/60 hover:bg-gray-800/80 p-2 sm:p-3 rounded-xl border border-gray-800/50 hover:border-sky-500/30 flex flex-col items-center text-center transition">
-                    <div className="relative w-10 h-10 sm:w-12 sm:h-12 mb-2">
+                  <motion.div key={i} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.55 + i * 0.03 }} className="group bg-gray-900/60 hover:bg-gray-800/80 p-2 sm:p-3 rounded-xl border border-gray-800/50 hover:border-sky-500/30 flex flex-col items-center text-center transition-all shadow-lg hover:shadow-sky-500/10">
+                    <div className="relative w-12 h-12 sm:w-14 sm:h-14 mb-2">
                       <img src={char.node.image?.large} alt={char.node.name.full} className="w-full h-full rounded-full object-cover ring-2 ring-gray-800 group-hover:ring-sky-500/30 transition" />
                     </div>
                     <p className="font-medium text-[10px] sm:text-xs text-gray-300 group-hover:text-white line-clamp-2 transition">{char.node.name.full}</p>
@@ -377,8 +376,8 @@ export default function MangaDetailPage() {
         <ShareModal open={showShare} setOpen={setShowShare} url={shareUrl} title={shareTitle} thumbnail={shareThumbnail} />
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="max-w-6xl mx-auto px-3 sm:px-5 md:px-6 lg:px-8 pb-8">
-          <Link href="/manga" className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-400 hover:to-sky-500 rounded-lg text-white text-sm font-medium shadow-lg shadow-sky-500/20 transition">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          <Link href="/manga" className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-400 hover:to-sky-500 rounded-xl text-white text-sm sm:text-base font-semibold shadow-lg shadow-sky-500/30 hover:shadow-sky-500/40 transition-all">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Back to Manga
           </Link>
         </motion.div>
