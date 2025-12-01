@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { FaCircle, FaCopy, FaCheck, FaSearch, FaTimes, FaBook, FaRocket, FaBolt, FaCode, FaServer } from 'react-icons/fa'
+import { FaCircle, FaCopy, FaCheck, FaSearch, FaTimes, FaCode, FaServer } from 'react-icons/fa'
 import { HiDocumentText } from 'react-icons/hi'
 import { BiSearchAlt } from 'react-icons/bi'
 
@@ -38,13 +38,7 @@ export default function ApiPage() {
     setTimeout(() => setCopied(null), 2000)
   }
 
-  const categories = [
-    { name: 'anime', icon: <FaRocket className="w-3 h-3" /> },
-    { name: 'manga', icon: <FaBook className="w-3 h-3" /> },
-    { name: 'manhwa', icon: <HiDocumentText className="w-3 h-3" /> },
-    { name: 'manhua', icon: <FaBolt className="w-3 h-3" /> },
-    { name: 'light novel', icon: <BiSearchAlt className="w-3 h-3" /> }
-  ]
+  const categories = ['anime', 'manga', 'manhwa', 'manhua', 'light novel']
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-slate-950 to-black text-white overflow-hidden">
@@ -77,9 +71,8 @@ export default function ApiPage() {
                 <span className="font-semibold text-sky-300 block">Categories:</span>
                 <div className="flex flex-wrap gap-2">
                   {categories.map(cat => (
-                    <span key={cat.name} className="px-2 sm:px-3 py-1 bg-sky-500/20 rounded-lg text-sky-200 font-medium border border-sky-400/30 flex items-center gap-1.5">
-                      {cat.icon}
-                      <span>{cat.name}</span>
+                    <span key={cat} className="px-2 sm:px-3 py-1 bg-sky-500/20 rounded-lg text-sky-200 font-medium border border-sky-400/30">
+                      {cat}
                     </span>
                   ))}
                 </div>
