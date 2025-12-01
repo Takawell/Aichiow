@@ -20,9 +20,9 @@ const endpoints = [
 ]
 
 export default function ApiPage() {
-  const [copied, setCopied] = useState(null)
+  const [copied, setCopied] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [hoveredCard, setHoveredCard] = useState(null)
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 
   const filteredEndpoints = useMemo(() => {
     return endpoints.filter(ep =>
@@ -32,7 +32,7 @@ export default function ApiPage() {
     )
   }, [search])
 
-  const handleCopy = (path) => {
+  const handleCopy = (path: string) => {
     navigator.clipboard.writeText(path)
     setCopied(path)
     setTimeout(() => setCopied(null), 2000)
@@ -111,7 +111,7 @@ export default function ApiPage() {
                 type="text"
                 placeholder="Search endpoints..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
                 className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 bg-slate-950/50 backdrop-blur-xl border-2 border-sky-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-500/20 transition-all duration-300 text-sm"
               />
               {search && (
