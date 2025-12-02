@@ -184,6 +184,17 @@ export default function AnimeDetailPage() {
         <section className="mt-10 px-4 max-w-7xl mx-auto">
           <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 md:p-8 border border-white/10 shadow-2xl">
             <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+              <div
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl ${statusBadgeColor} shadow-lg`}
+              >
+                <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                {anime.status === "RELEASING"
+                  ? "Ongoing"
+                  : anime.status === "FINISHED"
+                  ? "Completed"
+                  : "Schedule"}
+              </div>
+
               <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
                 <Tv className="w-4 h-4 text-blue-400" />
                 <span className="text-sm text-neutral-300">
