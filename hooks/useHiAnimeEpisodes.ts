@@ -8,17 +8,34 @@ export function useHiAnimeEpisodes(anime: AnimeDetail | undefined) {
     async () => {
       if (!anime) return null
 
-      const match = await matchAnimeToHiAnime(anime.title)
-      if (!match) return null
+      console.log('🔍 Searching HiAnime for:', anime.title)
 
+      const match = await matchAnimeToHiAnime(anime.title, anime.seasonYear)
+      
+      if (!match) {
+        console.log('❌ No match found for:', anime.title)
+        return null
+      }
+
+      console.log('✅ Match found:', match.title, match.id)
       const info = await getHiAnimeInfo(match.id)
+      console.log('📺 Episode info:', info)
+      
       return info
     },
     {
       revalidateOnFocus: false,
       dedupingInterval: 60000, 
+      shouldRetryOnError: false,
     }
   )
+
+  console.log('Hook result:', { 
+    hasData: !!data, 
+    episodeCount: data?.episodes?.length || 0,
+    error, 
+    isLoading 
+  })
 
   return {
     hiAnimeData: data,
