@@ -10,6 +10,10 @@ export interface HiAnimeSearchResult {
   sub?: number
   dub?: number
   episodes?: number
+  type?: string
+  japaneseTitle?: string
+  duration?: string
+  nsfw?: boolean
 }
 
 export interface HiAnimeEpisode {
@@ -49,6 +53,7 @@ export interface WatchData {
   }
 }
 
+// Search anime by title
 export async function searchHiAnime(query: string): Promise<HiAnimeSearchResult[]> {
   try {
     const res = await axios.get(`${CONSUMET_API}/${encodeURIComponent(query)}`)
@@ -59,6 +64,7 @@ export async function searchHiAnime(query: string): Promise<HiAnimeSearchResult[
   }
 }
 
+// Get anime info + episode list
 export async function getHiAnimeInfo(animeId: string): Promise<HiAnimeInfo | null> {
   try {
     const res = await axios.get(`${CONSUMET_API}/info?id=${animeId}`)
@@ -69,6 +75,7 @@ export async function getHiAnimeInfo(animeId: string): Promise<HiAnimeInfo | nul
   }
 }
 
+// Get streaming links for specific episode
 export async function getHiAnimeWatch(episodeId: string): Promise<WatchData | null> {
   try {
     const res = await axios.get(`${CONSUMET_API}/watch/${episodeId}`)
@@ -79,18 +86,90 @@ export async function getHiAnimeWatch(episodeId: string): Promise<WatchData | nu
   }
 }
 
+// Helper: Match AniList anime to HiAnime with improved logic
 export async function matchAnimeToHiAnime(
   anilistTitle: {
     romaji: string
     english?: string
     native?: string
-  }
+  },
+  seasonYear?: number
 ): Promise<HiAnimeSearchResult | null> {
-  if (anilistTitle.english) {
-    const results = await searchHiAnime(anilistTitle.english)
-    if (results.length > 0) return results[0]
+  const searchQueries = [
+    anilistTitle.english,
+    anilistTitle.romaji,
+  ].filter(Boolean) as string[]
+
+  for (const query of searchQueries) {
+    const results = await searchHiAnime(query)
+    
+    if (results.length === 0) continue
+
+    console.log(`🔍 Search results for "${query}":`, results.map(r => ({
+      title: r.title,
+      type: r.type,
+      episodes: r.episodes,
+      id: r.id
+    })))
+
+    // Priority 1: Exact title match
+    const exactMatch = results.find(r => {
+      const titleMatch = r.title.toLowerCase().trim() === query.toLowerCase().trim()
+      const japaneseMatch = r.japaneseTitle?.toLowerCase().trim() === query.toLowerCase().trim()
+      return titleMatch || japaneseMatch
+    })
+
+    if (exactMatch) {
+      console.log('✅ Exact match:', exactMatch.title)
+      return exactMatch
+    }
+
+    // Priority 2: Best TV series match
+    const tvMatches = results.filter(r => {
+      const titleLower = r.title.toLowerCase()
+      const queryLower = query.toLowerCase()
+      const japaneseLower = r.japaneseTitle?.toLowerCase() || ''
+      
+      // Check if query words are in title
+      const queryWords = queryLower.split(' ')
+      const titleContainsQuery = queryWords.every(word => 
+        titleLower.includes(word) || japaneseLower.includes(word)
+      )
+      
+      return (
+        r.type === 'TV' &&
+        (r.episodes || 0) > 10 &&
+        titleContainsQuery
+      )
+    })
+
+    if (tvMatches.length > 0) {
+      // Sort by episode count (higher = likely main series)
+      tvMatches.sort((a, b) => (b.episodes || 0) - (a.episodes || 0))
+      console.log('✅ Best TV match:', tvMatches[0].title, `(${tvMatches[0].episodes} eps)`)
+      return tvMatches[0]
+    }
+
+    // Priority 3: Any match with episodes that contains query
+    const partialMatch = results.find(r => {
+      const titleLower = r.title.toLowerCase()
+      const queryLower = query.toLowerCase()
+      return (r.episodes || 0) > 0 && titleLower.includes(queryLower)
+    })
+    
+    if (partialMatch) {
+      console.log('⚠️ Partial match:', partialMatch.title)
+      return partialMatch
+    }
+
+    // Priority 4: First result with episodes
+    const firstWithEpisodes = results.find(r => (r.episodes || 0) > 0)
+    if (firstWithEpisodes) {
+      console.log('⚠️ Fallback to first result:', firstWithEpisodes.title)
+      return firstWithEpisodes
+    }
   }
 
-  const results = await searchHiAnime(anilistTitle.romaji)
-  return results.length > 0 ? results[0] : null
+  console.log('❌ No match found for:', anilistTitle)
+  return null
 }
