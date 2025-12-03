@@ -53,7 +53,6 @@ export interface WatchData {
   }
 }
 
-// Search anime by title
 export async function searchHiAnime(query: string): Promise<HiAnimeSearchResult[]> {
   try {
     const res = await axios.get(`${CONSUMET_API}/${encodeURIComponent(query)}`)
@@ -64,7 +63,6 @@ export async function searchHiAnime(query: string): Promise<HiAnimeSearchResult[
   }
 }
 
-// Get anime info + episode list
 export async function getHiAnimeInfo(animeId: string): Promise<HiAnimeInfo | null> {
   try {
     const res = await axios.get(`${CONSUMET_API}/info?id=${animeId}`)
@@ -75,7 +73,6 @@ export async function getHiAnimeInfo(animeId: string): Promise<HiAnimeInfo | nul
   }
 }
 
-// Get streaming links for specific episode
 export async function getHiAnimeWatch(episodeId: string): Promise<WatchData | null> {
   try {
     const res = await axios.get(`${CONSUMET_API}/watch/${episodeId}`)
@@ -86,7 +83,6 @@ export async function getHiAnimeWatch(episodeId: string): Promise<WatchData | nu
   }
 }
 
-// Helper: Match AniList anime to HiAnime with improved logic
 export async function matchAnimeToHiAnime(
   anilistTitle: {
     romaji: string
@@ -112,7 +108,6 @@ export async function matchAnimeToHiAnime(
       id: r.id
     })))
 
-    // Priority 1: Exact title match
     const exactMatch = results.find(r => {
       const titleMatch = r.title.toLowerCase().trim() === query.toLowerCase().trim()
       const japaneseMatch = r.japaneseTitle?.toLowerCase().trim() === query.toLowerCase().trim()
@@ -124,13 +119,11 @@ export async function matchAnimeToHiAnime(
       return exactMatch
     }
 
-    // Priority 2: Best TV series match
     const tvMatches = results.filter(r => {
       const titleLower = r.title.toLowerCase()
       const queryLower = query.toLowerCase()
       const japaneseLower = r.japaneseTitle?.toLowerCase() || ''
       
-      // Check if query words are in title
       const queryWords = queryLower.split(' ')
       const titleContainsQuery = queryWords.every(word => 
         titleLower.includes(word) || japaneseLower.includes(word)
@@ -144,13 +137,11 @@ export async function matchAnimeToHiAnime(
     })
 
     if (tvMatches.length > 0) {
-      // Sort by episode count (higher = likely main series)
       tvMatches.sort((a, b) => (b.episodes || 0) - (a.episodes || 0))
       console.log('✅ Best TV match:', tvMatches[0].title, `(${tvMatches[0].episodes} eps)`)
       return tvMatches[0]
     }
 
-    // Priority 3: Any match with episodes that contains query
     const partialMatch = results.find(r => {
       const titleLower = r.title.toLowerCase()
       const queryLower = query.toLowerCase()
@@ -162,7 +153,6 @@ export async function matchAnimeToHiAnime(
       return partialMatch
     }
 
-    // Priority 4: First result with episodes
     const firstWithEpisodes = results.find(r => (r.episodes || 0) > 0)
     if (firstWithEpisodes) {
       console.log('⚠️ Fallback to first result:', firstWithEpisodes.title)
