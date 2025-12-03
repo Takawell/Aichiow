@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import Image from "next/image";
 import { useAnimeDetail } from "@/hooks/useAnimeDetail";
+import { useHiAnimeEpisodes } from "@/hooks/useHiAnimeEpisodes";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSimilarAnime } from "@/lib/anilist";
 import AnimeDetailHeader from "@/components/anime/AnimeDetailHeader";
@@ -144,6 +145,12 @@ export default function AnimeDetailPage() {
   const id = parseInt(slug as string);
 
   const { anime, isLoading, isError } = useAnimeDetail(id);
+  const { 
+    episodes, 
+    isLoading: loadingEpisodes, 
+    notFound: episodesNotFound 
+  } = useHiAnimeEpisodes(anime);
+  
   const { data: similarAnime = [], isLoading: loadingSimilar } = useQuery({
     queryKey: ["similarAnime", id],
     queryFn: () => fetchSimilarAnime(id),
@@ -151,11 +158,21 @@ export default function AnimeDetailPage() {
   });
 
   if (isLoading) {
-    return <ModernLoader text="Loading..." />;
+    return <ModernLoader text="Loading anime details..." />;
   }
 
   if (isError || !anime) {
-    return <p className="text-center text-red-500 mt-10">Anime not found.</p>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900 text-white">
+        <p className="text-center text-red-500 text-xl">Anime not found.</p>
+        <button
+          onClick={() => router.back()}
+          className="mt-4 px-6 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition"
+        >
+          Go Back
+        </button>
+      </div>
+    );
   }
 
   const statusBadgeColor =
@@ -173,10 +190,13 @@ export default function AnimeDetailPage() {
     <>
       <Head>
         <title>{anime.title.english || anime.title.romaji} | Aichiow</title>
+        <meta name="description" content={anime.description?.replace(/<[^>]+>/g, "").slice(0, 160)} />
       </Head>
       <main className="bg-dark text-white pb-20">
         <AnimeDetailHeader anime={anime} />
+        
         {anime.trailer?.site === "youtube" && <AnimeTrailer trailer={anime.trailer} />}
+        
         {Array.isArray(anime.characters?.edges) && anime.characters.edges.length > 0 && (
           <CharacterList characters={anime.characters.edges} />
         )}
@@ -249,33 +269,59 @@ export default function AnimeDetailPage() {
 
             <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-6 text-center">Episodes</h2>
 
-            {totalEpisodes ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {Array.from({ length: totalEpisodes }).map((_, idx) => {
-                  const ep = idx + 1;
-                  return (
-                    <a
-                      key={ep}
-                      href={`/watch/soon`}
-                      className="bg-white/5 hover:bg-white/10 text-white p-3 rounded-lg border border-white/10 hover:border-blue-400/50 text-center transition shadow-lg"
-                    >
-                      Episode {ep}
-                    </a>
-                  );
-                })}
+            {loadingEpisodes ? (
+              <MiniLoader text="Loading episodes..." />
+            ) : episodesNotFound ? (
+              <div className="text-center py-8">
+                <p className="text-neutral-400 mb-2">
+                  Episodes not found on streaming provider
+                </p>
+                <p className="text-sm text-neutral-500">
+                  This anime might not be available yet or try searching manually
+                </p>
+              </div>
+            ) : episodes.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {episodes.map((ep) => (
+                  <a
+                    key={ep.episodeId}
+                    href={`/watch/${encodeURIComponent(ep.episodeId)}`}
+                    className={`
+                      bg-white/5 hover:bg-white/10 text-white p-4 rounded-lg 
+                      border border-white/10 hover:border-blue-400/50 
+                      text-center transition shadow-lg hover:shadow-blue-500/20
+                      hover:scale-105 transform duration-200
+                      ${ep.isFiller ? 'border-yellow-500/30 bg-yellow-500/5' : ''}
+                    `}
+                  >
+                    <div className="font-semibold text-base mb-1">EP {ep.number}</div>
+                    {ep.title && (
+                      <div className="text-xs text-neutral-400 line-clamp-2 leading-tight">
+                        {ep.title}
+                      </div>
+                    )}
+                    {ep.isFiller && (
+                      <div className="text-[10px] text-yellow-400 mt-2 font-semibold">
+                        FILLER
+                      </div>
+                    )}
+                  </a>
+                ))}
               </div>
             ) : (
-              <p className="text-center text-neutral-400">Episode list not available</p>
+              <div className="text-center py-8">
+                <p className="text-neutral-400">No episodes available</p>
+              </div>
             )}
           </div>
         </section>
 
-        <section className="mt-10 px-4">
-          <h2 className="text-xl font-semibold mb-4 text-white">More like this</h2>
+        <section className="mt-10 px-4 max-w-7xl mx-auto">
+          <h2 className="text-2xl font-bold mb-6 text-white">More like this</h2>
           {loadingSimilar ? (
             <MiniLoader text="Finding more anime for you..." />
           ) : similarAnime.length > 0 ? (
-            <div className="flex gap-4 overflow-x-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-x-auto">
               {similarAnime.map((anime) => (
                 <AnimeCard key={anime.id} anime={anime} />
               ))}
