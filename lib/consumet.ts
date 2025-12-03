@@ -1,91 +1,96 @@
-const BASE = "https://api-aichixia.vercel.app/anime/hianime";
+import axios from 'axios'
 
-export async function consumetSearch(query: string) {
-  const res = await fetch(`${BASE}/${encodeURIComponent(query)}`);
-  if (!res.ok) return null;
-  return res.json();
+const CONSUMET_API = 'https://api-aichixia.vercel.app/anime/hianime'
+
+export interface HiAnimeSearchResult {
+  id: string
+  title: string
+  url: string
+  image: string
+  sub?: number
+  dub?: number
+  episodes?: number
 }
 
-export async function consumetInfo(id: string) {
-  const res = await fetch(`${BASE}/info?id=${encodeURIComponent(id)}`);
-  if (!res.ok) return null;
-  return res.json();
+export interface HiAnimeEpisode {
+  number: number
+  episodeId: string
+  title?: string
+  isFiller?: boolean
 }
 
-export async function consumetWatch(episodeId: string) {
-  const res = await fetch(`${BASE}/watch/${encodeURIComponent(episodeId)}`);
-  if (!res.ok) return null;
-  return res.json();
+export interface HiAnimeInfo {
+  id: string
+  title: string
+  image: string
+  cover?: string
+  description?: string
+  genres?: string[]
+  totalEpisodes?: number
+  episodes: HiAnimeEpisode[]
 }
 
-export async function consumetAdvancedSearch(params: string) {
-  const res = await fetch(`${BASE}/advanced-search?${params}`);
-  if (!res.ok) return null;
-  return res.json();
+export interface StreamingSource {
+  url: string
+  quality: string
+  isM3U8: boolean
 }
 
-export async function consumetTopAiring() {
-  const res = await fetch(`${BASE}/top-airing`);
-  if (!res.ok) return null;
-  return res.json();
+export interface WatchData {
+  sources: StreamingSource[]
+  subtitles?: any[]
+  intro?: {
+    start: number
+    end: number
+  }
+  outro?: {
+    start: number
+    end: number
+  }
 }
 
-export async function consumetLatestCompleted() {
-  const res = await fetch(`${BASE}/latest-completed`);
-  if (!res.ok) return null;
-  return res.json();
+export async function searchHiAnime(query: string): Promise<HiAnimeSearchResult[]> {
+  try {
+    const res = await axios.get(`${CONSUMET_API}/${encodeURIComponent(query)}`)
+    return res.data.results || []
+  } catch (error: any) {
+    console.error('HiAnime Search Error:', error.message)
+    return []
+  }
 }
 
-export async function consumetRecentlyUpdated() {
-  const res = await fetch(`${BASE}/recently-updated`);
-  if (!res.ok) return null;
-  return res.json();
+export async function getHiAnimeInfo(animeId: string): Promise<HiAnimeInfo | null> {
+  try {
+    const res = await axios.get(`${CONSUMET_API}/info?id=${animeId}`)
+    return res.data
+  } catch (error: any) {
+    console.error('HiAnime Info Error:', error.message)
+    return null
+  }
 }
 
-export async function consumetRecentlyAdded() {
-  const res = await fetch(`${BASE}/recently-added`);
-  if (!res.ok) return null;
-  return res.json();
+export async function getHiAnimeWatch(episodeId: string): Promise<WatchData | null> {
+  try {
+    const res = await axios.get(`${CONSUMET_API}/watch/${episodeId}`)
+    return res.data
+  } catch (error: any) {
+    console.error('HiAnime Watch Error:', error.message)
+    return null
+  }
 }
 
-export async function consumetTopUpcoming() {
-  const res = await fetch(`${BASE}/top-upcoming`);
-  if (!res.ok) return null;
-  return res.json();
-}
+export async function matchAnimeToHiAnime(
+  anilistTitle: {
+    romaji: string
+    english?: string
+    native?: string
+  }
+): Promise<HiAnimeSearchResult | null> {
+  if (anilistTitle.english) {
+    const results = await searchHiAnime(anilistTitle.english)
+    if (results.length > 0) return results[0]
+  }
 
-export async function consumetStudio(studio: string) {
-  const res = await fetch(`${BASE}/studio/${encodeURIComponent(studio)}`);
-  if (!res.ok) return null;
-  return res.json();
-}
-
-export async function consumetGenres() {
-  const res = await fetch(`${BASE}/genres`);
-  if (!res.ok) return null;
-  return res.json();
-}
-
-export async function consumetGenre(genre: string) {
-  const res = await fetch(`${BASE}/genre/${encodeURIComponent(genre)}`);
-  if (!res.ok) return null;
-  return res.json();
-}
-
-export async function consumetSchedule() {
-  const res = await fetch(`${BASE}/schedule`);
-  if (!res.ok) return null;
-  return res.json();
-}
-
-export async function consumetSpotlight() {
-  const res = await fetch(`${BASE}/spotlight`);
-  if (!res.ok) return null;
-  return res.json();
-}
-
-export async function consumetSearchSuggestions(query: string) {
-  const res = await fetch(`${BASE}/search-suggestions/${encodeURIComponent(query)}`);
-  if (!res.ok) return null;
-  return res.json();
+  const results = await searchHiAnime(anilistTitle.romaji)
+  return results.length > 0 ? results[0] : null
 }
