@@ -64,7 +64,7 @@ export default function WatchPage() {
       </Head>
       <main className="min-h-screen bg-neutral-900 text-white">
         <div className="max-w-7xl mx-auto px-4 py-6">
-           <div className="aspect-video bg-black rounded-xl overflow-hidden shadow-2xl mb-6">
+          <div className="aspect-video bg-black rounded-xl overflow-hidden shadow-2xl mb-6">
             <video
               key={currentSource.url}
               src={currentSource.url}
@@ -75,7 +75,7 @@ export default function WatchPage() {
             />
           </div>
 
-          div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
+          <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
             <h3 className="text-sm font-semibold text-neutral-400 mb-3">Quality</h3>
             <div className="flex gap-2 flex-wrap">
               {data.sources.map((source) => (
