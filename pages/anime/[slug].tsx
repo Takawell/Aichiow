@@ -321,7 +321,7 @@ export default function AnimeDetailPage() {
           {loadingSimilar ? (
             <MiniLoader text="Finding more anime for you..." />
           ) : similarAnime.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-x-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {similarAnime.map((anime) => (
                 <AnimeCard key={anime.id} anime={anime} />
               ))}
