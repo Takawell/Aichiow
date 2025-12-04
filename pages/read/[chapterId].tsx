@@ -11,7 +11,6 @@ import { supabase } from '@/lib/supabaseClient'
 export default function ReadPage() {
   const router = useRouter()
   const { chapterId } = router.query
-
   const [images, setImages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
@@ -360,7 +359,7 @@ export default function ReadPage() {
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentPage}
-                    className="relative w-full max-w-4xl"
+                    className="relative w-full max-w-4xl border border-neutral-800/80 hover:border-sky-500/30 transition-all duration-500"
                     initial={{ rotateY: 90, opacity: 0, scale: 0.9 }}
                     animate={{ rotateY: 0, opacity: 1, scale: 1 }}
                     exit={{ rotateY: -90, opacity: 0, scale: 0.9 }}
@@ -378,7 +377,6 @@ export default function ReadPage() {
                       borderRadius: '16px',
                       overflow: 'hidden',
                     }}
-                    className="border border-neutral-800/80 hover:border-sky-500/30 transition-all duration-500"
                   >
                     <div className={`relative ${blurredPages.has(currentPage) ? 'blur-xl' : ''}`}>
                       <img
