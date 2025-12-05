@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner, FaTimes } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner, FaTimes, FaEllipsisV, FaAngry, FaSmile, FaBriefcase, FaHeart } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,13 +27,45 @@ interface Message {
   content: string | AnimeData[] | any[];
 }
 
+type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
+
+const personaConfig: Record<
+  Persona,
+  { name: string; description: string; icon: any; color: string }
+> = {
+  tsundere: {
+    name: "Tsundere",
+    description: "B-baka! Classic tsundere personality",
+    icon: FaAngry,
+    color: "from-pink-500 to-rose-500",
+  },
+  friendly: {
+    name: "Friendly",
+    description: "Warm and welcoming assistant",
+    icon: FaSmile,
+    color: "from-green-500 to-emerald-500",
+  },
+  professional: {
+    name: "Professional",
+    description: "Formal and efficient helper",
+    icon: FaBriefcase,
+    color: "from-blue-500 to-indigo-500",
+  },
+  kawaii: {
+    name: "Kawaii",
+    description: "Super cute and energetic!",
+    icon: FaHeart,
+    color: "from-purple-500 to-pink-500",
+  },
+};
+
 export default function AichixiaPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       type: "text",
       content:
-        "Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot via Scan button to identify an anime instantly!",
+        "Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot via menu to identify an anime instantly!",
     },
   ]);
   const [input, setInput] = useState("");
@@ -42,6 +74,9 @@ export default function AichixiaPage() {
   const [scanOpen, setScanOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null);
   const [scanCooldown, setScanCooldown] = useState(0);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showPersonaMenu, setShowPersonaMenu] = useState(false);
+  const [persona, setPersona] = useState<Persona>("tsundere");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -120,6 +155,7 @@ export default function AichixiaPage() {
                   ? m.content
                   : JSON.stringify(m.content),
             })),
+            persona: persona === "tsundere" ? undefined : personaConfig[persona].description,
           }),
         });
         const data = await res.json();
@@ -170,6 +206,8 @@ export default function AichixiaPage() {
     }
   };
 
+  const PersonaIcon = personaConfig[persona].icon;
+
   return (
     <>
       <Head>
@@ -203,23 +241,73 @@ export default function AichixiaPage() {
                 <h1 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent tracking-tight">
                   Aichixia
                 </h1>
-                <p className="text-[10px] sm:text-xs text-blue-300/70 font-light tracking-wide">
-                  AI-Powered Anime Assistant
+                <p className="text-[10px] sm:text-xs text-blue-300/70 font-light tracking-wide flex items-center gap-1.5">
+                  <PersonaIcon className="text-xs" />
+                  {personaConfig[persona].name} Mode
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setScanOpen(true)}
-              disabled={scanCooldown > 0}
-              className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              {scanCooldown > 0 ? (
-                <span className="text-xs sm:text-sm font-bold relative z-10">{scanCooldown}s</span>
-              ) : (
-                <LuScanLine className="text-lg sm:text-xl relative z-10" />
-              )}
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <FaEllipsisV className="text-lg sm:text-xl relative z-10" />
+              </button>
+
+              <AnimatePresence>
+                {showMenu && (
+                  <>
+                    <motion.div 
+                      className="fixed inset-0 z-30" 
+                      onClick={() => setShowMenu(false)}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                      transition={{ type: "spring", bounce: 0.3 }}
+                      className="absolute right-0 mt-2 w-56 bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-blue-500/30 overflow-hidden z-40"
+                    >
+                      <button
+                        onClick={() => {
+                          setShowMenu(false);
+                          setScanOpen(true);
+                        }}
+                        disabled={scanCooldown > 0}
+                        className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3 border-b border-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <LuScanLine className="text-xl text-cyan-400" />
+                        <div className="flex-1">
+                          <div className="font-semibold text-blue-100 text-sm">Scan Anime</div>
+                          {scanCooldown > 0 && (
+                            <div className="text-xs text-blue-300/70">Cooldown: {scanCooldown}s</div>
+                          )}
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowMenu(false);
+                          setShowPersonaMenu(true);
+                        }}
+                        className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3"
+                      >
+                        <PersonaIcon className="text-xl text-pink-400" />
+                        <div className="flex-1">
+                          <div className="font-semibold text-blue-100 text-sm">Change Persona</div>
+                          <div className="text-xs text-blue-300/70">{personaConfig[persona].name}</div>
+                        </div>
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
           </header>
 
           <section className="flex-1 overflow-y-auto py-6 space-y-5 scrollbar-thin scrollbar-thumb-blue-500/30 scrollbar-track-transparent px-1">
@@ -458,6 +546,71 @@ export default function AichixiaPage() {
 
                 <button
                   onClick={() => setScanOpen(false)}
+                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
+                >
+                  <FaTimes className="text-xl" />
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showPersonaMenu && (
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPersonaMenu(false)}
+            >
+              <motion.div
+                className="bg-slate-900/95 rounded-3xl p-6 sm:p-8 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
+                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                transition={{ type: "spring", bounce: 0.3 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text mb-6">
+                  Choose Persona
+                </h2>
+
+                <div className="space-y-3">
+                  {(Object.keys(personaConfig) as Persona[]).map((p) => {
+                    const Icon = personaConfig[p].icon;
+                    return (
+                      <button
+                        key={p}
+                        onClick={() => {
+                          setPersona(p);
+                          setShowPersonaMenu(false);
+                        }}
+                        className={`w-full px-5 py-4 rounded-2xl text-left hover:bg-blue-500/10 transition-all flex items-center gap-4 border-2 ${
+                          persona === p
+                            ? "border-pink-400/50 bg-pink-500/10"
+                            : "border-blue-500/20"
+                        }`}
+                      >
+                        <Icon className="text-2xl" />
+                        <div className="flex-1">
+                          <div className="font-bold text-blue-100 text-sm sm:text-base">
+                            {personaConfig[p].name}
+                          </div>
+                          <div className="text-xs text-blue-300/70">
+                            {personaConfig[p].description}
+                          </div>
+                        </div>
+                        {persona === p && (
+                          <div className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => setShowPersonaMenu(false)}
                   className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
                 >
                   <FaTimes className="text-xl" />
