@@ -1,7 +1,22 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner, FaTimes, FaEllipsisV, FaAngry, FaSmile, FaBriefcase, FaHeart } from "react-icons/fa";
+import {
+  FaPaperPlane,
+  FaTrash,
+  FaUser,
+  FaCircle,
+  FaChevronDown,
+  FaAngry,
+  FaSmile,
+  FaBriefcase,
+  FaHeart,
+  FaImage,
+  FaTimes,
+  FaCopy,
+  FaCheck,
+  FaSpinner,
+} from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,72 +27,78 @@ import { supabase } from "@/lib/supabaseClient";
 import { searchAnimeByFile } from "@/lib/traceMoe";
 import Head from "next/head";
 
-interface AnimeData {
-  id: number;
-  title: string;
-  coverImage: string;
-  score: number;
-  popularity: number;
-  url: string;
-}
-
-interface Message {
+type Message = {
   role: "user" | "assistant";
   type?: "text" | "anime" | "scan" | "image";
-  content: string | AnimeData[] | any[];
-}
+  content: string | any[];
+  timestamp: Date;
+};
 
 type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
 
 const personaConfig: Record<
   Persona,
-  { name: string; description: string; icon: any; color: string }
+  { name: string; description: string; color: string; icon: any }
 > = {
   tsundere: {
-    name: "Tsundere",
+    name: "Tsundere Mode",
     description: "B-baka! Classic tsundere personality",
-    icon: FaAngry,
     color: "from-pink-500 to-rose-500",
+    icon: FaAngry,
   },
   friendly: {
-    name: "Friendly",
+    name: "Friendly Mode",
     description: "Warm and welcoming assistant",
-    icon: FaSmile,
     color: "from-green-500 to-emerald-500",
+    icon: FaSmile,
   },
   professional: {
-    name: "Professional",
+    name: "Professional Mode",
     description: "Formal and efficient helper",
-    icon: FaBriefcase,
     color: "from-blue-500 to-indigo-500",
+    icon: FaBriefcase,
   },
   kawaii: {
-    name: "Kawaii",
+    name: "Kawaii Mode",
     description: "Super cute and energetic!",
-    icon: FaHeart,
     color: "from-purple-500 to-pink-500",
+    icon: FaHeart,
   },
 };
 
-export default function AichixiaPage() {
+export default function AichixiaModern() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       type: "text",
       content:
-        "Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot via menu to identify an anime instantly!",
+        "Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot to identify an anime instantly!",
+      timestamp: new Date(),
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [session, setSession] = useState<any>(null);
-  const [scanOpen, setScanOpen] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [persona, setPersona] = useState<Persona>("tsundere");
+  const [showPersonaMenu, setShowPersonaMenu] = useState(false);
+  const [showScanModal, setShowScanModal] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null);
   const [scanCooldown, setScanCooldown] = useState(0);
-  const [showMenu, setShowMenu] = useState(false);
-  const [showPersonaMenu, setShowPersonaMenu] = useState(false);
-  const [persona, setPersona] = useState<Persona>("tsundere");
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [session, setSession] = useState<any>(null);
+  const [dragActive, setDragActive] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, typing]);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -92,44 +113,65 @@ export default function AichixiaPage() {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  useEffect(() => {
     if (scanCooldown > 0) {
       const timer = setTimeout(() => setScanCooldown(scanCooldown - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [scanCooldown]);
 
-  const sendMessage = async () => {
-    if (!input.trim() && !pendingImage) return;
+  useEffect(() => {
+    const handleScroll = () => {
+      if (chatContainerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+        setShowScrollButton(scrollHeight - scrollTop - clientHeight > 200);
+      }
+    };
+
+    const container = chatContainerRef.current;
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleSend = async () => {
+    if ((!input.trim() && !pendingImage) || loading) return;
 
     let newMessages = [...messages];
-    
+
     if (pendingImage) {
       setScanCooldown(30);
-      setScanOpen(false);
-      
+      setShowScanModal(false);
+
       newMessages.push({
         role: "user",
         type: "image",
         content: pendingImage,
+        timestamp: new Date(),
       });
       newMessages.push({
         role: "user",
         type: "text",
         content: "What is this anime?",
+        timestamp: new Date(),
       });
     }
-    
+
     if (input.trim()) {
-      newMessages.push({ role: "user", type: "text", content: input });
+      newMessages.push({
+        role: "user",
+        type: "text",
+        content: input,
+        timestamp: new Date(),
+      });
     }
 
     setMessages(newMessages);
     setInput("");
     setLoading(true);
+    setTyping(true);
+
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+    }
 
     try {
       if (pendingImage) {
@@ -138,9 +180,16 @@ export default function AichixiaPage() {
         const file = new File([blob], "upload.jpg", { type: "image/jpeg" });
         const scanRes = await searchAnimeByFile(file);
 
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", type: "scan", content: scanRes },
+          {
+            role: "assistant",
+            type: "scan",
+            content: scanRes,
+            timestamp: new Date(),
+          },
         ]);
       } else {
         const res = await fetch("/api/aichixia", {
@@ -148,21 +197,26 @@ export default function AichixiaPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: input,
-            history: messages.map((m) => ({
+            history: messages.slice(-10).map((m) => ({
               role: m.role,
-              content:
-                typeof m.content === "string"
-                  ? m.content
-                  : JSON.stringify(m.content),
+              content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
             })),
             persona: persona === "tsundere" ? undefined : personaConfig[persona].description,
           }),
         });
         const data = await res.json();
+
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
         if (data.data && Array.isArray(data.data)) {
           setMessages((prev) => [
             ...prev,
-            { role: "assistant", type: "anime", content: data.data },
+            {
+              role: "assistant",
+              type: "anime",
+              content: data.data,
+              timestamp: new Date(),
+            },
           ]);
         } else {
           setMessages((prev) => [
@@ -171,39 +225,83 @@ export default function AichixiaPage() {
               role: "assistant",
               type: "text",
               content: data.reply || "⚠️ No valid response.",
+              timestamp: new Date(),
             },
           ]);
         }
       }
-    } catch (err) {
-      console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          type: "text",
-          content: "❌ Error while connecting to Aichixia.",
-        },
-      ]);
+    } catch (error: any) {
+      const errorMessage: Message = {
+        role: "assistant",
+        type: "text",
+        content: "Gomen! Something went wrong... Please try again!",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
+      setTyping(false);
       setPendingImage(null);
+      inputRef.current?.focus();
     }
   };
 
-  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const clearChat = () => {
+    if (confirm("Clear all chat history?")) {
+      setMessages([
+        {
+          role: "assistant",
+          type: "text",
+          content:
+            "Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot to identify an anime instantly!",
+          timestamp: new Date(),
+        },
+      ]);
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => setPendingImage(reader.result as string);
     reader.readAsDataURL(file);
-  }
+  };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
     }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      const reader = new FileReader();
+      reader.onload = () => setPendingImage(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const copyMessage = (content: string, index: number) => {
+    navigator.clipboard.writeText(content);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
   };
 
   const PersonaIcon = personaConfig[persona].icon;
@@ -214,154 +312,245 @@ export default function AichixiaPage() {
         <title>Aichixia | AI Assistant</title>
         <meta
           name="description"
-          content="Aichixia is your AI assistant for anime, manga, manhwa, and light novels. Chat or identify anime from screenshots!"
+          content="Aichixia is your AI assistant for anime, manga, manhwa, and light novels."
         />
-        <meta property="og:title" content="Aichixia AI Assistant" />
-        <meta
-          property="og:description"
-          content="Chat or identify anime instantly with Aichixia."
-        />
-        <meta property="og:image" content="/aichixia.png" />
-        <meta property="og:type" content="website" />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent pointer-events-none"></div>
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none"></div>
-        
-        <div className="w-full max-w-6xl flex flex-col h-screen px-3 sm:px-6 lg:px-8 relative z-10">
-          <header className="p-4 sm:p-5 border-b border-blue-500/20 bg-slate-900/40 backdrop-blur-2xl rounded-b-2xl shadow-2xl flex items-center justify-between sticky top-0 z-20 mt-2 sm:mt-4">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ring-2 ring-blue-400/50 overflow-hidden shadow-2xl shadow-blue-500/30 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-600/20 group-hover:scale-110 transition-transform duration-500"></div>
-                <Image src="/aichixia.png" alt="Aichixia" fill className="object-cover relative z-10" />
+      <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+        <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between shadow-sm sticky top-0 z-10">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="relative flex-shrink-0">
+                <img
+                  src="https://aichiow.vercel.app/aichixia.png"
+                  alt="Aichixia"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-sky-400 dark:border-sky-500 shadow-md"
+                />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 sm:w-4 sm:h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800 flex items-center justify-center">
+                  <FaCircle size={5} className="text-white" />
+                </div>
               </div>
-              <div>
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent tracking-tight">
-                  Aichixia
+
+              <div className="min-w-0 flex-1">
+                <h1 className="text-sm sm:text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5 sm:gap-2 truncate">
+                  <span className="truncate">Aichixia</span>
+                  <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded-full font-semibold flex-shrink-0">
+                    AI
+                  </span>
                 </h1>
-                <p className="text-[10px] sm:text-xs text-blue-300/70 font-light tracking-wide flex items-center gap-1.5">
-                  <PersonaIcon className="text-xs" />
-                  {personaConfig[persona].name} Mode
-                </p>
+                <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
+                  <FaCircle size={5} className="text-emerald-500 animate-pulse flex-shrink-0" />
+                  <span className="truncate">Online • Anime Assistant</span>
+                </div>
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             <div className="relative">
               <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+                onClick={() => setShowPersonaMenu(!showPersonaMenu)}
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-all text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <FaEllipsisV className="text-lg sm:text-xl relative z-10" />
+                <PersonaIcon className="text-base sm:text-lg" />
+                <span className="hidden md:inline">{personaConfig[persona].name.split(" ")[0]}</span>
+                <FaChevronDown
+                  size={10}
+                  className={`transition-transform hidden sm:block ${
+                    showPersonaMenu ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
-              <AnimatePresence>
-                {showMenu && (
-                  <>
-                    <motion.div 
-                      className="fixed inset-0 z-30" 
-                      onClick={() => setShowMenu(false)}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    />
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                      transition={{ type: "spring", bounce: 0.3 }}
-                      className="absolute right-0 mt-2 w-56 bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-blue-500/30 overflow-hidden z-40"
-                    >
-                      <button
-                        onClick={() => {
-                          setShowMenu(false);
-                          setScanOpen(true);
-                        }}
-                        disabled={scanCooldown > 0}
-                        className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3 border-b border-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <LuScanLine className="text-xl text-cyan-400" />
-                        <div className="flex-1">
-                          <div className="font-semibold text-blue-100 text-sm">Scan Anime</div>
-                          {scanCooldown > 0 && (
-                            <div className="text-xs text-blue-300/70">Cooldown: {scanCooldown}s</div>
-                          )}
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setShowMenu(false);
-                          setShowPersonaMenu(true);
-                        }}
-                        className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3"
-                      >
-                        <PersonaIcon className="text-xl text-pink-400" />
-                        <div className="flex-1">
-                          <div className="font-semibold text-blue-100 text-sm">Change Persona</div>
-                          <div className="text-xs text-blue-300/70">{personaConfig[persona].name}</div>
-                        </div>
-                      </button>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
+              {showPersonaMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setShowPersonaMenu(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    className="absolute right-0 mt-2 w-56 sm:w-64 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20 backdrop-blur-xl"
+                  >
+                    {(Object.keys(personaConfig) as Persona[]).map((p) => {
+                      const Icon = personaConfig[p].icon;
+                      return (
+                        <button
+                          key={p}
+                          onClick={() => {
+                            setPersona(p);
+                            setShowPersonaMenu(false);
+                          }}
+                          className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-all border-b border-slate-100 dark:border-slate-700 last:border-b-0 ${
+                            persona === p ? "bg-sky-50 dark:bg-sky-900/20" : ""
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <Icon className="text-xl sm:text-2xl flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs sm:text-sm truncate">
+                                {personaConfig[p].name}
+                              </div>
+                              <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
+                                {personaConfig[p].description}
+                              </div>
+                            </div>
+                            {persona === p && (
+                              <FaCircle size={6} className="text-sky-500 flex-shrink-0" />
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </motion.div>
+                </>
+              )}
             </div>
-          </header>
 
-          <section className="flex-1 overflow-y-auto py-6 space-y-5 scrollbar-thin scrollbar-thumb-blue-500/30 scrollbar-track-transparent px-1">
-            {messages.map((msg, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
-                className={`flex flex-col gap-2 ${
+            <button
+              onClick={() => setShowScanModal(true)}
+              disabled={scanCooldown > 0}
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 hover:from-purple-200 hover:to-pink-200 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 rounded-lg transition-all text-xs sm:text-sm font-semibold text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <LuScanLine className="text-base sm:text-lg" />
+              <span className="hidden lg:inline">
+                {scanCooldown > 0 ? `${scanCooldown}s` : "Scan"}
+              </span>
+            </button>
+
+            <button
+              onClick={clearChat}
+              className="p-1.5 sm:p-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-lg transition-colors flex-shrink-0"
+              title="Clear chat"
+            >
+              <FaTrash size={14} />
+            </button>
+          </div>
+        </header>
+
+        <div
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 space-y-3 sm:space-y-4"
+        >
+          {messages.length === 1 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center justify-center h-full text-center px-3 sm:px-4"
+            >
+              <img
+                src="https://aichiow.vercel.app/aichixia.png"
+                alt="Aichixia"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-sky-400 dark:border-sky-500 shadow-lg mb-4 sm:mb-6 animate-bounce"
+              />
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2 sm:mb-3 flex items-center justify-center gap-2">
+                Konnichiwa! I'm Aichixia! <FaHeart className="text-pink-500" />
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-md mb-2">
+                Your anime-loving AI assistant. Ask me anything about anime, manga, or upload a
+                screenshot to identify anime instantly!
+              </p>
+              <div className="flex items-center gap-2 mb-4 sm:mb-6 text-xs sm:text-sm">
+                <span className="px-3 py-1 bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 rounded-full font-semibold">
+                  {personaConfig[persona].name}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-2xl w-full">
+                {[
+                  { q: "Recommend me some anime", icon: "🎬" },
+                  { q: "What's trending right now?", icon: "🔥" },
+                  { q: "Tell me about One Piece", icon: "📚" },
+                  { q: "Who are you?", icon: "❓" },
+                ].map((suggestion, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setInput(suggestion.q)}
+                    className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500 rounded-lg transition-all hover:shadow-md text-left group"
+                  >
+                    <span className="text-xl sm:text-2xl flex-shrink-0">{suggestion.icon}</span>
+                    <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-sky-600 dark:group-hover:text-sky-400">
+                      {suggestion.q}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {messages.slice(1).map((msg, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className={`flex gap-2 sm:gap-3 ${
+                msg.role === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
+              {msg.role === "assistant" && (
+                <div className="flex-shrink-0">
+                  <img
+                    src="https://aichiow.vercel.app/aichixia.png"
+                    alt="Aichixia"
+                    className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
+                  />
+                </div>
+              )}
+
+              <div
+                className={`flex flex-col max-w-[80%] sm:max-w-[75%] md:max-w-[70%] ${
                   msg.role === "user" ? "items-end" : "items-start"
                 }`}
               >
-                {msg.type === "text" && (
-                  <div
-                    className={`px-5 py-4 rounded-3xl max-w-[85%] sm:max-w-[75%] text-sm sm:text-base shadow-xl backdrop-blur-xl ${
-                      msg.role === "user"
-                        ? "bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 text-white shadow-blue-500/30"
-                        : "bg-slate-800/60 border border-blue-500/20 text-slate-100 shadow-slate-900/50"
-                    }`}
-                  >
-                    <ReactMarkdown 
-                      remarkPlugins={[remarkGfm]}
-                      className="prose prose-invert prose-sm sm:prose-base max-w-none prose-headings:text-blue-300 prose-a:text-cyan-400 prose-strong:text-blue-200"
-                    >
-                      {msg.content as string}
-                    </ReactMarkdown>
+                {msg.type === "image" && typeof msg.content === "string" && (
+                  <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-2xl overflow-hidden border-2 border-sky-400 dark:border-sky-500 shadow-lg mb-2">
+                    <Image src={msg.content} alt="preview" fill className="object-cover" />
                   </div>
                 )}
 
-                {msg.type === "image" && typeof msg.content === "string" && (
-                  <motion.div 
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-3xl overflow-hidden border-2 border-blue-400/30 shadow-2xl shadow-blue-500/20 hover:border-blue-400/50 transition-all duration-300"
-                  >
-                    <Image
-                      src={msg.content}
-                      alt="preview"
-                      fill
-                      className="object-cover"
-                    />
-                  </motion.div>
+                {msg.type === "text" && (
+                  <div className="relative group">
+                    <div
+                      className={`px-3 sm:px-4 py-2 sm:py-3 rounded-2xl shadow-md ${
+                        msg.role === "user"
+                          ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-tr-sm"
+                          : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-tl-sm"
+                      }`}
+                    >
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        className="text-xs sm:text-sm md:text-base whitespace-pre-wrap break-words leading-relaxed prose prose-sm dark:prose-invert max-w-none"
+                      >
+                        {msg.content as string}
+                      </ReactMarkdown>
+                    </div>
+                    {msg.role === "assistant" && (
+                      <button
+                        onClick={() => copyMessage(msg.content as string, idx)}
+                        className="absolute -right-10 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
+                      >
+                        {copiedIndex === idx ? (
+                          <FaCheck size={12} className="text-green-500" />
+                        ) : (
+                          <FaCopy size={12} className="text-slate-500 dark:text-slate-400" />
+                        )}
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 {msg.type === "scan" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
                     {(msg.content as any[]).map((r, idx) => (
                       <motion.div
                         key={idx}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: idx * 0.1 }}
-                        className="group bg-slate-800/50 border border-blue-500/20 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-400/40 transition-all duration-300 flex flex-col backdrop-blur-xl"
+                        className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all"
                       >
                         <div className="relative overflow-hidden aspect-video">
                           <video
@@ -371,29 +560,34 @@ export default function AichixiaPage() {
                             playsInline
                             preload="metadata"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                         </div>
-                        <div className="p-5 flex-1 flex flex-col justify-between">
-                          <div>
-                            <h3 className="font-bold text-blue-100 text-sm sm:text-base line-clamp-2 group-hover:text-cyan-300 transition-colors">
-                              {r.title?.romaji || r.title?.english || "Unknown"}
-                            </h3>
-                            <div className="flex items-center gap-3 mt-2 flex-wrap">
-                              <span className="text-xs px-2.5 py-1 bg-blue-500/20 text-blue-300 rounded-full border border-blue-400/30">
-                                Ep {r.episode || "?"}
-                              </span>
-                              <span className="text-xs px-2.5 py-1 bg-cyan-500/20 text-cyan-300 rounded-full border border-cyan-400/30">
-                                {(r.similarity * 100).toFixed(1)}%
-                              </span>
+                        <div className="p-4">
+                          <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base line-clamp-2 mb-2">
+                            {r.title?.romaji || r.title?.english || "Unknown"}
+                          </h3>
+                          <div className="flex items-center gap-2 flex-wrap mb-3">
+                            <span className="text-xs px-2.5 py-1 bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 rounded-full font-semibold">
+                              Ep {r.episode || "?"}
+                            </span>
+                            <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                              <div
+                                className="bg-gradient-to-r from-sky-500 to-blue-500 h-full rounded-full transition-all duration-500"
+                                style={{ width: `${r.similarity * 100}%` }}
+                              />
                             </div>
+                            <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold">
+                              {(r.similarity * 100).toFixed(1)}%
+                            </span>
                           </div>
                           {r.anilist && (
                             <Link
                               href={`/anime/${r.anilist}`}
-                              className="text-sm text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/30 hover:decoration-cyan-300 underline-offset-4 mt-3 inline-flex items-center gap-1 group/link transition-all"
+                              className="text-sm text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-semibold flex items-center gap-1 group/link"
                             >
                               View Details
-                              <span className="group-hover/link:translate-x-1 transition-transform">→</span>
+                              <span className="group-hover/link:translate-x-1 transition-transform">
+                                →
+                              </span>
                             </Link>
                           )}
                         </div>
@@ -401,225 +595,270 @@ export default function AichixiaPage() {
                     ))}
                   </div>
                 )}
-              </motion.div>
-            ))}
 
-            {loading && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex items-center gap-3 text-blue-300 text-sm bg-slate-800/40 px-5 py-3 rounded-full w-fit backdrop-blur-xl border border-blue-500/20"
-              >
-                <FaSpinner className="animate-spin text-lg" />
-                <span className="font-medium">Aichixia is thinking...</span>
-              </motion.div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </section>
-
-          <footer className="p-3 sm:p-4 bg-slate-900/40 backdrop-blur-2xl sticky bottom-0 rounded-t-2xl border-t border-blue-500/20 mb-2 sm:mb-4 shadow-2xl">
-            {!session ? (
-              <Link
-                href="/auth/login"
-                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-[1.02] active:scale-95 text-sm sm:text-base"
-              >
-                <FaPaperPlane />
-                <span>Login to access Aichixia</span>
-              </Link>
-            ) : (
-              <div className="flex gap-2 sm:gap-3 items-center">
-                <input
-                  type="text"
-                  placeholder="Ask me anything about anime..."
-                  className="flex-1 px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-slate-800/50 border border-blue-500/20 placeholder-blue-300/40 text-white focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl text-sm sm:text-base"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={loading}
-                />
-                <button
-                  onClick={sendMessage}
-                  disabled={loading}
-                  className="relative group p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  {loading ? (
-                    <FaSpinner className="animate-spin text-white text-lg relative z-10" />
-                  ) : (
-                    <FaPaperPlane className="text-white text-lg relative z-10" />
-                  )}
-                </button>
+                <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-1.5 px-2">
+                  <span className="text-[9px] sm:text-[10px] md:text-xs text-slate-400 dark:text-slate-500">
+                    {msg.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
               </div>
-            )}
-          </footer>
+
+              {msg.role === "user" && (
+                <div className="flex-shrink-0">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold border-2 border-white dark:border-slate-800 shadow-md">
+                    <FaUser size={12} className="sm:text-sm" />
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          ))}
+
+          {typing && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex gap-2 sm:gap-3 justify-start"
+            >
+              <img
+                src="https://aichiow.vercel.app/aichixia.png"
+                alt="Aichixia"
+                className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
+              />
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl rounded-tl-sm shadow-md">
+                <div className="flex gap-1 sm:gap-1.5">
+                  <div
+                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  />
+                  <div
+                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <div
+                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          <div ref={messagesEndRef} />
         </div>
 
         <AnimatePresence>
-          {scanOpen && (
-            <motion.div
-              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setScanOpen(false)}
+          {showScrollButton && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              onClick={scrollToBottom}
+              className="fixed bottom-24 right-4 sm:right-8 p-3 bg-sky-500 hover:bg-sky-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all z-10"
             >
-              <motion.div
-                className="bg-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
-                initial={{ scale: 0.8, opacity: 0, y: 50 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.8, opacity: 0, y: 50 }}
-                transition={{ type: "spring", bounce: 0.3 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
-                  <LuScanLine className="text-2xl text-white" />
-                </div>
-
-                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
-                  Upload Screenshot
-                </h2>
-                <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light">
-                  Aichixia will detect which anime it's from instantly!
-                </p>
-
-                {!session ? (
-                  <Link
-                    href="/auth/login"
-                    className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <LuScanLine className="text-xl" />
-                    <span>Login to Scan</span>
-                  </Link>
-                ) : (
-                  <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
-                    <LuScanLine className="text-xl" />
-                    <span>Choose Image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileSelect}
-                    />
-                  </label>
-                )}
-
-                {pendingImage && (
-                  <motion.div 
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="mt-8 relative w-full flex justify-center"
-                  >
-                    <div className="relative w-56 h-56 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20">
-                      <Image
-                        src={pendingImage}
-                        alt="preview"
-                        fill
-                        className="object-cover"
-                      />
-                      <button
-                        onClick={() => setPendingImage(null)}
-                        className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-xl rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg"
-                      >
-                        <FaTimes className="text-white text-sm" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-
-                <div className="mt-8 flex justify-center gap-3">
-                  <button
-                    onClick={() => setScanOpen(false)}
-                    className="px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
-                  >
-                    Cancel
-                  </button>
-                  {session && pendingImage && (
-                    <button
-                      onClick={sendMessage}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
-                    >
-                      Scan Now
-                    </button>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => setScanOpen(false)}
-                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
-                >
-                  <FaTimes className="text-xl" />
-                </button>
-              </motion.div>
-            </motion.div>
+              <FaChevronDown size={20} />
+            </motion.button>
           )}
         </AnimatePresence>
+
+        <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-3 sm:py-4">
+          <div className="max-w-4xl mx-auto">
+            {!session ? (
+              <Link
+                href="/auth/login"
+                className="flex items-center justify-center gap-2 px-4 sm:px-5 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+              >
+                <FaPaperPlane size={14} />
+                <span className="text-sm sm:text-base">Login to access Aichixia</span>
+              </Link>
+            ) : (
+              <div className="flex gap-2 items-stretch">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask me anything about anime..."
+                  disabled={loading}
+                  rows={1}
+                  className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32"
+                  style={{
+                    minHeight: "46px",
+                  }}
+                  onInput={(e) => {
+                    const target = e.target as HTMLTextAreaElement;
+                    target.style.height = "46px";
+                    target.style.height = Math.min(target.scrollHeight, 128) + "px";
+                  }}
+                />
+
+                <button
+                  onClick={handleSend}
+                  disabled={!input.trim() || loading}
+                  className="px-4 sm:px-5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
+                  style={{
+                    minHeight: "46px",
+                  }}
+                >
+                  <span className="hidden sm:inline text-sm md:text-base">Send</span>
+                  <FaPaperPlane
+                    size={14}
+                    className={`${
+                      loading ? "animate-pulse" : "group-hover:translate-x-0.5"
+                    } transition-transform sm:text-base`}
+                  />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
 
         <AnimatePresence>
-          {showPersonaMenu && (
+          {showScanModal && (
             <motion.div
-              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowPersonaMenu(false)}
+              onClick={() => setShowScanModal(false)}
             >
               <motion.div
-                className="bg-slate-900/95 rounded-3xl p-6 sm:p-8 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
-                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 w-full max-w-lg shadow-2xl border border-slate-200 dark:border-slate-700"
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.8, opacity: 0, y: 50 }}
-                transition={{ type: "spring", bounce: 0.3 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text mb-6">
-                  Choose Persona
-                </h2>
-
-                <div className="space-y-3">
-                  {(Object.keys(personaConfig) as Persona[]).map((p) => {
-                    const Icon = personaConfig[p].icon;
-                    return (
-                      <button
-                        key={p}
-                        onClick={() => {
-                          setPersona(p);
-                          setShowPersonaMenu(false);
-                        }}
-                        className={`w-full px-5 py-4 rounded-2xl text-left hover:bg-blue-500/10 transition-all flex items-center gap-4 border-2 ${
-                          persona === p
-                            ? "border-pink-400/50 bg-pink-500/10"
-                            : "border-blue-500/20"
-                        }`}
-                      >
-                        <Icon className="text-2xl" />
-                        <div className="flex-1">
-                          <div className="font-bold text-blue-100 text-sm sm:text-base">
-                            {personaConfig[p].name}
-                          </div>
-                          <div className="text-xs text-blue-300/70">
-                            {personaConfig[p].description}
-                          </div>
-                        </div>
-                        {persona === p && (
-                          <div className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
-                        )}
-                      </button>
-                    );
-                  })}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
+                      <LuScanLine className="text-2xl text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-200">
+                        Scan Anime
+                      </h2>
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                        Upload a screenshot to identify
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowScanModal(false)}
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                  >
+                    <FaTimes className="text-slate-600 dark:text-slate-400" />
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => setShowPersonaMenu(false)}
-                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
-                >
-                  <FaTimes className="text-xl" />
-                </button>
+                {!session ? (
+                  <div className="text-center py-8">
+                    <p className="text-slate-600 dark:text-slate-400 mb-4">
+                      Please login to use anime scan feature
+                    </p>
+                    <Link
+                      href="/auth/login"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                    >
+                      <FaPaperPlane size={14} />
+                      <span>Login Now</span>
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    <div
+                      className={`relative border-2 border-dashed rounded-xl p-8 sm:p-12 text-center transition-all ${
+                        dragActive
+                          ? "border-sky-500 bg-sky-50 dark:bg-sky-900/20"
+                          : "border-slate-300 dark:border-slate-600 hover:border-sky-400 dark:hover:border-sky-500"
+                      }`}
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        id="file-upload"
+                      />
+                      <label
+                        htmlFor="file-upload"
+                        className="cursor-pointer flex flex-col items-center gap-4"
+                      >
+                        <div className="p-4 bg-slate-100 dark:bg-slate-700 rounded-full">
+                          <FaImage className="text-3xl sm:text-4xl text-slate-400 dark:text-slate-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Click to upload or drag and drop
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            PNG, JPG or GIF (MAX. 10MB)
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+
+                    {pendingImage && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="mt-6"
+                      >
+                        <div className="relative w-full h-64 rounded-xl overflow-hidden border-2 border-sky-400 dark:border-sky-500 shadow-lg">
+                          <Image src={pendingImage} alt="preview" fill className="object-cover" />
+                          <button
+                            onClick={() => setPendingImage(null)}
+                            className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors shadow-lg"
+                          >
+                            <FaTimes className="text-white" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {pendingImage && (
+                      <div className="flex gap-3 mt-6">
+                        <button
+                          onClick={() => {
+                            setPendingImage(null);
+                            setShowScanModal(false);
+                          }}
+                          className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-semibold transition-all"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSend}
+                          disabled={loading}
+                          className="flex-1 px-4 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                          {loading ? (
+                            <>
+                              <FaSpinner className="animate-spin" />
+                              <span>Scanning...</span>
+                            </>
+                          ) : (
+                            <>
+                              <LuScanLine />
+                              <span>Scan Now</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+      </div>
     </>
   );
 }
