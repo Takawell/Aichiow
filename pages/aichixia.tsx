@@ -170,7 +170,7 @@ export default function AichixiaPage() {
             {
               role: "assistant",
               type: "text",
-              content: data.reply || "âš ï¸ No valid response.",
+              content: data.reply || "⚠️ No valid response.",
             },
           ]);
         }
@@ -182,7 +182,7 @@ export default function AichixiaPage() {
         {
           role: "assistant",
           type: "text",
-          content: "âŒ Error while connecting to Aichixia.",
+          content: "❌ Error while connecting to Aichixia.",
         },
       ]);
     } finally {
@@ -393,7 +393,7 @@ export default function AichixiaPage() {
                               className="text-sm text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/30 hover:decoration-cyan-300 underline-offset-4 mt-3 inline-flex items-center gap-1 group/link transition-all"
                             >
                               View Details
-                              <span className="group-hover/link:translate-x-1 transition-transform">â†’</span>
+                              <span className="group-hover/link:translate-x-1 transition-transform">→</span>
                             </Link>
                           )}
                         </div>
@@ -453,7 +453,7 @@ export default function AichixiaPage() {
               </div>
             )}
           </footer>
-        </di>
+        </div>
 
         <AnimatePresence>
           {scanOpen && (
