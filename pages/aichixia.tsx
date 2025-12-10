@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner, FaTimes, FaEllipsisV, FaAngry, FaSmile, FaBriefcase, FaHeart, FaRobot } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner, FaTimes, FaEllipsisV, FaAngry, FaSmile, FaBriefcase, FaHeart } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,7 +28,6 @@ interface Message {
 }
 
 type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
-type ProviderType = "openai" | "gemini" | "deepseek" | "qwen" | "gptoss" | "llama" | null;
 
 const personaConfig: Record<
   Persona,
@@ -60,15 +59,6 @@ const personaConfig: Record<
   },
 };
 
-const modelConfig: Record<string, { name: string; description: string }> = {
-  openai: { name: "OpenAI", description: "Most intelligent and creative" },
-  gemini: { name: "Gemini", description: "Fast and efficient responses" },
-  deepseek: { name: "DeepSeek", description: "Advanced reasoning capabilities" },
-  qwen: { name: "Qwen", description: "Balanced speed and quality" },
-  gptoss: { name: "GPT-OSS", description: "Reliable general assistant" },
-  llama: { name: "Llama", description: "Quick and responsive" },
-};
-
 export default function AichixiaPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -79,13 +69,7 @@ export default function AichixiaPage() {
   const [scanCooldown, setScanCooldown] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
-  const [showModelMenu, setShowModelMenu] = useState(false);
-  const [showFallbackModal, setShowFallbackModal] = useState(false);
-  const [failedModel, setFailedModel] = useState<string | null>(null);
   const [persona, setPersona] = useState<Persona>("tsundere");
-  const [selectedModel, setSelectedModel] = useState<ProviderType>(null);
-  const [pendingMessage, setPendingMessage] = useState<string>("");
-  const [pendingHistory, setPendingHistory] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -111,50 +95,37 @@ export default function AichixiaPage() {
     }
   }, [scanCooldown]);
 
-  const sendMessage = async (retryWithFallback = false) => {
-    if (!input.trim() && !pendingImage && !retryWithFallback) return;
+  const sendMessage = async () => {
+    if (!input.trim() && !pendingImage) return;
 
     let newMessages = [...messages];
-    let messageToSend = input;
-    let historyToSend = messages.map((m) => ({
-      role: m.role,
-      content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
-    }));
-
-    if (retryWithFallback) {
-      messageToSend = pendingMessage;
-      historyToSend = pendingHistory;
-    } else {
-      if (pendingImage) {
-        setScanCooldown(30);
-        setScanOpen(false);
-        
-        newMessages.push({
-          role: "user",
-          type: "image",
-          content: pendingImage,
-        });
-        newMessages.push({
-          role: "user",
-          type: "text",
-          content: "What is this anime?",
-        });
-      }
+    
+    if (pendingImage) {
+      setScanCooldown(30);
+      setScanOpen(false);
       
-      if (input.trim()) {
-        newMessages.push({ role: "user", type: "text", content: input });
-      }
-
-      setMessages(newMessages);
-      setInput("");
-      setPendingMessage(messageToSend);
-      setPendingHistory(historyToSend);
+      newMessages.push({
+        role: "user",
+        type: "image",
+        content: pendingImage,
+      });
+      newMessages.push({
+        role: "user",
+        type: "text",
+        content: "What is this anime?",
+      });
+    }
+    
+    if (input.trim()) {
+      newMessages.push({ role: "user", type: "text", content: input });
     }
 
+    setMessages(newMessages);
+    setInput("");
     setLoading(true);
 
     try {
-      if (pendingImage && !retryWithFallback) {
+      if (pendingImage) {
         const res = await fetch(pendingImage);
         const blob = await res.blob();
         const file = new File([blob], "upload.jpg", { type: "image/jpeg" });
@@ -169,23 +140,18 @@ export default function AichixiaPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            message: messageToSend,
-            history: historyToSend,
+            message: input,
+            history: messages.map((m) => ({
+              role: m.role,
+              content:
+                typeof m.content === "string"
+                  ? m.content
+                  : JSON.stringify(m.content),
+            })),
             persona: persona === "tsundere" ? undefined : personaConfig[persona].description,
-            selectedProvider: selectedModel,
-            useFallback: retryWithFallback,
           }),
         });
-
         const data = await res.json();
-
-        if (res.status === 503 && data.error === "model_unavailable") {
-          setFailedModel(data.providerName);
-          setShowFallbackModal(true);
-          setLoading(false);
-          return;
-        }
-
         if (data.data && Array.isArray(data.data)) {
           setMessages((prev) => [
             ...prev,
@@ -197,7 +163,7 @@ export default function AichixiaPage() {
             {
               role: "assistant",
               type: "text",
-              content: data.reply || data.message || "⚠️ No valid response.",
+              content: data.reply || "⚠️ No valid response.",
             },
           ]);
         }
@@ -215,23 +181,7 @@ export default function AichixiaPage() {
     } finally {
       setLoading(false);
       setPendingImage(null);
-      if (!retryWithFallback) {
-        setPendingMessage("");
-        setPendingHistory([]);
-      }
     }
-  };
-
-  const handleFallbackYes = () => {
-    setShowFallbackModal(false);
-    sendMessage(true);
-  };
-
-  const handleFallbackNo = () => {
-    setShowFallbackModal(false);
-    setFailedModel(null);
-    setPendingMessage("");
-    setPendingHistory([]);
   };
 
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -344,28 +294,12 @@ export default function AichixiaPage() {
                           setShowMenu(false);
                           setShowPersonaMenu(true);
                         }}
-                        className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3 border-b border-blue-500/20"
+                        className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3"
                       >
-                        <PersonaIcon className="text-xl text-cyan-400" />
+                        <PersonaIcon className="text-xl text-pink-400" />
                         <div className="flex-1">
                           <div className="font-semibold text-blue-100 text-sm">Change Persona</div>
                           <div className="text-xs text-blue-300/70">{personaConfig[persona].name}</div>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setShowMenu(false);
-                          setShowModelMenu(true);
-                        }}
-                        className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3"
-                      >
-                        <FaRobot className="text-xl text-cyan-400" />
-                        <div className="flex-1">
-                          <div className="font-semibold text-blue-100 text-sm">Select Model</div>
-                          <div className="text-xs text-blue-300/70">
-                            {selectedModel ? modelConfig[selectedModel].name : "Auto"}
-                          </div>
                         </div>
                       </button>
                     </motion.div>
@@ -384,7 +318,7 @@ export default function AichixiaPage() {
                   className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-blue-400 shadow-2xl shadow-blue-500/30 mb-4 sm:mb-6 animate-bounce"
                 />
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-100 mb-2 sm:mb-3 flex items-center justify-center gap-2 flex-wrap">
-                  {getUserName() ? `Konnichiwa ${getUserName()}` : "Konnichiwa!"} I'm Aichixia! <FaHeart className="text-pink-500" />
+                  {getUserName() ? `Konnichiwa! ${getUserName()}` : "Konnichiwa!"} I'm Aichixia! <FaHeart className="text-pink-500" />
                 </h2>
                 <p className="text-sm sm:text-base text-blue-300/70 max-w-md mb-4 sm:mb-6">
                   Your AI assistant for anime, manga, manhwa, manhua, and light novels. Chat or upload a screenshot to identify an anime instantly!
@@ -540,7 +474,7 @@ export default function AichixiaPage() {
                   disabled={loading}
                 />
                 <button
-                  onClick={() => sendMessage(false)}
+                  onClick={sendMessage}
                   disabled={loading}
                   className="relative group p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
                 >
@@ -637,7 +571,7 @@ export default function AichixiaPage() {
                   </button>
                   {session && pendingImage && (
                     <button
-                      onClick={() => sendMessage(false)}
+                      onClick={sendMessage}
                       className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
                     >
                       Scan Now
@@ -673,7 +607,7 @@ export default function AichixiaPage() {
                 transition={{ type: "spring", bounce: 0.3 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-6">
+                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text mb-6">
                   Choose Persona
                 </h2>
 
@@ -689,11 +623,11 @@ export default function AichixiaPage() {
                         }}
                         className={`w-full px-5 py-4 rounded-2xl text-left hover:bg-blue-500/10 transition-all flex items-center gap-4 border-2 ${
                           persona === p
-                            ? "border-blue-400/50 bg-blue-500/10"
+                            ? "border-pink-400/50 bg-pink-500/10"
                             : "border-blue-500/20"
                         }`}
                       >
-                        <Icon className="text-2xl text-cyan-400" />
+                        <Icon className="text-2xl" />
                         <div className="flex-1">
                           <div className="font-bold text-blue-100 text-sm sm:text-base">
                             {personaConfig[p].name}
@@ -703,7 +637,7 @@ export default function AichixiaPage() {
                           </div>
                         </div>
                         {persona === p && (
-                          <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                          <div className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
                         )}
                       </button>
                     );
@@ -716,138 +650,6 @@ export default function AichixiaPage() {
                 >
                   <FaTimes className="text-xl" />
                 </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {showModelMenu && (
-            <motion.div
-              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowModelMenu(false)}
-            >
-              <motion.div
-                className="bg-slate-900/95 rounded-3xl p-6 sm:p-8 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
-                initial={{ scale: 0.8, opacity: 0, y: 50 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.8, opacity: 0, y: 50 }}
-                transition={{ type: "spring", bounce: 0.3 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-6">
-                  Select AI Model
-                </h2>
-
-                <div className="space-y-3">
-                  <button
-                    onClick={() => {
-                      setSelectedModel(null);
-                      setShowModelMenu(false);
-                    }}
-                    className={`w-full px-5 py-4 rounded-2xl text-left hover:bg-blue-500/10 transition-all flex items-center gap-4 border-2 ${
-                      selectedModel === null
-                        ? "border-blue-400/50 bg-blue-500/10"
-                        : "border-blue-500/20"
-                    }`}
-                  >
-                    <FaRobot className="text-2xl text-cyan-400" />
-                    <div className="flex-1">
-                      <div className="font-bold text-blue-100 text-sm sm:text-base">
-                        Auto Select
-                      </div>
-                      <div className="text-xs text-blue-300/70">
-                        Automatically choose best model
-                      </div>
-                    </div>
-                    {selectedModel === null && (
-                      <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-                    )}
-                  </button>
-
-                  {Object.keys(modelConfig).map((model) => (
-                    <button
-                      key={model}
-                      onClick={() => {
-                        setSelectedModel(model as ProviderType);
-                        setShowModelMenu(false);
-                      }}
-                      className={`w-full px-5 py-4 rounded-2xl text-left hover:bg-blue-500/10 transition-all flex items-center gap-4 border-2 ${
-                        selectedModel === model
-                          ? "border-blue-400/50 bg-blue-500/10"
-                          : "border-blue-500/20"
-                      }`}
-                    >
-                      <FaRobot className="text-2xl text-cyan-400" />
-                      <div className="flex-1">
-                        <div className="font-bold text-blue-100 text-sm sm:text-base">
-                          {modelConfig[model].name}
-                        </div>
-                        <div className="text-xs text-blue-300/70">
-                          {modelConfig[model].description}
-                        </div>
-                      </div>
-                      {selectedModel === model && (
-                        <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => setShowModelMenu(false)}
-                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
-                >
-                  <FaTimes className="text-xl" />
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {showFallbackModal && (
-            <motion.div
-              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <motion.div
-                className="bg-slate-900/95 rounded-3xl p-6 sm:p-8 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
-                initial={{ scale: 0.8, opacity: 0, y: 50 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.8, opacity: 0, y: 50 }}
-                transition={{ type: "spring", bounce: 0.3 }}
-              >
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
-                  <FaRobot className="text-2xl text-white" />
-                </div>
-
-                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
-                  Model Unavailable
-                </h2>
-                <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light">
-                  {failedModel} is currently unavailable. Would you like to try another model automatically?
-                </p>
-
-                <div className="flex justify-center gap-3">
-                  <button
-                    onClick={handleFallbackNo}
-                    className="px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
-                  >
-                    No, Cancel
-                  </button>
-                  <button
-                    onClick={handleFallbackYes}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
-                  >
-                    Yes, Use Fallback
-                  </button>
-                </div>
               </motion.div>
             </motion.div>
           )}
