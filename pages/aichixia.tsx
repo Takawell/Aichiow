@@ -318,7 +318,7 @@ export default function AichixiaPage() {
                   className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-blue-400 shadow-2xl shadow-blue-500/30 mb-4 sm:mb-6 animate-bounce"
                 />
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-100 mb-2 sm:mb-3 flex items-center justify-center gap-2 flex-wrap">
-                  {getUserName() ? `Hello ${getUserName()}!` : "Hello!"} I'm Aichixia! <FaHeart className="text-pink-500" />
+                  {getUserName() ? `Konnichiwa ${getUserName()}` : "Konnichiwa!"} I'm Aichixia! <FaHeart className="text-pink-500" />
                 </h2>
                 <p className="text-sm sm:text-base text-blue-300/70 max-w-md mb-4 sm:mb-6">
                   Your AI assistant for anime, manga, manhwa, manhua, and light novels. Chat or upload a screenshot to identify an anime instantly!
