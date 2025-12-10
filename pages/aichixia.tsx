@@ -60,14 +60,7 @@ const personaConfig: Record<
 };
 
 export default function AichixiaPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      type: "text",
-      content:
-        "Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot via menu to identify an anime instantly!",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<any>(null);
@@ -206,6 +199,12 @@ export default function AichixiaPage() {
     }
   };
 
+  const getUserName = () => {
+    if (!session) return null;
+    const userMetadata = session.user.user_metadata || {};
+    return userMetadata.full_name || userMetadata.name || null;
+  };
+
   const PersonaIcon = personaConfig[persona].icon;
 
   return (
@@ -311,6 +310,42 @@ export default function AichixiaPage() {
           </header>
 
           <section className="flex-1 overflow-y-auto py-6 space-y-5 scrollbar-thin scrollbar-thumb-blue-500/30 scrollbar-track-transparent px-1">
+            {messages.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-full text-center px-3 sm:px-4">
+                <img
+                  src="/aichixia.png"
+                  alt="Aichixia"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-blue-400 shadow-2xl shadow-blue-500/30 mb-4 sm:mb-6 animate-bounce"
+                />
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-100 mb-2 sm:mb-3 flex items-center justify-center gap-2 flex-wrap">
+                  {getUserName() ? `Hello ${getUserName()}!` : "Hello!"} I'm Aichixia! <FaHeart className="text-pink-500" />
+                </h2>
+                <p className="text-sm sm:text-base text-blue-300/70 max-w-md mb-4 sm:mb-6">
+                  Your AI assistant for anime, manga, manhwa, manhua, and light novels. Chat or upload a screenshot to identify an anime instantly!
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-2xl w-full">
+                  {[
+                    { q: "Who are you?", icon: "❓" },
+                    { q: "Recommend me some anime", icon: "💗" },
+                    { q: "What's trending right now?", icon: "🔥" },
+                    { q: "Tell me about Manhwa", icon: "📚" },
+                  ].map((suggestion, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setInput(suggestion.q)}
+                      className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-800/50 border-2 border-blue-500/20 hover:border-blue-400/50 rounded-2xl transition-all hover:shadow-xl hover:shadow-blue-500/20 text-left group backdrop-blur-xl"
+                    >
+                      <span className="text-xl sm:text-2xl flex-shrink-0">{suggestion.icon}</span>
+                      <span className="text-xs sm:text-sm font-medium text-blue-200 group-hover:text-cyan-300">
+                        {suggestion.q}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {messages.map((msg, i) => (
               <motion.div
                 key={i}
