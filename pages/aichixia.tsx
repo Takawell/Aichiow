@@ -435,11 +435,12 @@ export default function AichixiaPage() {
                       remarkPlugins={[remarkGfm]}
                       className="prose prose-invert prose-sm sm:prose-base max-w-none prose-headings:text-blue-300 prose-a:text-cyan-400 prose-a:break-all prose-strong:text-blue-200 prose-code:break-all prose-pre:max-w-full prose-pre:overflow-x-auto"
                       components={{
-                        code: ({node, inline, ...props}) => (
-                          inline ? 
-                          <code className="bg-slate-900/50 px-1 py-0.5 rounded text-cyan-300 break-all" {...props} /> :
-                          <code className="block bg-slate-900/50 p-2 rounded overflow-x-auto" {...props} />
-                        )
+                        code: ({className, children, ...props}) => {
+                          const isInline = !className;
+                          return isInline ? 
+                            <code className="bg-slate-900/50 px-1 py-0.5 rounded text-cyan-300 break-all" {...props}>{children}</code> :
+                            <code className="block bg-slate-900/50 p-2 rounded overflow-x-auto" {...props}>{children}</code>
+                        }
                       }}
                     >
                       {msg.content as string}
