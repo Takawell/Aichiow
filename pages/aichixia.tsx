@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner, FaTimes, FaEllipsisV, FaAngry, FaSmile, FaBriefcase, FaHeart, FaComments, FaSearch, FaTrash } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner, FaTimes, FaEllipsisV, FaAngry, FaSmile, FaBriefcase, FaHeart, FaComments, FaSearch, FaTrash, FaSave } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
 import Image from "next/image";
 import Link from "next/link";
@@ -70,6 +70,7 @@ export default function AichixiaPage() {
   const [showMenu, setShowMenu] = useState(false);
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
   const [showModeMenu, setShowModeMenu] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
   const [persona, setPersona] = useState<Persona>("tsundere");
   const [mode, setMode] = useState<"normal" | "deep">("normal");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -97,6 +98,42 @@ export default function AichixiaPage() {
     }
   }, [scanCooldown]);
 
+  useEffect(() => {
+    if (messages.length > 0) {
+      const timer = setTimeout(() => {
+        try {
+          const existingArchives = localStorage.getItem("aichixia-chat-archives");
+          const archives = existingArchives ? JSON.parse(existingArchives) : [];
+          
+          const lastArchive = archives[archives.length - 1];
+          const currentTimestamp = new Date().toISOString();
+          
+          if (!lastArchive || lastArchive.messages.length !== messages.length) {
+            const chatArchive = {
+              id: Date.now(),
+              timestamp: currentTimestamp,
+              messages: messages,
+              persona: persona,
+              mode: mode,
+            };
+
+            if (lastArchive && lastArchive.id) {
+              archives[archives.length - 1] = chatArchive;
+            } else {
+              archives.push(chatArchive);
+            }
+            
+            localStorage.setItem("aichixia-chat-archives", JSON.stringify(archives));
+          }
+        } catch (error) {
+          console.error("Auto-save failed:", error);
+        }
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [messages, persona, mode]);
+
   const saveChatToArchive = () => {
     if (messages.length === 0) return;
 
@@ -119,13 +156,21 @@ export default function AichixiaPage() {
     }
   };
 
-  const clearChat = () => {
+  const handleClearChat = () => {
     if (messages.length === 0) return;
-    
-    if (confirm("Clear all chat history?")) {
-      saveChatToArchive();
-      setMessages([]);
-    }
+    setShowMenu(false);
+    setShowClearModal(true);
+  };
+
+  const saveAndClear = () => {
+    saveChatToArchive();
+    setMessages([]);
+    setShowClearModal(false);
+  };
+
+  const justDelete = () => {
+    setMessages([]);
+    setShowClearModal(false);
   };
 
   const sendMessage = async () => {
@@ -190,7 +235,7 @@ export default function AichixiaPage() {
           {
             role: "assistant",
             type: "text",
-            content: data.reply || "No valid response.",
+            content: data.reply || "⚠️ No valid response.",
           },
         ]);
       }
@@ -201,7 +246,7 @@ export default function AichixiaPage() {
         {
           role: "assistant",
           type: "text",
-          content: "Error while connecting to Aichixia.",
+          content: "❌ Error while connecting to Aichixia.",
         },
       ]);
     } finally {
@@ -349,17 +394,14 @@ export default function AichixiaPage() {
                       </button>
 
                       <button
-                        onClick={() => {
-                          setShowMenu(false);
-                          clearChat();
-                        }}
+                        onClick={handleClearChat}
                         disabled={messages.length === 0}
                         className="w-full px-4 py-3 text-left hover:bg-red-500/10 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <FaTrash className="text-xl text-red-400" />
                         <div className="flex-1">
                           <div className="font-semibold text-blue-100 text-sm">Clear Chat</div>
-                          <div className="text-xs text-blue-300/70">Save & clear history</div>
+                          <div className="text-xs text-blue-300/70">Reset conversation</div>
                         </div>
                       </button>
                     </motion.div>
@@ -549,6 +591,76 @@ export default function AichixiaPage() {
             )}
           </footer>
         </div>
+
+        <AnimatePresence>
+          {showClearModal && (
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowClearModal(false)}
+            >
+              <motion.div
+                className="bg-slate-900/95 rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
+                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                transition={{ type: "spring", bounce: 0.3 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-red-500/40">
+                  <FaTrash className="text-2xl text-white" />
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
+                  Clear Chat History?
+                </h2>
+                <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light leading-relaxed">
+                  You have {messages.length} message{messages.length > 1 ? "s" : ""} in this conversation. What would you like to do?
+                </p>
+
+                <div className="space-y-3">
+                  <button
+                    onClick={saveAndClear}
+                    className="w-full px-6 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+                  >
+                    <FaSave className="text-xl" />
+                    <div className="text-left flex-1">
+                      <div className="font-bold text-sm sm:text-base">Save & Clear</div>
+                      <div className="text-xs opacity-80 font-normal">Save to history then clear chat</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={justDelete}
+                    className="w-full px-6 py-4 bg-gradient-to-r from-red-500 to-orange-500 hover:shadow-2xl hover:shadow-red-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+                  >
+                    <FaTrash className="text-xl" />
+                    <div className="text-left flex-1">
+                      <div className="font-bold text-sm sm:text-base">Just Delete</div>
+                      <div className="text-xs opacity-80 font-normal">Clear without saving</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setShowClearModal(false)}
+                    className="w-full px-6 py-4 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-[1.02] active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
+                  >
+                    Cancel
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setShowClearModal(false)}
+                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
+                >
+                  <FaTimes className="text-xl" />
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {showModeMenu && (
