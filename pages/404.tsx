@@ -1,21 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { FaTv, FaBookOpen, FaBook, FaFeatherAlt, FaVolumeUp, FaVolumeMute } from "react-icons/fa";
+import { FaTv, FaBookOpen, FaBook, FaFeatherAlt } from "react-icons/fa";
 
 const emotionalQuotes = [
-  "Are you lost? Would you like to start over from zero?",
-  "Have you lost someone you love? Yes, the world works hard.",
-  "The path you seek no longer exists. Will you forge a new one?",
-  "Sometimes getting lost is the first step to finding yourself.",
-  "Did you lose your way, or did your way lose you?",
-  "Every ending is just a new beginning in disguise.",
-  "You can't go back, but you can move forward."
+  "Are you lost, or did your path abandon you?",
+  "Chasing ghosts in empty hallways, aren't we?",
+  "The world doesn't wait. Neither should you.",
+  "Looking for something that was never there?",
+  "Sometimes we lose ourselves searching for others.",
+  "Did you expect a different ending this time?",
+  "Every wrong turn teaches you what's right. Eventually."
 ];
 
 export default function Custom404() {
   const [currentQuote, setCurrentQuote] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const widgets = [
@@ -30,7 +29,7 @@ export default function Custom404() {
   useEffect(() => {
     const audio = new Audio("/nothing.mp3");
     audio.loop = true;
-    audio.volume = 0.3;
+    audio.volume = 1.0;
     audioRef.current = audio;
 
     const playAudio = () => {
@@ -114,25 +113,9 @@ export default function Custom404() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const toggleMute = () => {
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
-
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#040714] via-[#090b22] to-[#0a0528] text-white">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-40" />
-
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={toggleMute}
-        className="fixed top-6 right-6 z-50 p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full hover:bg-white/20 transition-all shadow-2xl"
-      >
-        {isMuted ? <FaVolumeMute size={24} className="text-gray-300" /> : <FaVolumeUp size={24} className="text-blue-400" />}
-      </motion.button>
 
       <motion.div
         initial={{ scale: 1.1, opacity: 0 }}
@@ -154,22 +137,9 @@ export default function Custom404() {
           transition={{ duration: 1 }}
           className="mb-8"
         >
-          <motion.div
-            animate={{ 
-              rotateY: [0, 360],
-              scale: [1, 1.05, 1]
-            }}
-            transition={{ 
-              duration: 10, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="inline-block"
-          >
-            <h1 className="text-[6rem] sm:text-[8rem] md:text-[12rem] font-black leading-none bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-2xl">
-              404
-            </h1>
-          </motion.div>
+          <h1 className="text-[6rem] sm:text-[8rem] md:text-[12rem] font-black leading-none bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-2xl">
+            404
+          </h1>
         </motion.div>
 
         <motion.div
