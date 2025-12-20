@@ -107,8 +107,19 @@ export default function CommunityPage() {
       const res = await fetch("/api/aichixia", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, message: cleanPrompt, history: messages.slice(-10).map((m) => ({ role: m.user_id ? "user" : "assistant", content: m.message })) }),
+        body: JSON.stringify({ 
+          message: cleanPrompt, 
+          history: messages.slice(-10).map((m) => ({ 
+            role: m.user_id ? "user" : "assistant", 
+            content: typeof m.message === "string" ? m.message : JSON.stringify(m.message)
+          })),
+          mode: mode
+        }),
       });
+
+      if (!res.ok) {
+        throw new Error(`API returned ${res.status}`);
+      }
 
       const data = await res.json();
       let aiReply = "⚠️ Aichixia didn't respond properly.";
@@ -119,9 +130,23 @@ export default function CommunityPage() {
         aiReply = data.reply;
       }
 
-      await supabase.from("community_messages").insert({ user_id: null, username: "Aichixia", avatar_url: "/aichixia.png", message: aiReply, mode });
+      const { error: insertError } = await supabase.from("community_messages").insert({ 
+        user_id: null, 
+        username: "Aichixia", 
+        avatar_url: "/aichixia.png", 
+        message: aiReply 
+      });
+      
+      if (insertError) throw insertError;
+
     } catch (error) {
-      await supabase.from("community_messages").insert({ user_id: null, username: "Aichixia", avatar_url: "/aichixia.png", message: "❌ Error while connecting to Aichixia." });
+      console.error("Aichixia error:", error);
+      await supabase.from("community_messages").insert({ 
+        user_id: null, 
+        username: "Aichixia", 
+        avatar_url: "/aichixia.png", 
+        message: `❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      });
     }
   }
 
