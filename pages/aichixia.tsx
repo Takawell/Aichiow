@@ -160,7 +160,7 @@ export default function AichixiaPage() {
           {
             role: "assistant",
             type: "text",
-            content: data.reply || "⚠️ No valid response.",
+            content: data.reply || "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
           },
         ]);
       }
