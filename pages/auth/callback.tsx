@@ -4,19 +4,21 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '@/lib/supabaseClient'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, CheckCircle2, XCircle, ArrowLeft, User } from 'lucide-react'
+import { Loader2, CheckCircle2, XCircle, User, LogOut } from 'lucide-react'
+
+interface UserData {
+  email?: string
+  name?: string
+  avatar_url?: string
+  [key: string]: any
+}
 
 export default function AuthCallback() {
   const router = useRouter()
   const [status, setStatus] = useState('loading')
-  const [lastPage, setLastPage] = useState('/')
+  const [userData, setUserData] = useState<UserData | null>(null)
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = sessionStorage.getItem('lastPage') || localStorage.getItem('lastPage') || '/'
-      setLastPage(stored)
-    }
-
     const checkSession = async () => {
       try {
         const { data, error } = await supabase.auth.getSession()
@@ -24,6 +26,13 @@ export default function AuthCallback() {
         if (error) throw error
 
         if (data?.session) {
+          const user = data.session.user
+          setUserData({
+            email: user.email,
+            name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0],
+            avatar_url: user.user_metadata?.avatar_url,
+            ...user.user_metadata
+          })
           setStatus('success')
         } else {
           setStatus('error')
@@ -38,8 +47,13 @@ export default function AuthCallback() {
     checkSession()
   }, [router])
 
-  const handleNavigation = (path: string) => {
-    router.push(path)
+  const handleContinue = () => {
+    router.push('/profile')
+  }
+
+  const handleDiscontinue = async () => {
+    await supabase.auth.signOut()
+    router.push('/')
   }
 
   return (
@@ -149,59 +163,82 @@ export default function AuthCallback() {
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15 }}
                 >
-                  <motion.div
-                    className="relative"
-                    animate={{ rotate: [0, 5, -5, 0] }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                  >
-                    <div className="absolute inset-0 bg-sky-500/30 rounded-full blur-xl"></div>
-                    <CheckCircle2 className="w-24 h-24 text-sky-400 relative z-10" strokeWidth={2.5} />
-                  </motion.div>
+                  {userData?.avatar_url ? (
+                    <motion.div
+                      className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-sky-500/30"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <img 
+                        src={userData.avatar_url} 
+                        alt={userData.name || 'User'} 
+                        className="w-full h-full object-cover"
+                      />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                    >
+                      <div className="absolute inset-0 bg-sky-500/30 rounded-full blur-xl"></div>
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center relative z-10">
+                        <User className="w-12 h-12 text-white" />
+                      </div>
+                    </motion.div>
+                  )}
                 </motion.div>
 
-                <div className="text-center space-y-3">
+                <div className="text-center space-y-4">
                   <motion.h1
                     className="text-3xl md:text-4xl font-bold text-white"
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.2 }}
                   >
-                    Login Successful!
+                    Welcome{userData?.name ? `, ${userData.name}` : ''}!
                   </motion.h1>
-                  <motion.p
-                    className="text-slate-300 text-sm md:text-base"
+                  
+                  <motion.div
+                    className="space-y-2"
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.3 }}
                   >
-                    Your session is secured and ready to go
-                  </motion.p>
+                    {userData?.email && (
+                      <p className="text-slate-300 text-sm md:text-base">
+                        {userData.email}
+                      </p>
+                    )}
+                    
+                    <p className="text-slate-300 text-sm md:text-base">
+                      Your session is secured and ready to go
+                    </p>
+                  </motion.div>
                 </div>
 
                 <motion.div
-                  className="w-full space-y-3"
+                  className="w-full space-y-4 pt-2"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
                 >
                   <motion.button
-                    onClick={() => handleNavigation('/profile')}
-                    className="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 shadow-lg shadow-sky-500/30"
-                    whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(14, 165, 233, 0.5)" }}
+                    onClick={handleContinue}
+                    className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 shadow-lg shadow-emerald-500/30"
+                    whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(16, 185, 129, 0.5)" }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <User className="w-5 h-5" />
-                    Go to Profile
+                    <CheckCircle2 className="w-5 h-5" />
+                    Continue to Profile
                   </motion.button>
 
                   <motion.button
-                    onClick={() => handleNavigation(lastPage)}
-                    className="w-full bg-slate-800/50 hover:bg-slate-700/50 text-slate-200 font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 border border-slate-700/50"
-                    whileHover={{ scale: 1.02, borderColor: "rgba(148, 163, 184, 0.5)" }}
+                    onClick={handleDiscontinue}
+                    className="w-full bg-gradient-to-r from-slate-800/50 to-slate-900/50 hover:from-slate-700/50 hover:to-slate-800/50 text-slate-300 font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 border border-red-500/30 hover:border-red-500/50"
+                    whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(239, 68, 68, 0.3)" }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <ArrowLeft className="w-5 h-5" />
-                    Return to Previous Page
+                    <LogOut className="w-5 h-5" />
+                    Discontinue & Logout
                   </motion.button>
                 </motion.div>
               </div>
@@ -257,19 +294,14 @@ export default function AuthCallback() {
                   </motion.p>
                 </div>
 
-                <motion.div
-                  className="w-full h-2 bg-slate-800/50 rounded-full overflow-hidden"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
+                <div className="w-full h-2 bg-slate-800/50 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-gradient-to-r from-red-500 to-red-600"
                     initial={{ width: "0%" }}
                     animate={{ width: "100%" }}
                     transition={{ duration: 3, ease: "linear" }}
                   />
-                </motion.div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
