@@ -2,9 +2,9 @@ import { useState, useMemo } from 'react'
 import { FaCircle, FaCopy, FaCheck, FaSearch, FaTimes, FaCode, FaServer, FaRobot, FaImage, FaBrain } from 'react-icons/fa'
 import { HiDocumentText } from 'react-icons/hi'
 import { BiSearchAlt } from 'react-icons/bi'
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet } from 'react-icons/si'
-import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover } from 'react-icons/gi'
-import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb'
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, } from "react-icons/si";
+import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
+import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 
 const endpoints = [
   { name: 'Search Anime', method: 'GET', path: '/api/aichixia?category=anime&action=search&query={text}', desc: 'Search anime by title', status: 'online', category: 'Media' },
