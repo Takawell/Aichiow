@@ -7,7 +7,17 @@ import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover } from "reac
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb"
 import { RiGeminiFill, RiFlashlightFill } from "react-icons/ri"
 
-const endpoints = [
+type Endpoint = {
+  name: string
+  method: 'GET' | 'POST'
+  path: string
+  desc: string
+  status: 'online' | 'maintenance'
+  category: 'Media' | 'AI Chat' | 'AI Image'
+  icon?: any
+}
+
+const endpoints: Endpoint[] = [
   { name: 'Search Anime', method: 'GET', path: '/api/aichixia?category=anime&action=search&query={text}', desc: 'Search anime by title', status: 'online', category: 'Media' },
   { name: 'Search Manga', method: 'GET', path: '/api/aichixia?category=manga&action=search&query={text}', desc: 'Search manga by title', status: 'online', category: 'Media' },
   { name: 'Search Manhwa', method: 'GET', path: '/api/aichixia?category=manhwa&action=search&query={text}', desc: 'Search manhwa by title', status: 'online', category: 'Media' },
@@ -20,7 +30,7 @@ const endpoints = [
   { name: 'Top Genre Manhwa', method: 'GET', path: '/api/aichixia?category=manhwa&action=top-genre&genre={name}', desc: 'Top genre manhwa', status: 'online', category: 'Media' },
   { name: 'Character Detail', method: 'GET', path: '/api/aichixia?action=character&id={value}', desc: 'Character detail by ID', status: 'online', category: 'Media' },
   { name: 'Staff Detail', method: 'GET', path: '/api/aichixia?action=staff&id={value}', desc: 'Staff detail by ID', status: 'maintenance', category: 'Media' },
-  
+
   { name: 'Aichixia Auto', method: 'POST', path: '/api/chat', desc: 'Auto-routing multi-AI chat', status: 'online', category: 'AI Chat', icon: GiBlackHoleBolas },
   { name: 'Kimi K2', method: 'POST', path: '/api/models/kimi', desc: '1T params, 32B active', status: 'online', category: 'AI Chat', icon: SiDigikeyelectronics },
   { name: 'GLM 4.6', method: 'POST', path: '/api/models/glm', desc: '355B params with search', status: 'online', category: 'AI Chat', icon: TbSquareLetterZ },
@@ -37,23 +47,22 @@ const endpoints = [
   { name: 'Groq Compound', method: 'POST', path: '/api/models/compound', desc: 'Multi-model compound AI', status: 'online', category: 'AI Chat', icon: GiPowerLightning },
   { name: 'Claude Haiku 4.5', method: 'POST', path: '/api/models/claude', desc: '~130B params Anthropic', status: 'online', category: 'AI Chat', icon: SiAnthropic },
   { name: 'Qwen3 Coder 480B', method: 'POST', path: '/api/models/qwen', desc: '480B params, 35B active', status: 'online', category: 'AI Chat', icon: SiAlibabacloud },
-  { name: 'Cohere Command A', method: 'POST', path: '/api/models/cohere', desc: '111B params with search', status: 'online', category: 'AI Chat', icon: GiClover },
-  
   { name: 'Flux 2', method: 'POST', path: '/api/models/flux', desc: 'Advanced image generation', status: 'online', category: 'AI Image', icon: RiFlashlightFill },
 ]
 
 export default function ApiPage() {
-  const [copied, setCopied] = useState(null)
-  const [search, setSearch] = useState('')
-  const [hoveredCard, setHoveredCard] = useState(null)
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [showNotice, setShowNotice] = useState(true)
+  const [copied, setCopied] = useState<string | null>(null)
+  const [search, setSearch] = useState<string>('')
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<'All' | 'Media' | 'AI Chat' | 'AI Image'>('All')
+  const [showNotice, setShowNotice] = useState<boolean>(true)
 
-  const categories = ['All', 'Media', 'AI Chat', 'AI Image']
+  const categories: ('All' | 'Media' | 'AI Chat' | 'AI Image')[] = ['All', 'Media', 'AI Chat', 'AI Image']
 
   const filteredEndpoints = useMemo(() => {
     return endpoints.filter(ep => {
-      const matchesSearch = ep.name.toLowerCase().includes(search.toLowerCase()) ||
+      const matchesSearch =
+        ep.name.toLowerCase().includes(search.toLowerCase()) ||
         ep.method.toLowerCase().includes(search.toLowerCase()) ||
         ep.desc.toLowerCase().includes(search.toLowerCase())
       const matchesCategory = selectedCategory === 'All' || ep.category === selectedCategory
@@ -61,7 +70,7 @@ export default function ApiPage() {
     })
   }, [search, selectedCategory])
 
-  const handleCopy = (path) => {
+  const handleCopy = (path: string) => {
     const fullPath = path.startsWith('/') ? `https://aichixia.vercel.app${path}` : path
     navigator.clipboard.writeText(fullPath)
     setCopied(path)
