@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react'
-import { FaCircle, FaCopy, FaCheck, FaSearch, FaTimes, FaCode, FaServer, FaRobot, FaImage, FaBrain } from 'react-icons/fa'
+import { FaCircle, FaCopy, FaCheck, FaSearch, FaTimes, FaCode, FaServer, FaRobot, FaBrain } from 'react-icons/fa'
 import { HiDocumentText } from 'react-icons/hi'
 import { BiSearchAlt } from 'react-icons/bi'
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, } from "react-icons/si";
-import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
-import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
+import { SiOpenai, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiXiaomi, SiMaze, SiMatternet } from "react-icons/si"
+import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover } from "react-icons/gi"
+import { TbSquareLetterZ, TbLetterM } from "react-icons/tb"
+import { RiGeminiFill, RiFlashlightFill } from "react-icons/ri"
 
 const endpoints = [
   { name: 'Search Anime', method: 'GET', path: '/api/aichixia?category=anime&action=search&query={text}', desc: 'Search anime by title', status: 'online', category: 'Media' },
@@ -29,7 +30,7 @@ const endpoints = [
   { name: 'MiniMax M2.1', method: 'POST', path: '/api/models/minimax', desc: '230B params, 10B active', status: 'online', category: 'AI Chat', icon: SiMaze },
   { name: 'Llama 3.3 70B', method: 'POST', path: '/api/models/llama', desc: '70B params with search', status: 'online', category: 'AI Chat', icon: SiMeta },
   { name: 'GPT-OSS 120B', method: 'POST', path: '/api/models/gptoss', desc: '120B params, 5.1B active', status: 'online', category: 'AI Chat', icon: SiOpenai },
-  { name: 'Gemini 3 Flash', method: 'POST', path: '/api/models/gemini', desc: '1.2T params, 5-30B active', status: 'online', category: 'AI Chat', icon: SiGooglegemini },
+  { name: 'Gemini 3 Flash', method: 'POST', path: '/api/models/gemini', desc: '1.2T params, 5-30B active', status: 'online', category: 'AI Chat', icon: RiGeminiFill },
   { name: 'MiMo V2 Flash', method: 'POST', path: '/api/models/mimo', desc: '309B params, 15B active', status: 'online', category: 'AI Chat', icon: SiXiaomi },
   { name: 'DeepSeek V3.1', method: 'POST', path: '/api/models/deepseek-v', desc: '671B params, 37B active', status: 'online', category: 'AI Chat', icon: GiSpermWhale },
   { name: 'DeepSeek V3.2', method: 'POST', path: '/api/models/deepseek', desc: '671B params, 37B active', status: 'online', category: 'AI Chat', icon: GiSpermWhale },
@@ -38,14 +39,15 @@ const endpoints = [
   { name: 'Qwen3 Coder 480B', method: 'POST', path: '/api/models/qwen', desc: '480B params, 35B active', status: 'online', category: 'AI Chat', icon: SiAlibabacloud },
   { name: 'Cohere Command A', method: 'POST', path: '/api/models/cohere', desc: '111B params with search', status: 'online', category: 'AI Chat', icon: GiClover },
   
-  { name: 'Flux 2', method: 'POST', path: '/api/models/flux', desc: 'Advanced image generation', status: 'online', category: 'AI Image', icon: SiFlux },
+  { name: 'Flux 2', method: 'POST', path: '/api/models/flux', desc: 'Advanced image generation', status: 'online', category: 'AI Image', icon: RiFlashlightFill },
 ]
 
 export default function ApiPage() {
-  const [copied, setCopied] = useState<string | null>(null)
+  const [copied, setCopied] = useState(null)
   const [search, setSearch] = useState('')
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState<string>('All')
+  const [hoveredCard, setHoveredCard] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [showNotice, setShowNotice] = useState(true)
 
   const categories = ['All', 'Media', 'AI Chat', 'AI Image']
 
@@ -59,7 +61,7 @@ export default function ApiPage() {
     })
   }, [search, selectedCategory])
 
-  const handleCopy = (path: string) => {
+  const handleCopy = (path) => {
     const fullPath = path.startsWith('/') ? `https://aichixia.vercel.app${path}` : path
     navigator.clipboard.writeText(fullPath)
     setCopied(path)
@@ -74,9 +76,49 @@ export default function ApiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden relative">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-900/20 via-transparent to-transparent"></div>
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgxMjUsMjExLDI1MiwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30"></div>
+      
+      {showNotice && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-2 border-sky-500/50 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-sky-500/20 transform">
+            <div className="text-center space-y-4">
+              <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-sky-500/20 to-blue-500/20 border border-sky-400/30 mb-2">
+                <FaServer className="w-8 h-8 text-sky-400" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-sky-400 to-blue-400 bg-clip-text text-transparent">
+                Access Limited
+              </h2>
+              <div className="space-y-3 text-sm sm:text-base text-gray-300">
+                <p className="leading-relaxed">
+                  URLs are protected for API security. Full access available at:
+                </p>
+                <div className="bg-black/40 rounded-xl p-4 border border-sky-500/30 space-y-2">
+                  <div className="flex items-center gap-2 text-sky-300">
+                    <FaCode className="w-4 h-4 shrink-0" />
+                    <a href="https://github.com/Takawell/Aichixia" target="_blank" rel="noopener noreferrer" className="hover:text-sky-200 transition-colors break-all font-mono text-xs sm:text-sm">
+                      github.com/Takawell/Aichixia
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2 text-cyan-300">
+                    <FaServer className="w-4 h-4 shrink-0" />
+                    <a href="https://aichixia.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-200 transition-colors break-all font-mono text-xs sm:text-sm">
+                      aichixia.vercel.app
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowNotice(false)}
+                className="w-full mt-4 px-6 py-3 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-sky-500/50"
+              >
+                I Understand
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="relative z-10 px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="max-w-7xl mx-auto">
@@ -194,14 +236,19 @@ export default function ApiPage() {
 
                     <p className="text-xs text-gray-400 mb-3 leading-relaxed">{ep.desc}</p>
 
-                    <div className="bg-black/40 rounded-lg p-3 mb-3 border border-slate-700/50 backdrop-blur-sm">
-                      <code className="text-[10px] sm:text-xs text-sky-300 break-all block leading-relaxed font-mono">
+                    <div className="bg-black/40 rounded-lg p-3 mb-3 border border-slate-700/50 backdrop-blur-sm relative overflow-hidden">
+                      <code className="text-[10px] sm:text-xs text-sky-300 break-all block leading-relaxed font-mono blur-sm select-none">
                         {hoveredCard === i ? ep.path : (ep.path.length > 45 ? ep.path.slice(0, 45) + '...' : ep.path)}
                       </code>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-xs font-bold text-sky-400 bg-slate-900/80 px-3 py-1 rounded-lg border border-sky-500/30">
+                          URL Protected
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
                           ep.method === 'GET' 
                             ? 'bg-blue-500/20 text-blue-300 border border-blue-400/30' 
@@ -253,9 +300,16 @@ export default function ApiPage() {
             <div className="space-y-4 text-sm sm:text-base">
               <div>
                 <span className="font-semibold text-sky-300 block mb-2">Base URL:</span>
-                <code className="block bg-black/40 px-4 py-2.5 rounded-lg text-cyan-300 border border-slate-700/50">
-                  https://aichixia.vercel.app
-                </code>
+                <div className="bg-black/40 px-4 py-2.5 rounded-lg border border-slate-700/50 relative overflow-hidden">
+                  <code className="block text-cyan-300 blur-sm select-none">
+                    https://aichixia.vercel.app
+                  </code>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-sky-400 bg-slate-900/80 px-3 py-1 rounded-lg border border-sky-500/30">
+                      Protected URL
+                    </span>
+                  </div>
+                </div>
               </div>
               <div>
                 <span className="font-semibold text-blue-300 block mb-2">Required Parameters:</span>
