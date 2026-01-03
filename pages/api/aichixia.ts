@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const targetUrl = mode === "deep" 
       ? "https://aichixia.vercel.app/api/models/compound"
-      : "https://aichixia.vercel.app/api/chat";
+      : "https://aichixia.vercel.app/api/models/gemini"; // large model and save budget
 
     const response = await fetch(targetUrl, {
       method: "POST",
