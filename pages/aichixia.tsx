@@ -262,22 +262,22 @@ Please answer the user's question about this anime in an engaging way! Include i
         <div className="w-full max-w-6xl flex flex-col h-screen px-3 sm:px-6 lg:px-8 relative z-10">
           <header className="p-4 sm:p-5 border-b border-blue-500/20 bg-slate-900/40 backdrop-blur-2xl rounded-b-2xl shadow-2xl flex items-center justify-between sticky top-0 z-20 mt-2 sm:mt-4">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ring-2 ring-blue-400/50 overflow-hidden shadow-2xl shadow-blue-500/30 group">
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ring-2 ring-blue-400/50 overflow-hidden shadow-2xl shadow-blue-500/30 group flex-shrink-0">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-600/20 group-hover:scale-110 transition-transform duration-500"></div>
                 <Image src="/aichixia.png" alt="Aichixia" fill className="object-cover relative z-10" />
               </div>
-              <div>
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent tracking-tight">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent tracking-tight truncate">
                   Aichixia
                 </h1>
-                <p className="text-[10px] sm:text-xs text-blue-300/70 font-light tracking-wide flex items-center gap-1.5">
-                  <PersonaIcon className="text-xs" />
-                  {personaConfig[persona].name} · {mode === "normal" ? "Normal" : "Deep"} Mode
+                <p className="text-[10px] sm:text-xs text-blue-300/70 font-light tracking-wide flex items-center gap-1.5 truncate">
+                  <PersonaIcon className="text-xs flex-shrink-0" />
+                  <span className="truncate">{personaConfig[persona].name} · {mode === "normal" ? "Normal" : "Deep"} Mode</span>
                 </p>
               </div>
             </div>
 
-            <div className="relative">
+            <div className="relative flex-shrink-0">
               <button
                 onClick={() => setShowMenu(!showMenu)}
                 className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
@@ -714,7 +714,7 @@ Please answer the user's question about this anime in an engaging way! Include i
         <AnimatePresence>
           {scanOpen && (
             <motion.div
-              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-3 sm:p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -725,34 +725,38 @@ Please answer the user's question about this anime in an engaging way! Include i
               }}
             >
               <motion.div
-                className="bg-slate-900/95 rounded-3xl p-6 sm:p-8 w-full max-w-lg shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500/30"
+                className="bg-slate-900/95 rounded-3xl p-5 sm:p-6 md:p-8 w-full max-w-lg shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl max-h-[95vh] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500/30"
                 initial={{ scale: 0.8, opacity: 0, y: 50 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.8, opacity: 0, y: 50 }}
                 transition={{ type: "spring", bounce: 0.3 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
-                  <LuScanLine className="text-2xl text-white" />
+                <div className="sticky top-0 -mt-5 sm:-mt-6 md:-mt-8 -mx-5 sm:-mx-6 md:-mx-8 mb-4 sm:mb-5 pb-4 sm:pb-5 px-5 sm:px-6 md:px-8 pt-5 sm:pt-6 md:pt-8 bg-slate-900/95 backdrop-blur-2xl border-b border-blue-500/20 z-10 flex items-center justify-between rounded-t-3xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                      <LuScanLine className="text-xl text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text">
+                        Scan Anime
+                      </h2>
+                      <p className="text-xs text-blue-300/70 font-light">
+                        Upload and ask anything!
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setScanOpen(false);
+                      setPendingImage(null);
+                      setScanPrompt("");
+                    }}
+                    className="text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300 p-2"
+                  >
+                    <FaTimes className="text-xl" />
+                  </button>
                 </div>
-
-                <button
-                  onClick={() => {
-                    setScanOpen(false);
-                    setPendingImage(null);
-                    setScanPrompt("");
-                  }}
-                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300 z-10"
-                >
-                  <FaTimes className="text-xl" />
-                </button>
-
-                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-6 text-center">
-                  Scan Anime
-                </h2>
-                <p className="text-blue-300/70 text-xs sm:text-sm mb-6 font-light text-center">
-                  Upload a screenshot and ask me anything about it!
-                </p>
 
                 {!session ? (
                   <div className="text-center py-8">
@@ -765,7 +769,7 @@ Please answer the user's question about this anime in an engaging way! Include i
                     </Link>
                   </div>
                 ) : (
-                  <div className="space-y-5">
+                  <div className="space-y-4 sm:space-y-5">
                     <div className="space-y-3">
                       <label className="block">
                         <div className="flex items-center justify-between mb-2">
@@ -774,22 +778,24 @@ Please answer the user's question about this anime in an engaging way! Include i
                             Upload Screenshot
                           </span>
                           {pendingImage && (
-                            <span className="text-xs text-cyan-400 font-medium">✓ Image uploaded</span>
+                            <span className="text-xs text-cyan-400 font-medium px-2 py-1 bg-cyan-500/10 rounded-full border border-cyan-400/30">✓ Uploaded</span>
                           )}
                         </div>
-                        <div className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-8 transition-all cursor-pointer ${
+                        <div className={`relative border-2 border-dashed rounded-2xl transition-all cursor-pointer ${
                           pendingImage 
-                            ? 'border-cyan-400/50 bg-cyan-500/5' 
-                            : 'border-blue-500/30 bg-slate-800/30 hover:border-blue-400/50 hover:bg-slate-800/50'
+                            ? 'border-cyan-400/50 bg-cyan-500/5 p-3' 
+                            : 'border-blue-500/30 bg-slate-800/30 hover:border-blue-400/50 hover:bg-slate-800/50 p-5 sm:p-6'
                         }`}>
                           {pendingImage ? (
-                            <div className="relative aspect-video rounded-xl overflow-hidden">
-                              <Image
-                                src={pendingImage}
-                                alt="preview"
-                                fill
-                                className="object-cover"
-                              />
+                            <div className="relative w-full rounded-xl overflow-hidden">
+                              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                                <Image
+                                  src={pendingImage}
+                                  alt="preview"
+                                  fill
+                                  className="object-cover rounded-xl"
+                                />
+                              </div>
                               <button
                                 onClick={(e) => {
                                   e.preventDefault();
@@ -802,8 +808,8 @@ Please answer the user's question about this anime in an engaging way! Include i
                               </button>
                             </div>
                           ) : (
-                            <div className="text-center">
-                              <FaUpload className="text-4xl text-blue-400 mx-auto mb-3" />
+                            <div className="text-center py-4">
+                              <FaUpload className="text-3xl sm:text-4xl text-blue-400 mx-auto mb-3" />
                               <p className="text-blue-200 font-medium text-sm mb-1">Click to upload image</p>
                               <p className="text-blue-300/60 text-xs">PNG, JPG, WEBP up to 10MB</p>
                             </div>
@@ -828,7 +834,7 @@ Please answer the user's question about this anime in an engaging way! Include i
                           <input
                             type="text"
                             placeholder="e.g., What anime is this? Who is this character?"
-                            className="w-full px-4 py-3 sm:py-4 rounded-2xl bg-slate-800/50 border border-blue-500/20 placeholder-blue-300/40 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl pr-12"
+                            className="w-full px-4 py-3 sm:py-3.5 rounded-2xl bg-slate-800/50 border border-blue-500/20 placeholder-blue-300/40 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl pr-12"
                             value={scanPrompt}
                             onChange={(e) => setScanPrompt(e.target.value)}
                             disabled={!pendingImage}
@@ -855,7 +861,7 @@ Please answer the user's question about this anime in an engaging way! Include i
                       </div>
                     </div>
 
-                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-4">
+                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-3 sm:p-4">
                       <h4 className="text-xs font-semibold text-blue-200 mb-2 flex items-center gap-2">
                         <LuSparkles className="text-cyan-400" />
                         Example Questions
@@ -864,8 +870,8 @@ Please answer the user's question about this anime in an engaging way! Include i
                         {[
                           "What anime is this?",
                           "Who is this character?",
-                          "What episode is this from?",
-                          "Tell me about this scene"
+                          "What episode?",
+                          "Tell me about this"
                         ].map((example, idx) => (
                           <button
                             key={idx}
@@ -879,21 +885,21 @@ Please answer the user's question about this anime in an engaging way! Include i
                       </div>
                     </div>
 
-                    <div className="flex gap-3 pt-2">
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
                       <button
                         onClick={() => {
                           setScanOpen(false);
                           setPendingImage(null);
                           setScanPrompt("");
                         }}
-                        className="flex-1 px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
+                        className="w-full sm:flex-1 px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20 order-2 sm:order-1"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={sendMessage}
                         disabled={!pendingImage || loading}
-                        className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+                        className="w-full sm:flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 order-1 sm:order-2"
                       >
                         {loading ? (
                           <>
