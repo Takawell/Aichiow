@@ -1,4 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import Aichixia from "@aichixia/sdk";
+
+const client = new Aichixia();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -6,24 +9,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(405).json({ error: "Method Not Allowed" });
     }
 
-    const { mode, ...bodyData } = req.body;
+    const { mode, message, history, persona } = req.body;
 
-    const targetUrl = mode === "deep" 
-      ? "https://aichixia.vercel.app/api/models/compound"
-      : "https://aichixia.vercel.app/api/models/gemini"; // large model and save budget
+    let response;
 
-    const response = await fetch(targetUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(bodyData),
-    });
+    if (mode === "deep") {
+      response = await client.deepSearch(message, {
+        history: history || [],
+        persona: persona,
+      });
+    } else {
+      response = await client.chat(message, {
+        history: history || [],
+        persona: persona,
+      });
+    }
 
-    const data = await response.json();
-
-    return res.status(response.status).json({
+    return res.status(200).json({
       type: "text",
-      reply: data.reply ?? "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
-      provider: data.provider,
+      reply: response.reply ?? "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
+      provider: response.provider,
     });
   } catch (err: any) {
     console.error("Aichiow -> Aichixia API error:", err);
