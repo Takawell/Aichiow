@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner, FaTimes, FaEllipsisV, FaAngry, FaSmile, FaBriefcase, FaHeart, FaComments, FaSearch, FaRobot } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner, FaTimes, FaEllipsisV, FaAngry, FaSmile, FaBriefcase, FaHeart, FaComments, FaSearch, FaUpload, FaLock } from "react-icons/fa";
 import { LuScanLine, LuSparkles } from "react-icons/lu";
 import Image from "next/image";
 import Link from "next/link";
@@ -66,6 +66,7 @@ export default function AichixiaPage() {
   const [session, setSession] = useState<any>(null);
   const [scanOpen, setScanOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [scanPrompt, setScanPrompt] = useState("");
   const [scanCooldown, setScanCooldown] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
@@ -114,7 +115,7 @@ export default function AichixiaPage() {
       newMessages.push({
         role: "user",
         type: "text",
-        content: "What is this anime?",
+        content: scanPrompt || "What is this anime?",
       });
     }
     
@@ -138,12 +139,15 @@ export default function AichixiaPage() {
           { role: "assistant", type: "scan", content: scanRes },
         ]);
 
-        const aiPrompt = `I scanned an anime screenshot and here are the results:
+        const userQuestion = scanPrompt || "What is this anime?";
+        const aiPrompt = `User asked: "${userQuestion}"
+
+I scanned an anime screenshot and here are the results:
 ${scanRes.map((r: any, i: number) => 
   `${i + 1}. ${r.title?.romaji || r.title?.english || "Unknown"} - Episode ${r.episode || "?"} (${(r.similarity * 100).toFixed(1)}% match)`
 ).join('\n')}
 
-Please provide an engaging explanation about the anime that was detected! Include interesting details, plot summary, and why it's worth watching. Be enthusiastic and helpful!`;
+Please answer the user's question about this anime in an engaging way! Include interesting details, plot summary, and why it's worth watching. Be enthusiastic and helpful!`;
 
         const aiRes = await fetch("/api/aichixia", {
           method: "POST",
@@ -166,6 +170,8 @@ Please provide an engaging explanation about the anime that was detected! Includ
             content: aiData.reply || "I found the anime, but I'm having trouble explaining it right now! 💫",
           },
         ]);
+        
+        setScanPrompt("");
       } else {
         const res = await fetch("/api/aichixia", {
           method: "POST",
@@ -445,20 +451,20 @@ Please provide an engaging explanation about the anime that was detected! Includ
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2 }}
-                    className="w-full max-w-[95%] sm:max-w-[85%] bg-gradient-to-br from-purple-900/40 via-blue-900/40 to-slate-900/40 border-2 border-purple-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl backdrop-blur-xl"
+                    className="w-full max-w-[95%] sm:max-w-[85%] bg-gradient-to-br from-blue-900/40 via-cyan-900/40 to-slate-900/40 border-2 border-blue-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl backdrop-blur-xl"
                   >
-                    <div className="flex items-center gap-3 mb-4 pb-3 border-b border-purple-500/20">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <div className="flex items-center gap-3 mb-4 pb-3 border-b border-blue-500/20">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
                         <LuSparkles className="text-xl text-white" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-purple-200 text-sm sm:text-base">AI Analysis</h3>
-                        <p className="text-xs text-purple-300/60">Powered by Aichixia</p>
+                        <h3 className="font-bold text-blue-200 text-sm sm:text-base">AI Analysis</h3>
+                        <p className="text-xs text-blue-300/60">Powered by Aichixia</p>
                       </div>
                     </div>
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
-                      className="prose prose-invert prose-sm sm:prose-base max-w-none prose-headings:text-purple-300 prose-a:text-pink-400 prose-strong:text-purple-200 prose-code:text-pink-300"
+                      className="prose prose-invert prose-sm sm:prose-base max-w-none prose-headings:text-blue-300 prose-a:text-cyan-400 prose-strong:text-blue-200 prose-code:text-cyan-300"
                     >
                       {msg.content as string}
                     </ReactMarkdown>
@@ -712,10 +718,14 @@ Please provide an engaging explanation about the anime that was detected! Includ
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setScanOpen(false)}
+              onClick={() => {
+                setScanOpen(false);
+                setPendingImage(null);
+                setScanPrompt("");
+              }}
             >
               <motion.div
-                className="bg-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
+                className="bg-slate-900/95 rounded-3xl p-6 sm:p-8 w-full max-w-lg shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500/30"
                 initial={{ scale: 0.8, opacity: 0, y: 50 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -726,76 +736,258 @@ Please provide an engaging explanation about the anime that was detected! Includ
                   <LuScanLine className="text-2xl text-white" />
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
-                  Upload Screenshot
+                <button
+                  onClick={() => {
+                    setScanOpen(false);
+                    setPendingImage(null);
+                    setScanPrompt("");
+                  }}
+                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300 z-10"
+                >
+                  <FaTimes className="text-xl" />
+                </button>
+
+                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-6 text-center">
+                  Scan Anime
                 </h2>
-                <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light">
-                  Aichixia will detect which anime it's from instantly!
+                <p className="text-blue-300/70 text-xs sm:text-sm mb-6 font-light text-center">
+                  Upload a screenshot and ask me anything about it!
                 </p>
 
                 {!session ? (
-                  <Link
-                    href="/auth/login"
-                    className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <LuScanLine className="text-xl" />
-                    <span>Login to Scan</span>
-                  </Link>
+                  <div className="text-center py-8">
+                    <Link
+                      href="/auth/login"
+                      className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
+                    >
+                      <LuScanLine className="text-xl" />
+                      <span>Login to Scan</span>
+                    </Link>
+                  </div>
                 ) : (
-                  <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
-                    <LuScanLine className="text-xl" />
-                    <span>Choose Image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileSelect}
-                    />
-                  </label>
-                )}
+                  <div className="space-y-5">
+                    <div className="space-y-3">
+                      <label className="block">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-blue-200 flex items-center gap-2">
+                            <FaUpload className="text-cyan-400" />
+                            Upload Screenshot
+                          </span>
+                          {pendingImage && (
+                            <span className="text-xs text-cyan-400 font-medium">✓ Image uploaded</span>
+                          )}
+                        </div>
+                        <div className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-8 transition-all cursor-pointer ${
+                          pendingImage 
+                            ? 'border-cyan-400/50 bg-cyan-500/5' 
+                            : 'border-blue-500/30 bg-slate-800/30 hover:border-blue-400/50 hover:bg-slate-800/50'
+                        }`}>
+                          {pendingImage ? (
+                            <div className="relative aspect-video rounded-xl overflow-hidden">
+                              <Image
+                                src={pendingImage}
+                                alt="preview"
+                                fill
+                                className="object-cover"
+                              />
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setPendingImage(null);
+                                }}
+                                className="absolute top-2 right-2 bg-red-500/90 backdrop-blur-sm rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg z-10"
+                              >
+                                <FaTimes className="text-white text-sm" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="text-center">
+                              <FaUpload className="text-4xl text-blue-400 mx-auto mb-3" />
+                              <p className="text-blue-200 font-medium text-sm mb-1">Click to upload image</p>
+                              <p className="text-blue-300/60 text-xs">PNG, JPG, WEBP up to 10MB</p>
+                            </div>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleFileSelect}
+                          />
+                        </div>
+                      </label>
 
-                {pendingImage && (
-                  <motion.div 
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="mt-8 relative w-full flex justify-center"
-                  >
-                    <div className="relative w-56 h-56 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20">
-                      <Image
-                        src={pendingImage}
-                        alt="preview"
-                        fill
-                        className="object-cover"
-                      />
+                      <div>
+                        <label className="block mb-2">
+                          <span className="text-sm font-semibold text-blue-200 flex items-center gap-2">
+                            <FaComments className="text-cyan-400" />
+                            Your Question
+                          </span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="e.g., What anime is this? Who is this character?"
+                            className="w-full px-4 py-3 sm:py-4 rounded-2xl bg-slate-800/50 border border-blue-500/20 placeholder-blue-300/40 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl pr-12"
+                            value={scanPrompt}
+                            onChange={(e) => setScanPrompt(e.target.value)}
+                            disabled={!pendingImage}
+                          />
+                          {!pendingImage && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <FaLock className="text-blue-400/40 text-lg" />
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs text-blue-300/50 mt-2 flex items-center gap-1.5">
+                          {pendingImage ? (
+                            <>
+                              <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                              Type your question or leave empty for default
+                            </>
+                          ) : (
+                            <>
+                              <FaLock className="text-blue-400/40" />
+                              Upload an image first to unlock
+                            </>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-4">
+                      <h4 className="text-xs font-semibold text-blue-200 mb-2 flex items-center gap-2">
+                        <LuSparkles className="text-cyan-400" />
+                        Example Questions
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          "What anime is this?",
+                          "Who is this character?",
+                          "What episode is this from?",
+                          "Tell me about this scene"
+                        ].map((example, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setScanPrompt(example)}
+                            disabled={!pendingImage}
+                            className="text-xs px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 rounded-full border border-blue-400/30 transition-all hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+                          >
+                            {example}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
                       <button
-                        onClick={() => setPendingImage(null)}
-                        className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-xl rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg"
+                        onClick={() => {
+                          setScanOpen(false);
+                          setPendingImage(null);
+                          setScanPrompt("");
+                        }}
+                        className="flex-1 px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
                       >
-                        <FaTimes className="text-white text-sm" />
+                        Cancel
+                      </button>
+                      <button
+                        onClick={sendMessage}
+                        disabled={!pendingImage || loading}
+                        className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+                      >
+                        {loading ? (
+                          <>
+                            <FaSpinner className="animate-spin" />
+                            Scanning...
+                          </>
+                        ) : !pendingImage ? (
+                          <>
+                            <FaLock />
+                            Upload First
+                          </>
+                        ) : (
+                          <>
+                            <LuScanLine />
+                            Scan Now
+                          </>
+                        )}
                       </button>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-                <div className="mt-8 flex justify-center gap-3">
-                  <button
-                    onClick={() => setScanOpen(false)}
-                    className="px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
-                  >
-                    Cancel
-                  </button>
-                  {session && pendingImage && (
-                    <button
-                      onClick={sendMessage}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
-                    >
-                      Scan Now
-                    </button>
-                  )}
+        <AnimatePresence>
+          {showPersonaMenu && (
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPersonaMenu(false)}
+            >
+              <motion.div
+                className="bg-slate-900/95 rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
+                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                transition={{ type: "spring", bounce: 0.3 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
+                  <FaHeart className="text-2xl text-white" />
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-6 mt-4">
+                  Choose Persona
+                </h2>
+
+                <div className="space-y-3">
+                  {(Object.keys(personaConfig) as Persona[]).map((p) => {
+                    const Icon = personaConfig[p].icon;
+                    return (
+                      <motion.button
+                        key={p}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setPersona(p);
+                          setShowPersonaMenu(false);
+                        }}
+                        className={`w-full px-5 py-4 rounded-2xl text-left hover:bg-blue-500/10 transition-all duration-300 flex items-center gap-4 border-2 backdrop-blur-xl ${
+                          persona === p
+                            ? "border-blue-400/50 bg-blue-500/10 shadow-lg shadow-blue-500/20"
+                            : "border-blue-500/20 hover:border-blue-400/40"
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                          persona === p 
+                            ? "bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/30" 
+                            : "bg-slate-800/50"
+                        }`}>
+                          <Icon className="text-xl text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-bold text-blue-100 text-sm sm:text-base">
+                            {personaConfig[p].name}
+                          </div>
+                          <div className="text-xs text-blue-300/70">
+                            {personaConfig[p].description}
+                          </div>
+                        </div>
+                        {persona === p && (
+                          <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-lg shadow-cyan-400/50" />
+                        )}
+                      </motion.button>
+                    );
+                  })}
                 </div>
 
                 <button
-                  onClick={() => setScanOpen(false)}
+                  onClick={() => setShowPersonaMenu(false)}
                   className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
                 >
                   <FaTimes className="text-xl" />
