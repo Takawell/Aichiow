@@ -725,24 +725,24 @@ Please answer the user's question about this anime in an engaging way! Include i
               }}
             >
               <motion.div
-                className="bg-slate-900/95 rounded-3xl p-5 sm:p-6 md:p-8 w-full max-w-lg shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl max-h-[95vh] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500/30"
+                className="bg-slate-900/95 rounded-3xl w-full max-w-lg shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl max-h-[90vh] overflow-hidden flex flex-col"
                 initial={{ scale: 0.8, opacity: 0, y: 50 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.8, opacity: 0, y: 50 }}
                 transition={{ type: "spring", bounce: 0.3 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="sticky top-0 -mt-5 sm:-mt-6 md:-mt-8 -mx-5 sm:-mx-6 md:-mx-8 mb-4 sm:mb-5 pb-4 sm:pb-5 px-5 sm:px-6 md:px-8 pt-5 sm:pt-6 md:pt-8 bg-slate-900/95 backdrop-blur-2xl border-b border-blue-500/20 z-10 flex items-center justify-between rounded-t-3xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                      <LuScanLine className="text-xl text-white" />
+                <div className="flex items-center justify-between p-4 sm:p-5 border-b border-blue-500/20">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0">
+                      <LuScanLine className="text-base sm:text-lg text-white" />
                     </div>
-                    <div>
-                      <h2 className="text-xl sm:text-2xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text">
+                    <div className="min-w-0">
+                      <h2 className="text-base sm:text-lg font-bold text-blue-200 truncate">
                         Scan Anime
                       </h2>
-                      <p className="text-xs text-blue-300/70 font-light">
-                        Upload and ask anything!
+                      <p className="text-[10px] sm:text-xs text-blue-300/70 truncate">
+                        Upload & ask anything
                       </p>
                     </div>
                   </div>
@@ -752,39 +752,41 @@ Please answer the user's question about this anime in an engaging way! Include i
                       setPendingImage(null);
                       setScanPrompt("");
                     }}
-                    className="text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300 p-2"
+                    className="text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300 p-2 flex-shrink-0"
                   >
-                    <FaTimes className="text-xl" />
+                    <FaTimes className="text-lg sm:text-xl" />
                   </button>
                 </div>
 
-                {!session ? (
-                  <div className="text-center py-8">
-                    <Link
-                      href="/auth/login"
-                      className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
-                    >
-                      <LuScanLine className="text-xl" />
-                      <span>Login to Scan</span>
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="space-y-4 sm:space-y-5">
-                    <div className="space-y-3">
-                      <label className="block">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-semibold text-blue-200 flex items-center gap-2">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-5 scrollbar-thin scrollbar-thumb-blue-500/30">
+                  {!session ? (
+                    <div className="text-center py-8">
+                      <Link
+                        href="/auth/login"
+                        className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
+                      >
+                        <LuScanLine className="text-xl" />
+                        <span>Login to Scan</span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs sm:text-sm font-semibold text-blue-200 flex items-center gap-2">
                             <FaUpload className="text-cyan-400" />
                             Upload Screenshot
-                          </span>
+                          </label>
                           {pendingImage && (
-                            <span className="text-xs text-cyan-400 font-medium px-2 py-1 bg-cyan-500/10 rounded-full border border-cyan-400/30">✓ Uploaded</span>
+                            <span className="text-[10px] sm:text-xs text-cyan-400 font-medium px-2 py-0.5 bg-cyan-500/10 rounded-full border border-cyan-400/30">
+                              ✓ Uploaded
+                            </span>
                           )}
                         </div>
-                        <div className={`relative border-2 border-dashed rounded-2xl transition-all cursor-pointer ${
+                        <label className={`block relative border-2 border-dashed rounded-2xl transition-all cursor-pointer ${
                           pendingImage 
-                            ? 'border-cyan-400/50 bg-cyan-500/5 p-3' 
-                            : 'border-blue-500/30 bg-slate-800/30 hover:border-blue-400/50 hover:bg-slate-800/50 p-5 sm:p-6'
+                            ? 'border-cyan-400/50 bg-cyan-500/5 p-2' 
+                            : 'border-blue-500/30 bg-slate-800/30 hover:border-blue-400/50 hover:bg-slate-800/50 p-4 sm:p-5'
                         }`}>
                           {pendingImage ? (
                             <div className="relative w-full rounded-xl overflow-hidden">
@@ -802,16 +804,16 @@ Please answer the user's question about this anime in an engaging way! Include i
                                   e.stopPropagation();
                                   setPendingImage(null);
                                 }}
-                                className="absolute top-2 right-2 bg-red-500/90 backdrop-blur-sm rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg z-10"
+                                className="absolute top-2 right-2 bg-red-500/90 backdrop-blur-sm rounded-full p-1.5 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg z-10"
                               >
-                                <FaTimes className="text-white text-sm" />
+                                <FaTimes className="text-white text-xs" />
                               </button>
                             </div>
                           ) : (
-                            <div className="text-center py-4">
-                              <FaUpload className="text-3xl sm:text-4xl text-blue-400 mx-auto mb-3" />
-                              <p className="text-blue-200 font-medium text-sm mb-1">Click to upload image</p>
-                              <p className="text-blue-300/60 text-xs">PNG, JPG, WEBP up to 10MB</p>
+                            <div className="text-center py-3">
+                              <FaUpload className="text-2xl sm:text-3xl text-blue-400 mx-auto mb-2" />
+                              <p className="text-blue-200 font-medium text-xs sm:text-sm mb-0.5">Click to upload</p>
+                              <p className="text-blue-300/60 text-[10px] sm:text-xs">PNG, JPG, WEBP up to 10MB</p>
                             </div>
                           )}
                           <input
@@ -820,107 +822,105 @@ Please answer the user's question about this anime in an engaging way! Include i
                             className="hidden"
                             onChange={handleFileSelect}
                           />
-                        </div>
-                      </label>
+                        </label>
+                      </div>
 
                       <div>
-                        <label className="block mb-2">
-                          <span className="text-sm font-semibold text-blue-200 flex items-center gap-2">
-                            <FaComments className="text-cyan-400" />
-                            Your Question
-                          </span>
+                        <label className="block mb-2 text-xs sm:text-sm font-semibold text-blue-200 flex items-center gap-2">
+                          <FaComments className="text-cyan-400" />
+                          Your Question
                         </label>
                         <div className="relative">
                           <input
                             type="text"
-                            placeholder="e.g., What anime is this? Who is this character?"
-                            className="w-full px-4 py-3 sm:py-3.5 rounded-2xl bg-slate-800/50 border border-blue-500/20 placeholder-blue-300/40 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl pr-12"
+                            placeholder="e.g., What anime is this?"
+                            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-slate-800/50 border border-blue-500/20 placeholder-blue-300/40 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl pr-10"
                             value={scanPrompt}
                             onChange={(e) => setScanPrompt(e.target.value)}
                             disabled={!pendingImage}
                           />
                           {!pendingImage && (
                             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                              <FaLock className="text-blue-400/40 text-lg" />
+                              <FaLock className="text-blue-400/40 text-sm" />
                             </div>
                           )}
                         </div>
-                        <p className="text-xs text-blue-300/50 mt-2 flex items-center gap-1.5">
+                        <p className="text-[10px] sm:text-xs text-blue-300/50 mt-1.5 flex items-center gap-1.5">
                           {pendingImage ? (
                             <>
-                              <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
-                              Type your question or leave empty for default
+                              <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                              Type your question or leave empty
                             </>
                           ) : (
                             <>
                               <FaLock className="text-blue-400/40" />
-                              Upload an image first to unlock
+                              Upload image first
                             </>
                           )}
                         </p>
                       </div>
-                    </div>
 
-                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-3 sm:p-4">
-                      <h4 className="text-xs font-semibold text-blue-200 mb-2 flex items-center gap-2">
-                        <LuSparkles className="text-cyan-400" />
-                        Example Questions
-                      </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {[
-                          "What anime is this?",
-                          "Who is this character?",
-                          "What episode?",
-                          "Tell me about this"
-                        ].map((example, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setScanPrompt(example)}
-                            disabled={!pendingImage}
-                            className="text-xs px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 rounded-full border border-blue-400/30 transition-all hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
-                          >
-                            {example}
-                          </button>
-                        ))}
+                      <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-3">
+                        <h4 className="text-[10px] sm:text-xs font-semibold text-blue-200 mb-2 flex items-center gap-1.5">
+                          <LuSparkles className="text-cyan-400" />
+                          Examples
+                        </h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[
+                            "What anime?",
+                            "Who's this?",
+                            "Episode?",
+                            "About this"
+                          ].map((example, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setScanPrompt(example)}
+                              disabled={!pendingImage}
+                              className="text-[10px] sm:text-xs px-2.5 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 rounded-full border border-blue-400/30 transition-all hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            >
+                              {example}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-1">
+                        <button
+                          onClick={() => {
+                            setScanOpen(false);
+                            setPendingImage(null);
+                            setScanPrompt("");
+                          }}
+                          className="w-full sm:flex-1 px-5 py-2.5 sm:py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20 text-sm"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={sendMessage}
+                          disabled={!pendingImage || loading}
+                          className="w-full sm:flex-1 px-5 py-2.5 sm:py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 text-sm"
+                        >
+                          {loading ? (
+                            <>
+                              <FaSpinner className="animate-spin" />
+                              Scanning...
+                            </>
+                          ) : !pendingImage ? (
+                            <>
+                              <FaLock />
+                              Upload First
+                            </>
+                          ) : (
+                            <>
+                              <LuScanLine />
+                              Scan Now
+                            </>
+                          )}
+                        </button>
                       </div>
                     </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                      <button
-                        onClick={() => {
-                          setScanOpen(false);
-                          setPendingImage(null);
-                          setScanPrompt("");
-                        }}
-                        className="w-full sm:flex-1 px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20 order-2 sm:order-1"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={sendMessage}
-                        disabled={!pendingImage || loading}
-                        className="w-full sm:flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 order-1 sm:order-2"
-                      >
-                        {loading ? (
-                          <>
-                            <FaSpinner className="animate-spin" />
-                            Scanning...
-                          </>
-                        ) : !pendingImage ? (
-                          <>
-                            <FaLock />
-                            Upload First
-                          </>
-                        ) : (
-                          <>
-                            <LuScanLine />
-                            Scan Now
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </motion.div>
             </motion.div>
           )}
