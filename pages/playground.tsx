@@ -27,6 +27,7 @@ type Message = {
   provider?: string;
   is_image?: boolean;
   created_at?: string;
+  cachedImage?: string;
 };
 
 type Session = {
@@ -108,7 +109,7 @@ export default function PlaygroundPage() {
       const msgsWithImages = msgs.map((msg: Message) => {
         if (msg.is_image && msg.id) {
           const cachedImage = localStorage.getItem(`img_${msg.id}`);
-          return { ...msg, cachedImage };
+          return { ...msg, cachedImage: cachedImage || undefined };
         }
         return msg;
       });
@@ -182,7 +183,7 @@ export default function PlaygroundPage() {
     }
 
     try {
-      const userMsgRes = await fetch("/api/playground", {
+      await fetch("/api/playground", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -193,7 +194,6 @@ export default function PlaygroundPage() {
           is_image: false,
         }),
       });
-      const userMsgData = await userMsgRes.json();
 
       const history = messages
         .filter(m => !m.is_image)
