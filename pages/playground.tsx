@@ -430,7 +430,7 @@ export default function PlaygroundPage() {
               />
               <div>
                 <h1 className="text-sm font-bold text-slate-200">Aichixia Playground</h1>
-                <p className="text-xs text-slate-500">Multi-Model AI Testing</p>
+                <p className="text-xs text-slate-500">Multi-Model Testing</p>
               </div>
             </div>
           </div>
@@ -457,27 +457,6 @@ export default function PlaygroundPage() {
                       <p className="text-xs font-semibold text-slate-400 px-2">TEXT MODELS</p>
                     </div>
                     {models.filter(m => m.type === "text").map((model) => {
-                      const Icon = model.icon;
-                      return (
-                        <button
-                          key={model.id}
-                          onClick={() => {
-                            setSelectedModel(model);
-                            setShowModelMenu(false);
-                          }}
-                          className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-800 transition-all ${
-                            selectedModel.id === model.id ? "bg-blue-500/10" : ""
-                          }`}
-                        >
-                          <Icon className="text-lg" />
-                          <span className="text-sm font-medium">{model.name}</span>
-                        </button>
-                      );
-                    })}
-                    <div className="p-2 border-b border-slate-800 mt-2">
-                      <p className="text-xs font-semibold text-slate-400 px-2">IMAGE MODELS</p>
-                    </div>
-                    {models.filter(m => m.type === "image").map((model) => {
                       const Icon = model.icon;
                       return (
                         <button
@@ -561,7 +540,7 @@ export default function PlaygroundPage() {
                   className="w-20 h-20 rounded-full border-4 border-blue-500 shadow-2xl mb-6"
                 />
                 <h2 className="text-2xl font-bold text-blue-100 mb-3">
-                  Konnichiwa! {getUserName()}! 💗
+                  Konnichiwa! {getUserName()}! 👋
                 </h2>
                 <p className="text-sm text-slate-400 max-w-md mb-6">
                   Welcome to Aichixia Playground! Test multiple AI models in one place. Select a model and start chatting!
@@ -604,7 +583,7 @@ export default function PlaygroundPage() {
                       {msg.content}
                     </ReactMarkdown>
                   )}
-                  {msg.role === "assistant" && msg.provider && (
+                  {msg.role === "assistant" && msg.provider && !msg.is_image && (
                     <div className="mt-2 pt-2 border-t border-slate-700/50">
                       <span className="text-xs text-slate-500">{msg.provider}</span>
                     </div>
