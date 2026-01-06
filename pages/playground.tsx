@@ -6,6 +6,7 @@ import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigike
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiPaintBrush } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -17,6 +18,7 @@ type Model = {
   icon: any;
   color: string;
   type: "text" | "image";
+  endpoint: string;
 };
 
 type Message = {
@@ -39,29 +41,30 @@ type Session = {
 };
 
 const models: Model[] = [
-  { id: "kimi", name: "Kimi K2", icon: SiDigikeyelectronics, color: "from-blue-500 to-black-500", type: "text" },
-  { id: "glm", name: "GLM 4.6", icon: TbSquareLetterZ, color: "from-[#1835D4] to-[#010B24]", type: "text" },
-  { id: "mistral", name: "Mistral 3.1", icon: TbLetterM, color: "from-[#FF4F00] to-[#FF9000]", type: "text" },
-  { id: "gpt4mini", name: "GPT-4 Mini", icon: SiOpenai, color: "from-green-500 to-emerald-500", type: "text" },
-  { id: "qwen3", name: "Qwen3 235B", icon: SiMatternet, color: "from-purple-500 to-pink-500", type: "text" },
-  { id: "minimax", name: "MiniMax M2.1", icon: SiMaze, color: "from-cyan-500 to-blue-500", type: "text" },
-  { id: "llama", name: "Llama 3.3 70B", icon: SiMeta, color: "from-orange-500 to-red-500", type: "text" },
-  { id: "gptoss", name: "GPT-OSS 120B", icon: SiOpenai, color: "from-pink-500 to-rose-500", type: "text" },
-  { id: "gemini", name: "Gemini 3 Flash", icon: SiGooglegemini, color: "from-indigo-500 to-purple-500", type: "text" },
-  { id: "mimo", name: "MiMo V2 Flash", icon: SiXiaomi, color: "from-blue-500 to-purple-500", type: "text" },
-  { id: "deepseek-v", name: "DeepSeek V3.1", icon: GiSpermWhale, color: "from-cyan-500 to-blue-500", type: "text" },
-  { id: "deepseek", name: "DeepSeek V3.2", icon: GiSpermWhale, color: "from-cyan-500 to-blue-500", type: "text" },
-  { id: "compound", name: "Groq Compound", icon: GiPowerLightning, color: "from-orange-500 to-blue-500", type: "text" },
-  { id: "claude", name: "Claude Haiku 4.5", icon: SiAnthropic, color: "from-orange-500 to-purple-500", type: "text" },
-  { id: "qwen", name: "Qwen3 Coder 480B", icon: SiAlibabacloud, color: "from-purple-500 to-pink-500", type: "text" },
-  { id: "cohere", name: "Cohere Command A", icon: GiClover, color: "from-emerald-500 to-purple-500", type: "text" },
-  { id: "flux", name: "Flux 2", icon: SiFlux, color: "from-purple-500 to-pink-500", type: "image" },
-  { id: "phoenix", name: "Phoenix 1.0", icon: GiPowerLightning, color: "from-orange-500 to-yellow-500", type: "image" },
-  { id: "lucid", name: "Lucid Origin", icon: GiPaintBrush, color: "from-teal-500 to-cyan-500", type: "image" },
+  { id: "kimi", name: "Kimi K2", icon: SiDigikeyelectronics, color: "from-blue-500 to-black-500", type: "text", endpoint: "kimi" },
+  { id: "glm", name: "GLM 4.6", icon: TbSquareLetterZ, color: "from-[#1835D4] to-[#010B24]", type: "text", endpoint: "glm" },
+  { id: "mistral", name: "Mistral 3.1", icon: TbLetterM, color: "from-[#FF4F00] to-[#FF9000]", type: "text", endpoint: "mistral" },
+  { id: "gpt4mini", name: "GPT-4 Mini", icon: SiOpenai, color: "from-green-500 to-emerald-500", type: "text", endpoint: "openai" },
+  { id: "qwen3", name: "Qwen3 235B", icon: SiMatternet, color: "from-purple-500 to-pink-500", type: "text", endpoint: "qwen3" },
+  { id: "minimax", name: "MiniMax M2.1", icon: SiMaze, color: "from-cyan-500 to-blue-500", type: "text", endpoint: "minimax" },
+  { id: "llama", name: "Llama 3.3 70B", icon: SiMeta, color: "from-orange-500 to-red-500", type: "text", endpoint: "llama" },
+  { id: "gptoss", name: "GPT-OSS 120B", icon: SiOpenai, color: "from-pink-500 to-rose-500", type: "text", endpoint: "gptoss" },
+  { id: "gemini", name: "Gemini 3 Flash", icon: SiGooglegemini, color: "from-indigo-500 to-purple-500", type: "text", endpoint: "gemini" },
+  { id: "mimo", name: "MiMo V2 Flash", icon: SiXiaomi, color: "from-blue-500 to-purple-500", type: "text", endpoint: "mimo" },
+  { id: "deepseek-v", name: "DeepSeek V3.1", icon: GiSpermWhale, color: "from-cyan-500 to-blue-500", type: "text", endpoint: "deepseek-v" },
+  { id: "deepseek", name: "DeepSeek V3.2", icon: GiSpermWhale, color: "from-cyan-500 to-blue-500", type: "text", endpoint: "deepseek" },
+  { id: "compound", name: "Groq Compound", icon: GiPowerLightning, color: "from-orange-500 to-blue-500", type: "text", endpoint: "compound" },
+  { id: "claude", name: "Claude Haiku 4.5", icon: SiAnthropic, color: "from-orange-500 to-purple-500", type: "text", endpoint: "claude" },
+  { id: "qwen", name: "Qwen3 Coder 480B", icon: SiAlibabacloud, color: "from-purple-500 to-pink-500", type: "text", endpoint: "qwen" },
+  { id: "cohere", name: "Cohere Command A", icon: GiClover, color: "from-emerald-500 to-purple-500", type: "text", endpoint: "cohere" },
+  { id: "flux", name: "Flux 2", icon: SiFlux, color: "from-purple-500 to-pink-500", type: "image", endpoint: "flux" },
+  { id: "phoenix", name: "Phoenix 1.0", icon: GiPowerLightning, color: "from-orange-500 to-yellow-500", type: "image", endpoint: "phoenix" },
+  { id: "lucid", name: "Lucid Origin", icon: GiPaintBrush, color: "from-teal-500 to-cyan-500", type: "image", endpoint: "lucid" },
 ];
 
 export default function PlaygroundPage() {
   const [session, setSession] = useState<any>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -77,10 +80,16 @@ export default function PlaygroundPage() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      if (data.session) {
-        loadSessions(data.session.user.id);
+      try {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+        if (data.session) {
+          await loadSessions(data.session.user.id);
+        }
+      } catch (error) {
+        console.error("Failed to check session:", error);
+      } finally {
+        setSessionLoading(false);
       }
     };
     checkSession();
@@ -204,7 +213,7 @@ export default function PlaygroundPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "chat",
-          model: selectedModel.id,
+          model: selectedModel.endpoint,
           message: selectedModel.type === "text" ? userMsg.content : undefined,
           prompt: selectedModel.type === "image" ? userMsg.content : undefined,
           history: selectedModel.type === "text" ? history : undefined,
@@ -291,7 +300,7 @@ export default function PlaygroundPage() {
 
   const ModelIcon = selectedModel.icon;
 
-  if (!session) {
+  if (sessionLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         <div className="text-center">
@@ -302,7 +311,31 @@ export default function PlaygroundPage() {
           >
             <FaSpinner className="text-3xl text-white animate-spin" />
           </motion.div>
-          <p className="text-slate-400">Loading session...</p>
+          <p className="text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+        <div className="text-center px-4">
+          <motion.img
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            src="/aichixia.png"
+            alt="Aichixia"
+            className="w-24 h-24 mx-auto rounded-full border-4 border-blue-500 shadow-2xl mb-6"
+          />
+          <h2 className="text-2xl font-bold text-blue-100 mb-4">Aichixia Playground</h2>
+          <p className="text-slate-400 mb-8 max-w-md">Please login to access the playground and test multiple AI models.</p>
+          <Link
+            href="/auth/login"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl font-semibold transition-all hover:scale-105 active:scale-95"
+          >
+            Login to Continue
+          </Link>
         </div>
       </div>
     );
@@ -338,34 +371,41 @@ export default function PlaygroundPage() {
               </div>
 
               <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                {sessions.map((sess) => (
-                  <div
-                    key={sess.id}
-                    className={`group flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-all ${
-                      currentSession?.id === sess.id
-                        ? "bg-blue-500/20 border border-blue-500/30"
-                        : "hover:bg-slate-800/50"
-                    }`}
-                  >
-                    <div
-                      onClick={() => selectSession(sess)}
-                      className="flex-1 min-w-0"
-                    >
-                      <p className="text-sm font-medium text-slate-200 truncate">
-                        {sess.title}
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        {new Date(sess.updated_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => deleteSession(sess.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/20 rounded transition-all"
-                    >
-                      <FaTrash className="text-xs text-red-400" />
-                    </button>
+                {sessions.length === 0 ? (
+                  <div className="text-center py-8 px-4">
+                    <p className="text-sm text-slate-500">No chats yet</p>
+                    <p className="text-xs text-slate-600 mt-1">Create a new chat to start</p>
                   </div>
-                ))}
+                ) : (
+                  sessions.map((sess) => (
+                    <div
+                      key={sess.id}
+                      className={`group flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                        currentSession?.id === sess.id
+                          ? "bg-blue-500/20 border border-blue-500/30"
+                          : "hover:bg-slate-800/50"
+                      }`}
+                    >
+                      <div
+                        onClick={() => selectSession(sess)}
+                        className="flex-1 min-w-0"
+                      >
+                        <p className="text-sm font-medium text-slate-200 truncate">
+                          {sess.title}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {new Date(sess.updated_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => deleteSession(sess.id)}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/20 rounded transition-all"
+                      >
+                        <FaTrash className="text-xs text-red-400" />
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </motion.aside>
           </>
@@ -377,14 +417,7 @@ export default function PlaygroundPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowSidebar(!showSidebar)}
-              className="lg:hidden p-2 hover:bg-slate-800 rounded-lg transition-colors"
-            >
-              <FaBars className="text-lg" />
-            </button>
-
-            <button
-              onClick={() => setShowSidebar(!showSidebar)}
-              className="hidden lg:block p-2 hover:bg-slate-800 rounded-lg transition-colors"
+              className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
             >
               <FaBars className="text-lg" />
             </button>
@@ -424,6 +457,27 @@ export default function PlaygroundPage() {
                       <p className="text-xs font-semibold text-slate-400 px-2">TEXT MODELS</p>
                     </div>
                     {models.filter(m => m.type === "text").map((model) => {
+                      const Icon = model.icon;
+                      return (
+                        <button
+                          key={model.id}
+                          onClick={() => {
+                            setSelectedModel(model);
+                            setShowModelMenu(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-800 transition-all ${
+                            selectedModel.id === model.id ? "bg-blue-500/10" : ""
+                          }`}
+                        >
+                          <Icon className="text-lg" />
+                          <span className="text-sm font-medium">{model.name}</span>
+                        </button>
+                      );
+                    })}
+                    <div className="p-2 border-b border-slate-800 mt-2">
+                      <p className="text-xs font-semibold text-slate-400 px-2">IMAGE MODELS</p>
+                    </div>
+                    {models.filter(m => m.type === "image").map((model) => {
                       const Icon = model.icon;
                       return (
                         <button
@@ -507,7 +561,7 @@ export default function PlaygroundPage() {
                   className="w-20 h-20 rounded-full border-4 border-blue-500 shadow-2xl mb-6"
                 />
                 <h2 className="text-2xl font-bold text-blue-100 mb-3">
-                  Konnichiwa! {getUserName()}! 👋
+                  Konnichiwa! {getUserName()}! 💗
                 </h2>
                 <p className="text-sm text-slate-400 max-w-md mb-6">
                   Welcome to Aichixia Playground! Test multiple AI models in one place. Select a model and start chatting!
