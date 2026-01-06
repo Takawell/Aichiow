@@ -5,7 +5,6 @@ import { BiSearchAlt } from 'react-icons/bi'
 import { SiOpenai, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiXiaomi, SiMaze, SiMatternet, SiGooglegemini, SiFlux } from "react-icons/si"
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiPaintBrush } from "react-icons/gi"
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb"
-import { BiSearchAlt } from 'react-icons/bi'
 import Link from 'next/link'
 
 type Endpoint = {
