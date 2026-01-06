@@ -95,8 +95,7 @@ export default function PlaygroundPage() {
     checkSession();
   }, []);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  useEffect(() => {    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const loadSessions = async (userId: string) => {
