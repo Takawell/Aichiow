@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react'
-import { FaCircle, FaCopy, FaCheck, FaSearch, FaTimes, FaCode, FaServer, FaRobot, FaBrain } from 'react-icons/fa'
+import { FaCircle, FaCopy, FaCheck, FaSearch, FaTimes, FaCode, FaServer, FaRobot, FaBrain, FaPlay } from 'react-icons/fa'
 import { HiDocumentText } from 'react-icons/hi'
 import { BiSearchAlt } from 'react-icons/bi'
-import { SiOpenai, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiXiaomi, SiMaze, SiMatternet } from "react-icons/si"
-import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover } from "react-icons/gi"
+import { SiOpenai, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiXiaomi, SiMaze, SiMatternet, SiGooglegemini, SiFlux } from "react-icons/si"
+import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiPaintBrush } from "react-icons/gi"
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb"
-import { RiGeminiFill, RiFlashlightFill } from "react-icons/ri"
+import { BiSearchAlt } from 'react-icons/bi'
+import Link from 'next/link'
 
 type Endpoint = {
   name: string
@@ -40,14 +41,18 @@ const endpoints: Endpoint[] = [
   { name: 'MiniMax M2.1', method: 'POST', path: '/api/models/minimax', desc: '230B params, 10B active', status: 'online', category: 'AI Chat', icon: SiMaze },
   { name: 'Llama 3.3 70B', method: 'POST', path: '/api/models/llama', desc: '70B params with search', status: 'online', category: 'AI Chat', icon: SiMeta },
   { name: 'GPT-OSS 120B', method: 'POST', path: '/api/models/gptoss', desc: '120B params, 5.1B active', status: 'online', category: 'AI Chat', icon: SiOpenai },
-  { name: 'Gemini 3 Flash', method: 'POST', path: '/api/models/gemini', desc: '1.2T params, 5-30B active', status: 'online', category: 'AI Chat', icon: RiGeminiFill },
+  { name: 'Gemini 3 Flash', method: 'POST', path: '/api/models/gemini', desc: '1.2T params, 5-30B active', status: 'online', category: 'AI Chat', icon: SiGooglegemini },
   { name: 'MiMo V2 Flash', method: 'POST', path: '/api/models/mimo', desc: '309B params, 15B active', status: 'online', category: 'AI Chat', icon: SiXiaomi },
   { name: 'DeepSeek V3.1', method: 'POST', path: '/api/models/deepseek-v', desc: '671B params, 37B active', status: 'online', category: 'AI Chat', icon: GiSpermWhale },
   { name: 'DeepSeek V3.2', method: 'POST', path: '/api/models/deepseek', desc: '671B params, 37B active', status: 'online', category: 'AI Chat', icon: GiSpermWhale },
   { name: 'Groq Compound', method: 'POST', path: '/api/models/compound', desc: 'Multi-model compound AI', status: 'online', category: 'AI Chat', icon: GiPowerLightning },
   { name: 'Claude Haiku 4.5', method: 'POST', path: '/api/models/claude', desc: '~130B params Anthropic', status: 'online', category: 'AI Chat', icon: SiAnthropic },
   { name: 'Qwen3 Coder 480B', method: 'POST', path: '/api/models/qwen', desc: '480B params, 35B active', status: 'online', category: 'AI Chat', icon: SiAlibabacloud },
-  { name: 'Flux 2', method: 'POST', path: '/api/models/flux', desc: 'Advanced image generation', status: 'online', category: 'AI Image', icon: RiFlashlightFill },
+  { name: 'Cohere Command A', method: 'POST', path: '/api/models/cohere', desc: 'Enterprise-grade tool use', status: 'online', category: 'AI Chat', icon: GiClover },
+  
+  { name: 'Flux 2', method: 'POST', path: '/api/models/flux', desc: 'Advanced image generation', status: 'online', category: 'AI Image', icon: SiFlux },
+  { name: 'Phoenix 1.0', method: 'POST', path: '/api/models/phoenix', desc: 'Photorealistic image AI', status: 'online', category: 'AI Image', icon: GiPowerLightning },
+  { name: 'Lucid Origin', method: 'POST', path: '/api/models/lucid', desc: 'Anime-style image generation', status: 'online', category: 'AI Image', icon: GiPaintBrush },
 ]
 
 export default function ApiPage() {
@@ -107,13 +112,13 @@ export default function ApiPage() {
                   <div className="flex items-center gap-2 text-sky-300">
                     <FaCode className="w-4 h-4 shrink-0" />
                     <a href="https://github.com/Takawell/Aichixia" target="_blank" rel="noopener noreferrer" className="hover:text-sky-200 transition-colors break-all font-mono text-xs sm:text-sm">
-                      github.com/Takawell/Aichixia
+                      OFFICIAL REPOSITORY
                     </a>
                   </div>
                   <div className="flex items-center gap-2 text-cyan-300">
                     <FaServer className="w-4 h-4 shrink-0" />
                     <a href="https://aichixia.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-200 transition-colors break-all font-mono text-xs sm:text-sm">
-                      aichixia.vercel.app
+                      OFFICIAL WEBSITE
                     </a>
                   </div>
                 </div>
@@ -147,6 +152,14 @@ export default function ApiPage() {
             <p className="text-gray-300 text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
               Explore {stats.total} endpoints powered by {stats.totalParams} parameters across {stats.models} AI models
             </p>
+            
+            <Link
+              href="/playground"
+              className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50 text-sm sm:text-base"
+            >
+              <FaPlay className="w-4 h-4" />
+              <span>Try Playground</span>
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8 max-w-4xl mx-auto">
@@ -342,7 +355,7 @@ export default function ApiPage() {
 
           <div className="text-center space-y-3 mt-12">
             <p className="text-sm text-gray-400 max-w-2xl mx-auto">
-              All endpoints are monitored in real-time with 99.9% uptime. Total capacity: 4.9T parameters.
+              All endpoints are monitored in real-time with 99.9% uptime. Total capacity: 5.2T parameters.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-xs text-gray-500">
               <span>© {new Date().getFullYear()} Aichiow Plus All Right Reserved</span>
