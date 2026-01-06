@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner, FaTimes, FaPlus, FaTrash, FaBars, FaChevronDown, FaCog } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner, FaTimes, FaPlus, FaTrash, FaBars, FaChevronDown, FaCog, FaAngry, FaSmile, FaBriefcase, FaHeart } from "react-icons/fa";
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiPaintBrush } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
@@ -40,6 +40,34 @@ type Session = {
   updated_at: string;
 };
 
+type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
+
+const personaConfig: Record<
+  Persona,
+  { name: string; description: string; icon: any }
+> = {
+  tsundere: {
+    name: "Tsundere",
+    description: "B-baka! Classic tsundere personality",
+    icon: FaAngry,
+  },
+  friendly: {
+    name: "Friendly",
+    description: "Warm and welcoming assistant",
+    icon: FaSmile,
+  },
+  professional: {
+    name: "Professional",
+    description: "Formal and efficient helper",
+    icon: FaBriefcase,
+  },
+  kawaii: {
+    name: "Kawaii",
+    description: "Super cute and energetic!",
+    icon: FaHeart,
+  },
+};
+
 const models: Model[] = [
   { id: "kimi", name: "Kimi K2", icon: SiDigikeyelectronics, color: "from-blue-500 to-black-500", type: "text", endpoint: "kimi" },
   { id: "glm", name: "GLM 4.6", icon: TbSquareLetterZ, color: "from-[#1835D4] to-[#010B24]", type: "text", endpoint: "glm" },
@@ -75,6 +103,7 @@ export default function PlaygroundPage() {
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [steps, setSteps] = useState(4);
+  const [persona, setPersona] = useState<Persona>("tsundere");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -218,6 +247,7 @@ export default function PlaygroundPage() {
           prompt: selectedModel.type === "image" ? userMsg.content : undefined,
           history: selectedModel.type === "text" ? history : undefined,
           steps: selectedModel.type === "image" ? steps : undefined,
+          persona: selectedModel.type === "text" && persona !== "tsundere" ? personaConfig[persona].description : undefined,
         }),
       });
       const chatData = await chatRes.json();
@@ -474,56 +504,63 @@ export default function PlaygroundPage() {
                         </button>
                       );
                     })}
-                    <div className="p-2 border-b border-slate-800 mt-2">
-                      <p className="text-xs font-semibold text-slate-400 px-2">IMAGE MODELS</p>
-                    </div>
-                    {models.filter(m => m.type === "image").map((model) => {
-                      const Icon = model.icon;
-                      return (
-                        <button
-                          key={model.id}
-                          onClick={() => {
-                            setSelectedModel(model);
-                            setShowModelMenu(false);
-                          }}
-                          className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-800 transition-all ${
-                            selectedModel.id === model.id ? "bg-blue-500/10" : ""
-                          }`}
-                        >
-                          <Icon className="text-lg" />
-                          <span className="text-sm font-medium">{model.name}</span>
-                        </button>
-                      );
-                    })}
                   </div>
                 </>
               )}
             </div>
 
-            {selectedModel.type === "image" && (
-              <button
-                onClick={() => setShowSettings(!showSettings)}
-                className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
-              >
-                <FaCog className="text-lg" />
-              </button>
-            )}
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <FaCog className="text-lg" />
+            </button>
           </div>
         </header>
 
-        {showSettings && selectedModel.type === "image" && (
+        {showSettings && (
           <div className="px-4 py-3 bg-slate-800/50 border-b border-slate-800">
-            <div className="max-w-4xl mx-auto flex items-center gap-4">
-              <label className="text-sm font-medium text-slate-300">Steps:</label>
-              <input
-                type="range"
-                min="1"
-                max="50"
-                value={steps}
-                onChange={(e) => setSteps(Number(e.target.value))}
-                className="flex-1"
-              />
-              <span className="text-sm font-semibold text-blue-400 w-8">{steps}</span>
+            <div className="max-w-4xl mx-auto">
+              {selectedModel.type === "image" ? (
+                <div className="flex items-center gap-4">
+                  <label className="text-sm font-medium text-slate-300">Steps:</label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="50"
+                    value={steps}
+                    onChange={(e) => setSteps(Number(e.target.value))}
+                    className="flex-1"
+                  />
+                  <span className="text-sm font-semibold text-blue-400 w-8">{steps}</span>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-slate-300 block">Persona:</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(Object.keys(personaConfig) as Persona[]).map((p) => {
+                      const Icon = personaConfig[p].icon;
+                      return (
+                        <button
+                          key={p}
+                          onClick={() => setPersona(p)}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                            persona === p
+                              ? "bg-blue-500/20 border-2 border-blue-500/50"
+                              : "bg-slate-800/50 border-2 border-slate-700 hover:bg-slate-800"
+                          }`}
+                        >
+                          <Icon className="text-lg" />
+                          <div className="text-left">
+                            <div className="text-sm font-semibold text-slate-200">{personaConfig[p].name}</div>
+                            <div className="text-xs text-slate-500">{personaConfig[p].description}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
