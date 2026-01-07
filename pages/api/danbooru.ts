@@ -17,6 +17,15 @@ type DanbooruPost = {
   image_width: number
   image_height: number
   source: string
+  media_asset: {
+    variants: Array<{
+      type: string
+      url: string
+      width: number
+      height: number
+      file_ext: string
+    }>
+  }
 }
 
 type ApiResponse = {
@@ -35,7 +44,7 @@ export default async function handler(
     return res.status(405).json({ success: false, error: 'Method not allowed' })
   }
 
-  const { tags = 'rating:safe', page = '1', limit = '20' } = req.query
+  const { tags = '', page = '1', limit = '20', rating = 'safe' } = req.query
 
   const apiKey = process.env.DANBOORU_API_KEY
   const apiUser = process.env.DANBOORU_API_USER || ''
@@ -51,8 +60,18 @@ export default async function handler(
     const pageNum = parseInt(page as string)
     const limitNum = Math.min(parseInt(limit as string), 200)
 
+    const searchTags = tags as string
+    const ratingTag = rating as string
+
+    let finalTags = ''
+    if (searchTags.trim()) {
+      finalTags = `${searchTags.trim()} rating:${ratingTag}`
+    } else {
+      finalTags = `rating:${ratingTag}`
+    }
+
     const params = new URLSearchParams({
-      tags: tags as string,
+      tags: finalTags,
       page: pageNum.toString(),
       limit: limitNum.toString()
     })
@@ -67,21 +86,38 @@ export default async function handler(
     })
 
     if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Danbooru API error:', response.status, errorText)
       throw new Error(`Danbooru API error: ${response.status}`)
     }
 
     const data: DanbooruPost[] = await response.json()
 
-    const filteredData = data.filter(post => 
-      post.file_url && 
-      ['jpg', 'png', 'jpeg', 'gif'].includes(post.file_ext)
-    )
+    const processedData = data
+      .filter(post => {
+        const hasValidImage = post.file_url || post.large_file_url || post.preview_file_url
+        const validExt = ['jpg', 'png', 'jpeg', 'gif', 'webp'].includes(post.file_ext?.toLowerCase())
+        return hasValidImage && validExt
+      })
+      .map(post => {
+        const imageUrl = post.large_file_url || post.file_url || post.preview_file_url
+        const previewUrl = post.preview_file_url || post.large_file_url || post.file_url
+        
+        return {
+          ...post,
+          file_url: imageUrl,
+          large_file_url: imageUrl,
+          preview_file_url: previewUrl
+        }
+      })
+
+    console.log(`Fetched ${processedData.length} posts for tags: "${finalTags}"`)
 
     return res.status(200).json({
       success: true,
-      data: filteredData,
+      data: processedData,
       page: pageNum,
-      hasMore: filteredData.length === limitNum
+      hasMore: processedData.length === limitNum
     })
 
   } catch (error) {
