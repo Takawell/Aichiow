@@ -493,7 +493,7 @@ export default function FanartPage() {
                           <div className="absolute inset-0 bg-gradient-to-br from-sky-900/20 to-sky-950/20 animate-pulse" />
                         )}
                         <Image
-                          src={post.preview_file_url || post.large_file_url || post.file_url}
+                          src={`/api/image-proxy?url=${encodeURIComponent(post.preview_file_url || post.large_file_url || post.file_url)}`}
                           alt={`Fanart ${post.id}`}
                           fill
                           className="object-contain"
@@ -503,11 +503,13 @@ export default function FanartPage() {
                           onError={(e) => {
                             console.error('Image load error:', post.id)
                             const img = e.target as HTMLImageElement
-                            if (img.src !== post.file_url) {
-                              img.src = post.file_url
+                            const fallbackUrl = `/api/image-proxy?url=${encodeURIComponent(post.file_url)}`
+                            if (img.src !== fallbackUrl) {
+                              img.src = fallbackUrl
                             }
                           }}
                           priority={index < 2}
+                          unoptimized
                         />
                       </div>
 
