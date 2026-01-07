@@ -83,28 +83,33 @@ export default function FanartPage() {
     }
 
     try {
-      const ratingMap = {
-        safe: 'rating:safe',
-        general: 'rating:general',
-        sensitive: 'rating:sensitive'
-      }
-
-      const sortMap = {
+      const sortMap: { [key in SortType]: string } = {
         score: 'order:score',
         new: 'order:id',
         random: 'order:random'
       }
 
-      const tags = [
-        ratingMap[activeFilter],
-        sortMap[activeSort],
-        searchQuery
-      ].filter(Boolean).join(' ')
+      const searchTags = searchQuery.trim()
+      const sortTag = sortMap[activeSort]
 
-      const res = await fetch(
-        `/api/danbooru?tags=${encodeURIComponent(tags)}&page=${pageNum}&limit=20`
-      )
+      let finalTags = sortTag
+      if (searchTags) {
+        finalTags = `${searchTags} ${sortTag}`
+      }
+
+      const params = new URLSearchParams({
+        tags: finalTags,
+        rating: activeFilter,
+        page: pageNum.toString(),
+        limit: '20'
+      })
+
+      console.log('Fetching with params:', params.toString())
+
+      const res = await fetch(`/api/danbooru?${params.toString()}`)
       const data = await res.json()
+
+      console.log('API Response:', data)
 
       if (data.success) {
         if (reset) {
@@ -144,8 +149,11 @@ export default function FanartPage() {
     searchTimeoutRef.current = setTimeout(() => {
       if (searchInput !== searchQuery) {
         setSearchQuery(searchInput)
-        fetchImages(1, true)
-        router.push(`/fanart?tags=${searchInput}`, undefined, { shallow: true })
+        if (searchInput) {
+          router.push(`/fanart?tags=${searchInput}`, undefined, { shallow: true })
+        } else {
+          router.push('/fanart', undefined, { shallow: true })
+        }
       }
     }, 500)
 
@@ -158,7 +166,7 @@ export default function FanartPage() {
 
   useEffect(() => {
     fetchImages(1, true)
-  }, [activeFilter, activeSort])
+  }, [searchQuery, activeFilter, activeSort])
 
   useEffect(() => {
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {
@@ -204,7 +212,6 @@ export default function FanartPage() {
   const handleTagClick = (tag: string) => {
     setSearchInput(tag)
     setSearchQuery(tag)
-    fetchImages(1, true)
     router.push(`/fanart?tags=${tag}`, undefined, { shallow: true })
   }
 
@@ -298,6 +305,7 @@ export default function FanartPage() {
         <title>Fanart Gallery - Aichiow</title>
         <meta name="description" content="Discover amazing anime fanart" />
       </Head>
+
       <main className="relative min-h-screen bg-black text-white overflow-hidden">
         <BackgroundDots />
 
@@ -317,15 +325,15 @@ export default function FanartPage() {
                   type="text"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder="Search tags..."
-                  className="w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-sm sm:text-base focus:outline-none focus:border-sky-500 transition"
+                  placeholder="Search tags (e.g. miku, genshin_impact)..."
+                  className="w-full pl-10 sm:pl-12 pr-10 py-2 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-sm sm:text-base focus:outline-none focus:border-sky-500 transition"
                 />
                 {searchInput && (
                   <button
                     onClick={() => {
                       setSearchInput('')
                       setSearchQuery('')
-                      fetchImages(1, true)
+                      router.push('/fanart', undefined, { shallow: true })
                     }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-lg transition"
                   >
@@ -485,13 +493,20 @@ export default function FanartPage() {
                           <div className="absolute inset-0 bg-gradient-to-br from-sky-900/20 to-sky-950/20 animate-pulse" />
                         )}
                         <Image
-                          src={post.large_file_url || post.file_url}
+                          src={post.preview_file_url || post.large_file_url || post.file_url}
                           alt={`Fanart ${post.id}`}
                           fill
                           className="object-contain"
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 1200px"
-                          quality={90}
+                          quality={85}
                           onLoadingComplete={() => setImageLoaded(prev => ({ ...prev, [post.id]: true }))}
+                          onError={(e) => {
+                            console.error('Image load error:', post.id)
+                            const img = e.target as HTMLImageElement
+                            if (img.src !== post.file_url) {
+                              img.src = post.file_url
+                            }
+                          }}
                           priority={index < 2}
                         />
                       </div>
@@ -510,7 +525,7 @@ export default function FanartPage() {
                         )}
                       </motion.button>
 
-                       <AnimatePresence>
+                      <AnimatePresence>
                         {showActions === post.id && (
                           <motion.div
                             initial={{ opacity: 0, y: 20 }}
