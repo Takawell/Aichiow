@@ -19,7 +19,8 @@ import {
   FaFire,
   FaStar,
   FaClock,
-  FaRandom
+  FaRandom,
+  FaHashtag
 } from 'react-icons/fa'
 
 type DanbooruPost = {
@@ -41,6 +42,13 @@ type DanbooruPost = {
   source: string
 }
 
+type AutocompleteResult = {
+  type: string
+  label: string
+  value: string
+  post_count: number
+}
+
 type FilterType = 'safe' | 'general' | 'sensitive'
 type SortType = 'score' | 'new' | 'random'
 
@@ -53,6 +61,9 @@ export default function FanartPage() {
   const [hasMore, setHasMore] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchInput, setSearchInput] = useState('')
+  const [suggestions, setSuggestions] = useState<AutocompleteResult[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
   const [activeFilter, setActiveFilter] = useState<FilterType>('safe')
   const [activeSort, setActiveSort] = useState<SortType>('score')
   const [showFilterMenu, setShowFilterMenu] = useState(false)
@@ -61,8 +72,11 @@ export default function FanartPage() {
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({})
 
   const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreObserverRef = useRef<IntersectionObserver | null>(null)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const autocompleteTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null)
 
   const trendingTags = [
     'hatsune_miku',
@@ -74,6 +88,26 @@ export default function FanartPage() {
     'vtuber',
     'arknights'
   ]
+
+  const fetchAutocomplete = useCallback(async (query: string) => {
+    if (query.trim().length < 2) {
+      setSuggestions([])
+      return
+    }
+
+    setLoadingSuggestions(true)
+    try {
+      const res = await fetch(`/api/autocomplete?q=${encodeURIComponent(query)}`)
+      const data = await res.json()
+      if (data.success) {
+        setSuggestions(data.data || [])
+      }
+    } catch (error) {
+      console.error('Autocomplete error:', error)
+    } finally {
+      setLoadingSuggestions(false)
+    }
+  }, [])
 
   const fetchImages = useCallback(async (pageNum: number, reset: boolean = false) => {
     if (reset) {
@@ -104,12 +138,8 @@ export default function FanartPage() {
         limit: '20'
       })
 
-      console.log('Fetching with params:', params.toString())
-
       const res = await fetch(`/api/danbooru?${params.toString()}`)
       const data = await res.json()
-
-      console.log('API Response:', data)
 
       if (data.success) {
         if (reset) {
@@ -165,6 +195,26 @@ export default function FanartPage() {
   }, [searchInput])
 
   useEffect(() => {
+    if (autocompleteTimeoutRef.current) {
+      clearTimeout(autocompleteTimeoutRef.current)
+    }
+
+    autocompleteTimeoutRef.current = setTimeout(() => {
+      if (searchInput.trim().length >= 2) {
+        fetchAutocomplete(searchInput)
+      } else {
+        setSuggestions([])
+      }
+    }, 300)
+
+    return () => {
+      if (autocompleteTimeoutRef.current) {
+        clearTimeout(autocompleteTimeoutRef.current)
+      }
+    }
+  }, [searchInput, fetchAutocomplete])
+
+  useEffect(() => {
     fetchImages(1, true)
   }, [searchQuery, activeFilter, activeSort])
 
@@ -203,11 +253,37 @@ export default function FanartPage() {
     }
   }, [images])
 
-  const handleLoadMore = useCallback(() => {
-    if (!loadingMore && hasMore) {
-      fetchImages(page + 1, false)
+  useEffect(() => {
+    const handleLoadMore = (entries: IntersectionObserverEntry[]) => {
+      const target = entries[0]
+      if (target.isIntersecting && !loadingMore && hasMore && !loading) {
+        fetchImages(page + 1, false)
+      }
     }
-  }, [loadingMore, hasMore, page, fetchImages])
+
+    loadMoreObserverRef.current = new IntersectionObserver(handleLoadMore, {
+      threshold: 0.1,
+      rootMargin: '200px'
+    })
+
+    if (loadMoreTriggerRef.current) {
+      loadMoreObserverRef.current.observe(loadMoreTriggerRef.current)
+    }
+
+    return () => {
+      if (loadMoreObserverRef.current) {
+        loadMoreObserverRef.current.disconnect()
+      }
+    }
+  }, [loadingMore, hasMore, loading, page, fetchImages])
+
+  const handleSuggestionClick = (value: string) => {
+    setSearchInput(value)
+    setSearchQuery(value)
+    setShowSuggestions(false)
+    setSuggestions([])
+    router.push(`/fanart?tags=${value}`, undefined, { shallow: true })
+  }
 
   const handleTagClick = (tag: string) => {
     setSearchInput(tag)
@@ -234,7 +310,8 @@ export default function FanartPage() {
 
   const handleDownload = async (post: DanbooruPost) => {
     try {
-      const response = await fetch(post.file_url)
+      const imageUrl = post.file_url || post.large_file_url
+      const response = await fetch(`/api/image-proxy?url=${encodeURIComponent(imageUrl)}`)
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -325,6 +402,8 @@ export default function FanartPage() {
                   type="text"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   placeholder="Search tags (e.g. miku, genshin_impact)..."
                   className="w-full pl-10 sm:pl-12 pr-10 py-2 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-sm sm:text-base focus:outline-none focus:border-sky-500 transition"
                 />
@@ -333,12 +412,53 @@ export default function FanartPage() {
                     onClick={() => {
                       setSearchInput('')
                       setSearchQuery('')
+                      setSuggestions([])
                       router.push('/fanart', undefined, { shallow: true })
                     }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-lg transition"
                   >
                     <FiX className="w-4 h-4" />
                   </button>
+                )}
+
+                <AnimatePresence>
+                  {showSuggestions && suggestions.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden shadow-2xl max-h-80 overflow-y-auto"
+                    >
+                      {suggestions.map((item) => (
+                        <button
+                          key={item.value}
+                          onClick={() => handleSuggestionClick(item.value)}
+                          className="w-full px-4 py-3 hover:bg-white/10 transition flex items-center justify-between text-left group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <FaHashtag className="w-3 h-3 text-sky-400" />
+                            <span className="text-sm group-hover:text-sky-400 transition">
+                              {item.label.replace(/_/g, ' ')}
+                            </span>
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            {item.post_count.toLocaleString()}
+                          </span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {loadingSuggestions && searchInput.length >= 2 && (
+                  <div className="absolute right-10 top-1/2 -translate-y-1/2">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    >
+                      <FiLoader className="w-4 h-4 text-sky-400" />
+                    </motion.div>
+                  </div>
                 )}
               </div>
 
@@ -493,17 +613,17 @@ export default function FanartPage() {
                           <div className="absolute inset-0 bg-gradient-to-br from-sky-900/20 to-sky-950/20 animate-pulse" />
                         )}
                         <Image
-                          src={`/api/image-proxy?url=${encodeURIComponent(post.preview_file_url || post.large_file_url || post.file_url)}`}
+                          src={`/api/image-proxy?url=${encodeURIComponent(post.file_url || post.large_file_url || post.preview_file_url)}`}
                           alt={`Fanart ${post.id}`}
                           fill
                           className="object-contain"
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 1200px"
-                          quality={85}
+                          quality={90}
                           onLoadingComplete={() => setImageLoaded(prev => ({ ...prev, [post.id]: true }))}
                           onError={(e) => {
                             console.error('Image load error:', post.id)
                             const img = e.target as HTMLImageElement
-                            const fallbackUrl = `/api/image-proxy?url=${encodeURIComponent(post.file_url)}`
+                            const fallbackUrl = `/api/image-proxy?url=${encodeURIComponent(post.preview_file_url)}`
                             if (img.src !== fallbackUrl) {
                               img.src = fallbackUrl
                             }
@@ -584,29 +704,16 @@ export default function FanartPage() {
                 </motion.div>
               ))}
 
-              {hasMore && (
-                <div className="flex justify-center py-8">
-                  <button
-                    onClick={handleLoadMore}
-                    disabled={loadingMore}
-                    className="px-6 py-3 bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-xl hover:shadow-lg hover:shadow-sky-400/30 transition disabled:opacity-50 text-sm sm:text-base"
+              <div ref={loadMoreTriggerRef} className="h-20 flex items-center justify-center">
+                {loadingMore && (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                   >
-                    {loadingMore ? (
-                      <div className="flex items-center gap-2">
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        >
-                          <FiLoader className="w-4 h-4" />
-                        </motion.div>
-                        <span>Loading...</span>
-                      </div>
-                    ) : (
-                      'Load More'
-                    )}
-                  </button>
-                </div>
-              )}
+                    <FiLoader className="w-6 h-6 text-sky-400" />
+                  </motion.div>
+                )}
+              </div>
             </div>
           )}
         </div>
