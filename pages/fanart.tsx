@@ -640,7 +640,7 @@ export default function FanartPage() {
                         <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-3" />
 
                         <div className="flex items-center gap-2 text-xs text-gray-400 px-3 py-2 mb-2">
-                          <FaTrendingUp className="w-3 h-3" />
+                          <FiTrendingUp className="w-3 h-3" />
                           <span>Sort By</span>
                         </div>
                         <div className="space-y-1">
