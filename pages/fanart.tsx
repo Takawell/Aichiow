@@ -3,8 +3,26 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Head from 'next/head'
-import { FiArrowLeft, FiSearch, FiFilter, FiShare2, FiDownload, FiExternalLink, FiX, FiChevronUp, FiChevronDown, FiLoader } from 'react-icons/fi'
-import { FaFire, FaStar, FaClock, FaRandom, FaHashtag } from 'react-icons/fa'
+import {
+  FiArrowLeft,
+  FiSearch,
+  FiFilter,
+  FiShare2,
+  FiDownload,
+  FiExternalLink,
+  FiX,
+  FiChevronUp,
+  FiChevronDown,
+  FiLoader,
+  FiAlertCircle
+} from 'react-icons/fi'
+import {
+  FaFire,
+  FaStar,
+  FaClock,
+  FaRandom,
+  FaHashtag
+} from 'react-icons/fa'
 
 type DanbooruPost = {
   id: number
@@ -53,6 +71,7 @@ export default function FanartPage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showActions, setShowActions] = useState<number | null>(null)
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({})
+  const [error, setError] = useState<string | null>(null)
 
   const observerRef = useRef<IntersectionObserver | null>(null)
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null)
@@ -73,26 +92,34 @@ export default function FanartPage() {
   ]
 
   const fetchAutocomplete = useCallback(async (query: string) => {
-    if (query.trim().length < 2) {
+    const trimmedQuery = query.trim()
+    
+    if (trimmedQuery.length < 2) {
       setSuggestions([])
+      setShowSuggestions(false)
       return
     }
 
     setLoadingSuggestions(true)
+    console.log('Fetching autocomplete for:', trimmedQuery)
+    
     try {
-      const res = await fetch(`/api/autocomplete?q=${encodeURIComponent(query)}`)
+      const res = await fetch(`/api/autocomplete?q=${encodeURIComponent(trimmedQuery)}`)
       const data = await res.json()
       
-      console.log('Autocomplete data:', data)
+      console.log('Autocomplete response:', data)
       
-      if (data.success && data.data) {
+      if (data.success && data.data && data.data.length > 0) {
         setSuggestions(data.data)
+        setShowSuggestions(true)
       } else {
         setSuggestions([])
+        setShowSuggestions(false)
       }
     } catch (error) {
       console.error('Autocomplete error:', error)
       setSuggestions([])
+      setShowSuggestions(false)
     } finally {
       setLoadingSuggestions(false)
     }
@@ -102,6 +129,7 @@ export default function FanartPage() {
     if (reset) {
       setLoading(true)
       setImages([])
+      setError(null)
     } else {
       setLoadingMore(true)
     }
@@ -114,6 +142,14 @@ export default function FanartPage() {
       }
 
       const searchTags = searchQuery.trim()
+      
+      if (searchTags && searchTags.length < 3 && !trendingTags.includes(searchTags)) {
+        setError('Please enter at least 3 characters or select a trending tag')
+        setLoading(false)
+        setLoadingMore(false)
+        return
+      }
+
       const sortTag = sortMap[activeSort]
 
       let finalTags = sortTag
@@ -128,16 +164,14 @@ export default function FanartPage() {
         limit: '20'
       })
 
-      console.log('Fetching images with params:', {
-        tags: finalTags,
-        rating: activeFilter,
-        page: pageNum
-      })
+      console.log('Fetching images:', { tags: finalTags, rating: activeFilter, page: pageNum })
 
       const res = await fetch(`/api/danbooru?${params.toString()}`)
       const data = await res.json()
 
-      console.log('Fetched images:', data)
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch images')
+      }
 
       if (data.success) {
         if (reset) {
@@ -151,14 +185,16 @@ export default function FanartPage() {
         }
         setHasMore(data.hasMore)
         setPage(pageNum)
+        setError(null)
       }
     } catch (error) {
       console.error('Failed to fetch images:', error)
+      setError(error instanceof Error ? error.message : 'Failed to load images')
     } finally {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [searchQuery, activeFilter, activeSort])
+  }, [searchQuery, activeFilter, activeSort, trendingTags])
 
   useEffect(() => {
     const query = router.query.tags as string
@@ -186,14 +222,14 @@ export default function FanartPage() {
           router.push('/fanart', undefined, { shallow: true })
         }
       }
-    }, 500)
+    }, 600)
 
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current)
       }
     }
-  }, [searchInput])
+  }, [searchInput, searchQuery, router])
 
   useEffect(() => {
     if (autocompleteTimeoutRef.current) {
@@ -202,9 +238,11 @@ export default function FanartPage() {
 
     autocompleteTimeoutRef.current = setTimeout(() => {
       if (searchInput.trim().length >= 2) {
+        console.log('Triggering autocomplete for:', searchInput)
         fetchAutocomplete(searchInput)
       } else {
         setSuggestions([])
+        setShowSuggestions(false)
       }
     }, 300)
 
@@ -253,7 +291,7 @@ export default function FanartPage() {
   useEffect(() => {
     const handleLoadMore = (entries: IntersectionObserverEntry[]) => {
       const target = entries[0]
-      if (target.isIntersecting && !loadingMore && hasMore && !loading) {
+      if (target.isIntersecting && !loadingMore && hasMore && !loading && !error) {
         console.log('Loading more images...')
         fetchImages(page + 1, false)
       }
@@ -273,7 +311,7 @@ export default function FanartPage() {
         loadMoreObserverRef.current.disconnect()
       }
     }
-  }, [loadingMore, hasMore, loading, page, fetchImages])
+  }, [loadingMore, hasMore, loading, page, error, fetchImages])
 
   const handleSuggestionClick = (value: string) => {
     setSearchInput(value)
@@ -286,6 +324,7 @@ export default function FanartPage() {
   const handleTagClick = (tag: string) => {
     setSearchInput(tag)
     setSearchQuery(tag)
+    setShowSuggestions(false)
     router.push(`/fanart?tags=${tag}`, undefined, { shallow: true })
   }
 
@@ -387,7 +426,7 @@ export default function FanartPage() {
         <BackgroundDots />
 
         <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
-          <div className="w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-4">
             <div className="flex items-center gap-2 sm:gap-4 mb-3">
               <button
                 onClick={() => router.back()}
@@ -396,19 +435,25 @@ export default function FanartPage() {
                 <FiArrowLeft className="w-5 h-5" />
               </button>
 
-              <div className="relative flex-1 max-w-3xl mx-auto">
+              <div className="relative flex-1 max-w-2xl">
                 <FiSearch className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
                   type="text"
                   value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
+                  onChange={(e) => {
+                    setSearchInput(e.target.value)
+                    console.log('Search input changed:', e.target.value)
+                  }}
                   onFocus={() => {
+                    console.log('Input focused, suggestions:', suggestions.length)
                     if (suggestions.length > 0) {
                       setShowSuggestions(true)
                     }
                   }}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                  placeholder="Search tags (e.g. miku, genshin_impact)..."
+                  onBlur={() => {
+                    setTimeout(() => setShowSuggestions(false), 200)
+                  }}
+                  placeholder="Search tags (min 3 chars)..."
                   className="w-full pl-10 sm:pl-12 pr-10 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-sm sm:text-base focus:outline-none focus:border-sky-500 transition"
                 />
                 {searchInput && (
@@ -417,6 +462,7 @@ export default function FanartPage() {
                       setSearchInput('')
                       setSearchQuery('')
                       setSuggestions([])
+                      setShowSuggestions(false)
                       router.push('/fanart', undefined, { shallow: true })
                     }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-lg transition"
@@ -487,7 +533,6 @@ export default function FanartPage() {
                         <button
                           key={filter}
                           onClick={() => {
-                            console.log('Setting filter to:', filter)
                             setActiveFilter(filter)
                             setShowFilterMenu(false)
                           }}
@@ -584,6 +629,18 @@ export default function FanartPage() {
                 <FiLoader className="w-8 h-8 text-sky-400" />
               </motion.div>
             </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400 px-4">
+              <FiAlertCircle className="w-12 h-12 mb-4 text-red-400" />
+              <p className="text-lg mb-2">Oops! Something went wrong</p>
+              <p className="text-sm text-center">{error}</p>
+              <button
+                onClick={() => fetchImages(1, true)}
+                className="mt-4 px-6 py-2 bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-xl text-sm hover:shadow-lg transition"
+              >
+                Try Again
+              </button>
+            </div>
           ) : images.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400 px-4">
               <FiSearch className="w-12 h-12 mb-4" />
@@ -591,7 +648,7 @@ export default function FanartPage() {
               <p className="text-sm text-center">Try different tags or filters</p>
             </div>
           ) : (
-            <div className="w-full px-3 sm:px-4 md:px-6 lg:px-12 space-y-4 sm:space-y-6 md:space-y-8">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 space-y-6 sm:space-y-8">
               {images.map((post, index) => (
                 <motion.div
                   key={post.id}
@@ -604,16 +661,22 @@ export default function FanartPage() {
                   dragConstraints={{ top: 0, bottom: 0 }}
                   dragElastic={0.1}
                   onDragEnd={handleDragEnd}
-                  className="mx-auto w-full max-w-full sm:max-w-2xl lg:max-w-3xl xl:max-w-4xl"
+                  className="mx-auto w-full max-w-2xl"
                 >
                   <div className="relative group">
                     <div
-                      className="relative bg-white/5 rounded-xl sm:rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-sky-400/10 hover:shadow-sky-400/20 transition-all duration-300"
+                      className="relative bg-white/5 rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-sky-400/10 hover:shadow-sky-400/20 transition-all duration-300"
                       style={{
-                        maxHeight: '75vh'
+                        maxHeight: '80vh'
                       }}
                     >
-                      <div className="relative w-full" style={{ aspectRatio: `${post.image_width}/${post.image_height}` }}>
+                      <div 
+                        className="relative w-full" 
+                        style={{ 
+                          aspectRatio: `${post.image_width}/${post.image_height}`,
+                          maxHeight: '80vh'
+                        }}
+                      >
                         {!imageLoaded[post.id] && (
                           <div className="absolute inset-0 bg-gradient-to-br from-sky-900/20 to-sky-950/20 animate-pulse" />
                         )}
@@ -622,7 +685,7 @@ export default function FanartPage() {
                           alt={`Fanart ${post.id}`}
                           fill
                           className="object-contain"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 896px"
                           quality={90}
                           onLoadingComplete={() => setImageLoaded(prev => ({ ...prev, [post.id]: true }))}
                           onError={(e) => {
@@ -642,13 +705,13 @@ export default function FanartPage() {
 
                       <motion.button
                         onClick={() => setShowActions(showActions === post.id ? null : post.id)}
-                        className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 bg-black/50 backdrop-blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-4 right-4 p-2 bg-black/50 backdrop-blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         whileTap={{ scale: 0.9 }}
                       >
                         {showActions === post.id ? (
-                          <FiX className="w-4 h-4 sm:w-5 sm:h-5" />
+                          <FiX className="w-5 h-5" />
                         ) : (
-                          <FiChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
+                          <FiChevronDown className="w-5 h-5" />
                         )}
                       </motion.button>
 
@@ -658,29 +721,29 @@ export default function FanartPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 20 }}
-                            className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 flex gap-2 sm:gap-3"
+                            className="absolute bottom-4 left-4 right-4 flex gap-2 sm:gap-3"
                           >
                             <button
                               onClick={() => handleShare(post)}
-                              className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-black/80 backdrop-blur-xl rounded-xl hover:bg-black/90 transition text-xs sm:text-sm"
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black/80 backdrop-blur-xl rounded-xl hover:bg-black/90 transition text-sm"
                             >
-                              <FiShare2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              <FiShare2 className="w-4 h-4" />
                               <span className="hidden sm:inline">Share</span>
                             </button>
                             <button
                               onClick={() => handleDownload(post)}
-                              className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-black/80 backdrop-blur-xl rounded-xl hover:bg-black/90 transition text-xs sm:text-sm"
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black/80 backdrop-blur-xl rounded-xl hover:bg-black/90 transition text-sm"
                             >
-                              <FiDownload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              <FiDownload className="w-4 h-4" />
                               <span className="hidden sm:inline">Download</span>
                             </button>
                             <a
                               href={`https://danbooru.donmai.us/posts/${post.id}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-xl hover:shadow-lg hover:shadow-sky-400/30 transition text-xs sm:text-sm"
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-xl hover:shadow-lg hover:shadow-sky-400/30 transition text-sm"
                             >
-                              <FiExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              <FiExternalLink className="w-4 h-4" />
                               <span className="hidden sm:inline">Source</span>
                             </a>
                           </motion.div>
@@ -688,8 +751,8 @@ export default function FanartPage() {
                       </AnimatePresence>
                     </div>
 
-                    <div className="mt-2 sm:mt-3 px-2">
-                      <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-400">
+                    <div className="mt-3 px-2">
+                      <div className="flex items-center gap-3 text-xs sm:text-sm text-gray-400">
                         <div className="flex items-center gap-1">
                           <FaStar className="w-3 h-3 text-yellow-400" />
                           <span>{post.score}</span>
@@ -709,7 +772,7 @@ export default function FanartPage() {
                 </motion.div>
               ))}
 
-              <div ref={loadMoreTriggerRef} className="h-32 flex items-center justify-center">
+              <div ref={loadMoreTriggerRef} className="h-20 flex items-center justify-center">
                 {loadingMore && (
                   <motion.div
                     animate={{ rotate: 360 }}
@@ -718,15 +781,12 @@ export default function FanartPage() {
                     <FiLoader className="w-6 h-6 text-sky-400" />
                   </motion.div>
                 )}
-                {!hasMore && images.length > 0 && (
-                  <p className="text-sm text-gray-500">No more images</p>
-                )}
               </div>
             </div>
           )}
         </div>
 
-        <div className="fixed bottom-6 right-4 sm:right-6 flex flex-col gap-2 z-40">
+        <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-40">
           <motion.button
             onClick={() => {
               if (currentIndex > 0) {
@@ -734,11 +794,11 @@ export default function FanartPage() {
                 prevCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
               }
             }}
-            className="p-2.5 sm:p-3 bg-black/80 backdrop-blur-xl rounded-full border border-white/10 hover:bg-white/10 transition disabled:opacity-30"
+            className="p-3 bg-black/80 backdrop-blur-xl rounded-full border border-white/10 hover:bg-white/10 transition disabled:opacity-30"
             disabled={currentIndex === 0}
             whileTap={{ scale: 0.9 }}
           >
-            <FiChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
+            <FiChevronUp className="w-5 h-5" />
           </motion.button>
           <motion.button
             onClick={() => {
@@ -747,11 +807,11 @@ export default function FanartPage() {
                 nextCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
               }
             }}
-            className="p-2.5 sm:p-3 bg-black/80 backdrop-blur-xl rounded-full border border-white/10 hover:bg-white/10 transition disabled:opacity-30"
+            className="p-3 bg-black/80 backdrop-blur-xl rounded-full border border-white/10 hover:bg-white/10 transition disabled:opacity-30"
             disabled={currentIndex === images.length - 1}
             whileTap={{ scale: 0.9 }}
           >
-            <FiChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
+            <FiChevronDown className="w-5 h-5" />
           </motion.button>
         </div>
 
@@ -765,10 +825,6 @@ export default function FanartPage() {
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
-        }
-        
-        html {
-          scroll-behavior: smooth;
         }
       `}</style>
     </>
