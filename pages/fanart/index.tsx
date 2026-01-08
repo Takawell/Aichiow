@@ -70,18 +70,18 @@ export default function FanartPage() {
   const loadMoreTriggerRef = useRef<HTMLDivElement>(null)
 
   const trendingTags = [
-    'maplestar',
+    'azur_lane',
     'hatsune_miku',
     'blue_archive',
     'genshin_impact',
     'wuthering_waves',
+    'fate/grand_order',
     'honkai:_star_rail',
     'zenless_zone_zero',
     'punishing:_gray_raven',
     'goddess_of_victory:_nikke',
+    'neverness_to_everness',
     'original',
-    'fate/grand_order',
-    'blue_archive',
     'touhou',
     'vtuber',
     'arknights'
