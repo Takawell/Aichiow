@@ -28,9 +28,6 @@ export default async function handler(
     return res.status(200).json({ success: true, data: [] })
   }
 
-  const apiKey = process.env.DANBOORU_API_KEY
-  const apiUser = process.env.DANBOORU_API_USER || ''
-
   try {
     const params = new URLSearchParams({
       'search[query]': q.trim(),
@@ -40,18 +37,24 @@ export default async function handler(
 
     const url = `https://danbooru.donmai.us/autocomplete.json?${params.toString()}`
 
+    console.log('Fetching autocomplete:', url)
+
     const response = await fetch(url, {
       headers: {
-        'Authorization': apiKey ? `Basic ${Buffer.from(`${apiUser}:${apiKey}`).toString('base64')}` : '',
-        'User-Agent': 'Aichiow/1.0'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json'
       }
     })
 
     if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Danbooru autocomplete error:', response.status, errorText)
       throw new Error(`Danbooru autocomplete error: ${response.status}`)
     }
 
     const data: AutocompleteResult[] = await response.json()
+
+    console.log('Autocomplete response:', data)
 
     const sortedData = data
       .filter(item => item.type === 'tag' && item.post_count > 0)
