@@ -163,7 +163,8 @@ export default function LandingPage() {
                 <Link href="/home" className="hover:text-white">ANIME</Link>
                 <Link href="/manga" className="hover:text-white">MANGA</Link>
                 <Link href="/manhwa" className="hover:text-white">MANHWA</Link>
-                <Link href="/light-novel" className="hover:text-white">LIGHT NOVEL</Link>
+                <Link href="/light-novel" className="hover:text-white">NOVELS</Link>
+                <Link href="/fanart" className="hover:text-white">FANART</Link>
                 <Link href="/explore" className="hover:text-white">EXPLORE</Link>
                 <Link href="/profile" className="hover:text-white">PROFILE</Link>
               </nav>
@@ -374,7 +375,6 @@ export default function LandingPage() {
             </div>
           </footer>
         </div>
-
         <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none" />
       </main>
     </>
