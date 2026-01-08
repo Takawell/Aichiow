@@ -781,7 +781,7 @@ export default function FanartPage() {
                               <span className="hidden sm:inline">Download</span>
                             </button>
                             <a
-                              href={`https://danbooru.donmai.us/posts/${post.id}`}
+                              href={`/fanart/${post.id}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white/20 rounded-xl hover:bg-white/30 transition text-sm"
