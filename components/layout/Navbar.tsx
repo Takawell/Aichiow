@@ -17,6 +17,7 @@ const navItems = [
   { href: '/manga', label: 'MANGA' },
   { href: '/manhwa', label: 'MANHWA' },
   { href: '/light-novel', label: 'LIGHT NOVEL' },
+  { href: '/fanart', label: 'FANART' },
   { href: '/aichixia', label: 'AI' },
 ]
 
@@ -93,6 +94,7 @@ export default function Navbar() {
 
   const isReadPage = router.pathname.startsWith('/read/')
   const isAIPage = router.pathname.startsWith('/aichixia')
+  const isFanartPage = router.pathname.startsWith('/fanart')
 
   return (
     <>
@@ -175,7 +177,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {!isReadPage && !isAIPage && (
+      {!isReadPage && !isAIPage && !isFanartPage && (
         <div className="md:hidden">
           <BottomNav />
         </div>
