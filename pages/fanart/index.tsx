@@ -70,6 +70,7 @@ export default function FanartPage() {
   const loadMoreTriggerRef = useRef<HTMLDivElement>(null)
 
   const trendingTags = [
+    'maplestar',
     'hatsune_miku',
     'blue_archive',
     'genshin_impact',
@@ -77,6 +78,7 @@ export default function FanartPage() {
     'honkai:_star_rail',
     'zenless_zone_zero',
     'punishing:_gray_raven',
+    'goddess_of_victory:_nikke',
     'original',
     'fate/grand_order',
     'blue_archive',
@@ -782,13 +784,11 @@ export default function FanartPage() {
                             </button>
                             <a
                               href={`/fanart/${post.id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
                               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white/20 rounded-xl hover:bg-white/30 transition text-sm"
                             >
                               <FiExternalLink className="w-4 h-4" />
                               <span className="hidden sm:inline">Source</span>
-                            </a>
+                           </a>      
                           </motion.div>
                         )}
                       </AnimatePresence>
