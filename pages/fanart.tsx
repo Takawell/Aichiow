@@ -13,8 +13,7 @@ import {
   FiX,
   FiChevronUp,
   FiChevronDown,
-  FiLoader,
-  FiAlertCircle
+  FiLoader
 } from 'react-icons/fi'
 import {
   FaFire,
@@ -71,7 +70,6 @@ export default function FanartPage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showActions, setShowActions] = useState<number | null>(null)
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({})
-  const [error, setError] = useState<string | null>(null)
 
   const observerRef = useRef<IntersectionObserver | null>(null)
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null)
@@ -92,34 +90,20 @@ export default function FanartPage() {
   ]
 
   const fetchAutocomplete = useCallback(async (query: string) => {
-    const trimmedQuery = query.trim()
-    
-    if (trimmedQuery.length < 2) {
+    if (query.trim().length < 2) {
       setSuggestions([])
-      setShowSuggestions(false)
       return
     }
 
     setLoadingSuggestions(true)
-    console.log('Fetching autocomplete for:', trimmedQuery)
-    
     try {
-      const res = await fetch(`/api/autocomplete?q=${encodeURIComponent(trimmedQuery)}`)
+      const res = await fetch(`/api/autocomplete?q=${encodeURIComponent(query)}`)
       const data = await res.json()
-      
-      console.log('Autocomplete response:', data)
-      
-      if (data.success && data.data && data.data.length > 0) {
-        setSuggestions(data.data)
-        setShowSuggestions(true)
-      } else {
-        setSuggestions([])
-        setShowSuggestions(false)
+      if (data.success) {
+        setSuggestions(data.data || [])
       }
     } catch (error) {
       console.error('Autocomplete error:', error)
-      setSuggestions([])
-      setShowSuggestions(false)
     } finally {
       setLoadingSuggestions(false)
     }
@@ -128,8 +112,6 @@ export default function FanartPage() {
   const fetchImages = useCallback(async (pageNum: number, reset: boolean = false) => {
     if (reset) {
       setLoading(true)
-      setImages([])
-      setError(null)
     } else {
       setLoadingMore(true)
     }
@@ -142,14 +124,6 @@ export default function FanartPage() {
       }
 
       const searchTags = searchQuery.trim()
-      
-      if (searchTags && searchTags.length < 3 && !trendingTags.includes(searchTags)) {
-        setError('Please enter at least 3 characters or select a trending tag')
-        setLoading(false)
-        setLoadingMore(false)
-        return
-      }
-
       const sortTag = sortMap[activeSort]
 
       let finalTags = sortTag
@@ -164,37 +138,29 @@ export default function FanartPage() {
         limit: '20'
       })
 
-      console.log('Fetching images:', { tags: finalTags, rating: activeFilter, page: pageNum })
-
       const res = await fetch(`/api/danbooru?${params.toString()}`)
       const data = await res.json()
 
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to fetch images')
-      }
-
       if (data.success) {
         if (reset) {
-          setImages(data.data || [])
+          setImages(data.data)
           setCurrentIndex(0)
           if (containerRef.current) {
             containerRef.current.scrollTop = 0
           }
         } else {
-          setImages(prev => [...prev, ...(data.data || [])])
+          setImages(prev => [...prev, ...data.data])
         }
         setHasMore(data.hasMore)
         setPage(pageNum)
-        setError(null)
       }
     } catch (error) {
       console.error('Failed to fetch images:', error)
-      setError(error instanceof Error ? error.message : 'Failed to load images')
     } finally {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [searchQuery, activeFilter, activeSort, trendingTags])
+  }, [searchQuery, activeFilter, activeSort])
 
   useEffect(() => {
     const query = router.query.tags as string
@@ -202,11 +168,8 @@ export default function FanartPage() {
       setSearchQuery(query)
       setSearchInput(query)
     }
-  }, [router.query.tags])
-
-  useEffect(() => {
     fetchImages(1, true)
-  }, [fetchImages])
+  }, [])
 
   useEffect(() => {
     if (searchTimeoutRef.current) {
@@ -222,14 +185,14 @@ export default function FanartPage() {
           router.push('/fanart', undefined, { shallow: true })
         }
       }
-    }, 600)
+    }, 500)
 
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current)
       }
     }
-  }, [searchInput, searchQuery, router])
+  }, [searchInput])
 
   useEffect(() => {
     if (autocompleteTimeoutRef.current) {
@@ -238,11 +201,9 @@ export default function FanartPage() {
 
     autocompleteTimeoutRef.current = setTimeout(() => {
       if (searchInput.trim().length >= 2) {
-        console.log('Triggering autocomplete for:', searchInput)
         fetchAutocomplete(searchInput)
       } else {
         setSuggestions([])
-        setShowSuggestions(false)
       }
     }, 300)
 
@@ -252,6 +213,10 @@ export default function FanartPage() {
       }
     }
   }, [searchInput, fetchAutocomplete])
+
+  useEffect(() => {
+    fetchImages(1, true)
+  }, [searchQuery, activeFilter, activeSort])
 
   useEffect(() => {
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {
@@ -291,15 +256,14 @@ export default function FanartPage() {
   useEffect(() => {
     const handleLoadMore = (entries: IntersectionObserverEntry[]) => {
       const target = entries[0]
-      if (target.isIntersecting && !loadingMore && hasMore && !loading && !error) {
-        console.log('Loading more images...')
+      if (target.isIntersecting && !loadingMore && hasMore && !loading) {
         fetchImages(page + 1, false)
       }
     }
 
     loadMoreObserverRef.current = new IntersectionObserver(handleLoadMore, {
       threshold: 0.1,
-      rootMargin: '400px'
+      rootMargin: '200px'
     })
 
     if (loadMoreTriggerRef.current) {
@@ -311,7 +275,7 @@ export default function FanartPage() {
         loadMoreObserverRef.current.disconnect()
       }
     }
-  }, [loadingMore, hasMore, loading, page, error, fetchImages])
+  }, [loadingMore, hasMore, loading, page, fetchImages])
 
   const handleSuggestionClick = (value: string) => {
     setSearchInput(value)
@@ -324,7 +288,6 @@ export default function FanartPage() {
   const handleTagClick = (tag: string) => {
     setSearchInput(tag)
     setSearchQuery(tag)
-    setShowSuggestions(false)
     router.push(`/fanart?tags=${tag}`, undefined, { shallow: true })
   }
 
@@ -376,11 +339,9 @@ export default function FanartPage() {
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'ArrowDown' && currentIndex < images.length - 1) {
-      e.preventDefault()
       const nextCard = document.querySelector(`[data-index="${currentIndex + 1}"]`)
       nextCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     } else if (e.key === 'ArrowUp' && currentIndex > 0) {
-      e.preventDefault()
       const prevCard = document.querySelector(`[data-index="${currentIndex - 1}"]`)
       prevCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
@@ -430,7 +391,7 @@ export default function FanartPage() {
             <div className="flex items-center gap-2 sm:gap-4 mb-3">
               <button
                 onClick={() => router.back()}
-                className="p-2 sm:p-2.5 hover:bg-white/10 rounded-xl transition flex-shrink-0"
+                className="p-2 sm:p-2.5 hover:bg-white/10 rounded-xl transition"
               >
                 <FiArrowLeft className="w-5 h-5" />
               </button>
@@ -440,21 +401,11 @@ export default function FanartPage() {
                 <input
                   type="text"
                   value={searchInput}
-                  onChange={(e) => {
-                    setSearchInput(e.target.value)
-                    console.log('Search input changed:', e.target.value)
-                  }}
-                  onFocus={() => {
-                    console.log('Input focused, suggestions:', suggestions.length)
-                    if (suggestions.length > 0) {
-                      setShowSuggestions(true)
-                    }
-                  }}
-                  onBlur={() => {
-                    setTimeout(() => setShowSuggestions(false), 200)
-                  }}
-                  placeholder="Search tags (min 3 chars)..."
-                  className="w-full pl-10 sm:pl-12 pr-10 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-sm sm:text-base focus:outline-none focus:border-sky-500 transition"
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  placeholder="Search tags (e.g. miku, genshin_impact)..."
+                  className="w-full pl-10 sm:pl-12 pr-10 py-2 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-sm sm:text-base focus:outline-none focus:border-sky-500 transition"
                 />
                 {searchInput && (
                   <button
@@ -462,7 +413,6 @@ export default function FanartPage() {
                       setSearchInput('')
                       setSearchQuery('')
                       setSuggestions([])
-                      setShowSuggestions(false)
                       router.push('/fanart', undefined, { shallow: true })
                     }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-lg transition"
@@ -477,7 +427,7 @@ export default function FanartPage() {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden shadow-2xl max-h-80 overflow-y-auto z-50"
+                      className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden shadow-2xl max-h-80 overflow-y-auto"
                     >
                       {suggestions.map((item) => (
                         <button
@@ -512,7 +462,7 @@ export default function FanartPage() {
                 )}
               </div>
 
-              <div className="relative flex-shrink-0">
+              <div className="relative">
                 <button
                   onClick={() => setShowFilterMenu(!showFilterMenu)}
                   className="p-2 sm:p-2.5 hover:bg-white/10 rounded-xl transition"
@@ -526,7 +476,7 @@ export default function FanartPage() {
                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-48 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-xl z-50"
+                      className="absolute right-0 mt-2 w-48 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-xl"
                     >
                       <div className="text-xs text-gray-400 px-3 py-2">Rating</div>
                       {(['safe', 'general', 'sensitive'] as FilterType[]).map((filter) => (
@@ -597,12 +547,12 @@ export default function FanartPage() {
               </div>
             </div>
 
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 px-1">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
               {trendingTags.map((tag) => (
                 <button
                   key={tag}
                   onClick={() => handleTagClick(tag)}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm whitespace-nowrap transition flex-shrink-0 ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm whitespace-nowrap transition ${
                     searchQuery === tag
                       ? 'bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 text-white shadow-lg shadow-sky-400/30'
                       : 'bg-white/5 hover:bg-white/10 border border-white/10'
@@ -617,8 +567,8 @@ export default function FanartPage() {
 
         <div
           ref={containerRef}
-          className="relative z-10 pt-32 sm:pt-36 pb-20 h-screen overflow-y-auto"
-          style={{ scrollBehavior: 'smooth' }}
+          className="relative z-10 pt-32 sm:pt-36 pb-20 px-3 sm:px-6 max-w-7xl mx-auto h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth"
+          style={{ scrollSnapType: 'y proximity' }}
         >
           {loading ? (
             <div className="flex items-center justify-center min-h-[60vh]">
@@ -629,26 +579,14 @@ export default function FanartPage() {
                 <FiLoader className="w-8 h-8 text-sky-400" />
               </motion.div>
             </div>
-          ) : error ? (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400 px-4">
-              <FiAlertCircle className="w-12 h-12 mb-4 text-red-400" />
-              <p className="text-lg mb-2">Oops! Something went wrong</p>
-              <p className="text-sm text-center">{error}</p>
-              <button
-                onClick={() => fetchImages(1, true)}
-                className="mt-4 px-6 py-2 bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-xl text-sm hover:shadow-lg transition"
-              >
-                Try Again
-              </button>
-            </div>
           ) : images.length === 0 ? (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400 px-4">
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400">
               <FiSearch className="w-12 h-12 mb-4" />
               <p className="text-lg">No results found</p>
-              <p className="text-sm text-center">Try different tags or filters</p>
+              <p className="text-sm">Try different tags or filters</p>
             </div>
           ) : (
-            <div className="max-w-7xl mx-auto px-3 sm:px-6 space-y-6 sm:space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               {images.map((post, index) => (
                 <motion.div
                   key={post.id}
@@ -656,12 +594,12 @@ export default function FanartPage() {
                   data-index={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.3) }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
                   drag="y"
                   dragConstraints={{ top: 0, bottom: 0 }}
-                  dragElastic={0.1}
+                  dragElastic={0.2}
                   onDragEnd={handleDragEnd}
-                  className="mx-auto w-full max-w-2xl"
+                  className="snap-center mx-auto w-full max-w-2xl"
                 >
                   <div className="relative group">
                     <div
@@ -670,13 +608,7 @@ export default function FanartPage() {
                         maxHeight: '80vh'
                       }}
                     >
-                      <div 
-                        className="relative w-full" 
-                        style={{ 
-                          aspectRatio: `${post.image_width}/${post.image_height}`,
-                          maxHeight: '80vh'
-                        }}
-                      >
+                      <div className="relative w-full" style={{ aspectRatio: `${post.image_width}/${post.image_height}` }}>
                         {!imageLoaded[post.id] && (
                           <div className="absolute inset-0 bg-gradient-to-br from-sky-900/20 to-sky-950/20 animate-pulse" />
                         )}
@@ -685,18 +617,18 @@ export default function FanartPage() {
                           alt={`Fanart ${post.id}`}
                           fill
                           className="object-contain"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 896px"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 1200px"
                           quality={90}
                           onLoadingComplete={() => setImageLoaded(prev => ({ ...prev, [post.id]: true }))}
                           onError={(e) => {
                             console.error('Image load error:', post.id)
                             const img = e.target as HTMLImageElement
                             const fallbackUrl = `/api/image-proxy?url=${encodeURIComponent(post.preview_file_url)}`
-                            if (!img.src.includes(post.preview_file_url)) {
+                            if (img.src !== fallbackUrl) {
                               img.src = fallbackUrl
                             }
                           }}
-                          priority={index < 3}
+                          priority={index < 2}
                           unoptimized
                         />
                       </div>
