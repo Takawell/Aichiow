@@ -3,8 +3,8 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Head from 'next/head'
-import { FiArrowLeft, FiSearch, FiFilter, FiShare2, FiDownload, FiExternalLink, FiX, FiChevronUp, FiChevronDown, FiLoader, FiHeart, FiGrid, FiList } from 'react-icons/fi'
-import { FaFire, FaStar, FaClock, FaRandom, FaHashtag, FaImage, FaPalette } from 'react-icons/fa'
+import { FiArrowLeft, FiSearch, FiFilter, FiShare2, FiDownload, FiExternalLink, FiX, FiChevronUp, FiChevronDown, FiLoader, FiHeart, FiGrid, FiList, FiZap, FiCpu, FiTrendingUp, FiAlertCircle } from 'react-icons/fi'
+import { FaFire, FaStar, FaClock, FaRandom, FaHashtag, FaImage, FaPalette, FaRocket } from 'react-icons/fa'
 import { LuSparkles } from "react-icons/lu"
 
 type DanbooruPost = {
@@ -61,6 +61,7 @@ export default function FanartPage() {
   const [selectedImage, setSelectedImage] = useState<DanbooruPost | null>(null)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const [showBetaModal, setShowBetaModal] = useState(false)
 
   const observerRef = useRef<IntersectionObserver | null>(null)
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null)
@@ -72,6 +73,7 @@ export default function FanartPage() {
   const trendingTags = [
     'hatsune_miku',
     'genshin_impact',
+    'wuthering_waves',
     'original',
     'fate/grand_order',
     'blue_archive',
@@ -80,7 +82,26 @@ export default function FanartPage() {
     'arknights'
   ]
 
+  const upcomingModels = [
+    { name: 'Flux 2', icon: FiZap, color: 'from-blue-500 to-cyan-500' },
+    { name: 'Nano Banana Pro', icon: FiCpu, color: 'from-yellow-500 to-orange-500' },
+    { name: 'Lucid Origin', icon: LuSparkles, color: 'from-purple-500 to-pink-500' },
+    { name: 'Phoenix 1.0', icon: FaRocket, color: 'from-red-500 to-orange-500' }
+  ]
+
   const minSwipeDistance = 50
+
+  useEffect(() => {
+    const hasSeenModal = localStorage.getItem('fanart_beta_modal_seen')
+    if (!hasSeenModal) {
+      setShowBetaModal(true)
+    }
+  }, [])
+
+  const handleCloseModal = () => {
+    setShowBetaModal(false)
+    localStorage.setItem('fanart_beta_modal_seen', 'true')
+  }
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null)
@@ -413,6 +434,168 @@ export default function FanartPage() {
       containerRef.current.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
+
+  const BetaModal = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl"
+      onClick={handleCloseModal}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        transition={{ type: "spring", duration: 0.5 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-2xl bg-gradient-to-br from-zinc-900 via-black to-zinc-900 rounded-3xl border border-white/10 shadow-2xl overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5" />
+        
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl"
+        />
+
+        <div className="relative z-10">
+          <button
+            onClick={handleCloseModal}
+            className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors group"
+          >
+            <FiX className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+          </button>
+
+          <div className="p-8 sm:p-12">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="flex items-center justify-center mb-6"
+            >
+              <div className="relative">
+                <motion.div
+                  animate={{ 
+                    boxShadow: [
+                      "0 0 20px rgba(59, 130, 246, 0.5)",
+                      "0 0 40px rgba(168, 85, 247, 0.5)",
+                      "0 0 20px rgba(59, 130, 246, 0.5)"
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="p-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl"
+                >
+                  <FaRocket className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+                </motion.div>
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl"
+                />
+              </div>
+            </motion.div>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-3 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+            >
+              Welcome to Fanart Gallery
+            </motion.h2>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="flex items-center justify-center gap-2 mb-6"
+            >
+              <div className="px-3 py-1 bg-orange-500/20 border border-orange-500/30 rounded-full flex items-center gap-2">
+                <FiAlertCircle className="w-4 h-4 text-orange-400" />
+                <span className="text-xs sm:text-sm text-orange-400 font-medium">Beta Version</span>
+              </div>
+            </motion.div>
+
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-center text-gray-400 text-sm sm:text-base mb-8 leading-relaxed"
+            >
+              This feature is currently in development. We're working hard to bring you the best experience with cutting-edge AI image generation models.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="mb-8"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <FiTrendingUp className="w-5 h-5 text-blue-400" />
+                <h3 className="text-lg sm:text-xl font-semibold text-white">Upcoming Integrations</h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {upcomingModels.map((model, index) => (
+                  <motion.div
+                    key={model.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 + index * 0.1 }}
+                    whileHover={{ scale: 1.05, y: -5 }}
+                    className="group relative p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all duration-300 cursor-pointer overflow-hidden"
+                  >
+                    <div className={`absolute inset-0 bg-gradient-to-br ${model.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+                    
+                    <div className="relative flex items-center gap-3">
+                      <div className={`p-2 bg-gradient-to-br ${model.color} rounded-lg`}>
+                        <model.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium text-white text-sm sm:text-base">{model.name}</div>
+                        <div className="text-xs text-gray-500">Coming Soon</div>
+                      </div>
+                      <motion.div
+                        animate={{ x: [0, 5, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        <FiZap className="w-4 h-4 text-gray-600 group-hover:text-white transition-colors" />
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+              className="space-y-3"
+            >
+              <button
+                onClick={handleCloseModal}
+                className="w-full py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 rounded-xl font-semibold text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/50 transform hover:scale-[1.02]"
+              >
+                Get Started
+              </button>
+              
+              <p className="text-center text-xs text-gray-500">
+                This message will only show once
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
 
   const ImageModal = ({ post }: { post: DanbooruPost }) => (
     <motion.div
@@ -948,6 +1131,10 @@ export default function FanartPage() {
 
         <AnimatePresence>
           {selectedImage && <ImageModal post={selectedImage} />}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showBetaModal && <BetaModal />}
         </AnimatePresence>
       </main>
 
