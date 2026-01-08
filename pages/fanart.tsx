@@ -4,7 +4,8 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Head from 'next/head'
 import { FiArrowLeft, FiSearch, FiFilter, FiShare2, FiDownload, FiExternalLink, FiX, FiChevronUp, FiChevronDown, FiLoader, FiHeart, FiEye, FiTrendingUp, FiGrid, FiList } from 'react-icons/fi'
-import { FaFire, FaStar, FaClock, FaRandom, FaHashtag, FaImage, FaPalette, FaSparkles } from 'react-icons/fa'
+import { FaFire, FaStar, FaClock, FaRandom, FaHashtag, FaImage, FaPalette} from 'react-icons/fa'
+import { LuSparkles } from "react-icons/lu";
 
 type DanbooruPost = {
   id: number
