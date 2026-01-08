@@ -712,7 +712,7 @@ export default function FanartPage() {
                       : 'bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20'
                   }`}
                 >
-                  <FaSparkles className="w-3 h-3" />
+                  <LuSparkles className="w-3 h-3" />
                   {tag.replace(/_/g, ' ')}
                 </motion.button>
               ))}
