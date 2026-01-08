@@ -71,7 +71,12 @@ export default function FanartPage() {
 
   const trendingTags = [
     'hatsune_miku',
+    'blue_archive',
     'genshin_impact',
+    'wuthering_waves',
+    'honkai:_star_rail',
+    'zenless_zone_zero',
+    'punishing:_gray_raven',
     'original',
     'fate/grand_order',
     'blue_archive',
