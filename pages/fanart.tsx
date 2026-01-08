@@ -3,25 +3,8 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Head from 'next/head'
-import {
-  FiArrowLeft,
-  FiSearch,
-  FiFilter,
-  FiShare2,
-  FiDownload,
-  FiExternalLink,
-  FiX,
-  FiChevronUp,
-  FiChevronDown,
-  FiLoader
-} from 'react-icons/fi'
-import {
-  FaFire,
-  FaStar,
-  FaClock,
-  FaRandom,
-  FaHashtag
-} from 'react-icons/fa'
+import { FiArrowLeft, FiSearch, FiFilter, FiShare2, FiDownload, FiExternalLink, FiX, FiChevronUp, FiChevronDown, FiLoader } from 'react-icons/fi'
+import { FaFire, FaStar, FaClock, FaRandom, FaHashtag } from 'react-icons/fa'
 
 type DanbooruPost = {
   id: number
@@ -99,11 +82,17 @@ export default function FanartPage() {
     try {
       const res = await fetch(`/api/autocomplete?q=${encodeURIComponent(query)}`)
       const data = await res.json()
-      if (data.success) {
-        setSuggestions(data.data || [])
+      
+      console.log('Autocomplete data:', data)
+      
+      if (data.success && data.data) {
+        setSuggestions(data.data)
+      } else {
+        setSuggestions([])
       }
     } catch (error) {
       console.error('Autocomplete error:', error)
+      setSuggestions([])
     } finally {
       setLoadingSuggestions(false)
     }
@@ -112,6 +101,7 @@ export default function FanartPage() {
   const fetchImages = useCallback(async (pageNum: number, reset: boolean = false) => {
     if (reset) {
       setLoading(true)
+      setImages([])
     } else {
       setLoadingMore(true)
     }
@@ -138,18 +128,26 @@ export default function FanartPage() {
         limit: '20'
       })
 
+      console.log('Fetching images with params:', {
+        tags: finalTags,
+        rating: activeFilter,
+        page: pageNum
+      })
+
       const res = await fetch(`/api/danbooru?${params.toString()}`)
       const data = await res.json()
 
+      console.log('Fetched images:', data)
+
       if (data.success) {
         if (reset) {
-          setImages(data.data)
+          setImages(data.data || [])
           setCurrentIndex(0)
           if (containerRef.current) {
             containerRef.current.scrollTop = 0
           }
         } else {
-          setImages(prev => [...prev, ...data.data])
+          setImages(prev => [...prev, ...(data.data || [])])
         }
         setHasMore(data.hasMore)
         setPage(pageNum)
@@ -168,8 +166,11 @@ export default function FanartPage() {
       setSearchQuery(query)
       setSearchInput(query)
     }
+  }, [router.query.tags])
+
+  useEffect(() => {
     fetchImages(1, true)
-  }, [])
+  }, [fetchImages])
 
   useEffect(() => {
     if (searchTimeoutRef.current) {
@@ -215,10 +216,6 @@ export default function FanartPage() {
   }, [searchInput, fetchAutocomplete])
 
   useEffect(() => {
-    fetchImages(1, true)
-  }, [searchQuery, activeFilter, activeSort])
-
-  useEffect(() => {
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -257,13 +254,14 @@ export default function FanartPage() {
     const handleLoadMore = (entries: IntersectionObserverEntry[]) => {
       const target = entries[0]
       if (target.isIntersecting && !loadingMore && hasMore && !loading) {
+        console.log('Loading more images...')
         fetchImages(page + 1, false)
       }
     }
 
     loadMoreObserverRef.current = new IntersectionObserver(handleLoadMore, {
       threshold: 0.1,
-      rootMargin: '200px'
+      rootMargin: '400px'
     })
 
     if (loadMoreTriggerRef.current) {
@@ -339,9 +337,11 @@ export default function FanartPage() {
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'ArrowDown' && currentIndex < images.length - 1) {
+      e.preventDefault()
       const nextCard = document.querySelector(`[data-index="${currentIndex + 1}"]`)
       nextCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     } else if (e.key === 'ArrowUp' && currentIndex > 0) {
+      e.preventDefault()
       const prevCard = document.querySelector(`[data-index="${currentIndex - 1}"]`)
       prevCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
@@ -387,25 +387,29 @@ export default function FanartPage() {
         <BackgroundDots />
 
         <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-4">
+          <div className="w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
             <div className="flex items-center gap-2 sm:gap-4 mb-3">
               <button
                 onClick={() => router.back()}
-                className="p-2 sm:p-2.5 hover:bg-white/10 rounded-xl transition"
+                className="p-2 sm:p-2.5 hover:bg-white/10 rounded-xl transition flex-shrink-0"
               >
                 <FiArrowLeft className="w-5 h-5" />
               </button>
 
-              <div className="relative flex-1 max-w-2xl">
+              <div className="relative flex-1 max-w-3xl mx-auto">
                 <FiSearch className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
                   type="text"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  onFocus={() => setShowSuggestions(true)}
+                  onFocus={() => {
+                    if (suggestions.length > 0) {
+                      setShowSuggestions(true)
+                    }
+                  }}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   placeholder="Search tags (e.g. miku, genshin_impact)..."
-                  className="w-full pl-10 sm:pl-12 pr-10 py-2 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-sm sm:text-base focus:outline-none focus:border-sky-500 transition"
+                  className="w-full pl-10 sm:pl-12 pr-10 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-sm sm:text-base focus:outline-none focus:border-sky-500 transition"
                 />
                 {searchInput && (
                   <button
@@ -427,7 +431,7 @@ export default function FanartPage() {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden shadow-2xl max-h-80 overflow-y-auto"
+                      className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden shadow-2xl max-h-80 overflow-y-auto z-50"
                     >
                       {suggestions.map((item) => (
                         <button
@@ -462,7 +466,7 @@ export default function FanartPage() {
                 )}
               </div>
 
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <button
                   onClick={() => setShowFilterMenu(!showFilterMenu)}
                   className="p-2 sm:p-2.5 hover:bg-white/10 rounded-xl transition"
@@ -476,13 +480,14 @@ export default function FanartPage() {
                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-48 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-xl"
+                      className="absolute right-0 mt-2 w-48 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-xl z-50"
                     >
                       <div className="text-xs text-gray-400 px-3 py-2">Rating</div>
                       {(['safe', 'general', 'sensitive'] as FilterType[]).map((filter) => (
                         <button
                           key={filter}
                           onClick={() => {
+                            console.log('Setting filter to:', filter)
                             setActiveFilter(filter)
                             setShowFilterMenu(false)
                           }}
@@ -547,12 +552,12 @@ export default function FanartPage() {
               </div>
             </div>
 
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 px-1">
               {trendingTags.map((tag) => (
                 <button
                   key={tag}
                   onClick={() => handleTagClick(tag)}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm whitespace-nowrap transition ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm whitespace-nowrap transition flex-shrink-0 ${
                     searchQuery === tag
                       ? 'bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 text-white shadow-lg shadow-sky-400/30'
                       : 'bg-white/5 hover:bg-white/10 border border-white/10'
@@ -567,8 +572,8 @@ export default function FanartPage() {
 
         <div
           ref={containerRef}
-          className="relative z-10 pt-32 sm:pt-36 pb-20 px-3 sm:px-6 max-w-7xl mx-auto h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth"
-          style={{ scrollSnapType: 'y proximity' }}
+          className="relative z-10 pt-32 sm:pt-36 pb-20 h-screen overflow-y-auto"
+          style={{ scrollBehavior: 'smooth' }}
         >
           {loading ? (
             <div className="flex items-center justify-center min-h-[60vh]">
@@ -580,13 +585,13 @@ export default function FanartPage() {
               </motion.div>
             </div>
           ) : images.length === 0 ? (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400">
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400 px-4">
               <FiSearch className="w-12 h-12 mb-4" />
               <p className="text-lg">No results found</p>
-              <p className="text-sm">Try different tags or filters</p>
+              <p className="text-sm text-center">Try different tags or filters</p>
             </div>
           ) : (
-            <div className="space-y-6 sm:space-y-8">
+            <div className="w-full px-3 sm:px-4 md:px-6 lg:px-12 space-y-4 sm:space-y-6 md:space-y-8">
               {images.map((post, index) => (
                 <motion.div
                   key={post.id}
@@ -594,18 +599,18 @@ export default function FanartPage() {
                   data-index={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.3) }}
                   drag="y"
                   dragConstraints={{ top: 0, bottom: 0 }}
-                  dragElastic={0.2}
+                  dragElastic={0.1}
                   onDragEnd={handleDragEnd}
-                  className="snap-center mx-auto w-full max-w-2xl"
+                  className="mx-auto w-full max-w-full sm:max-w-2xl lg:max-w-3xl xl:max-w-4xl"
                 >
                   <div className="relative group">
                     <div
-                      className="relative bg-white/5 rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-sky-400/10 hover:shadow-sky-400/20 transition-all duration-300"
+                      className="relative bg-white/5 rounded-xl sm:rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-sky-400/10 hover:shadow-sky-400/20 transition-all duration-300"
                       style={{
-                        maxHeight: '80vh'
+                        maxHeight: '75vh'
                       }}
                     >
                       <div className="relative w-full" style={{ aspectRatio: `${post.image_width}/${post.image_height}` }}>
@@ -617,18 +622,18 @@ export default function FanartPage() {
                           alt={`Fanart ${post.id}`}
                           fill
                           className="object-contain"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 1200px"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
                           quality={90}
                           onLoadingComplete={() => setImageLoaded(prev => ({ ...prev, [post.id]: true }))}
                           onError={(e) => {
                             console.error('Image load error:', post.id)
                             const img = e.target as HTMLImageElement
                             const fallbackUrl = `/api/image-proxy?url=${encodeURIComponent(post.preview_file_url)}`
-                            if (img.src !== fallbackUrl) {
+                            if (!img.src.includes(post.preview_file_url)) {
                               img.src = fallbackUrl
                             }
                           }}
-                          priority={index < 2}
+                          priority={index < 3}
                           unoptimized
                         />
                       </div>
@@ -637,13 +642,13 @@ export default function FanartPage() {
 
                       <motion.button
                         onClick={() => setShowActions(showActions === post.id ? null : post.id)}
-                        className="absolute top-4 right-4 p-2 bg-black/50 backdrop-blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 bg-black/50 backdrop-blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         whileTap={{ scale: 0.9 }}
                       >
                         {showActions === post.id ? (
-                          <FiX className="w-5 h-5" />
+                          <FiX className="w-4 h-4 sm:w-5 sm:h-5" />
                         ) : (
-                          <FiChevronDown className="w-5 h-5" />
+                          <FiChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                         )}
                       </motion.button>
 
@@ -653,29 +658,29 @@ export default function FanartPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 20 }}
-                            className="absolute bottom-4 left-4 right-4 flex gap-2 sm:gap-3"
+                            className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 flex gap-2 sm:gap-3"
                           >
                             <button
                               onClick={() => handleShare(post)}
-                              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black/80 backdrop-blur-xl rounded-xl hover:bg-black/90 transition text-sm"
+                              className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-black/80 backdrop-blur-xl rounded-xl hover:bg-black/90 transition text-xs sm:text-sm"
                             >
-                              <FiShare2 className="w-4 h-4" />
+                              <FiShare2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               <span className="hidden sm:inline">Share</span>
                             </button>
                             <button
                               onClick={() => handleDownload(post)}
-                              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black/80 backdrop-blur-xl rounded-xl hover:bg-black/90 transition text-sm"
+                              className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-black/80 backdrop-blur-xl rounded-xl hover:bg-black/90 transition text-xs sm:text-sm"
                             >
-                              <FiDownload className="w-4 h-4" />
+                              <FiDownload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               <span className="hidden sm:inline">Download</span>
                             </button>
                             <a
                               href={`https://danbooru.donmai.us/posts/${post.id}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-xl hover:shadow-lg hover:shadow-sky-400/30 transition text-sm"
+                              className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-xl hover:shadow-lg hover:shadow-sky-400/30 transition text-xs sm:text-sm"
                             >
-                              <FiExternalLink className="w-4 h-4" />
+                              <FiExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               <span className="hidden sm:inline">Source</span>
                             </a>
                           </motion.div>
@@ -683,8 +688,8 @@ export default function FanartPage() {
                       </AnimatePresence>
                     </div>
 
-                    <div className="mt-3 px-2">
-                      <div className="flex items-center gap-3 text-xs sm:text-sm text-gray-400">
+                    <div className="mt-2 sm:mt-3 px-2">
+                      <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-400">
                         <div className="flex items-center gap-1">
                           <FaStar className="w-3 h-3 text-yellow-400" />
                           <span>{post.score}</span>
@@ -704,7 +709,7 @@ export default function FanartPage() {
                 </motion.div>
               ))}
 
-              <div ref={loadMoreTriggerRef} className="h-20 flex items-center justify-center">
+              <div ref={loadMoreTriggerRef} className="h-32 flex items-center justify-center">
                 {loadingMore && (
                   <motion.div
                     animate={{ rotate: 360 }}
@@ -713,12 +718,15 @@ export default function FanartPage() {
                     <FiLoader className="w-6 h-6 text-sky-400" />
                   </motion.div>
                 )}
+                {!hasMore && images.length > 0 && (
+                  <p className="text-sm text-gray-500">No more images</p>
+                )}
               </div>
             </div>
           )}
         </div>
 
-        <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-40">
+        <div className="fixed bottom-6 right-4 sm:right-6 flex flex-col gap-2 z-40">
           <motion.button
             onClick={() => {
               if (currentIndex > 0) {
@@ -726,11 +734,11 @@ export default function FanartPage() {
                 prevCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
               }
             }}
-            className="p-3 bg-black/80 backdrop-blur-xl rounded-full border border-white/10 hover:bg-white/10 transition disabled:opacity-30"
+            className="p-2.5 sm:p-3 bg-black/80 backdrop-blur-xl rounded-full border border-white/10 hover:bg-white/10 transition disabled:opacity-30"
             disabled={currentIndex === 0}
             whileTap={{ scale: 0.9 }}
           >
-            <FiChevronUp className="w-5 h-5" />
+            <FiChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
           </motion.button>
           <motion.button
             onClick={() => {
@@ -739,11 +747,11 @@ export default function FanartPage() {
                 nextCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
               }
             }}
-            className="p-3 bg-black/80 backdrop-blur-xl rounded-full border border-white/10 hover:bg-white/10 transition disabled:opacity-30"
+            className="p-2.5 sm:p-3 bg-black/80 backdrop-blur-xl rounded-full border border-white/10 hover:bg-white/10 transition disabled:opacity-30"
             disabled={currentIndex === images.length - 1}
             whileTap={{ scale: 0.9 }}
           >
-            <FiChevronDown className="w-5 h-5" />
+            <FiChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
           </motion.button>
         </div>
 
@@ -757,6 +765,10 @@ export default function FanartPage() {
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
+        }
+        
+        html {
+          scroll-behavior: smooth;
         }
       `}</style>
     </>
