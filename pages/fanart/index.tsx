@@ -3,8 +3,8 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Head from 'next/head'
-import { FiArrowLeft, FiSearch, FiFilter, FiShare2, FiDownload, FiExternalLink, FiX, FiChevronUp, FiChevronDown, FiLoader, FiHeart, FiGrid, FiList, FiInfo } from 'react-icons/fi'
-import { FaFire, FaStar, FaClock, FaRandom, FaHashtag, FaImage, FaPalette } from 'react-icons/fa'
+import { FiArrowLeft, FiSearch, FiFilter, FiShare2, FiDownload, FiExternalLink, FiX, FiChevronUp, FiChevronDown, FiLoader, FiHeart, FiGrid, FiList } from 'react-icons/fi'
+import { FaFire, FaStar, FaClock, FaRandom, FaHashtag, FaImage } from 'react-icons/fa'
 import { LuSparkles } from "react-icons/lu"
 
 type DanbooruPost = {
@@ -61,7 +61,6 @@ export default function FanartPage() {
   const [selectedImage, setSelectedImage] = useState<DanbooruPost | null>(null)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
-  const [showImageDetails, setShowImageDetails] = useState(false)
 
   const observerRef = useRef<IntersectionObserver | null>(null)
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null)
@@ -411,7 +410,6 @@ export default function FanartPage() {
     }
     if (selectedImage && e.key === 'Escape') {
       setSelectedImage(null)
-      setShowImageDetails(false)
     }
   }, [currentIndex, images.length, viewMode, selectedImage])
 
@@ -431,17 +429,11 @@ export default function FanartPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      onClick={() => {
-        setSelectedImage(null)
-        setShowImageDetails(false)
-      }}
+      onClick={() => setSelectedImage(null)}
       className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center"
     >
       <button
-        onClick={() => {
-          setSelectedImage(null)
-          setShowImageDetails(false)
-        }}
+        onClick={() => setSelectedImage(null)}
         className="absolute top-4 right-4 p-3 hover:bg-white/10 rounded-full transition z-50 bg-black/50 backdrop-blur-md"
       >
         <FiX className="w-6 h-6" />
@@ -453,125 +445,20 @@ export default function FanartPage() {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full h-full max-w-7xl max-h-full flex flex-col md:flex-row gap-4"
+          className="relative w-full h-full max-w-7xl max-h-full"
         >
-          <div className="relative flex-1 flex items-center justify-center">
-            <div className="relative w-full h-full">
-              <Image
-                src={`/api/image-proxy?url=${encodeURIComponent(post.file_url || post.large_file_url)}`}
-                alt={`Fanart ${post.id}`}
-                fill
-                className="object-contain"
-                sizes="100vw"
-                quality={95}
-                unoptimized
-                priority
-              />
-            </div>
+          <div className="relative w-full h-full">
+            <Image
+              src={`/api/image-proxy?url=${encodeURIComponent(post.file_url || post.large_file_url)}`}
+              alt={`Fanart ${post.id}`}
+              fill
+              className="object-contain"
+              sizes="100vw"
+              quality={95}
+              unoptimized
+              priority
+            />
           </div>
-
-          <motion.div
-            initial={{ x: showImageDetails ? 0 : 300, opacity: showImageDetails ? 1 : 0 }}
-            animate={{ x: showImageDetails ? 0 : 300, opacity: showImageDetails ? 1 : 0 }}
-            className={`${showImageDetails ? 'block' : 'hidden'} md:w-80 bg-black/80 backdrop-blur-xl rounded-2xl p-6 overflow-y-auto scrollbar-thin border border-white/10`}
-          >
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <FiInfo className="w-5 h-5" />
-                  Details
-                </h3>
-                
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between py-2 border-b border-white/10">
-                    <span className="text-gray-400">ID</span>
-                    <span className="font-mono">#{post.id}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between py-2 border-b border-white/10">
-                    <span className="text-gray-400">Resolution</span>
-                    <span className="font-mono">{post.image_width} × {post.image_height}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between py-2 border-b border-white/10">
-                    <span className="text-gray-400">Format</span>
-                    <span className="uppercase font-mono">{post.file_ext}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between py-2 border-b border-white/10">
-                    <span className="text-gray-400">Rating</span>
-                    <span className="capitalize">{post.rating}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between py-2 border-b border-white/10">
-                    <span className="text-gray-400">Score</span>
-                    <div className="flex items-center gap-1">
-                      <FaStar className="w-3.5 h-3.5 text-yellow-400" />
-                      <span>{post.score}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between py-2 border-b border-white/10">
-                    <span className="text-gray-400">Favorites</span>
-                    <div className="flex items-center gap-1">
-                      <FiHeart className="w-3.5 h-3.5 text-red-400" />
-                      <span>{post.fav_count}</span>
-                    </div>
-                  </div>
-
-                  {post.tag_string_artist && (
-                    <div className="py-2 border-b border-white/10">
-                      <span className="text-gray-400 block mb-2">Artist</span>
-                      <div className="flex flex-wrap gap-1">
-                        {post.tag_string_artist.split(' ').slice(0, 3).map((artist, i) => (
-                          <span key={i} className="px-2 py-1 bg-white/10 rounded-lg text-xs">
-                            {artist.replace(/_/g, ' ')}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {post.tag_string_character && (
-                    <div className="py-2 border-b border-white/10">
-                      <span className="text-gray-400 block mb-2">Characters</span>
-                      <div className="flex flex-wrap gap-1">
-                        {post.tag_string_character.split(' ').slice(0, 5).map((char, i) => (
-                          <span key={i} className="px-2 py-1 bg-blue-500/20 rounded-lg text-xs">
-                            {char.replace(/_/g, ' ')}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {post.tag_string_copyright && (
-                    <div className="py-2 border-b border-white/10">
-                      <span className="text-gray-400 block mb-2">Copyright</span>
-                      <div className="flex flex-wrap gap-1">
-                        {post.tag_string_copyright.split(' ').slice(0, 3).map((copy, i) => (
-                          <span key={i} className="px-2 py-1 bg-purple-500/20 rounded-lg text-xs">
-                            {copy.replace(/_/g, ' ')}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="py-2">
-                    <span className="text-gray-400 block mb-2">Created</span>
-                    <span className="text-xs">
-                      {new Date(post.created_at).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
         </motion.div>
       </div>
 
@@ -615,31 +502,14 @@ export default function FanartPage() {
           <span className="text-sm hidden sm:inline">Download</span>
         </button>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            setShowImageDetails(!showImageDetails)
-          }}
+        <a
+          href={`/fanart/${post.id}`}
+          onClick={(e) => e.stopPropagation()}
           className="flex items-center gap-2 px-4 py-2.5 bg-white/20 hover:bg-white/30 rounded-xl transition"
         >
-          <FiInfo className="w-4 h-4" />
-          <span className="text-sm hidden sm:inline">
-            {showImageDetails ? 'Hide' : 'Details'}
-          </span>
-        </button>
-
-        {post.source && (
-          <a
-            href={post.source}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition"
-          >
-            <FiExternalLink className="w-4 h-4" />
-            <span className="text-sm hidden sm:inline">Source</span>
-          </a>
-        )}
+          <FiExternalLink className="w-4 h-4" />
+          <span className="text-sm hidden sm:inline">Details</span>
+        </a>
       </div>
     </motion.div>
   )
@@ -731,7 +601,7 @@ export default function FanartPage() {
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setViewMode(viewMode === 'feed' ? 'grid': 'feed')}
+                  onClick={() => setViewMode(viewMode === 'feed' ? 'grid' : 'feed')}
                   className="p-2 sm:p-2.5 hover:bg-white/10 rounded-xl transition"
                   title={viewMode === 'feed' ? 'Switch to Grid View' : 'Switch to Feed View'}
                 >
@@ -909,10 +779,7 @@ export default function FanartPage() {
                           className="object-contain cursor-pointer"
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 1200px"
                           quality={90}
-                          onClick={() => {
-                            setSelectedImage(post)
-                            setShowImageDetails(false)
-                          }}
+                          onClick={() => setSelectedImage(post)}
                           onLoadingComplete={() => setImageLoaded(prev => ({ ...prev, [post.id]: true }))}
                           onError={(e) => {
                             const img = e.target as HTMLImageElement
@@ -981,17 +848,13 @@ export default function FanartPage() {
                               <FiDownload className="w-4 h-4" />
                               <span className="hidden sm:inline">Download</span>
                             </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setSelectedImage(post)
-                                setShowImageDetails(true)
-                              }}
+                            <a
+                              href={`/fanart/${post.id}`}
                               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white/20 rounded-xl hover:bg-white/30 transition text-sm"
                             >
-                              <FiInfo className="w-4 h-4" />
+                              <FiExternalLink className="w-4 h-4" />
                               <span className="hidden sm:inline">Details</span>
-                            </button>      
+                            </a>      
                           </motion.div>
                         )}
                       </AnimatePresence>
@@ -1036,120 +899,107 @@ export default function FanartPage() {
             </div>
           ) : (
             <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 sm:gap-4">
-              {images.map((post, index) => {
-                const aspectRatio = post.image_height / post.image_width
-                const isPortrait = aspectRatio > 1.2
-                const isLandscape = aspectRatio < 0.8
-                const spanClass = isPortrait ? 'row-span-2' : isLandscape ? 'row-span-1' : 'row-span-1'
-                
-                return (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.3) }}
-                    className="relative group break-inside-avoid mb-3 sm:mb-4"
-                  >
-                    <div className="relative w-full bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-2xl hover:shadow-white/5">
-                      <div 
-                        className="relative w-full"
-                        style={{ 
-                          aspectRatio: `${post.image_width}/${post.image_height}`,
+              {images.map((post, index) => (
+                <motion.div
+                  key={post.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.3) }}
+                  className="relative group break-inside-avoid mb-3 sm:mb-4"
+                >
+                  <div className="relative w-full bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-2xl hover:shadow-white/5">
+                    <div 
+                      className="relative w-full"
+                      style={{ 
+                        aspectRatio: `${post.image_width}/${post.image_height}`,
+                      }}
+                    >
+                      {!imageLoaded[post.id] && (
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 animate-pulse flex items-center justify-center">
+                          <FaImage className="w-8 h-8 text-white/20" />
+                        </div>
+                      )}
+                      <Image
+                        src={`/api/image-proxy?url=${encodeURIComponent(post.large_file_url || post.file_url || post.preview_file_url)}`}
+                        alt={`Fanart ${post.id}`}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                        quality={85}
+                        onClick={() => setSelectedImage(post)}
+                        onLoadingComplete={() => setImageLoaded(prev => ({ ...prev, [post.id]: true }))}
+                        onError={(e) => {
+                          const img = e.target as HTMLImageElement
+                          const fallbackUrl = `/api/image-proxy?url=${encodeURIComponent(post.preview_file_url)}`
+                          if (!img.src.includes(post.preview_file_url)) {
+                            img.src = fallbackUrl
+                          }
                         }}
+                        unoptimized
+                      />
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleFavorite(post.id)
+                        }}
+                        className="absolute top-2 right-2 p-2 bg-black/70 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 hover:bg-black/90 hover:scale-110"
                       >
-                        {!imageLoaded[post.id] && (
-                          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 animate-pulse flex items-center justify-center">
-                            <FaImage className="w-8 h-8 text-white/20" />
-                          </div>
-                        )}
-                        <Image
-                          src={`/api/image-proxy?url=${encodeURIComponent(post.large_file_url || post.file_url || post.preview_file_url)}`}
-                          alt={`Fanart ${post.id}`}
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                          quality={85}
-                          onClick={() => {
-                            setSelectedImage(post)
-                            setShowImageDetails(false)
-                          }}
-                          onLoadingComplete={() => setImageLoaded(prev => ({ ...prev, [post.id]: true }))}
-                          onError={(e) => {
-                            const img = e.target as HTMLImageElement
-                            const fallbackUrl = `/api/image-proxy?url=${encodeURIComponent(post.preview_file_url)}`
-                            if (!img.src.includes(post.preview_file_url)) {
-                              img.src = fallbackUrl
-                            }
-                          }}
-                          unoptimized
+                        <FiHeart
+                          className={`w-4 h-4 transition-colors ${
+                            favorites.has(post.id) ? 'fill-red-500 text-red-500' : 'text-white'
+                          }`}
                         />
-                        
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            toggleFavorite(post.id)
-                          }}
-                          className="absolute top-2 right-2 p-2 bg-black/70 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 hover:bg-black/90 hover:scale-110"
-                        >
-                          <FiHeart
-                            className={`w-4 h-4 transition-colors ${
-                              favorites.has(post.id) ? 'fill-red-500 text-red-500' : 'text-white'
-                            }`}
-                          />
-                        </button>
-                        
-                        <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                          <div className="flex items-center justify-between gap-2 text-xs text-white mb-2">
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-1 bg-black/70 backdrop-blur-md px-2 py-1 rounded-full">
-                                <FaStar className="w-3 h-3 text-yellow-400" />
-                                <span className="font-medium">{post.score}</span>
-                              </div>
-                              <div className="flex items-center gap-1 bg-black/70 backdrop-blur-md px-2 py-1 rounded-full">
-                                <FiHeart className="w-3 h-3 text-red-400" />
-                                <span className="font-medium">{post.fav_count}</span>
-                              </div>
+                      </button>
+                      
+                      <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                        <div className="flex items-center justify-between gap-2 text-xs text-white mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 bg-black/70 backdrop-blur-md px-2 py-1 rounded-full">
+                              <FaStar className="w-3 h-3 text-yellow-400" />
+                              <span className="font-medium">{post.score}</span>
+                            </div>
+                            <div className="flex items-center gap-1 bg-black/70 backdrop-blur-md px-2 py-1 rounded-full">
+                              <FiHeart className="w-3 h-3 text-red-400" />
+                              <span className="font-medium">{post.fav_count}</span>
                             </div>
                           </div>
-                          
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleShare(post)
-                              }}
-                              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-black/70 backdrop-blur-md rounded-lg hover:bg-black/90 transition text-xs"
-                            >
-                              <FiShare2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDownload(post)
-                              }}
-                              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-black/70 backdrop-blur-md rounded-lg hover:bg-black/90 transition text-xs"
-                            >
-                              <FiDownload className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setSelectedImage(post)
-                                setShowImageDetails(true)
-                              }}
-                              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-white/20 backdrop-blur-md rounded-lg hover:bg-white/30 transition text-xs"
-                            >
-                              <FiInfo className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleShare(post)
+                            }}
+                            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-black/70 backdrop-blur-md rounded-lg hover:bg-black/90 transition text-xs"
+                          >
+                            <FiShare2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDownload(post)
+                            }}
+                            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-black/70 backdrop-blur-md rounded-lg hover:bg-black/90 transition text-xs"
+                          >
+                            <FiDownload className="w-3.5 h-3.5" />
+                          </button>
+                          <a
+                            href={`/fanart/${post.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-white/20 backdrop-blur-md rounded-lg hover:bg-white/30 transition text-xs"
+                          >
+                            <FiExternalLink className="w-3.5 h-3.5" />
+                          </a>
                         </div>
                       </div>
                     </div>
-                  </motion.div>
-                )
-              })}
+                  </div>
+                </motion.div>
+              ))}
 
               <div ref={loadMoreTriggerRef} className="col-span-full h-20 flex items-center justify-center break-inside-avoid">
                 {loadingMore && (
