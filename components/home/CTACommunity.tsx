@@ -53,16 +53,16 @@ export default function CTACommunityFooter() {
           className="flex justify-center gap-4 mt-10 flex-wrap"
         >
           <Link
-            href="/fanart"
+            href="/upcoming"
             className="bg-gradient-to-tr from-primary to-purple-600 hover:brightness-110 text-white font-semibold px-6 py-3 rounded-full transition-all shadow-md shadow-primary/30"
           >
-            Fanart
+            Schedule
           </Link>
           <Link
-            href="/upcoming"
+            href="/fanart"
             className="border border-white/20 hover:bg-white/10 text-white px-6 py-3 rounded-full transition-all"
           >
-            Schedule
+            Explore Fanart
           </Link>
         </motion.div>
       </div>
@@ -93,7 +93,7 @@ export default function CTACommunityFooter() {
           >
             <h3 className="font-semibold mb-2">Explore</h3>
             <ul className="space-y-1">
-              <li><Link href="/explore" className="hover:text-primary transition">All Anime</Link></li>
+              <li><Link href="/explore" className="hover:text-primary transition">Anime</Link></li>
               <li><Link href="/manga" className="hover:text-primary transition">Manga</Link></li>
               <li><Link href="/manhwa" className="hover:text-primary transition">Manhwa</Link></li>
               <li><Link href="/light-novel" className="hover:text-primary transition">Light Novel</Link></li>
