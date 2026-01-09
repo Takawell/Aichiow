@@ -21,7 +21,6 @@ export default function CTACommunityFooter() {
   return (
     <section className="w-full mt-24 bg-gradient-to-br from-[#0f0f10] via-[#16171a] to-[#0a0a0a] rounded-t-3xl overflow-hidden relative border-t border-white/10">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#ffffff0b] via-transparent to-transparent pointer-events-none" />
-
       <div className="max-w-6xl mx-auto px-6 md:px-12 py-24 text-center relative z-10">
         <motion.h2
           variants={fadeUp}
@@ -54,16 +53,16 @@ export default function CTACommunityFooter() {
           className="flex justify-center gap-4 mt-10 flex-wrap"
         >
           <Link
-            href="/manga"
+            href="/fanart"
             className="bg-gradient-to-tr from-primary to-purple-600 hover:brightness-110 text-white font-semibold px-6 py-3 rounded-full transition-all shadow-md shadow-primary/30"
           >
-            Explore Manga
+            Fanart
           </Link>
           <Link
-            href="/manhwa"
+            href="/upcoming"
             className="border border-white/20 hover:bg-white/10 text-white px-6 py-3 rounded-full transition-all"
           >
-            Explore Manhwa
+            Schedule
           </Link>
         </motion.div>
       </div>
@@ -95,8 +94,8 @@ export default function CTACommunityFooter() {
             <h3 className="font-semibold mb-2">Explore</h3>
             <ul className="space-y-1">
               <li><Link href="/explore" className="hover:text-primary transition">All Anime</Link></li>
-              <li><Link href="/upcoming" className="hover:text-primary transition">Schedule</Link></li>
               <li><Link href="/manga" className="hover:text-primary transition">Manga</Link></li>
+              <li><Link href="/manhwa" className="hover:text-primary transition">Manhwa</Link></li>
               <li><Link href="/light-novel" className="hover:text-primary transition">Light Novel</Link></li>
             </ul>
           </motion.div>
