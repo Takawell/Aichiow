@@ -1,7 +1,13 @@
+import OpenAI from "openai";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const AICHIXIA_ENDPOINT = process.env.AICHIXIA_ENDPOINT;
 const AICHIXIA_API_KEY = process.env.AICHIXIA_API_KEY;
+
+const client = new OpenAI({
+  apiKey: AICHIXIA_API_KEY,
+  baseURL: AICHIXIA_ENDPOINT,
+});
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -50,47 +56,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       requestBody.persona = persona;
     }
 
-    const response = await fetch(AICHIXIA_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${AICHIXIA_API_KEY}`,
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    const text = await response.text();
-    
-    if (!text || text.trim() === "") {
-      console.error("Empty response from Aichixia API");
-      return res.status(502).json({
-        error: "Empty response from API",
-        details: "The API returned an empty response"
-      });
-    }
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (parseError) {
-      console.error("Failed to parse JSON:", text.substring(0, 200));
-      return res.status(502).json({
-        error: "Invalid JSON response from API",
-        details: text.substring(0, 200)
-      });
-    }
-
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: data.error?.message || "API request failed",
-        details: data.error,
-      });
-    }
+    const response = await client.chat.completions.create(requestBody);
 
     return res.status(200).json({
       type: "text",
-      reply: data.choices?.[0]?.message?.content ?? "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
-      provider: data.model,
+      reply: response.choices?.[0]?.message?.content ?? "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
+      provider: response.model,
     });
 
   } catch (err: any) {
