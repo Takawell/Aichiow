@@ -59,7 +59,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       body: JSON.stringify(requestBody),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    
+    if (!text || text.trim() === "") {
+      console.error("Empty response from Aichixia API");
+      return res.status(502).json({
+        error: "Empty response from API",
+        details: "The API returned an empty response"
+      });
+    }
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseError) {
+      console.error("Failed to parse JSON:", text.substring(0, 200));
+      return res.status(502).json({
+        error: "Invalid JSON response from API",
+        details: text.substring(0, 200)
+      });
+    }
 
     if (!response.ok) {
       return res.status(response.status).json({
