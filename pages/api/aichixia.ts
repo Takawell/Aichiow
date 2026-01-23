@@ -1,5 +1,5 @@
-import OpenAI from "openai";
 import type { NextApiRequest, NextApiResponse } from "next";
+import OpenAI from "openai";
 
 const AICHIXIA_ENDPOINT = process.env.AICHIXIA_ENDPOINT;
 const AICHIXIA_API_KEY = process.env.AICHIXIA_API_KEY;
@@ -46,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const selectedModel = modelMapping[mode] || modelMapping.normal;
 
-    const messages = [];
+    const messages: any[] = [];
     
     if (persona && PERSONA_PROMPTS[persona]) {
       messages.push({
@@ -56,7 +56,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     
     if (Array.isArray(history) && history.length > 0) {
-      messages.push(...history);
+      for (const msg of history) {
+        if (msg.role !== "system") {
+          messages.push(msg);
+        }
+      }
     }
     
     messages.push({
