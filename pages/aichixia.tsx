@@ -383,7 +383,7 @@ Please answer the user's question about this anime in an engaging way! Include i
                   transition={{ delay: 0.2 }}
                   className="text-sm sm:text-base text-blue-300/70 max-w-md mb-4 sm:mb-6"
                 >
-                  Your AI assistant for anime, manga, manhwa, manhua, and light novels. Chat or upload a screenshot to identify an anime instantly!
+                  Your AI assistant for anime, manga, manhwa, and light novels. Chat or upload a screenshot to identify an anime instantly!
                 </motion.p>
 
                 <motion.div 
