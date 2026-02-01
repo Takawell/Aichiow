@@ -5,17 +5,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  FaBookOpen,
-  FaBook,
-  FaUsers,
-  FaPlayCircle,
-  FaTv,
-  FaFeatherAlt,
-  FaChevronDown,
-  FaBars,
-  FaTimes
-} from 'react-icons/fa'
+import { BsEmojiHeartEyesFill } from "react-icons/bs";
+import { FaBookOpen, FaBook, FaUsers, FaPlayCircle, FaTv, FaFeatherAlt, FaChevronDown, FaBars, FaTimes, FaComments, FaSearch } from 'react-icons/fa'
+import { LuScanLine, LuSparkles } from 'react-icons/lu'
 
 export default function LandingPage() {
   const [heroTextIndex, setHeroTextIndex] = useState(0)
@@ -60,32 +52,59 @@ export default function LandingPage() {
       title: 'Anime',
       href: '/home',
       desc: lang === 'EN' ? 'Trailers, schedules & trending recommendations.' : 'Trailer, jadwal & rekomendasi tren.',
-      icon: <FaTv className="w-4 h-4" />,
-      gradient: 'from-purple-500 to-pink-500'
+      icon: <FaTv className="w-5 h-5" />,
+      color: 'text-purple-400'
     },
     {
       id: 'manga',
       title: 'Manga',
       href: '/manga',
       desc: lang === 'EN' ? 'Integrated reader & latest chapters.' : 'Reader terintegrasi & chapter terbaru.',
-      icon: <FaBook className="w-4 h-4" />,
-      gradient: 'from-cyan-500 to-blue-500'
+      icon: <FaBook className="w-5 h-5" />,
+      color: 'text-cyan-400'
     },
     {
       id: 'manhwa',
       title: 'Manhwa',
       href: '/manhwa',
       desc: lang === 'EN' ? 'Popular Korean content & smart recs.' : 'Konten Korea populer & rekomendasi.',
-      icon: <FaBookOpen className="w-4 h-4" />,
-      gradient: 'from-orange-500 to-red-500'
+      icon: <FaBookOpen className="w-5 h-5" />,
+      color: 'text-orange-400'
     },
     {
       id: 'ln',
       title: 'Light Novel',
       href: '/light-novel',
       desc: lang === 'EN' ? 'Summaries, translations & more.' : 'Ringkasan, terjemahan & lainnya.',
-      icon: <FaFeatherAlt className="w-4 h-4" />,
-      gradient: 'from-emerald-500 to-teal-500'
+      icon: <FaFeatherAlt className="w-5 h-5" />,
+      color: 'text-emerald-400'
+    }
+  ]
+
+  const aichixiaFeatures = [
+    {
+      icon: <LuScanLine className="w-5 h-5" />,
+      title: lang === 'EN' ? 'Anime Scanner' : 'Scan Anime',
+      desc: lang === 'EN' ? 'Upload any anime screenshot and instantly identify the series, episode, and timestamp.' : 'Upload screenshot anime dan langsung ketahui series, episode, dan timestamp-nya.',
+      color: 'from-cyan-500 to-blue-500'
+    },
+    {
+      icon: <BsEmojiHeartEyesFill className="w-5 h-5" />,
+      title: lang === 'EN' ? 'AI Personality' : 'Kepribadian AI',
+      desc: lang === 'EN' ? 'Choose from multiple personas: Tsundere, Friendly, Professional, or Kawaii mode.' : 'Pilih berbagai persona: Tsundere, Friendly, Professional, atau mode Kawaii.',
+      color: 'from-purple-500 to-pink-500'
+    },
+    {
+      icon: <FaSearch className="w-5 h-5" />,
+      title: lang === 'EN' ? 'Deep Mode' : 'Mode Mendalam',
+      desc: lang === 'EN' ? 'Advanced search with web capabilities for comprehensive anime research and recommendations.' : 'Pencarian lanjutan dengan kemampuan web untuk riset dan rekomendasi anime yang komprehensif.',
+      color: 'from-orange-500 to-red-500'
+    },
+    {
+      icon: <FaComments className="w-5 h-5" />,
+      title: lang === 'EN' ? 'Smart Chat' : 'Chat Pintar',
+      desc: lang === 'EN' ? 'Natural conversations with context awareness about anime, manga, manhwa, and light novels.' : 'Percakapan natural dengan kesadaran konteks tentang anime, manga, manhwa, dan light novel.',
+      color: 'from-emerald-500 to-teal-500'
     }
   ]
 
@@ -253,7 +272,7 @@ export default function LandingPage() {
                     {lang === 'EN' ? 'The Ultimate Hub' : 'Pusat Utama'}
                   </span>
                   <span className="block mt-1.5 bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 bg-clip-text text-transparent">
-                    {lang === 'EN' ? 'Anime · Manga · Manhwa' : 'Anime · Manga · Manhwa'}
+                    {lang === 'EN' ? 'ACGN Collective' : 'Koleksi ACGN'}
                   </span>
                 </h1>
 
@@ -317,7 +336,7 @@ export default function LandingPage() {
                       transition={{ duration: 0.3, delay: idx * 0.05 }}
                       className="group relative rounded-2xl p-4 sm:p-5 min-h-[160px] flex flex-col bg-white/[0.02] border border-white/[0.08] hover:border-white/15 hover:bg-white/[0.04] backdrop-blur-sm transition-all cursor-pointer"
                     >
-                      <div className={`inline-flex p-2 rounded-xl bg-gradient-to-br ${f.gradient} mb-3 shadow-md w-fit`}>
+                      <div className={`${f.color} mb-3 w-fit`}>
                         {f.icon}
                       </div>
                       
@@ -341,21 +360,52 @@ export default function LandingPage() {
             </section>
 
             <section className="py-8 sm:py-16">
-              <motion.h2
+              <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-xl sm:text-2xl lg:text-3xl font-bold text-center mb-6 sm:mb-10"
+                className="text-center mb-6 sm:mb-10"
               >
-                {lang === 'EN' ? 'Meet Aichixia – Your AI Assistant' : 'Kenalan dengan Aichixia – Asisten AI'}
-              </motion.h2>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">
+                  {lang === 'EN' ? 'Meet Aichixia' : 'Kenalan dengan Aichixia'}
+                </h2>
+                <p className="text-sm text-gray-400 max-w-2xl mx-auto">
+                  {lang === 'EN' 
+                    ? 'Your intelligent AI assistant powered by advanced technology for all your anime needs' 
+                    : 'Asisten AI cerdas berbasis teknologi canggih untuk semua kebutuhan anime kamu'}
+                </p>
+              </motion.div>
 
-              <div className="max-w-xl mx-auto">
+              <div className="max-w-5xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-6">
+                  {aichixiaFeatures.map((feature, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.1 }}
+                      whileHover={{ y: -3 }}
+                      className="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-4 sm:p-5 hover:bg-white/[0.04] hover:border-white/15 transition-all backdrop-blur-sm group"
+                    >
+                      <div className={`inline-flex p-2.5 rounded-xl bg-gradient-to-br ${feature.color} mb-3 shadow-md`}>
+                        {feature.icon}
+                      </div>
+                      <h3 className="font-bold text-sm sm:text-base mb-1.5 text-white group-hover:text-sky-300 transition-colors">
+                        {feature.title}
+                      </h3>
+                      <p className="text-xs text-gray-400 leading-relaxed">
+                        {feature.desc}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+
                 <motion.div
                   initial={{ opacity: 0, scale: 0.98 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  className="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-5 sm:p-6 backdrop-blur-sm"
+                  className="bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/[0.08] rounded-2xl p-5 sm:p-6 backdrop-blur-sm"
                 >
                   <div className="space-y-3">
                     <motion.div
@@ -394,9 +444,10 @@ export default function LandingPage() {
                       <motion.div
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
-                        className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 shadow-lg shadow-sky-500/25 font-medium text-sm transition-all"
+                        className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 shadow-lg shadow-sky-500/25 font-medium text-sm transition-all flex items-center gap-2"
                       >
-                        {lang === 'EN' ? 'Chat with Aichixia' : 'Ngobrol dengan Aichixia'}
+                        <LuSparkles className="w-4 h-4" />
+                        <span>{lang === 'EN' ? 'Chat with Aichixia' : 'Ngobrol dengan Aichixia'}</span>
                       </motion.div>
                     </Link>
                   </motion.div>
