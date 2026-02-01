@@ -28,7 +28,7 @@ export default function LandingPage() {
     EN: [
       'Your gateway to anime, manga, manhwa, and light novels — discover the stories you love, anytime, anywhere.',
       'Where recommendations, reading, and community meet. Trending lists, new releases, and an immersive reading experience.',
-      'Dive into endless imagination from classics to the freshest chapters you can't miss.'
+      'Dive into endless imagination from classics to the freshest chapters you cant miss.'
     ],
     ID: [
       'Gerbangmu ke anime, manga, manhwa, dan light novel — temukan cerita yang kamu sukai, kapan saja, di mana saja.',
