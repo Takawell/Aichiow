@@ -51,7 +51,7 @@ export default function LandingPage() {
       id: 'anime',
       title: 'Anime',
       href: '/home',
-      desc: lang === 'EN' ? 'Trailers, schedules & trending recommendations.' : 'Trailer, jadwal & rekomendasi tren.',
+      desc: lang === 'EN' ? 'Trailers, schedules & trending.' : 'Trailer, jadwal & tren.',
       icon: <FaTv className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: 'text-purple-400'
     },
@@ -59,7 +59,7 @@ export default function LandingPage() {
       id: 'manga',
       title: 'Manga',
       href: '/manga',
-      desc: lang === 'EN' ? 'Integrated reader & latest chapters.' : 'Reader terintegrasi & chapter terbaru.',
+      desc: lang === 'EN' ? 'Reader & latest chapters.' : 'Reader & chapter terbaru.',
       icon: <FaBook className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: 'text-cyan-400'
     },
@@ -67,7 +67,7 @@ export default function LandingPage() {
       id: 'manhwa',
       title: 'Manhwa',
       href: '/manhwa',
-      desc: lang === 'EN' ? 'Popular Korean content & smart recs.' : 'Konten Korea populer & rekomendasi.',
+      desc: lang === 'EN' ? 'Korean content & recommendations.' : 'Konten Korea & rekomendasi.',
       icon: <FaBookOpen className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: 'text-orange-400'
     },
@@ -75,7 +75,7 @@ export default function LandingPage() {
       id: 'ln',
       title: 'Light Novel',
       href: '/light-novel',
-      desc: lang === 'EN' ? 'Summaries, translations & more.' : 'Ringkasan, terjemahan & lainnya.',
+      desc: lang === 'EN' ? 'Summaries & translations.' : 'Ringkasan & terjemahan.',
       icon: <FaFeatherAlt className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: 'text-emerald-400'
     }
@@ -85,25 +85,25 @@ export default function LandingPage() {
     {
       icon: <LuScanLine className="w-4 h-4 sm:w-5 sm:h-5" />,
       title: lang === 'EN' ? 'Anime Scanner' : 'Scan Anime',
-      desc: lang === 'EN' ? 'Upload any anime screenshot and instantly identify the series, episode, and timestamp.' : 'Upload screenshot anime dan langsung ketahui series, episode, dan timestamp-nya.',
+      desc: lang === 'EN' ? 'Upload screenshots to identify series, episode, and timestamp instantly.' : 'Upload screenshot untuk identifikasi series, episode, dan timestamp.',
       color: 'text-cyan-400'
     },
     {
       icon: <BsEmojiHeartEyesFill className="w-4 h-4 sm:w-5 sm:h-5" />,
       title: lang === 'EN' ? 'AI Personality' : 'Kepribadian AI',
-      desc: lang === 'EN' ? 'Choose from multiple personas: Tsundere, Friendly, Professional, or Kawaii mode.' : 'Pilih berbagai persona: Tsundere, Friendly, Professional, atau mode Kawaii.',
+      desc: lang === 'EN' ? 'Choose from Tsundere, Friendly, Professional, or Kawaii persona.' : 'Pilih persona Tsundere, Friendly, Professional, atau Kawaii.',
       color: 'text-pink-400'
     },
     {
       icon: <FaSearch className="w-4 h-4 sm:w-5 sm:h-5" />,
       title: lang === 'EN' ? 'Deep Mode' : 'Mode Mendalam',
-      desc: lang === 'EN' ? 'Advanced search with web capabilities for comprehensive anime research and recommendations.' : 'Pencarian lanjutan dengan kemampuan web untuk riset dan rekomendasi anime yang komprehensif.',
+      desc: lang === 'EN' ? 'Advanced search with web capabilities for comprehensive research.' : 'Pencarian lanjutan dengan web untuk riset komprehensif.',
       color: 'text-orange-400'
     },
     {
       icon: <FaComments className="w-4 h-4 sm:w-5 sm:h-5" />,
       title: lang === 'EN' ? 'Smart Chat' : 'Chat Pintar',
-      desc: lang === 'EN' ? 'Natural conversations with context awareness about anime, manga, manhwa, and light novels.' : 'Percakapan natural dengan kesadaran konteks tentang anime, manga, manhwa, dan light novel.',
+      desc: lang === 'EN' ? 'Natural conversations with context about anime and manga.' : 'Percakapan natural dengan konteks anime dan manga.',
       color: 'text-emerald-400'
     }
   ]
@@ -334,11 +334,11 @@ export default function LandingPage() {
                       viewport={{ once: true }}
                       whileHover={{ y: -4 }}
                       transition={{ duration: 0.3, delay: idx * 0.05 }}
-                      className="group relative rounded-2xl p-4 sm:p-5 min-h-[160px] flex flex-col bg-white/[0.02] border border-white/[0.08] hover:border-white/15 hover:bg-white/[0.04] backdrop-blur-sm transition-all cursor-pointer"
+                      className="group relative rounded-2xl p-4 sm:p-5 min-h-[140px] flex flex-col bg-white/[0.02] border border-white/[0.08] hover:border-white/15 hover:bg-white/[0.04] backdrop-blur-sm transition-all cursor-pointer"
                     >
-                      <div className={`flex items-center gap-2 mb-3 ${f.color}`}>
-                        {f.icon}
-                        <h3 className="text-base sm:text-lg font-bold">{f.title}</h3>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className={f.color}>{f.icon}</span>
+                        <h3 className="text-base sm:text-lg font-bold text-white">{f.title}</h3>
                       </div>
                       
                       <p className="text-xs text-gray-400 leading-relaxed mb-3 flex-grow">{f.desc}</p>
@@ -388,8 +388,8 @@ export default function LandingPage() {
                       whileHover={{ y: -3 }}
                       className="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-4 sm:p-5 hover:bg-white/[0.04] hover:border-white/15 transition-all backdrop-blur-sm group"
                     >
-                      <div className={`flex items-center gap-2 mb-3 ${feature.color}`}>
-                        {feature.icon}
+                      <div className="flex items-center gap-2 mb-2.5">
+                        <span className={feature.color}>{feature.icon}</span>
                         <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-sky-300 transition-colors">
                           {feature.title}
                         </h3>
