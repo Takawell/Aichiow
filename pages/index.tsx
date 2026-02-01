@@ -334,7 +334,7 @@ export default function LandingPage() {
                       viewport={{ once: true }}
                       whileHover={{ y: -4 }}
                       transition={{ duration: 0.3, delay: idx * 0.05 }}
-                      className="group relative rounded-2xl p-4 sm:p-5 min-h-[140px] flex flex-col bg-white/[0.02] border border-white/[0.08] hover:border-white/15 hover:bg-white/[0.04] backdrop-blur-sm transition-all cursor-pointer"
+                      className="group relative rounded-2xl p-4 sm:p-5 min-h-[100px] flex flex-col bg-white/[0.02] border border-white/[0.08] hover:border-white/15 hover:bg-white/[0.04] backdrop-blur-sm transition-all cursor-pointer"
                     >
                       <div className="flex items-center gap-2 mb-3">
                         <span className={f.color}>{f.icon}</span>
