@@ -5,9 +5,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BsEmojiHeartEyesFill } from "react-icons/bs";
-import { FaBookOpen, FaBook, FaUsers, FaPlayCircle, FaTv, FaFeatherAlt, FaChevronDown, FaBars, FaTimes, FaComments, FaSearch } from 'react-icons/fa'
 import { LuScanLine, LuSparkles } from 'react-icons/lu'
+import { BsEmojiHeartEyesFill } from 'react-icons/bs'
+import { FaBookOpen, FaBook, FaUsers, FaPlayCircle, FaTv, FaFeatherAlt, FaChevronDown, FaBars, FaTimes, FaComments, FaSearch } from 'react-icons/fa'
 
 export default function LandingPage() {
   const [heroTextIndex, setHeroTextIndex] = useState(0)
@@ -52,7 +52,7 @@ export default function LandingPage() {
       title: 'Anime',
       href: '/home',
       desc: lang === 'EN' ? 'Trailers, schedules & trending recommendations.' : 'Trailer, jadwal & rekomendasi tren.',
-      icon: <FaTv className="w-5 h-5" />,
+      icon: <FaTv className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: 'text-purple-400'
     },
     {
@@ -60,7 +60,7 @@ export default function LandingPage() {
       title: 'Manga',
       href: '/manga',
       desc: lang === 'EN' ? 'Integrated reader & latest chapters.' : 'Reader terintegrasi & chapter terbaru.',
-      icon: <FaBook className="w-5 h-5" />,
+      icon: <FaBook className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: 'text-cyan-400'
     },
     {
@@ -68,7 +68,7 @@ export default function LandingPage() {
       title: 'Manhwa',
       href: '/manhwa',
       desc: lang === 'EN' ? 'Popular Korean content & smart recs.' : 'Konten Korea populer & rekomendasi.',
-      icon: <FaBookOpen className="w-5 h-5" />,
+      icon: <FaBookOpen className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: 'text-orange-400'
     },
     {
@@ -76,35 +76,35 @@ export default function LandingPage() {
       title: 'Light Novel',
       href: '/light-novel',
       desc: lang === 'EN' ? 'Summaries, translations & more.' : 'Ringkasan, terjemahan & lainnya.',
-      icon: <FaFeatherAlt className="w-5 h-5" />,
+      icon: <FaFeatherAlt className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: 'text-emerald-400'
     }
   ]
 
   const aichixiaFeatures = [
     {
-      icon: <LuScanLine className="w-5 h-5" />,
+      icon: <LuScanLine className="w-4 h-4 sm:w-5 sm:h-5" />,
       title: lang === 'EN' ? 'Anime Scanner' : 'Scan Anime',
       desc: lang === 'EN' ? 'Upload any anime screenshot and instantly identify the series, episode, and timestamp.' : 'Upload screenshot anime dan langsung ketahui series, episode, dan timestamp-nya.',
-      color: 'from-cyan-500 to-blue-500'
+      color: 'text-cyan-400'
     },
     {
-      icon: <BsEmojiHeartEyesFill className="w-5 h-5" />,
+      icon: <BsEmojiHeartEyesFill className="w-4 h-4 sm:w-5 sm:h-5" />,
       title: lang === 'EN' ? 'AI Personality' : 'Kepribadian AI',
       desc: lang === 'EN' ? 'Choose from multiple personas: Tsundere, Friendly, Professional, or Kawaii mode.' : 'Pilih berbagai persona: Tsundere, Friendly, Professional, atau mode Kawaii.',
-      color: 'from-purple-500 to-pink-500'
+      color: 'text-pink-400'
     },
     {
-      icon: <FaSearch className="w-5 h-5" />,
+      icon: <FaSearch className="w-4 h-4 sm:w-5 sm:h-5" />,
       title: lang === 'EN' ? 'Deep Mode' : 'Mode Mendalam',
       desc: lang === 'EN' ? 'Advanced search with web capabilities for comprehensive anime research and recommendations.' : 'Pencarian lanjutan dengan kemampuan web untuk riset dan rekomendasi anime yang komprehensif.',
-      color: 'from-orange-500 to-red-500'
+      color: 'text-orange-400'
     },
     {
-      icon: <FaComments className="w-5 h-5" />,
+      icon: <FaComments className="w-4 h-4 sm:w-5 sm:h-5" />,
       title: lang === 'EN' ? 'Smart Chat' : 'Chat Pintar',
       desc: lang === 'EN' ? 'Natural conversations with context awareness about anime, manga, manhwa, and light novels.' : 'Percakapan natural dengan kesadaran konteks tentang anime, manga, manhwa, dan light novel.',
-      color: 'from-emerald-500 to-teal-500'
+      color: 'text-emerald-400'
     }
   ]
 
@@ -272,7 +272,7 @@ export default function LandingPage() {
                     {lang === 'EN' ? 'The Ultimate Hub' : 'Pusat Utama'}
                   </span>
                   <span className="block mt-1.5 bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 bg-clip-text text-transparent">
-                    {lang === 'EN' ? 'ACGN Collective' : 'Koleksi ACGN'}
+                    {lang === 'EN' ? 'ACGN Collective' : 'Kolektif ACGN'}
                   </span>
                 </h1>
 
@@ -336,11 +336,11 @@ export default function LandingPage() {
                       transition={{ duration: 0.3, delay: idx * 0.05 }}
                       className="group relative rounded-2xl p-4 sm:p-5 min-h-[160px] flex flex-col bg-white/[0.02] border border-white/[0.08] hover:border-white/15 hover:bg-white/[0.04] backdrop-blur-sm transition-all cursor-pointer"
                     >
-                      <div className={`${f.color} mb-3 w-fit`}>
+                      <div className={`flex items-center gap-2 mb-3 ${f.color}`}>
                         {f.icon}
+                        <h3 className="text-base sm:text-lg font-bold">{f.title}</h3>
                       </div>
                       
-                      <h3 className="text-base sm:text-lg font-bold mb-1.5">{f.title}</h3>
                       <p className="text-xs text-gray-400 leading-relaxed mb-3 flex-grow">{f.desc}</p>
                       
                       <div className="inline-flex items-center gap-1 text-[11px] font-medium text-sky-400 group-hover:text-sky-300 transition-colors">
@@ -388,12 +388,12 @@ export default function LandingPage() {
                       whileHover={{ y: -3 }}
                       className="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-4 sm:p-5 hover:bg-white/[0.04] hover:border-white/15 transition-all backdrop-blur-sm group"
                     >
-                      <div className={`inline-flex p-2.5 rounded-xl bg-gradient-to-br ${feature.color} mb-3 shadow-md`}>
+                      <div className={`flex items-center gap-2 mb-3 ${feature.color}`}>
                         {feature.icon}
+                        <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-sky-300 transition-colors">
+                          {feature.title}
+                        </h3>
                       </div>
-                      <h3 className="font-bold text-sm sm:text-base mb-1.5 text-white group-hover:text-sky-300 transition-colors">
-                        {feature.title}
-                      </h3>
                       <p className="text-xs text-gray-400 leading-relaxed">
                         {feature.desc}
                       </p>
