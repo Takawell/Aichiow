@@ -377,7 +377,7 @@ export default function LandingPage() {
                       className="flex justify-end"
                     >
                       <div className="max-w-[85%] px-4 py-3 rounded-2xl rounded-br-sm bg-white/10 text-gray-200 text-sm shadow-lg">
-                        {lang === 'EN' ? 'Sure! How about Sousou no Frieren? It's trending this season with amazing reviews.' : 'Tentu! Gimana kalau Sousou no Frieren? Lagi trending musim ini dengan ulasan keren.'}
+                        {lang === 'EN' ? 'Sure! How about Sousou no Frieren? Its trending this season with amazing reviews.' : 'Tentu! Gimana kalau Sousou no Frieren? Lagi trending musim ini dengan ulasan keren.'}
                       </div>
                     </motion.div>
                   </div>
