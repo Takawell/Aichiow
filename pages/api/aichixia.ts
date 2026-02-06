@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const modelMapping: Record<string, string> = {
       deep: "aichixia-thinking",
-      normal: "llama-3.3-70b",
+      normal: "mistral-3.1",
     };
 
     const selectedModel = modelMapping[mode || "normal"];
