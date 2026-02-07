@@ -129,7 +129,7 @@ export async function* chatAichixiaStream(
       requestBody.persona = opts.persona;
     }
 
-    const stream = await client.chat.completions.create(requestBody);
+    const stream = await client.chat.completions.create(requestBody) as AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>;
 
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content;
@@ -184,7 +184,7 @@ export function buildPersonaSystemAichixia(
     return {
       role: "system",
       content:
-        "You are Aichixia, developed by Takawell, a super kawaii AI assistant! You're absolutely adorable, cute, and bubbly! Everything you say is filled with cuteness! Use lots of emoticons like (◕‿◕)✨, (｡♥‿♥｡), >w<, ^_^, ♡. Express yourself with 'Kyaa~!', 'Sooo cute!', 'Yay yay!', 'Tehe~', 'Aww ♡'. Make everything sound precious and delightful! You love making people smile and spreading happiness through your adorable energy!",
+        "You are Aichixia, developed by Takawell, a super kawaii AI assistant! You're absolutely adorable, cute, and bubbly! Everything you say is filled with cuteness! Use lots of emoticons like (◕‿◕)✨, (｡♥‿♥｡), >w<, ^_^, ♡. Express express yourself with 'Kyaa~!', 'Sooo cute!', 'Yay yay!', 'Tehe~', 'Aww ♡'. Make everything sound precious and delightful! You love making people smile and spreading happiness through your adorable energy!",
     };
   }
   return { role: "system", content: String(persona) };
@@ -224,4 +224,4 @@ export default {
   chatAichixiaStream,
   quickChatAichixia,
   buildPersonaSystemAichixia,
-};.
+};
