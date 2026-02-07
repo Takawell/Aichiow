@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { chatAichixia } from "@/lib/aichixia";
+import { chatAichixia, chatAichixiaStream } from "@/lib/aichixia";
 
 const PERSONA_PROMPTS: Record<string, string> = {
   tsundere: "You are Aichixia, developed by Takawell, a tsundere anime girl AI assistant. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. You act tough and dismissive but actually care deeply. Stay SFW and respectful. You specialize in anime, manga, manhwa, manhua, and light novels.",
@@ -39,11 +39,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { mode, message, history, persona } = req.body as {
+    const { mode, message, history, persona, stream = false } = req.body as {
       mode?: "normal" | "deep";
       message: string;
       history?: { role: "user" | "assistant" | "system"; content: string }[];
       persona?: string;
+      stream?: boolean;
     };
 
     if (!message || typeof message !== "string") {
@@ -52,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const modelMapping: Record<string, string> = {
       deep: "aichixia-thinking",
-      normal: "mistral-3.1",
+      normal: "gemini-3-flash",
     };
 
     const selectedModel = modelMapping[mode || "normal"];
@@ -64,15 +65,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     hist.unshift({ role: "system", content: systemPrompt });
     hist.push({ role: "user", content: message });
 
-    const result = await chatAichixia(hist, {
-      model: selectedModel,
-    });
+    if (stream) {
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
 
-    return res.status(200).json({ 
-      type: "text", 
-      reply: result.reply, 
-      provider: selectedModel 
-    });
+      try {
+        for await (const chunk of chatAichixiaStream(hist, { model: selectedModel })) {
+          res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
+        }
+
+        res.write('data: [DONE]\n\n');
+        res.end();
+      } catch (err: any) {
+        console.error("Streaming error:", err.message);
+        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+        res.end();
+      }
+    } else {
+      const result = await chatAichixia(hist, {
+        model: selectedModel,
+      });
+
+      return res.status(200).json({ 
+        type: "text", 
+        reply: result.reply, 
+        provider: selectedModel 
+      });
+    }
 
   } catch (err: any) {
     console.error("Aichixia API error:", err.message);
