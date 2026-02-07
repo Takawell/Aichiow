@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import type { Stream } from "openai/streaming";
 
 export type Role = "user" | "assistant" | "system";
 
@@ -64,7 +63,6 @@ export async function chatAichixia(
       })),
       temperature: opts?.temperature ?? 0.8,
       max_tokens: opts?.maxTokens ?? 1080,
-      stream: false,
     };
 
     if (opts?.persona) {
@@ -78,66 +76,6 @@ export async function chatAichixia(
       "Huwaa~ something went wrong... can you try again, senpai? 😖💔";
 
     return { reply };
-  } catch (error: any) {
-    if (error?.status === 429) {
-      throw new AichixiaRateLimitError(
-        `Aichixia rate limit exceeded: ${error.message}`
-      );
-    }
-    if (error?.status === 402 || error?.code === "insufficient_quota" || error?.message?.includes("quota")) {
-      throw new AichixiaQuotaError(
-        `Aichixia quota exceeded: ${error.message}`
-      );
-    }
-    if (error?.status === 503 || error?.status === 500) {
-      throw new Error(`Aichixia server error: ${error.message}`);
-    }
-    
-    throw error;
-  }
-}
-
-export async function* chatAichixiaStream(
-  history: ChatMessage[],
-  opts?: { 
-    temperature?: number; 
-    maxTokens?: number;
-    model?: string;
-    persona?: string;
-  }
-): AsyncGenerator<string, void, unknown> {
-  if (!AICHIXIA_API_KEY) {
-    throw new Error("AICHIXIA_API_KEY not defined in environment variables.");
-  }
-
-  if (!AICHIXIA_ENDPOINT) {
-    throw new Error("AICHIXIA_ENDPOINT not defined in environment variables.");
-  }
-
-  try {
-    const requestBody: any = {
-      model: opts?.model || "gpt-oss-120b",
-      messages: history.map((m) => ({
-        role: m.role,
-        content: m.content,
-      })),
-      temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 1080,
-      stream: true,
-    };
-
-    if (opts?.persona) {
-      requestBody.persona = opts.persona;
-    }
-
-    const stream = await client.chat.completions.create(requestBody) as unknown as Stream<OpenAI.Chat.Completions.ChatCompletionChunk>;
-
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
-      if (content) {
-        yield content;
-      }
-    }
   } catch (error: any) {
     if (error?.status === 429) {
       throw new AichixiaRateLimitError(
@@ -222,7 +160,6 @@ export async function quickChatAichixia(
 
 export default {
   chatAichixia,
-  chatAichixiaStream,
   quickChatAichixia,
   buildPersonaSystemAichixia,
 };
