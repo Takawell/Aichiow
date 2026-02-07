@@ -25,6 +25,7 @@ interface Message {
   role: "user" | "assistant";
   type?: "text" | "anime" | "scan" | "image" | "ai-scan";
   content: string | AnimeData[] | any[];
+  streaming?: boolean;
 }
 
 type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
@@ -157,19 +158,66 @@ Please answer the user's question about this anime in an engaging way! Include i
             history: [],
             persona: persona === "tsundere" ? undefined : personaConfig[persona].description,
             mode: mode,
+            stream: true,
           }),
         });
-        
-        const aiData = await aiRes.json();
-        
+
+        if (!aiRes.body) throw new Error("No response body");
+
+        const reader = aiRes.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let fullContent = '';
+
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
             type: "ai-scan",
-            content: aiData.reply || "I found the anime, but I'm having trouble explaining it right now! 💫",
+            content: "",
+            streaming: true,
           },
         ]);
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') break;
+
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.chunk) {
+                  fullContent += parsed.chunk;
+                  setMessages((prev) => {
+                    const newMessages = [...prev];
+                    const lastMsg = newMessages[newMessages.length - 1];
+                    if (lastMsg && lastMsg.streaming) {
+                      lastMsg.content = fullContent;
+                    }
+                    return newMessages;
+                  });
+                }
+              } catch (e) {}
+            }
+          }
+        }
+
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          const lastMsg = newMessages[newMessages.length - 1];
+          if (lastMsg && lastMsg.streaming) {
+            delete lastMsg.streaming;
+          }
+          return newMessages;
+        });
         
         setScanPrompt("");
       } else {
@@ -186,17 +234,66 @@ Please answer the user's question about this anime in an engaging way! Include i
               })),
             persona: persona === "tsundere" ? undefined : personaConfig[persona].description,
             mode: mode,
+            stream: true,
           }),
         });
-        const data = await res.json();
+
+        if (!res.body) throw new Error("No response body");
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let fullContent = '';
+
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
             type: "text",
-            content: data.reply || "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
+            content: "",
+            streaming: true,
           },
         ]);
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') break;
+
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.chunk) {
+                  fullContent += parsed.chunk;
+                  setMessages((prev) => {
+                    const newMessages = [...prev];
+                    const lastMsg = newMessages[newMessages.length - 1];
+                    if (lastMsg && lastMsg.streaming) {
+                      lastMsg.content = fullContent;
+                    }
+                    return newMessages;
+                  });
+                }
+              } catch (e) {}
+            }
+          }
+        }
+
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          const lastMsg = newMessages[newMessages.length - 1];
+          if (lastMsg && lastMsg.streaming) {
+            delete lastMsg.streaming;
+          }
+          return newMessages;
+        });
       }
     } catch (err) {
       console.error(err);
@@ -400,210 +497,137 @@ Please answer the user's question about this anime in an engaging way! Include i
                   ].map((suggestion, i) => (
                     <motion.button
                       key={i}
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.4 + i * 0.1 }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => setInput(suggestion.q)}
-                      className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-800/50 border-2 border-blue-500/20 hover:border-blue-400/50 rounded-2xl transition-all hover:shadow-xl hover:shadow-blue-500/20 text-left group backdrop-blur-xl"
+                      className="px-4 py-3 bg-blue-500/10 hover:bg-blue-500/20 rounded-2xl text-left transition-all border border-blue-400/30 hover:border-blue-400/50 flex items-center gap-3 group"
                     >
-                      <span className="text-xl sm:text-2xl flex-shrink-0">{suggestion.icon}</span>
-                      <span className="text-xs sm:text-sm font-medium text-blue-200 group-hover:text-cyan-300 transition-colors">
-                        {suggestion.q}
-                      </span>
+                      <span className="text-2xl group-hover:scale-110 transition-transform">{suggestion.icon}</span>
+                      <span className="text-sm text-blue-200">{suggestion.q}</span>
                     </motion.button>
                   ))}
                 </motion.div>
               </div>
             )}
 
-            {messages.map((msg, i) => (
+            {messages.map((msg, idx) => (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
-                className={`flex flex-col gap-2 ${
-                  msg.role === "user" ? "items-end" : "items-start"
-                }`}
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                {msg.type === "text" && (
-                  <motion.div
-                    whileHover={{ scale: 1.01 }}
-                    className={`px-5 py-4 rounded-3xl max-w-[85%] sm:max-w-[75%] text-sm sm:text-base shadow-xl backdrop-blur-xl ${
-                      msg.role === "user"
-                        ? "bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 text-white shadow-blue-500/30"
-                        : "bg-slate-800/60 border border-blue-500/20 text-slate-100 shadow-slate-900/50"
-                    }`}
-                  >
-                    <ReactMarkdown 
-                      remarkPlugins={[remarkGfm]}
-                      className="prose prose-invert prose-sm sm:prose-base max-w-none prose-headings:text-blue-300 prose-a:text-cyan-400 prose-strong:text-blue-200 prose-code:text-cyan-300"
-                    >
-                      {msg.content as string}
-                    </ReactMarkdown>
-                  </motion.div>
-                )}
-
-                {msg.type === "ai-scan" && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="w-full max-w-[95%] sm:max-w-[85%] bg-gradient-to-br from-blue-900/40 via-cyan-900/40 to-slate-900/40 border-2 border-blue-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl backdrop-blur-xl"
-                  >
-                    <div className="flex items-center gap-3 mb-4 pb-3 border-b border-blue-500/20">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                        <LuSparkles className="text-xl text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-blue-200 text-sm sm:text-base">AI Analysis</h3>
-                        <p className="text-xs text-blue-300/60">Powered by Aichixia</p>
-                      </div>
+                {msg.role === "user" ? (
+                  msg.type === "image" ? (
+                    <div className="max-w-xs sm:max-w-sm md:max-w-md bg-slate-800/50 backdrop-blur-xl rounded-3xl p-3 shadow-xl border border-blue-500/20">
+                      <img
+                        src={msg.content as string}
+                        alt="Uploaded"
+                        className="rounded-2xl w-full h-auto shadow-lg"
+                      />
                     </div>
-                    <ReactMarkdown 
-                      remarkPlugins={[remarkGfm]}
-                      className="prose prose-invert prose-sm sm:prose-base max-w-none prose-headings:text-blue-300 prose-a:text-cyan-400 prose-strong:text-blue-200 prose-code:text-cyan-300"
-                    >
-                      {msg.content as string}
-                    </ReactMarkdown>
-                  </motion.div>
-                )}
-
-                {msg.type === "image" && typeof msg.content === "string" && (
-                  <motion.div 
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    whileHover={{ scale: 1.05 }}
-                    className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-3xl overflow-hidden border-2 border-blue-400/30 shadow-2xl shadow-blue-500/20 hover:border-blue-400/50 transition-all duration-300 cursor-pointer"
-                  >
-                    <Image
-                      src={msg.content}
-                      alt="preview"
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 to-transparent opacity-0 hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
-                      <span className="text-white text-xs font-semibold px-3 py-1 bg-blue-500/80 rounded-full backdrop-blur-sm">
-                        Scanned Image
-                      </span>
+                  ) : (
+                    <div className="max-w-xs sm:max-w-sm md:max-w-md bg-gradient-to-br from-blue-600 to-cyan-600 rounded-3xl px-5 py-3 shadow-xl">
+                      <p className="text-sm sm:text-base text-white whitespace-pre-wrap break-words">
+                        {msg.content as string}
+                      </p>
                     </div>
-                  </motion.div>
-                )}
-
-                {msg.type === "scan" && (
-                  <div className="w-full">
-                    <motion.div 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-2 mb-4 px-4"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                        <LuScanLine className="text-white text-lg" />
-                      </div>
-                      <span className="text-cyan-300 font-semibold text-sm">Scan Results</span>
-                    </motion.div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 w-full">
-                      {(msg.content as any[]).map((r, idx) => (
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          whileHover={{ scale: 1.02 }}
-                          className="group bg-slate-800/50 border border-blue-500/20 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-400/40 transition-all duration-300 flex flex-col backdrop-blur-xl"
-                        >
-                          <div className="relative overflow-hidden aspect-video">
-                            <video
-                              src={r.video}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              controls
-                              playsInline
-                              preload="metadata"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                          </div>
-                          <div className="p-5 flex-1 flex flex-col justify-between">
-                            <div>
-                              <h3 className="font-bold text-blue-100 text-sm sm:text-base line-clamp-2 group-hover:text-cyan-300 transition-colors">
-                                {r.title?.romaji || r.title?.english || "Unknown"}
-                              </h3>
-                              <div className="flex items-center gap-3 mt-2 flex-wrap">
-                                <span className="text-xs px-2.5 py-1 bg-blue-500/20 text-blue-300 rounded-full border border-blue-400/30">
-                                  Ep {r.episode || "?"}
-                                </span>
-                                <span className="text-xs px-2.5 py-1 bg-cyan-500/20 text-cyan-300 rounded-full border border-cyan-400/30">
-                                  {(r.similarity * 100).toFixed(1)}%
-                                </span>
+                  )
+                ) : (
+                  <div className="max-w-xs sm:max-w-sm md:max-w-2xl bg-slate-800/50 backdrop-blur-xl rounded-3xl px-5 py-4 shadow-xl border border-blue-500/20">
+                    {msg.type === "scan" ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 mb-3">
+                          <LuScanLine className="text-cyan-400 text-xl" />
+                          <h3 className="font-bold text-blue-100">Scan Results</h3>
+                        </div>
+                        {(msg.content as any[]).slice(0, 3).map((result: any, i: number) => (
+                          <div
+                            key={i}
+                            className="p-3 bg-blue-500/10 rounded-2xl border border-blue-400/30 hover:border-blue-400/50 transition-all"
+                          >
+                            <div className="flex gap-3">
+                              {result.image && (
+                                <img
+                                  src={result.image}
+                                  alt={result.title?.romaji || "Anime"}
+                                  className="w-16 h-20 object-cover rounded-lg flex-shrink-0"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-bold text-blue-100 text-sm mb-1 truncate">
+                                  {result.title?.romaji || result.title?.english || "Unknown"}
+                                </h4>
+                                <p className="text-xs text-blue-300/70">
+                                  Episode {result.episode || "?"} • {(result.similarity * 100).toFixed(1)}% match
+                                </p>
                               </div>
                             </div>
-                            {r.anilist && (
-                              <Link
-                                href={`/anime/${r.anilist}`}
-                                className="text-sm text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/30 hover:decoration-cyan-300 underline-offset-4 mt-3 inline-flex items-center gap-1 group/link transition-all"
-                              >
-                                View Details
-                                <span className="group-hover/link:translate-x-1 transition-transform">→</span>
-                              </Link>
-                            )}
                           </div>
-                        </motion.div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="prose prose-invert prose-sm sm:prose-base max-w-none">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.content as string}
+                        </ReactMarkdown>
+                        {msg.streaming && (
+                          <span className="inline-flex items-center gap-1 ml-1">
+                            <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                            <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse animation-delay-200"></span>
+                            <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse animation-delay-400"></span>
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </motion.div>
             ))}
 
-            {loading && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-3 text-blue-300 text-sm bg-slate-800/40 px-5 py-3 rounded-full w-fit backdrop-blur-xl border border-blue-500/20"
+            {loading && !messages.some(m => m.streaming) && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex justify-start"
               >
-                <FaSpinner className="animate-spin text-lg" />
-                <span className="font-medium">Aichixia is thinking...</span>
+                <div className="bg-slate-800/50 backdrop-blur-xl rounded-3xl px-5 py-4 shadow-xl border border-blue-500/20">
+                  <div className="flex items-center gap-2">
+                    <FaSpinner className="animate-spin text-cyan-400" />
+                    <span className="text-sm text-blue-200">Thinking...</span>
+                  </div>
+                </div>
               </motion.div>
             )}
-
             <div ref={messagesEndRef} />
           </section>
 
-          <footer className="p-3 sm:p-4 bg-slate-900/40 backdrop-blur-2xl sticky bottom-0 rounded-t-2xl border-t border-blue-500/20 mb-2 sm:mb-4 shadow-2xl">
-            {!session ? (
-              <Link
-                href="/auth/login"
-                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-[1.02] active:scale-95 text-sm sm:text-base"
-              >
-                <FaPaperPlane />
-                <span>Login to access Aichixia</span>
-              </Link>
-            ) : (
-              <div className="flex gap-2 sm:gap-3 items-center">
+          <footer className="p-3 sm:p-4 border-t border-blue-500/20 bg-slate-900/40 backdrop-blur-2xl rounded-t-2xl mb-2 sm:mb-4 sticky bottom-0 z-20">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex-1 relative">
                 <input
                   type="text"
                   placeholder="Ask me anything about anime..."
-                  className="flex-1 px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-slate-800/50 border border-blue-500/20 placeholder-blue-300/40 text-white focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl text-sm sm:text-base"
+                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-slate-800/50 border border-blue-500/30 placeholder-blue-300/40 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all backdrop-blur-xl"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   disabled={loading}
                 />
-                <button
-                  onClick={sendMessage}
-                  disabled={loading}
-                  className="relative group p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  {loading ? (
-                    <FaSpinner className="animate-spin text-white text-lg relative z-10" />
-                  ) : (
-                    <FaPaperPlane className="text-white text-lg relative z-10" />
-                  )}
-                </button>
               </div>
-            )}
+              <button
+                onClick={sendMessage}
+                disabled={loading || (!input.trim() && !pendingImage)}
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 p-3 sm:p-4 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex-shrink-0"
+              >
+                {loading ? (
+                  <FaSpinner className="animate-spin text-lg sm:text-xl" />
+                ) : (
+                  <FaPaperPlane className="text-lg sm:text-xl" />
+                )}
+              </button>
+            </div>
           </footer>
         </div>
 
@@ -633,71 +657,47 @@ Please answer the user's question about this anime in an engaging way! Include i
                 </h2>
 
                 <div className="space-y-3">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      setMode("normal");
-                      setShowModeMenu(false);
-                    }}
-                    className={`w-full px-5 py-5 rounded-2xl text-left hover:bg-blue-500/10 transition-all duration-300 flex items-start gap-4 border-2 backdrop-blur-xl ${
-                      mode === "normal"
-                        ? "border-blue-400/50 bg-blue-500/10 shadow-lg shadow-blue-500/20"
-                        : "border-blue-500/20 hover:border-blue-400/40"
-                    }`}
-                  >
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      mode === "normal" 
-                        ? "bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/30" 
-                        : "bg-slate-800/50"
-                    }`}>
-                      <FaComments className="text-2xl text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-bold text-blue-100 text-base sm:text-lg mb-1">
-                        Normal Mode
-                      </div>
-                      <div className="text-xs sm:text-sm text-blue-300/70 leading-relaxed">
-                        Perfect for casual chatting and quick conversations about anime, manga, and light novels.
-                      </div>
-                    </div>
-                    {mode === "normal" && (
-                      <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-lg shadow-cyan-400/50 mt-2" />
-                    )}
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      setMode("deep");
-                      setShowModeMenu(false);
-                    }}
-                    className={`w-full px-5 py-5 rounded-2xl text-left hover:bg-blue-500/10 transition-all duration-300 flex items-start gap-4 border-2 backdrop-blur-xl ${
-                      mode === "deep"
-                        ? "border-purple-400/50 bg-purple-500/10 shadow-lg shadow-purple-500/20"
-                        : "border-blue-500/20 hover:border-purple-400/40"
-                    }`}
-                  >
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      mode === "deep" 
-                        ? "bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/30" 
-                        : "bg-slate-800/50"
-                    }`}>
-                      <FaSearch className="text-2xl text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-bold text-blue-100 text-base sm:text-lg mb-1">
-                        Deep Mode
-                      </div>
-                      <div className="text-xs sm:text-sm text-blue-300/70 leading-relaxed">
-                        Advanced mode with web search capabilities for in-depth research and comprehensive answers.
-                      </div>
-                    </div>
-                    {mode === "deep" && (
-                      <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse shadow-lg shadow-purple-400/50 mt-2" />
-                    )}
-                  </motion.button>
+                  {[
+                    { mode: "normal" as const, icon: FaComments, name: "Normal Chat", desc: "Fast & friendly conversation", color: "from-blue-500 to-cyan-500" },
+                    { mode: "deep" as const, icon: FaSearch, name: "Deep Search", desc: "Advanced reasoning & research", color: "from-purple-500 to-pink-500" },
+                  ].map((m) => {
+                    const Icon = m.icon;
+                    return (
+                      <motion.button
+                        key={m.mode}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setMode(m.mode);
+                          setShowModeMenu(false);
+                        }}
+                        className={`w-full px-5 py-4 rounded-2xl text-left hover:bg-blue-500/10 transition-all duration-300 flex items-center gap-4 border-2 backdrop-blur-xl ${
+                          mode === m.mode
+                            ? "border-blue-400/50 bg-blue-500/10 shadow-lg shadow-blue-500/20"
+                            : "border-blue-500/20 hover:border-blue-400/40"
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                          mode === m.mode 
+                            ? `bg-gradient-to-br ${m.color} shadow-lg shadow-blue-500/30` 
+                            : "bg-slate-800/50"
+                        }`}>
+                          <Icon className="text-xl text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-bold text-blue-100 text-sm sm:text-base">
+                            {m.name}
+                          </div>
+                          <div className="text-xs text-blue-300/70">
+                            {m.desc}
+                          </div>
+                        </div>
+                        {mode === m.mode && (
+                          <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-lg shadow-cyan-400/50" />
+                        )}
+                      </motion.button>
+                    );
+                  })}
                 </div>
 
                 <button
@@ -725,97 +725,83 @@ Please answer the user's question about this anime in an engaging way! Include i
               }}
             >
               <motion.div
-                className="bg-slate-900/95 rounded-3xl w-full max-w-lg shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl max-h-[90vh] overflow-hidden flex flex-col"
+                className="bg-slate-900/95 rounded-3xl p-4 sm:p-8 w-full max-w-md shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl max-h-[90vh] overflow-y-auto"
                 initial={{ scale: 0.8, opacity: 0, y: 50 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.8, opacity: 0, y: 50 }}
                 transition={{ type: "spring", bounce: 0.3 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="flex items-center justify-between p-4 sm:p-5 border-b border-blue-500/20">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0">
-                      <LuScanLine className="text-base sm:text-lg text-white" />
-                    </div>
-                    <div className="min-w-0">
-                      <h2 className="text-base sm:text-lg font-bold text-blue-200 truncate">
-                        Scan Anime
-                      </h2>
-                      <p className="text-[10px] sm:text-xs text-blue-300/70 truncate">
-                        Upload & ask anything
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setScanOpen(false);
-                      setPendingImage(null);
-                      setScanPrompt("");
-                    }}
-                    className="text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300 p-2 flex-shrink-0"
-                  >
-                    <FaTimes className="text-lg sm:text-xl" />
-                  </button>
+                <div className="absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
+                  <LuScanLine className="text-xl sm:text-2xl text-white" />
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 sm:p-5 scrollbar-thin scrollbar-thumb-blue-500/30">
-                  {!session ? (
-                    <div className="text-center py-8">
-                      <Link
-                        href="/auth/login"
-                        className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
-                      >
-                        <LuScanLine className="text-xl" />
-                        <span>Login to Scan</span>
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs sm:text-sm font-semibold text-blue-200 flex items-center gap-2">
-                            <FaUpload className="text-cyan-400" />
-                            Upload Screenshot
-                          </label>
-                          {pendingImage && (
-                            <span className="text-[10px] sm:text-xs text-cyan-400 font-medium px-2 py-0.5 bg-cyan-500/10 rounded-full border border-cyan-400/30">
-                              ✓ Uploaded
-                            </span>
-                          )}
+                <button
+                  onClick={() => {
+                    setScanOpen(false);
+                    setPendingImage(null);
+                    setScanPrompt("");
+                  }}
+                  className="absolute top-3 sm:top-4 right-3 sm:right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300 z-10"
+                >
+                  <FaTimes className="text-lg sm:text-xl" />
+                </button>
+
+                <div className="space-y-4 sm:space-y-6 mt-6 sm:mt-8">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-2">
+                      Scan Anime Screenshot
+                    </h2>
+                    <p className="text-xs sm:text-sm text-blue-300/70">
+                      Upload an anime screenshot and I'll identify it for you! ✨
+                    </p>
+                  </div>
+
+                  {scanCooldown > 0 && (
+                    <div className="bg-blue-500/10 border border-blue-400/30 rounded-2xl p-3 sm:p-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <FaSpinner className="animate-spin text-cyan-400 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs sm:text-sm text-blue-200 font-semibold">Cooldown Active</p>
+                          <p className="text-[10px] sm:text-xs text-blue-300/70">Wait {scanCooldown}s before next scan</p>
                         </div>
-                        <label className={`block relative border-2 border-dashed rounded-2xl transition-all cursor-pointer ${
-                          pendingImage 
-                            ? 'border-cyan-400/50 bg-cyan-500/5 p-2' 
-                            : 'border-blue-500/30 bg-slate-800/30 hover:border-blue-400/50 hover:bg-slate-800/50 p-4 sm:p-5'
-                        }`}>
-                          {pendingImage ? (
-                            <div className="relative w-full rounded-xl overflow-hidden">
-                              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                                <Image
+                      </div>
+                    </div>
+                  )}
+
+                  {!scanCooldown && (
+                    <div className="space-y-4 sm:space-y-6">
+                      <div>
+                        <label className="block mb-2 text-xs sm:text-sm font-semibold text-blue-200 flex items-center gap-2">
+                          <FaUpload className="text-cyan-400" />
+                          Upload Image
+                        </label>
+                        <label className="relative block w-full h-40 sm:h-48 bg-slate-800/50 border-2 border-dashed border-blue-400/30 rounded-2xl hover:border-blue-400/50 transition-all cursor-pointer group overflow-hidden">
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 sm:gap-3 p-4">
+                            {pendingImage ? (
+                              <>
+                                <img
                                   src={pendingImage}
-                                  alt="preview"
-                                  fill
-                                  className="object-cover rounded-xl"
+                                  alt="Preview"
+                                  className="absolute inset-0 w-full h-full object-cover"
                                 />
-                              </div>
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setPendingImage(null);
-                                }}
-                                className="absolute top-2 right-2 bg-red-500/90 backdrop-blur-sm rounded-full p-1.5 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg z-10"
-                              >
-                                <FaTimes className="text-white text-xs" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="text-center py-3">
-                              <FaUpload className="text-2xl sm:text-3xl text-blue-400 mx-auto mb-2" />
-                              <p className="text-blue-200 font-medium text-xs sm:text-sm mb-0.5">Click to upload</p>
-                              <p className="text-blue-300/60 text-[10px] sm:text-xs">PNG, JPG, WEBP up to 10MB</p>
-                            </div>
-                          )}
+                                <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-all flex items-center justify-center">
+                                  <div className="text-center">
+                                    <FaUpload className="text-2xl sm:text-3xl text-cyan-400 mx-auto mb-2" />
+                                    <p className="text-xs sm:text-sm text-blue-200 font-semibold">Click to change</p>
+                                  </div>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <FaUpload className="text-3xl sm:text-4xl text-blue-400/50 group-hover:text-cyan-400 transition-all" />
+                                <div className="text-center">
+                                  <p className="text-xs sm:text-sm text-blue-200 font-semibold mb-1">Click to upload</p>
+                                  <p className="text-[10px] sm:text-xs text-blue-300/50">PNG, JPG up to 10MB</p>
+                                </div>
+                              </>
+                            )}
+                          </div>
                           <input
                             type="file"
                             accept="image/*"
