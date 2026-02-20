@@ -51,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const modelMapping: Record<string, string> = {
-      deep: "aichixia-thinking",
+      deep: "kimi-k2",
       normal: "mistral-3.1",
     };
 
