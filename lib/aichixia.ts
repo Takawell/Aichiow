@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const AICHIXIA_API_KEY = process.env.AICHIXIA_API_KEY;
-const AICHIXIA_ENDPOINT = process.env.AICHIXIA_ENDPOINT || "https://aichixia.vercel.app/api/v1";
+const AICHIXIA_ENDPOINT = process.env.AICHIXIA_ENDPOINT || "https://www.aichixia.xyz/api/v1";
 
 if (!AICHIXIA_API_KEY) {
   console.warn("[lib/aichixia] Warning: AICHIXIA_API_KEY not set in env.");
@@ -70,7 +70,6 @@ export async function chatAichixia(
     }
 
     const response = await client.chat.completions.create(requestBody);
-
     const reply =
       response.choices[0]?.message?.content?.trim() ??
       "Huwaa~ something went wrong... can you try again, senpai? 😖💔";
