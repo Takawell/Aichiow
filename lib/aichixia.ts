@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const AICHIXIA_API_KEY = process.env.AICHIXIA_API_KEY;
-const AICHIXIA_ENDPOINT = process.env.AICHIXIA_ENDPOINT || "https://api.aichixia.xyz/v1";
+const AICHIXIA_ENDPOINT = process.env.AICHIXIA_ENDPOINT || "https://www.aichixia.xyz/api/v1";
 
 if (!AICHIXIA_API_KEY) {
   console.warn("[lib/aichixia] Warning: AICHIXIA_API_KEY not set in env.");
