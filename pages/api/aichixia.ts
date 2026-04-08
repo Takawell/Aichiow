@@ -51,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const modelMapping: Record<string, string> = {
-      deep: "kimi-k2",
+      deep: "gpt-oss-120b",
       normal: "mistral-3.1",
     };
 
