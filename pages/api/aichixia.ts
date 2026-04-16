@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const modelMapping: Record<string, string> = {
       deep: "gpt-oss-120b",
-      normal: "mistral-3.1",
+      normal: "gpt-5-mini",
     };
 
     const selectedModel = modelMapping[mode || "normal"];
